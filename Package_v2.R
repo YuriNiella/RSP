@@ -2,7 +2,7 @@
 ###             Automated fine-scale analysis of movement patterns          ####
 #==============================================================================#
 ### Required packages:
-library(geosphere)
+library(geosphere) # HF: Avoid calling libraries; instead, use the :: notation
 library(crayon)
 
 ### Load datasets ####
@@ -12,18 +12,18 @@ library(crayon)
 ### Limfjord grid (from QGIS): Fix detections at same receiver
 df.hab <- read.csv("Input/Europe data/Limfjord/Limfjord_grid.csv") # Point grid 0.05 x 0.05 Saved and exported from GIS (AS_XY)
 
-  # Visualize data:
-  df.hab <- df.hab[,-5]
+  # Visualize data: # HF: Consider turning this to a visualisation function
+  df.hab <- df.hab[, -5]
   aux1 <- df.hab$left
   aux2 <- df.hab$top
-  df.hab <- df.hab[,-c(1,2)]
-  df.hab2 <- data.frame(aux1,aux2)
+  df.hab <- df.hab[, -c(1, 2)]
+  df.hab2 <- data.frame(aux1, aux2)
   names(df.hab2) <- names(df.hab)
-  df.hab <- rbind(df.hab,df.hab2); rm(df.hab2)
-  names(df.hab) <- c("X","Y")
+  df.hab <- rbind(df.hab, df.hab2); rm(df.hab2)
+  names(df.hab) <- c("X", "Y")
   df.hab$aux <- c(1:length(df.hab$Y))
-  rm(aux1,aux2)
-  plot(df.hab$Y ~ df.hab$X, pch=16, col="darkblue") 
+  rm(aux1, aux2)
+  plot(df.hab$Y ~ df.hab$X, pch = 16, col = "darkblue") # some standard code spacing is missing. In this line, I added spaces before and after the equal, for example
 
 # Load grid data again (function deals with raw data):
 df.hab <- read.csv("Input/Europe data/Limfjord/Limfjord_grid.csv")
@@ -32,8 +32,8 @@ df.hab <- read.csv("Input/Europe data/Limfjord/Limfjord_grid.csv")
 r <- raster("/Users/yuriniella/OneDrive - Macquarie University/Files/PhD/Thesis/Fine-scale movements Sydney Harbour/Bull shark acoustic data IMOS/Methods paper/Input/Europe data/Limfjord/Limfjord_raster.grd", full.names=T)
 plot(r)
 
-# Acoustic detections:
-df <- read.csv("Input/Europe data/Limfjord/Limfjord_VEMCO_ATT.csv")
+# Acoustic detections: # HF: see actel:::loadDetections (which can be upgraded to include IMOS)
+df <- read.csv("Input/Europe data/Limfjord/Limfjord_VEMCO_ATT.csv") 
 df$Station.Name <- as.character(paste(df$Station.Name))
   # Add species column
   df$Spp <- "Brown trout"
@@ -57,11 +57,11 @@ df$Station.Name <- as.character(paste(df$Station.Name))
   rm(ids,i,index)
 
 # Total receiver metadata:
-df.rec <- read.csv("Input/Europe data/Limfjord/Limfjord_receivers_ATT.csv") 
+df.rec <- read.csv("Input/Europe data/Limfjord/Limfjord_receivers_ATT.csv") # see actel:::loadSpatial (also includes release sites, if relevant)
 df.rec$station_name <- as.character(paste(df.rec$station_name))
 
 # Total tagging metadata:
-df.tag <- read.csv("Input/Europe data/Limfjord/Limfjord_tagging_ATT.csv") 
+df.tag <- read.csv("Input/Europe data/Limfjord/Limfjord_tagging_ATT.csv") # see actel:::loadBio
 
 
 #-----------------------------------------------------------------------------------------------------#
@@ -70,22 +70,22 @@ df.tag <- read.csv("Input/Europe data/Limfjord/Limfjord_tagging_ATT.csv")
 ###       Function to recreate most probable tracks        ####
 #=============================================================#
 
-MPTestimate <- function(data,      # Acoustic detection dataset (df) 
+MPTestimate <- function(data,      # Acoustic detection dataset (df) # HF: Avoid having a variable called data, because utils::data is a function
                         rec,       # Acoustic receiver metadata (df.rec) 
                         tag,       # Tagging details metadata (df.tag) 
                         hab,       # Habitat data grid (df.hab): 0.05 x 0.05
                         raster.hab, # Raster file from river
-                        data.type = "VEMCO", # Type of acoustic data type: VEMCO (default) / IMOS (Australia)
+                        data.type = "VEMCO", # Type of acoustic data type: VEMCO (default) / IMOS (Australia) # IF we use actel:::loadDetections, this variable is no longer relevant
                         detect.range = 500, # Default detection range of acoustic receivers
                         tz,            # Timezone of the study area
                         time.lapse,    # Time lapse to consider between consecutive locations (minutes)
                         time.lapse.rec # Time lapse to consider between consecutive detections at same receiver (minutes)
-                        ){      
+                        ){      # HF: Documentation needs to be tranformed to roxigen format. See actel documentation for examples
   
   
-  cat(italic(red(paste("Preparing data for fine-scale MPT estimation..."))), fill=T)
+  cat(italic(red(paste("Preparing data for fine-scale MPT estimation..."))), fill=T) # see actel:::appendTo
   
-  ### Sort habitat variable into X and Y variables:
+  ### Sort habitat variable into X and Y variables: # HF: We discussed some variable names that needed to be fixed here I think
   tz.aux <- tz # TIME ZONE
   tl.aux <- time.lapse
   tl.aux2 <- time.lapse.rec
@@ -108,9 +108,9 @@ MPTestimate <- function(data,      # Acoustic detection dataset (df)
   lon.aux <- (max(df.hab$X)-min(df.hab$X))/10
   
   # Transition object for estimating shortest distance paths:
-  raster.hab <- r
-  heightDiff <- function(x){x[2] - x[1]}
-  hd <- transition(raster.hab,heightDiff,8,symm=T)
+  raster.hab <- r # HF: same line as line 92
+  heightDiff <- function(x){x[2] - x[1]} # HF: Functions should be specified at the root level
+  hd <- transition(raster.hab,heightDiff,8,symm=T) # HF: needs the :: (same elsewhere, but I won't comment all the lines :D)
   slope <- geoCorrection(hd, scl=FALSE)
   adj <- adjacent(raster.hab, cells=1:ncell(raster.hab), pairs=TRUE, directions=8)
   speed <- slope
@@ -118,39 +118,39 @@ MPTestimate <- function(data,      # Acoustic detection dataset (df)
   x <- geoCorrection(speed, scl=FALSE)
   
   # Empty dataframe to save algorithm output
-  track.final <- {} # Save final sorted tracks!
+  track.final <- {} # Save final sorted tracks! # HF: Consider track.final <- NULL
   
   #-------------------------------------------------------#
   
   ### When data is originated from VEMCO (data.type = "VEMCO") #### 
-  if(data.type == "VEMCO"){
+  if (data.type == "VEMCO") { # HF: Becomes obsulete if we use actel:::loadDetections. Also, it is standard to have space before and after the if's brackets (Like how I edited in this line)
   
   df <- data # Acoustic detections
   animal <- sort(unique(df$Animal)) # List of all tracked animals
   
   ### Recreate MPT individually ####
-  for(i in 1:length(animal)){ 
-    cat(bold(green(paste("Analyzing:",animal[i],sep=" "))), fill=T)
+  for (i in 1:length(animal)) { # HF: Same coding rule as for the if in line 126
+    cat(bold(green(paste("Analyzing:",animal[i],sep=" "))), fill=T) # HF: like above, see actel:::appendTo. Also, paste's default sep is " ", so you can remove the parameter if you want to.
     df.aux <- subset(df, Animal == animal[i])
     
     # Total dates detected
     dates <- unique(df.aux$Date)
-    Total.days <- c(Total.days, length(dates))
+    Total.days <- c(Total.days, length(dates)) # HF: I don't think Total.days was already defined?
     
-    # Identify time differences between detections (in days)
-    dates.aux <- c(NA)
+    # Identify time differences between detections (in days) # HF: This seems like it could be a small function
+    dates.aux <- c(NA) # HF: Consider dates.aux <- NA (or dates.aux <- NULL)
     for(ii in 1:(length(dates)-1)){
       aux <- as.numeric(difftime(dates[ii+1],dates[ii], units = "days"))
       dates.aux <- c(dates.aux, aux)
     }
     rm(aux)
-    dates.aux <- data.frame(dates,dates.aux)
+    dates.aux <- data.frame(dates,dates.aux) # To save one line, consider: dates.aux <- data.frame(Date = dates, Time_day = dates.aux)
     names(dates.aux) <- c("Date","Time_day")
     
     ### Recreate MPT #### 
     # 1. Analyze each sequence of fine-scale tracking individually
     # 2. When time interval between consecutive detection days 
-    # >1 day = no fine-scale behaviour!
+    # >1 day = no fine-scale behaviour! # HF: Seems like it could be a function
     index <- which(dates.aux$Time_day == 1)
     index2 <- index-1
     index <- sort(unique(c(index,index2))); rm(index2)
@@ -162,34 +162,34 @@ MPTestimate <- function(data,      # Acoustic detection dataset (df)
       index <- c(1,index)
       track.names <- {}
       for(ii in 1:length(index)){
-        aux <- paste("Track_",ii,sep="")
+        aux <- paste("Track_",ii,sep="") # HF: Consider using paste0 instead, which has default sep = ""
         track.names <- c(track.names, aux)
       }
-      dates.aux$Track <- track.names[length(track.names)]
-     for(ii in 1:((length(index))-1)){
+      dates.aux$Track <- track.names[length(track.names)] # HF: If this line is just to define the column, consider using NA instead
+     for(ii in 1:((length(index))-1)){ # HF: Indentation issue
        index.track <- c(index[ii],index[ii+1]-1)
        dates.aux$Track[index.track[1]:index.track[2]] <- track.names[ii]
      }
      
-    ### Analyze each track individually ####
+    ### Analyze each track individually #### 
     tracks <- unique(dates.aux$Track)
       
-      for(ii in 1:length(tracks)){ 
-        cat(cyan(paste("Estimating ",animal[i]," path: ",tracks[ii],sep="")), fill=T)
+      for(ii in 1:length(tracks)){ # HF: Could this be a function?
+        cat(cyan(paste("Estimating ",animal[i]," path: ",tracks[ii],sep="")), fill=T) # HF: actel:::appendTo
         dates <- dates.aux$Date[dates.aux$Track == tracks[ii]]
         df.track <- {}
-        for(index.date in 1:length(dates)){
+        for(index.date in 1:length(dates)){ # HF: the loop could be substituted by df.track <- df.aux[df.aux$Date %in% dates, ] # Check if the result is the same! During our meeting we discussed using !is.na(match()), but I just found this way and I think it gives the same result.
           aux <- subset(df.aux, Date == dates[index.date])
           df.track <- rbind(df.track, aux)
         }
         df.track$Position <- "Receiver"
-        df.track$Track <- as.character(paste(tracks[ii]))
-        cat(paste("Working on ", length(df.track$Latitude), " detections...",sep=""), fill=T)
+        df.track$Track <- as.character(paste(tracks[ii])) # HF: Some redundant paste()'s here and elsewhere, as we discussed
+        cat(paste("Working on ", length(df.track$Latitude), " detections...",sep=""), fill=T) # HF: actel:::appendTo
         
         # Find timelapses between consecutive detections in minutes
-        df.track$Time.lapse <- ""
+        df.track$Time.lapse <- "" # HF: consider using NA instead, to avoid accidentally setting the data type to character
         for(iii in 2:length(df.track$Time.lapse)){
-          df.track$Time.lapse[iii] <- difftime(df.track$Date.and.Time..UTC.[iii],
+          df.track$Time.lapse[iii] <- difftime(df.track$Date.and.Time..UTC.[iii], # HF: wrap difftime in as.numeric() to get rid of the text right away (then line 196 is not needed)
                                                df.track$Date.and.Time..UTC.[iii-1],
                                                units="min")
         }
@@ -198,7 +198,7 @@ MPTestimate <- function(data,      # Acoustic detection dataset (df)
       
       #--------------------#
       ### Recreate MPT! ####
-      #--------------------#
+      #--------------------# # HF: Seems like it could be a function
       aux.MPT <- {} # Save MPT!
       #track.final <- {} # TEST!
       # Add intermediate positions to the MPT track: 
@@ -211,52 +211,52 @@ MPTestimate <- function(data,      # Acoustic detection dataset (df)
            df.track$Time.lapse[iii] > tl.aux){
             
         # Get intermediate base positions:
-        A <- c(df.track$Longitude[iii-1],df.track$Latitude[iii-1]) # First detection
-        B <- c(df.track$Longitude[iii],df.track$Latitude[iii]) # Consecutive detection
+        A <- c(df.track$Longitude[iii-1],df.track$Latitude[iii-1]) # First detection # HF: consider A <- with(df.track, c(Longitude[iii - 1], Latitude[iii - 1])) # should give the same result, but looks a bit more organised
+        B <- c(df.track$Longitude[iii],df.track$Latitude[iii]) # Consecutive detection # HF: same as above
               
         AtoB <- shortestPath(x, A, B, output="SpatialLines") # Obtain shortest path between receivers!
         AtoB.df <- as(as(AtoB, "SpatialPointsDataFrame"), "data.frame")[,c(4,5)] # Convert lines to dataframe
               
          # Auxiliar dataset to save intermediate positions:
-        mat.aux <- matrix(NA, ncol=length(names(df.track)),
+        mat.aux <- matrix(NA, ncol=length(names(df.track)), # HF: Is length(names(df.track)) == ncol(df.track)? If so, consider using the latter
                           nrow=length(AtoB.df$y))
         mat.aux <- as.data.frame(mat.aux)
         names(mat.aux) <- names(df.track)
         mat.aux$Latitude <- AtoB.df$y
         mat.aux$Longitude <- AtoB.df$x
-        rm(AtoB.df, AtoB)
+        rm(AtoB.df, AtoB) # HF: perhaps mat.aux <- data.frame(Latitude = AtoB.df$y, Longitude = AtoB.df$x) would do the same as the lines above?
         
         # Add intermediate timeframe:
         aux <- df.track$Date.and.Time..UTC.[iii-1] # Base timeframe
         tf.track <- as.numeric(difftime(df.track$Date.and.Time..UTC.[iii],
                                         df.track$Date.and.Time..UTC.[iii-1], units="secs"))/length(mat.aux$Latitude)
         
-        for(pos2 in 1:length(mat.aux$Date.and.Time..UTC.)){
-          mat.aux$Date.and.Time..UTC.[pos2] <- format((aux+tf.track), "%Y-%m-%d %H:%M:%S") # Add in seconds!
-          aux <- aux+(tf.track)
-        }
+        for(pos2 in 1:length(mat.aux$Date.and.Time..UTC.)){ # HF: If we use actel:::loadDetections, then the column names need to be generalised. Also, isn't length(mat.aux$Date.and.Time..UTC.) == nrow(mat.aux)?
+          mat.aux$Date.and.Time..UTC.[pos2] <- format((aux+tf.track), "%Y-%m-%d %H:%M:%S") # Add in seconds! # HF: If you decide to start mat.aux as a data.frame (per my omment in 227), then the recipient column in mat.aux must be created before the for loop
+          aux <- aux+(tf.track) # HF: these may be some forgotten brackets?
+        } 
         mat.aux$Date.and.Time..UTC. <- strptime(mat.aux$Date.and.Time..UTC., 
-                                                "%Y-%m-%d %H:%M:%S", tz=tz.aux)
+                                                "%Y-%m-%d %H:%M:%S", tz=tz.aux) # HF: Isn't this line redundant with the next one?
         mat.aux$Date.and.Time..UTC. <- as.POSIXct(strptime(mat.aux$Date.and.Time..UTC., 
                                                            "%Y-%m-%d %H:%M:%S", tz=tz.aux),
                                                   format="%Y-%m-%d %H:%M:%S")
         
         # If last estimated position = next detection! EXCLUDE FROM MPT!
-        if(mat.aux$Date.and.Time..UTC.[length(mat.aux$Date.and.Time..UTC.)] ==
+        if(mat.aux$Date.and.Time..UTC.[length(mat.aux$Date.and.Time..UTC.)] == # HF: length(mat.aux$Date.and.Time..UTC.) == nrow(mat.aux)?
            df.track$Date.and.Time..UTC.[iii]){
-          mat.aux <- mat.aux[-length(mat.aux$Date.and.Time..UTC.),]
+          mat.aux <- mat.aux[-length(mat.aux$Date.and.Time..UTC.),] # HF: same as 245
         }
         
         # Add timelapse:
-        for(pos2 in 1:length(mat.aux$Latitude)){
+        for(pos2 in 1:length(mat.aux$Latitude)){ # HF: same as 1:nrow(mat.aux)?
           mat.aux$Time.lapse[pos2] <- as.numeric(difftime(mat.aux$Date.and.Time..UTC.[pos2], 
                                                           df.track$Date.and.Time..UTC.[iii-1],units="mins"))
         }
         
         # Find timelapse locations from set parameter by user: tl.aux
         tf.track <- as.integer(as.numeric(difftime(df.track$Date.and.Time..UTC.[iii],
-                                                   df.track$Date.and.Time..UTC.[iii-1], units="min"))/tl.aux)
-        index <- {}
+                                                   df.track$Date.and.Time..UTC.[iii-1], units="min"))/tl.aux) # HF: as.integer() alone should work. that or round(as.numeric()), seems more logical
+        index <- {} # HF: NULL
         aux.min <- tl.aux
         for(pos2 in 1:tf.track){
           aux <- which(abs(mat.aux$Time.lapse-aux.min)==min(abs(mat.aux$Time.lapse-aux.min)))  
@@ -276,7 +276,7 @@ MPTestimate <- function(data,      # Acoustic detection dataset (df)
         } # Consecutive different locations end!
         
      
-        ### If detected consecutively at the same location ####
+        ### If detected consecutively at the same location #### # HF: Could probably be a new function
         if(df.track$Station.Name[iii-1] == df.track$Station.Name[iii] &
            df.track$Time.lapse[iii] > tl.aux2){ 
           
@@ -284,22 +284,22 @@ MPTestimate <- function(data,      # Acoustic detection dataset (df)
           location.n <- as.integer(df.track$Time.lapse[iii]/tl.aux2)
           
           # Subset total river shapefile for interest area
-          df.hab.aux <- subset(df.hab, X >= (min(df.track$Longitude[((iii)-1):iii]))-lon.aux &
+          df.hab.aux <- subset(df.hab, X >= (min(df.track$Longitude[((iii)-1):iii]))-lon.aux & # HF: if the position in iii and iii-1 are the same, does it make sense to have min(df.track$Longitude[((iii)-1):iii]))  ?
                                  X <= (max(df.track$Longitude[((iii)-1):iii]))+lon.aux &
                                  Y >= (min(df.track$Latitude[((iii)-1):iii]))-lat.aux &
                                  Y <= (max(df.track$Latitude[((iii)-1):iii]))+lat.aux)
           
           # Correct locations to nearest positions outside of receiver detection range:
           if(detect.range != 500){
-            detect.index <- detect.range # Detection range of receivers
+            detect.index <- detect.range # Detection range of receivers # HF: Is the renaming needed?
           }
           ##detect.index <- 500 # Delete this in final version!!!
           aux.pos <- c(as.numeric(df.track[iii,c(9,10)]))
-          df.hab.aux$Dist <- ""
+          df.hab.aux$Dist <- "" # HF: Consider using NA instead
           
           # Find potential locations:
-          for(pos4 in 1:length(df.hab.aux$Dist)){
-            df.hab.aux$Dist[pos4] <- distm(x=c(aux.pos[2], aux.pos[1]),
+          for(pos4 in 1:length(df.hab.aux$Dist)){ # HF: I guess this is the same as 1:nrow(df.hab.aux)?
+            df.hab.aux$Dist[pos4] <- distm(x=c(aux.pos[2], aux.pos[1]), # HF: Is this function from a separate package?
                                            y=c(df.hab.aux$X[pos4],
                                                df.hab.aux$Y[pos4]))
           }
@@ -326,10 +326,10 @@ MPTestimate <- function(data,      # Acoustic detection dataset (df)
             aux <- aux+(tf.track)
           }
           mat.aux$Date.and.Time..UTC. <- strptime(mat.aux$Date.and.Time..UTC., 
-                                                  "%Y-%m-%d %H:%M:%S", tz=tz.aux)
+                                                  "%Y-%m-%d %H:%M:%S", tz=tz.aux) # HF: May be redundant with the line below?
           mat.aux$Date.and.Time..UTC. <- as.POSIXct(strptime(mat.aux$Date.and.Time..UTC., 
                                                              "%Y-%m-%d %H:%M:%S", tz=tz.aux),
-                                                    format="%Y-%m-%d %H:%M:%S")
+                                                    format="%Y-%m-%d %H:%M:%S") # HF: It seems I have seen this code before. perhaps this could be a small function?
           
           # If last estimated position = next detection!
           if(mat.aux$Date.and.Time..UTC.[length(mat.aux$Date.and.Time..UTC.)] ==
@@ -380,7 +380,7 @@ MPTestimate <- function(data,      # Acoustic detection dataset (df)
   }
   
   #===============================================================================#
-  ### Save MPT output 1: Distance travelled - RECEIVER x MPT ####
+  ### Save MPT output 1: Distance travelled - RECEIVER x MPT #### # HF: likely a new funtion
   
   Animal.tracked <- {}
   Track <- {}
@@ -390,14 +390,14 @@ MPTestimate <- function(data,      # Acoustic detection dataset (df)
   
   for(i in 1:length(animal)){
     #df.aux <- subset(track.final, Animal == animal[i])
-    df.aux <- subset(mpt1.tracks, Animal == animal[i])
+    df.aux <- subset(mpt1.tracks, Animal == animal[i]) # HF: Was mpt1.tracks defined already?
     track <- unique(df.aux$Track)
     for(ii in 1:length(track)){
       df.aux2 <- subset(df.aux, Track == track[ii])
       
       df.rec <- subset(df.aux2, Position == "Receiver")
       rec.tot <- {}
-      for(pos in 1:(length(df.rec$Latitude)-1)){
+      for(pos in 1:(length(df.rec$Latitude)-1)){ # HF: = nrow(df.rec)-1?
         aux.dist <- distm(x=c(df.rec$Longitude[pos], df.rec$Latitude[pos]),
                           y=c(df.rec$Longitude[pos+1], df.rec$Latitude[pos+1]))
         rec.tot <- c(rec.tot, aux.dist)
@@ -426,7 +426,7 @@ MPTestimate <- function(data,      # Acoustic detection dataset (df)
   
   
   #===============================================================================#
-  ### Save MPT output 2: Save MPT estimation diagnostics ####
+  ### Save MPT output 2: Save MPT estimation diagnostics #### # HF: New function?
   Animal.tracked <- {}
   Total.days <- {}
   Finescale.freq <- {}
@@ -485,7 +485,7 @@ Loc.type <- c(rep("Receiver", 5), rep("MPT", 5))
 Animal.tracked <- c(mpt1.diag$Animal.tracked,mpt1.diag$Animal.tracked)
 mpt1.diag2 <- data.frame(Animal.tracked,Total.locs,Loc.type)
 
-jpeg("Input/Europe data/Output/Limfjord_diag.jpeg", width=8, height=5, units="in", pointsize=15, 
+jpeg("Input/Europe data/Output/Limfjord_diag.jpeg", width=8, height=5, units="in", pointsize=15, # HF: Consider using ggsave instead. Also, there would probably be fit as output functions. see actel's printFunctions.R file
      quality=300, bg="white", res=300)
 ggplot(data=mpt1.diag2, aes(x=Animal.tracked, y=Total.locs, fill=Loc.type)) +
   geom_bar(stat="identity", position=position_dodge())+
@@ -502,3 +502,8 @@ ggplot(data=mpt1.dist, aes(x=Animal.tracked, y=Dist.travel, fill=Loc.type)) +
   scale_fill_brewer(palette="Paired")+
   theme_classic()
 dev.off()
+
+# HF: Some more thoughts:
+# How can we control for diel patterns in movement speed?
+# How can we control for movement speed itself (i.e. fish cannot go too fast, and they are also unlikely to go too slow?). This is also species dependent
+# We should discuss the difference between Most Probably Tracks and Least Distance Tracks (it seems we are mostly calculating the second one)
