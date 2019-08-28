@@ -18,30 +18,30 @@
 #'
 #' @param location Local destination of data as csv.
 #' @param tz Timezone of the study area. 
-#' @param format.time Date and time format.
+#' @param format.time Date and time format. 
 #' @param tag.data Tagging metadata of tracked individuals.
 #' @param detect.range Detection range of acoustic receivers in meters. If detect.range = T, an extra 
 #' column "Error" needs to be added to the detection dataset corresponding to the known detection range 
 #' for each station in meters. By default, assuming the detection ranges are unknown for the study area, 
-#' a conservative value of 500 m is automatically added.  
+#' a conservative value of 500 m is automatically added. # HF: logical variables usually start with "Logical: if TRUE, ...", or something like that
 #' 
 #' @return A standardized dataframe to be used for SPBD calculation. 
 #' 
-SPBDete <- function(location, tz, format.time, tag.data, detect.range = F) {
-  df.detec <- read.csv(location) 
+SPBDete <- function(location, tz, format.time, tag.data, detect.range = F) { # HF: Users of the actel package must have the detections in a "detections" folder and the "tag.data" in a biometrics.csv file. If we implement the same here then some variables can be spared.
+  df.detec <- read.csv(location) # HF: faster method: data.table::fread()
   df.detec$Station.Name <- as.character(df.detec$Station.Name)
 
   # Convert date and time to local time zone:  
-  df.detec$Date.and.Time..UTC. <- as.POSIXct(strptime(df.detec$Date.and.Time..UTC., format.time, tz="UTC"))
+  df.detec$Date.and.Time..UTC. <- as.POSIXct(strptime(df.detec$Date.and.Time..UTC., format.time, tz="UTC")) # HF: much faster method: fasttime::fastPOSIXct() (requires the time stamp to be in yyyy-mm-dd hh:mm:ss though)
   attributes(df.detec$Date.and.Time..UTC.)$tzone <- tz # Convert from UTC to local time!
-  names(df.detec)[1] <- "Date.time.local"
+  names(df.detec)[1] <- "Date.time.local" # HF: Maybe we can use "Timestamp" for consitency with the rest of the package?
   
   # Add date column
   df.detec$Date <- substr(df.detec$Date.time.local, 1, 10)
-  df.detec$Date <- as.Date(df.detec$Date)
+  df.detec$Date <- as.Date(df.detec$Date) # HF: I think that if we run as.Date on the POSIX directly, it will give the date. That or use format(). Will likely improve performance
   
   # Add common name column
-  animals <- unique(df.detec$Transmitter)
+  animals <- unique(df.detec$Transmitter) # HF: Needs to be updated to remove non-target detections before further analysis. See actel:::splitDetections
   df.detec$Spp <- NA
   for (i in 1:length(animals)) {
     index <- which(df.detec$Transmitter == animals[i])
@@ -56,12 +56,12 @@ SPBDete <- function(location, tz, format.time, tag.data, detect.range = F) {
   }
   
   # Add detection range error
-  if (detect.range == F) {
+  if (detect.range == F) { # HF: curly brackets can be removed here if you want
     df.detec$Error <- 500
   }
   
   return(df.detec)
-}
+} # HF: have a look at the loadDetections function during the meeting.
 
 #' Calculate temporal differences between consecutive detections
 #' 
@@ -74,7 +74,7 @@ SPBDete <- function(location, tz, format.time, tag.data, detect.range = F) {
 detectDiffer <- function(data) { 
   dates <- unique(data$Date) 
   dates.aux <- NA 
-  for (i in 1:(length(dates) - 1)) {
+  for (i in 1:(length(dates) - 1)) { # HF: Do we really need the difference between all detections or are we just looking for specific gaps? i.e. larger than x. If the latter, which I think it is, I have a faster method for this. very long for loops can get very slow
     aux <- as.numeric(difftime(dates[i + 1], dates[i], units = "days"))
     dates.aux <- c(dates.aux, aux)
   }
@@ -88,13 +88,14 @@ detectDiffer <- function(data) {
 #' Identifies fine-scale data among total detection dataset to be used for SPBD estimation. Tracks are 
 #' then named based on the interval between consecutive detection dates.
 #'
+#' @param df.detec # HF: missing variable
 #' @param data Detection dates and temporal lags in days as returned by detectDiffer.
 #' @param time Temporal lag in days to be considered for the fine-scale tracking. Default is to consider 1-day intervals.
 #' 
 #' @return A dataframe with identified and named individual tracks for SPBD estimation.
 #' 
 trackNames <- function(df.detec, data, time = 1) {
-  
+
   # Identify detection dates with significant data for fine-scale data: single detection!
   data$Time_day[1] <- 1000 # Replace NA of first data row
   dates <- NULL
@@ -142,7 +143,7 @@ trackNames <- function(df.detec, data, time = 1) {
 #' 
 SPBDraster <- function(raster.hab) {
   
-  heightDiff <- function(x) {x[2] - x[1]} 
+  heightDiff <- function(x) {x[2] - x[1]} # HF: this function needs to be defined outside of the mother function.
   
   # Transition objects for estimating shortest distance paths:
   hd <- gdistance:::transition(raster.hab, heightDiff, 8, symm = T) 
@@ -174,7 +175,7 @@ SPBDrecreate <- function(df.track, tz, time.lapse, time.lapse.rec, r.path, er.ad
   
   aux.SPBD <- NULL # Save SPBD
   
-  pb <- utils:::txtProgressBar(min = 0, max = nrow(df.track), 
+  pb <- utils:::txtProgressBar(min = 0, max = nrow(df.track),  # HF: utils is part of the default packages of R, so we should not need to specify the namespace
                                initial = 0, style = 3, width = 60)
   
   # Add intermediate positions to the SPBD track: 
@@ -183,7 +184,7 @@ SPBDrecreate <- function(df.track, tz, time.lapse, time.lapse.rec, r.path, er.ad
     
     # If consecutive detections at different stations
     if (df.track$Station.Name[i - 1] != df.track$Station.Name[i] &
-        df.track$Time.lapse[i] > time.lapse) {
+        df.track$Time.lapse[i] > time.lapse) { # HF: We can find these points of interest without going through a for loop, which will be much faster. Lets discuss this in the meeting.
       
       # Get intermediate base positions:
       A <- with(df.track, c(Longitude[i - 1], Latitude[i - 1]))
@@ -200,14 +201,15 @@ SPBDrecreate <- function(df.track, tz, time.lapse, time.lapse.rec, r.path, er.ad
       mat.aux$Longitude <- AtoB.df$x
       rm(AtoB.df, AtoB) # HF: perhaps mat.aux <- data.frame(Latitude = AtoB.df$y, Longitude = AtoB.df$x) would do the same as the lines above?
       # YN: Not really, because we need the new dataframe to have the exact same columns as the total dataset so we can then merge them together.
-      
+      # HF: In that case I would recommend that we create the data.frame with all the needed column names right away. Just this week I had to redo code because I used a matrix first and then the data types got messed up :/
+
       # Add intermediate timeframe:
       aux <- df.track$Date.time.local[i - 1] # Base timeframe
       tf.track <- as.numeric(difftime(df.track$Date.time.local[i],
                                       df.track$Date.time.local[i - 1], units = "secs")) / nrow(mat.aux) #length(mat.aux$Latitude)
       
       for (pos2 in 1:nrow(mat.aux)) { # HF: If we use actel:::loadDetections, then the column names need to be generalised. 
-        mat.aux$Date.time.local[pos2] <- format((aux + tf.track), 
+        mat.aux$Date.time.local[pos2] <- format((aux + tf.track), # HF: Nice with a new name :)
                                                 "%Y-%m-%d %H:%M:%S") 
         aux <- aux + tf.track
       } 
@@ -306,9 +308,9 @@ SPBDrecreate <- function(df.track, tz, time.lapse, time.lapse.rec, r.path, er.ad
         }
       } else {
         n.loc <- nrow(mat.aux)
-        med.point <- as.integer(n.loc / 2)
+        med.point <- as.integer(n.loc / 2) # HF: Does this round to half + 1? i.e. if n.loc = 10, med.point = 6?
         
-        if ((n.loc %% 2) == 0) { # Even number of locations!
+        if ((n.loc %% 2) == 0) { # Even number of locations! # HF: Aren't both the if and the else running the same code?
           
           # Increasing error
           base <- df.track$Error[1]
@@ -380,7 +382,7 @@ SPBD <- function(df.detec, tag, r.path, tz, time.lapse, time.lapse.rec, er.ad) {
     dates.aux <- trackNames(df.aux, dates.aux) # Fine-scale tracking
     tracks <- unique(dates.aux$Track) # Analyze each track individually
     
-    for (ii in 1:length(tracks)) { # HF: Could this be a function? # YN: It could, but it's where the SPBD estimation is occurring, so maybe we should leave it within the main function.
+    for (ii in 1:length(tracks)) { # HF: Could this be a function? # YN: It could, but it's where the SPBD estimation is occurring, so maybe we should leave it within the main function. # HF: I think this new version is already quite nice as a stand-alone function.
       
       actel:::appendTo("Screen",
                        paste0("Estimating ", animal[i], " SPBD: ", tracks[ii]))
@@ -484,7 +486,7 @@ SPBDist <- function(data) {
            ggplot2:::labs(x = "Animal tracked", y = "Total distance travelled (km)") +
            ggplot2:::scale_fill_brewer(palette = "Paired") +
            ggplot2:::theme_classic() + 
-           ggplot2:::coord_cartesian(ylim = c(0, max(Dist.travel)), expand = F))
+           ggplot2:::coord_cartesian(ylim = c(0, max(Dist.travel)), expand = F)) # HF: Wouldn't it be nice to store the plot in a file as well?
 }
 
 
@@ -528,7 +530,7 @@ SPBDiag <- function(data) {
            ggplot2:::labs(x = "Animal tracked", y = "Total number of locations") +
            ggplot2:::scale_fill_brewer(palette = "Paired") +
            ggplot2:::theme_classic() +
-           ggplot2:::coord_cartesian(ylim = c(0, max(Total.locs)), expand = F)
+           ggplot2:::coord_cartesian(ylim = c(0, max(Total.locs)), expand = F) # HF: Same as above
   )
 }
 
@@ -543,7 +545,7 @@ SPBDiag <- function(data) {
 #' @return Percentage of detection data used for SPBD estimation. 
 #' 
 SPBData <- function(SPBD.data, detec.data) {
-  return((length(SPBD.data$Position[SPBD.data$Position == "Receiver"]) * 100) / nrow(detec.data))
+  return((length(SPBD.data$Position[SPBD.data$Position == "Receiver"]) * 100) / nrow(detec.data)) # HF: Discuss this one in the meeting
 }
 
 
