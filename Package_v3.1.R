@@ -142,11 +142,8 @@ trackNames <- function(df.detec, data, time = 1) {
 #' @return TransitionLayer object for the study area.
 #' 
 SPBDraster <- function(raster.hab) {
-  
-  heightDiff <- function(x) {x[2] - x[1]} # HF: this function needs to be defined outside of the mother function.
-  
   # Transition objects for estimating shortest distance paths:
-  hd <- gdistance:::transition(raster.hab, heightDiff, 8, symm = T) 
+  hd <- gdistance:::transition(raster.hab, transitionFunction = function(x) {x[2] - x[1]}, directions = 8, symm = T) 
   slope <- gdistance:::geoCorrection(hd, scl = F)
   adj <- raster:::adjacent(raster.hab, cells = 1:raster:::ncell(raster.hab), 
                            pairs = T, directions = 8)
@@ -308,9 +305,23 @@ SPBDrecreate <- function(df.track, tz, time.lapse, time.lapse.rec, r.path, er.ad
         }
       } else {
         n.loc <- nrow(mat.aux)
-        med.point <- as.integer(n.loc / 2) # HF: Does this round to half + 1? i.e. if n.loc = 10, med.point = 6?
-        
-        if ((n.loc %% 2) == 0) { # Even number of locations! # HF: Aren't both the if and the else running the same code?
+        med.point <- actel:::roundUp(n.loc / 2, to = 1)
+        # if ((n.loc %% 2) == 0) { # Even number of locations! # HF: Aren't both the if and the else running the same code?
+          
+        #   # Increasing error
+        #   base <- df.track$Error[1]
+        #   for (pos2 in 1:med.point) { 
+        #     base <- base + er.ad
+        #     mat.aux$Error[pos2] <- base 
+        #   }
+        #   # Decreasing error
+        #   for (pos2 in (med.point + 1):nrow(mat.aux)) { 
+        #     base <- base - er.ad
+        #     mat.aux$Error[pos2] <- base 
+        #   }
+          
+        # } else { # Odd number of locations!
+        #   med.point <- med.point + 1
           
           # Increasing error
           base <- df.track$Error[1]
@@ -323,22 +334,7 @@ SPBDrecreate <- function(df.track, tz, time.lapse, time.lapse.rec, r.path, er.ad
             base <- base - er.ad
             mat.aux$Error[pos2] <- base 
           }
-          
-        } else { # Odd number of locations!
-          med.point <- med.point + 1
-          
-          # Increasing error
-          base <- df.track$Error[1]
-          for (pos2 in 1:med.point) { 
-            base <- base + er.ad
-            mat.aux$Error[pos2] <- base 
-          }
-          # Decreasing error
-          for (pos2 in (med.point + 1):nrow(mat.aux)) { 
-            base <- base - er.ad
-            mat.aux$Error[pos2] <- base 
-          }
-        }
+        # }
       }
       
       mat.aux$Position <- "SPBD"
@@ -374,15 +370,15 @@ SPBD <- function(df.detec, tag, r.path, tz, time.lapse, time.lapse.rec, er.ad) {
   animal <- sort(unique(df.detec$Animal)) # List of all tracked animals
   
   # Recreate SPBD individually
-  for (i in 1:length(animal)) { 
-    actel:::appendTo("Screen",
+  for (i in 1:length(animal)) {
+     actel:::appendTo("Screen",
                      crayon:::bold(crayon:::green((paste("Analyzing:", animal[i])))))
     df.aux <- subset(df.detec, Animal == animal[i]) # Detection data for that animal
     dates.aux <- detectDiffer(df.aux) # Identify time differences between detections (in days)
     dates.aux <- trackNames(df.aux, dates.aux) # Fine-scale tracking
     tracks <- unique(dates.aux$Track) # Analyze each track individually
     
-    for (ii in 1:length(tracks)) { # HF: Could this be a function? # YN: It could, but it's where the SPBD estimation is occurring, so maybe we should leave it within the main function. # HF: I think this new version is already quite nice as a stand-alone function.
+    for (ii in 1:length(tracks)) {
       
       actel:::appendTo("Screen",
                        paste0("Estimating ", animal[i], " SPBD: ", tracks[ii]))
