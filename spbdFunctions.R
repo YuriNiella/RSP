@@ -5,51 +5,54 @@
 #' local time zone of the study area.  
 #'
 #' @param location Local destination of data as csv.
-#' @param tz Timezone of the study area. 
+#' @param tz.study.area Timezone of the study area. 
 #' @param format.time Date and time format. 
 #' @param tag.data Tagging metadata of tracked individuals.
+#' @param spatial A list of spatial objects in the study area
 #' @param detect.range Detection range of acoustic receivers in meters. If detect.range = T, an extra 
 #' column "Error" needs to be added to the detection dataset corresponding to the known detection range 
 #' for each station in meters. By default, assuming the detection ranges are unknown for the study area, 
-#' a conservative value of 500 m is automatically added. # HF: logical variables usually start with "Logical: if TRUE, ...", or something like that
+#' a conservative value of 500 m is automatically added. # HF: I removed this argument
 #' 
 #' @return A standardized dataframe to be used for SPBD calculation. 
 #' 
-SPBDete <- function(location, tz, format.time, tag.data, detect.range = F) { # HF: Users of the actel package must have the detections in a "detections" folder and the "tag.data" in a biometrics.csv file. If we implement the same here then some variables can be spared.
-  df.detec <- read.csv(location) # HF: faster method: data.table::fread()
-  df.detec$Station.Name <- as.character(df.detec$Station.Name)
-
+SPBDete <- function(location, tz.study.area, format.time, spatial, tag.data) { # HF: Users of the actel package must have the detections in a "detections" folder and the "tag.data" in a biometrics.csv file. If we implement the same here then some variables can be spared.
+  # df.detec <- read.csv(location) # HF: faster method: data.table::fread()
+  # df.detec$Station.Name <- as.character(df.detec$Station.Name)
   # Convert date and time to local time zone:  
-  df.detec$Date.and.Time..UTC. <- as.POSIXct(strptime(df.detec$Date.and.Time..UTC., format.time, tz="UTC")) # HF: much faster method: fasttime::fastPOSIXct() (requires the time stamp to be in yyyy-mm-dd hh:mm:ss though)
-  attributes(df.detec$Date.and.Time..UTC.)$tzone <- tz # Convert from UTC to local time!
-  names(df.detec)[1] <- "Date.time.local" # HF: Maybe we can use "Timestamp" for consitency with the rest of the package?
+  # df.detec$Date.and.Time..UTC. <- as.POSIXct(strptime(df.detec$Date.and.Time..UTC., format.time, tz="UTC")) # HF: much faster method: fasttime::fastPOSIXct() (requires the time stamp to be in yyyy-mm-dd hh:mm:ss though)
+  # attributes(df.detec$Date.and.Time..UTC.)$tzone <- tz # Convert from UTC to local time!
+  # names(df.detec)[1] <- "Date.time.local" # HF: Maybe we can use "Timestamp" for consitency with the rest of the package?
   
+  df.detec <- actel:::loadDetections(tz.study.area = tz.study.area)
+  df.detec <- actel:::standardizeStations(input = df.detec, spatial = spatial)
+
   # Add date column
-  df.detec$Date <- substr(df.detec$Date.time.local, 1, 10)
-  df.detec$Date <- as.Date(df.detec$Date) # HF: I think that if we run as.Date on the POSIX directly, it will give the date. That or use format(). Will likely improve performance
+  # df.detec$Date <- substr(df.detec$Date.time.local, 1, 10)
+  df.detec$Date <- as.Date(df.detec$Timestamp) # HF: I think that if we run as.Date on the POSIX directly, it will give the date. That or use format(). Will likely improve performance
   
-  # Add common name column
-  animals <- unique(df.detec$Transmitter) # HF: Needs to be updated to remove non-target detections before further analysis. See actel:::splitDetections
-  df.detec$Spp <- NA
-  for (i in 1:length(animals)) {
-    index <- which(df.detec$Transmitter == animals[i])
-    df.detec$Spp[index] <- as.character(unique(tag.data$common_name[tag.data$transmitter_id == animals[i]]))
-  }
+  # HF: Deactivated this part for now until we figure how to work it out.
+  # Add common name column and unique animal IDs # HF: I think we should use the tag ID's here instead, or move to a subsequent function
+  # animals <- unique(df.detec$Transmitter)
+  # df.detec$Spp <- NA_character_
+  # df.detec$Animal <- NA_character_
+  # for (i in 1:length(animals)) {
+  #   index <- which(df.detec$Transmitter == animals[i]) # HF: Use match here instead to get rid of the for loop
+  #   df.detec$Spp[index] <- as.character(unique(tag.data$common_name[tag.data$transmitter_id == animals[i]]))
+  #   df.detec$Animal[index] <- as.character(tag.data$tag_id[tag.data$transmitter_id == animals[i]])
+  # }
   
-  # Add unique animal IDs
-  df.detec$Animal <- NA
-  for (i in 1:length(animals)) {
-    index <- which(df.detec$Transmitter == animals[i])
-    df.detec$Animal[index] <- as.character(tag.data$tag_id[tag.data$transmitter_id == animals[i]])
-  }
-  
-  # Add detection range error
-  if (detect.range == F) { # HF: curly brackets can be removed here if you want
+  if (any(colnames(spatial$stations) == "Range")) {
+    link <- match(df.detec$Standard.Name, spatial$stations$Standard.Name)
+    df.detec$Error <- spatial$stations$Range[link] # May make more sense to call this column "Range"
+  } else {
+    actel:::appendTo(c("Screen", "Warning"), "W: Could not find a 'Range' column in the spatial file; assuming a range of 500 metres for each receiver.")
     df.detec$Error <- 500
   }
   
+  names(df.detec)[1] <- "Date.time.local" # added this here so the functions downstream don't break
   return(df.detec)
-} # HF: have a look at the loadDetections function during the meeting.
+}
 
 #' Calculate temporal differences between consecutive detections
 #' 
@@ -61,13 +64,17 @@ SPBDete <- function(location, tz, format.time, tag.data, detect.range = F) { # H
 #' 
 detectDiffer <- function(data) { 
   dates <- unique(data$Date) 
-  dates.aux <- NA 
-  for (i in 1:(length(dates) - 1)) { # HF: Do we really need the difference between all detections or are we just looking for specific gaps? i.e. larger than x. If the latter, which I think it is, I have a faster method for this. very long for loops can get very slow
-    aux <- as.numeric(difftime(dates[i + 1], dates[i], units = "days"))
-    dates.aux <- c(dates.aux, aux)
-  }
-  rm(aux)
-  return(data.frame(Date = dates, Time_day = dates.aux))
+  # dates.aux <- NA 
+  # for (i in 1:(length(dates) - 1)) { # HF: Do we really need the difference between all detections or are we just looking for specific gaps? i.e. larger than x. If the latter, which I think it is, I have a faster method for this. very long for loops can get very slow
+  #   aux <- as.numeric(difftime(dates[i + 1], dates[i], units = "days"))
+  #   dates.aux <- c(dates.aux, aux)
+  # }
+  output <- data.table::data.table(
+    Date = dates,
+    Time_day = c(Inf, as.numeric(difftime(dates[-1], dates[-length(dates)], units = "days")))
+  )
+
+  return(output)
 }
 
 
@@ -82,39 +89,23 @@ detectDiffer <- function(data) {
 #' 
 #' @return A dataframe with identified and named individual tracks for SPBD estimation.
 #' 
-trackNames <- function(df.detec, data, time = 1) {
-
+trackNames <- function(df.detec, data, maximum.time = 1) {
   # Identify detection dates with significant data for fine-scale data: single detection!
-  data$Time_day[1] <- 1000 # Replace NA of first data row
+  # data$Time_day[1] <- 1000 # Replace NA of first data row
   dates <- NULL
-  for (i in 1:nrow(data)) {
-    df.aux <- subset(df.detec, Date == data$Date[i])
-    if (nrow(df.aux) == 1 &
-        data$Time_day[i] > time){
-      dates <- c(dates, as.character(data$Date[i]))
-    }
-  }
-  if (length(dates) >= 1) {
-    dates <- as.Date(dates)
-    dates.index <- NULL
-    for (i in 1:length(dates)) {
-      aux <- which(data$Date == dates[i])
-      dates.index <- c(dates.index, aux)
-    }
-    # Remove not-significant dates:
-    data <- data[-dates.index, ]
-  }
-  
+  detections.per.day <- split(df.detec, df.detec$Date)
+  data$n <- table(df.detec$Date)
+  data <- data[!(data$n == 1 & (data$Time_day > maximum.time)), ]
+
   # Naming starts
   index <- which(data$Time_day > 1) # Identify individual tracks
-  track.names <- {}
-  for (i in 1:length(index)) {
-    aux <- paste0("Track_", i)
-    track.names <- c(track.names, aux)
-  }
-  data$Track <- track.names[length(track.names)]
-  for (i in 1:((length(index)) - 1)) {
-    index.track <- c(index[i],index[i + 1] - 1)
+  if (index[length(index)] < (nrow(data) + 1))
+    index <- c(index, nrow(data) + 1)
+  track.names <- paste0("Track_", 1:length(index))
+  data$Track <- NA_character_
+
+  for (i in 1:(length(index) - 1)) {
+    index.track <- c(index[i], index[i + 1] - 1)
     data$Track[index.track[1] : index.track[2]] <- track.names[i]
   }
   return(data)
@@ -129,17 +120,28 @@ trackNames <- function(df.detec, data, time = 1) {
 #' 
 #' @return TransitionLayer object for the study area.
 #' 
-SPBDraster <- function(raster.hab) {
-  # Transition objects for estimating shortest distance paths:
-  hd <- gdistance:::transition(raster.hab, transitionFunction = function(x) {x[2] - x[1]}, directions = 8, symm = T) 
-  slope <- gdistance:::geoCorrection(hd, scl = F)
-  adj <- raster:::adjacent(raster.hab, cells = 1:raster:::ncell(raster.hab), 
-                           pairs = T, directions = 8)
-  speed <- slope
-  speed[adj] <- exp(-3.5 * abs(slope[adj] + 0.05))
-  x <- gdistance:::geoCorrection(speed, scl = FALSE)
-  
-  return(x)
+#' @import rgdal
+#' 
+SPBDraster <- function(raster.hab = "shapefile.grd") { # HF: We need to discuss this again
+  if (file.exists("spbd.transition.layer.RData")) {
+    load("spbd.transition.layer.RData")
+  } else {
+    actel:::appendTo("Screen", "M: Loading raster file.")
+    raster.hab <- raster:::raster(raster.hab, full.names = TRUE)
+    # Transition objects for estimating shortest distance paths:
+    actel:::appendTo("Screen", "M: Creating transition layer.")
+    hd <- gdistance:::transition(raster.hab, transitionFunction = function(x) {x[2] - x[1]}, directions = 8, symm = TRUE) 
+    actel:::appendTo("Screen", "M: Correcting transition layer.")
+    slope <- gdistance:::geoCorrection(hd, scl = FALSE)
+    adj <- raster:::adjacent(raster.hab, cells = 1:raster:::ncell(raster.hab), 
+                             pairs = TRUE, directions = 8)
+    speed <- slope
+    speed[adj] <- exp(-3.5 * abs(slope[adj] + 0.05))
+    actel:::appendTo("Screen", "M: Storing transition layer.")
+    transition.layer <- gdistance:::geoCorrection(speed, scl = FALSE)
+    save(transition.layer, file = "spbd.transition.layer.RData")
+  }
+  return(transition.layer)
 }
 
 
@@ -158,179 +160,125 @@ SPBDraster <- function(raster.hab) {
 #' 
 SPBDrecreate <- function(df.track, tz, time.lapse, time.lapse.rec, r.path, er.ad) {
   
-  aux.SPBD <- NULL # Save SPBD
+  aux.SPBD <- as.data.frame(df.track[-(1:.N)]) # Save SPBD
   
   pb <- utils:::txtProgressBar(min = 0, max = nrow(df.track),  # HF: utils is part of the default packages of R, so we should not need to specify the namespace
                                initial = 0, style = 3, width = 60)
   
+  station.shifts <- c(FALSE, df.track$Standard.Name[-1] != df.track$Standard.Name[-nrow(df.track)])
+  time.shifts <- df.track$Time.lapse > time.lapse
+  different.station.shift <- station.shifts & time.shifts
+  same.station.shift <- !station.shifts & time.shifts
   # Add intermediate positions to the SPBD track: 
   for (i in 2:nrow(df.track)) {
     setTxtProgressBar(pb, i) # Progress bar
-    
-    # If consecutive detections at different stations
-    if (df.track$Station.Name[i - 1] != df.track$Station.Name[i] &
-        df.track$Time.lapse[i] > time.lapse) { # HF: We can find these points of interest without going through a for loop, which will be much faster. Lets discuss this in the meeting.
-      
-      # Get intermediate base positions:
+
+    if (same.station.shift[i]) {      
+      # Number of intermediate positions to add:
+      intermidiate.points <- as.integer(df.track$Time.lapse[i] / time.lapse.rec)
+    } 
+
+    if (different.station.shift[i]) {
       A <- with(df.track, c(Longitude[i - 1], Latitude[i - 1]))
       B <- with(df.track, c(Longitude[i], Latitude[i]))
-      AtoB <- gdistance:::shortestPath(r.path, A, B, output="SpatialLines") 
+      AtoB <- gdistance:::shortestPath(r.path, A, B, output = "SpatialLines") 
+      
+      # paths.list[[length(paths.list) + 1]] <- AtoB
+      # names(paths.list)[length(paths.list) + 1] <- paste0("from", A, "to", B) 
+      
       AtoB.df <- as(as(AtoB, "SpatialPointsDataFrame"), "data.frame")[ ,c(4,5)] 
-      
-      # Auxiliar dataset to save intermediate positions:
-      mat.aux <- matrix(NA, ncol = ncol(df.track), 
-                        nrow = length(AtoB.df$y))
-      mat.aux <- as.data.frame(mat.aux)
-      names(mat.aux) <- names(df.track)
-      mat.aux$Latitude <- AtoB.df$y
-      mat.aux$Longitude <- AtoB.df$x
-      rm(AtoB.df, AtoB) # HF: perhaps mat.aux <- data.frame(Latitude = AtoB.df$y, Longitude = AtoB.df$x) would do the same as the lines above?
-      # YN: Not really, because we need the new dataframe to have the exact same columns as the total dataset so we can then merge them together.
-      # HF: In that case I would recommend that we create the data.frame with all the needed column names right away. Just this week I had to redo code because I used a matrix first and then the data types got messed up :/
 
-      # Add intermediate timeframe:
-      aux <- df.track$Date.time.local[i - 1] # Base timeframe
-      tf.track <- as.numeric(difftime(df.track$Date.time.local[i],
-                                      df.track$Date.time.local[i - 1], units = "secs")) / nrow(mat.aux) #length(mat.aux$Latitude)
-      
-      for (pos2 in 1:nrow(mat.aux)) { # HF: If we use actel:::loadDetections, then the column names need to be generalised. 
-        mat.aux$Date.time.local[pos2] <- format((aux + tf.track), # HF: Nice with a new name :)
-                                                "%Y-%m-%d %H:%M:%S") 
-        aux <- aux + tf.track
-      } 
-      mat.aux$Date.time.local <- as.POSIXct(strptime(mat.aux$Date.time.local, 
-                                                     "%Y-%m-%d %H:%M:%S", tz = tz),
-                                            format="%Y-%m-%d %H:%M:%S")
-      
-      # If last estimated position = next detection! EXCLUDE SPBD LOCATION!
-      if (mat.aux$Date.time.local[nrow(mat.aux)] == 
-          df.track$Date.time.local[i]) {
-        mat.aux <- mat.aux[-nrow(mat.aux), ] 
-      }
-      
-      # Add timelapse:
-      for (pos2 in 1:nrow(mat.aux)) { 
-        mat.aux$Time.lapse[pos2] <- as.numeric(difftime(mat.aux$Date.time.local[pos2], 
-                                                        df.track$Date.time.local[i-1], units = "mins"))
-      }
-      
-      # Find timelapse locations from set parameter by user: time.lapse
-      tf.track <- as.integer(difftime(df.track$Date.time.local[i],
-                                      df.track$Date.time.local[i-1], units = "min") / time.lapse) 
-      index <- NULL
-      aux.min <- time.lapse
-      for (pos2 in 1:tf.track) {
-        aux <- which(abs(mat.aux$Time.lapse - aux.min) == min(abs(mat.aux$Time.lapse - aux.min)))  
-        index <- c(index, aux)
-        aux.min <- aux.min + time.lapse
-      }
-      index <- unique(index)
-      mat.aux <- mat.aux[index, ]
-      
-      # Add SPBD locations to total track dataset
-      mat.aux$Position <- "SPBD"
-      mat.aux$Track <- as.character(df.track$Track[1])
-      mat.aux$Animal <- as.character(df.track$Animal[1])
-      mat.aux$Spp <- as.character(df.track$Spp[1])
-      mat.aux$Error <- df.track$Error[1]
-      
-      aux.SPBD <- rbind(aux.SPBD, mat.aux) # Save SPBD!
-    } # Consecutive different locations ends
-    
-    # If detected consecutively at the same location # HF: Could probably be a new function # YN: Part of the same algo, rather keep it within this one...
-    if (df.track$Station.Name[i - 1] == df.track$Station.Name[i] &
-        df.track$Time.lapse[i] > time.lapse.rec) { 
-      
-      # Number of intermediate positions to add:
-      location.n <- as.integer(df.track$Time.lapse[i] / time.lapse.rec)
-      
+      rows.to.keep <- as.integer(seq(from = 1, to = nrow(AtoB.df), length.out = as.integer(df.track$Time.lapse[i] / time.lapse) + 1))
+
+      AtoB.df <- AtoB.df[rows.to.keep, ]
+      intermidiate.points <- nrow(AtoB.df)
+    }
+
+    if (exists("intermidiate.points")) {
       # Auxiliar dataset to save intermediate positions:
-      # Repeat receiver locations with gradual errors
-      mat.aux <- matrix(NA, ncol = ncol(df.track),
-                        nrow = location.n)
-      mat.aux <- as.data.frame(mat.aux)
-      names(mat.aux) <- names(df.track)
-      
-      # Repeat data from detected station
-      mat.aux$Receiver <- df.track$Receiver[i]
-      mat.aux$Station.Name <- df.track$Station.Name[i]
-      mat.aux$Latitude <- df.track$Latitude[i]
-      mat.aux$Longitude <- df.track$Longitude[i]
-      
+      mat.aux <- as.data.frame(df.track[-(1:.N)])
+
       # Add intermediate timeframe
-      aux <- df.track$Date.time.local[i - 1] # Base timeframe
-      tf.track <- as.numeric(difftime(df.track$Date.time.local[i],
-                                      df.track$Date.time.local[i - 1], units="secs")) / nrow(mat.aux) #length(mat.aux$Latitude)
-      # Single intermediate position
-      if (length(mat.aux$Date.time.local) == 1) {
-        tf.track <- time.lapse * 60
+      if (intermidiate.points == 1) {
+        tf.track <- time.lapse * 60 # HF: shouldn't this be df.track$Time.lapse * 60 / 2 ?
+      } else {
+        tf.track <- df.track$Time.lapse[i] * 60 / intermidiate.points #length(mat.aux$Latitude)
       }
-      for (pos2 in 1:length(mat.aux$Date.time.local)) {
-        mat.aux$Date.time.local[pos2] <- format((aux + tf.track), "%Y-%m-%d %H:%M:%S") # Add in seconds!
-        aux <- aux + (tf.track)
+
+      baseline <- df.track$Date.time.local[i - 1] # Base timeframe
+        
+      for (pos2 in 1:intermidiate.points) {
+        mat.aux[pos2, "Date.time.local"] <- format((baseline + tf.track), "%Y-%m-%d %H:%M:%S") # Add in seconds!
+        baseline <- baseline + tf.track
       }
-      mat.aux$Date.time.local <- as.POSIXct(strptime(mat.aux$Date.time.local, 
-                                                     "%Y-%m-%d %H:%M:%S", tz = tz),
-                                            format = "%Y-%m-%d %H:%M:%S") 
-      
+      mat.aux$Date.time.local <- as.POSIXct(mat.aux$Date.time.local, "%Y-%m-%d %H:%M:%S", tz = tz)
+        
       # If last estimated position = next detection! EXCLUDE SPBD LOCATION!
       if (mat.aux$Date.time.local[nrow(mat.aux)] ==
           df.track$Date.time.local[i]) {
         mat.aux <- mat.aux[-nrow(mat.aux), ]
+        exclude.last.coordinates <- TRUE
+      } else {
+        exclude.last.coordinates <- FALSE        
       }
       
       # Add timelapse:
-      for (pos2 in 1:length(mat.aux$Latitude)) {
+      for (pos2 in 1:nrow(mat.aux)) {
         mat.aux$Time.lapse[pos2] <- as.numeric(difftime(mat.aux$Date.time.local[pos2], 
                                                         df.track$Date.time.local[i - 1], units = "mins"))
       }
-      
-      # Increase location error: by 50-m fold depending on timelapse
-      if (nrow(mat.aux) <= 2) {
-        base <- df.track$Error[1]
-        for (pos2 in 1:nrow(mat.aux)) {
-          mat.aux$Error[pos2] <- base + er.ad 
-        }
-      } else {
-        n.loc <- nrow(mat.aux)
-        med.point <- actel:::roundUp(n.loc / 2, to = 1)
-        # if ((n.loc %% 2) == 0) { # Even number of locations! # HF: Aren't both the if and the else running the same code?
-          
-        #   # Increasing error
-        #   base <- df.track$Error[1]
-        #   for (pos2 in 1:med.point) { 
-        #     base <- base + er.ad
-        #     mat.aux$Error[pos2] <- base 
-        #   }
-        #   # Decreasing error
-        #   for (pos2 in (med.point + 1):nrow(mat.aux)) { 
-        #     base <- base - er.ad
-        #     mat.aux$Error[pos2] <- base 
-        #   }
-          
-        # } else { # Odd number of locations!
-        #   med.point <- med.point + 1
-          
-          # Increasing error
+        
+      if (same.station.shift[i]) {
+        # Increase location error: by 50-m fold depending on timelapse
+        if (nrow(mat.aux) <= 2) {
           base <- df.track$Error[1]
-          for (pos2 in 1:med.point) { 
-            base <- base + er.ad
-            mat.aux$Error[pos2] <- base 
+          for (pos2 in 1:nrow(mat.aux)) {
+            mat.aux$Error[pos2] <- base + er.ad 
           }
-          # Decreasing error
-          for (pos2 in (med.point + 1):nrow(mat.aux)) { 
-            base <- base - er.ad
-            mat.aux$Error[pos2] <- base 
-          }
-        # }
+        } else {
+          n.loc <- nrow(mat.aux)
+          med.point <- actel:::roundUp(n.loc / 2, to = 1)          
+            # Increasing error
+            base <- df.track$Error[1]
+            for (pos2 in 1:med.point) { 
+              base <- base + er.ad
+              mat.aux$Error[pos2] <- base 
+            }
+            # Decreasing error
+            for (pos2 in (med.point + 1):nrow(mat.aux)) { 
+              base <- base - er.ad
+              mat.aux$Error[pos2] <- base 
+            }
+        }
+      } 
+      # Repeat data from detected station
+      # mat.aux$Receiver <- df.track$Receiver[i]
+      # mat.aux$Standard.Name <- df.track$Standard.Name[i]
+      mat.aux$CodeSpace <- df.track$CodeSpace[i]
+      mat.aux$Signal <- df.track$Signal[i]
+      mat.aux$Transmitter <- df.track$Transmitter[i]
+      mat.aux$Track <- df.track$Track[i]
+
+      # Fit in remaining variables
+      if (same.station.shift[i]) {
+        mat.aux$Latitude <- df.track$Latitude[i]
+        mat.aux$Longitude <- df.track$Longitude[i]
+      } else {
+        if (exclude.last.coordinates) {
+          mat.aux$Latitude <- AtoB.df$y[-nrow(AtoB.df)]
+          mat.aux$Longitude <- AtoB.df$x[-nrow(AtoB.df)]
+        } else {
+          mat.aux$Latitude <- AtoB.df$y
+          mat.aux$Longitude <- AtoB.df$x
+        }
+        rm(AtoB.df, AtoB)
       }
-      
+
+      mat.aux$Date <- as.Date(mat.aux$Date.time.local)
       mat.aux$Position <- "SPBD"
-      mat.aux$Animal <- as.character(df.track$Animal[1])
-      mat.aux$Track <- as.character(df.track$Track[1])
-      mat.aux$Spp <- as.character(df.track$Spp[1])
       
       aux.SPBD <- rbind(aux.SPBD, mat.aux) # Save SPBD
+      rm(intermidiate.points)
     }
   }
   close(pb)
@@ -353,41 +301,47 @@ SPBDrecreate <- function(df.track, tz, time.lapse, time.lapse.rec, r.path, er.ad
 #' @return A dataframe with the SPBD estimations of individual tracks for all animals.
 #' 
 SPBD <- function(df.detec, tag, r.path, tz, time.lapse, time.lapse.rec, er.ad) {      
+  if (TRUE) {
+    on.exit(save(list = ls(), file = "spbd_debug.RData"), add = TRUE)
+    actel:::appendTo("Screen", "!!!--- Debug mode has been activated ---!!!")
+  }
   
   track.final <- NULL # Empty dataframe to save algorithm output
-  animal <- sort(unique(df.detec$Animal)) # List of all tracked animals
-  
+  # animal <- sort(unique(df.detec$Animal)) # List of all tracked animals
+  animal <- names(df.detec)
+
   # Recreate SPBD individually
   for (i in 1:length(animal)) {
      actel:::appendTo("Screen",
                      crayon:::bold(crayon:::green((paste("Analyzing:", animal[i])))))
-    df.aux <- subset(df.detec, Animal == animal[i]) # Detection data for that animal
-    dates.aux <- detectDiffer(df.aux) # Identify time differences between detections (in days)
-    dates.aux <- trackNames(df.aux, dates.aux) # Fine-scale tracking
-    tracks <- unique(dates.aux$Track) # Analyze each track individually
-    
+    # df.aux <- subset(df.detec, Animal == animal[i]) # Detection data for that animal
+    dates.aux <- detectDiffer(df.detec[[i]]) # Identify time differences between detections (in days)
+    dates.aux <- trackNames(df.detec[[i]], dates.aux) # Fine-scale tracking
+    # tracks <- unique(dates.aux$Track) # Analyze each track individually
+    tracks <- split(dates.aux, dates.aux$Track)
+
     for (ii in 1:length(tracks)) {
       
       actel:::appendTo("Screen",
-                       paste0("Estimating ", animal[i], " SPBD: ", tracks[ii]))
+                       paste0("Estimating ", animal[i], " SPBD: ", names(tracks)[ii]))
       
-      dates <- dates.aux$Date[dates.aux$Track == tracks[ii]]
+      # dates <- dates.aux$Date[dates.aux$Track == tracks[ii]]
       df.track <- NULL
-      df.track <- df.aux[df.aux$Date %in% dates, ]
+      df.track <- df.detec[[i]][df.detec[[i]]$Date %in% tracks[[ii]]$Date, ]
       df.track$Position <- "Receiver"
-      df.track$Track <- as.character(tracks[ii]) 
+      df.track$Track <- as.character(names(tracks)[ii]) 
       
-      # Find timelapses between consecutive detections in minutes
-      df.track$Time.lapse <- NA 
-      for (iii in 2:length(df.track$Time.lapse)){
-        df.track$Time.lapse[iii] <- as.numeric(difftime(df.track$Date.time.local[iii],
-                                                        df.track$Date.time.local[iii - 1],
-                                                        units = "min"))
-      }
+      # HF: Moved this outside this function
+      # # Find timelapses between consecutive detections in minutes
+      # df.track$Time.lapse <- NA 
+      # for (iii in 2:length(df.track$Time.lapse)){
+      #   df.track$Time.lapse[iii] <- as.numeric(difftime(df.track$Date.time.local[iii],
+      #                                                   df.track$Date.time.local[iii - 1],
+      #                                                   units = "min"))
+      # }
       
       # Recreate SPBD
-      aux.SPBD <- SPBDrecreate(df.track, tz, time.lapse, time.lapse.rec, r.path, er.ad)
-      
+      aux.SPBD <- SPBDrecreate(df.track = df.track, tz = tz, time.lapse = time.lapse, time.lapse.rec = time.lapse.rec, r.path = r.path, er.ad = er.ad)
       # Save detections and SPBD estimations together
       track.final <- rbind(track.final, aux.SPBD, df.track)
       track.final <- track.final[order(track.final$Date.time.local), ]
@@ -397,17 +351,15 @@ SPBD <- function(df.detec, tag, r.path, tz, time.lapse, time.lapse.rec, er.ad) {
   } # Analyze each animal individually
   
   # Order tracking dataset by animal
-  track.final <- track.final[order(track.final$Animal), ]
+  track.final <- track.final[order(track.final$Transmitter), ]
   
   # Convert variables to factors
   track.final$Position <- as.factor(track.final$Position)
   track.final$Track <- as.factor(track.final$Track)
-  track.final$Animal <- as.factor(track.final$Animal)
-  track.final$Spp <- as.factor(track.final$Spp)
   track.final$Receiver <- as.factor(track.final$Receiver)
   track.final$Transmitter <- as.factor(track.final$Transmitter)
-  track.final$Station.Name <- as.factor(track.final$Station.Name)
-  return(track.final[ ,-c(4:7,17)]) # Remove unecessary columns!
+  track.final$Standard.Name <- as.factor(track.final$Standard.Name)
+  return(track.final) # Remove unecessary columns!
 }
 
 
