@@ -276,7 +276,7 @@ SPBDrecreate <- function(df.track, tz, time.lapse, time.lapse.rec, r.path, er.ad
         if (exists("AtoB"))
           rm(AtoB.df, AtoB)
         else
-          rm(AtoB)
+          rm(AtoB.df)
       }
 
       mat.aux$Date <- as.Date(mat.aux$Date.time.local)
@@ -383,7 +383,7 @@ SPBD <- function(df.detec, tag, r.path, tz, time.lapse, time.lapse.rec, er.ad) {
 #' 
 SPBDist <- function(data) {
   
-  animal <- unique(data$Animal)
+  animal <- unique(data$Transmitter)
   
   Animal.tracked <- NULL
   Track <- NULL
@@ -391,6 +391,8 @@ SPBDist <- function(data) {
   Loc.type <- NULL
   Dist.travel <- NULL
   
+  # aux.list <- split(data, data$Transmitter)
+
   for (i in 1:length(animal)) { 
     df.aux <- subset(data, Animal == animal[i])
     track <- unique(df.aux$Track) # Analyze tracks individually
