@@ -155,10 +155,11 @@ SPBDraster <- function(raster.hab = "shapefile.grd") { # HF: We need to discuss 
 #' @param time.lapse.rec Time lapse in minutes to be considered for consecutive detections at the same station. 
 #' @param r.path TransitionLayer object as returned by LTDpath.
 #' @param er.ad Error parameter in meters for consecutive detections at the same station.
+#' @param path.list A list of previously calculated paths.
 #' 
 #' @return A dataframe with the SPBD estimations for all identified tracks for that animal.
 #' 
-SPBDrecreate <- function(df.track, tz, time.lapse, time.lapse.rec, r.path, er.ad) {
+SPBDrecreate <- function(df.track, tz, time.lapse, time.lapse.rec, r.path, er.ad, path.list) {
   
   aux.SPBD <- as.data.frame(df.track[-(1:.N)]) # Save SPBD
   
@@ -181,13 +182,16 @@ SPBDrecreate <- function(df.track, tz, time.lapse, time.lapse.rec, r.path, er.ad
     if (different.station.shift[i]) {
       A <- with(df.track, c(Longitude[i - 1], Latitude[i - 1]))
       B <- with(df.track, c(Longitude[i], Latitude[i]))
-      AtoB <- gdistance:::shortestPath(r.path, A, B, output = "SpatialLines") 
+      path.name <- paste0("from", paste0(A[1], B[1]), "to", paste0(A[2], B[2]))
+      if (any(names(path.list) == path.name)) {
+        AtoB.df <- path.list[[path.name]]
+      } else {
+        AtoB <- gdistance:::shortestPath(r.path, A, B, output = "SpatialLines") 
+        AtoB.df <- as(as(AtoB, "SpatialPointsDataFrame"), "data.frame")[ ,c(4,5)] 
+        path.list[[length(path.list) + 1]] <- AtoB.df
+        names(path.list)[length(path.list)] <- path.name
+      }
       
-      # paths.list[[length(paths.list) + 1]] <- AtoB
-      # names(paths.list)[length(paths.list) + 1] <- paste0("from", A, "to", B) 
-      
-      AtoB.df <- as(as(AtoB, "SpatialPointsDataFrame"), "data.frame")[ ,c(4,5)] 
-
       rows.to.keep <- as.integer(seq(from = 1, to = nrow(AtoB.df), length.out = as.integer(df.track$Time.lapse[i] / time.lapse) + 1))
 
       AtoB.df <- AtoB.df[rows.to.keep, ]
@@ -252,8 +256,6 @@ SPBDrecreate <- function(df.track, tz, time.lapse, time.lapse.rec, r.path, er.ad
         }
       } 
       # Repeat data from detected station
-      # mat.aux$Receiver <- df.track$Receiver[i]
-      # mat.aux$Standard.Name <- df.track$Standard.Name[i]
       mat.aux$CodeSpace <- df.track$CodeSpace[i]
       mat.aux$Signal <- df.track$Signal[i]
       mat.aux$Transmitter <- df.track$Transmitter[i]
@@ -271,7 +273,10 @@ SPBDrecreate <- function(df.track, tz, time.lapse, time.lapse.rec, r.path, er.ad
           mat.aux$Latitude <- AtoB.df$y
           mat.aux$Longitude <- AtoB.df$x
         }
-        rm(AtoB.df, AtoB)
+        if (exists("AtoB"))
+          rm(AtoB.df, AtoB)
+        else
+          rm(AtoB)
       }
 
       mat.aux$Date <- as.Date(mat.aux$Date.time.local)
@@ -282,7 +287,7 @@ SPBDrecreate <- function(df.track, tz, time.lapse, time.lapse.rec, r.path, er.ad
     }
   }
   close(pb)
-  return(aux.SPBD)
+  return(list(aux.SPBD = aux.SPBD, path.list = path.list))
 }
 
 
@@ -309,7 +314,7 @@ SPBD <- function(df.detec, tag, r.path, tz, time.lapse, time.lapse.rec, er.ad) {
   track.final <- NULL # Empty dataframe to save algorithm output
   # animal <- sort(unique(df.detec$Animal)) # List of all tracked animals
   animal <- names(df.detec)
-
+  path.list <- list()
   # Recreate SPBD individually
   for (i in 1:length(animal)) {
      actel:::appendTo("Screen",
@@ -341,7 +346,11 @@ SPBD <- function(df.detec, tag, r.path, tz, time.lapse, time.lapse.rec, er.ad) {
       # }
       
       # Recreate SPBD
-      aux.SPBD <- SPBDrecreate(df.track = df.track, tz = tz, time.lapse = time.lapse, time.lapse.rec = time.lapse.rec, r.path = r.path, er.ad = er.ad)
+      recipient <- SPBDrecreate(df.track = df.track, tz = tz, time.lapse = time.lapse, 
+        time.lapse.rec = time.lapse.rec, r.path = r.path, er.ad = er.ad, path.list = path.list)
+      aux.SPBD <- recipient[[1]]
+      path.list <- recipient[[2]]
+
       # Save detections and SPBD estimations together
       track.final <- rbind(track.final, aux.SPBD, df.track)
       track.final <- track.final[order(track.final$Date.time.local), ]
