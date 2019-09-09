@@ -35,17 +35,20 @@ spbdRun <- function(transition.layer, tz.study.area) {
     x$Latitude <- spatial$stations$Latitude[match(x$Receiver, spatial$stations$Receiver)]
     return(x)
   })
-	output <- SPBD(df.detec = detections.list, tag = bio, r.path = transition.layer, 
-		tz = tz.study.area, time.lapse = 10, time.lapse.rec = 10, er.ad = 20)
+	print(system.time(output <- SPBD(df.detec = detections.list, tag = bio, r.path = transition.layer, 
+		tz = tz.study.area, time.lapse = 10, time.lapse.rec = 10, er.ad = 20)))
 	return(output)
 }
-
-setwd("Limfjord_tester")
-output <- spbdRun(transition.layer = "Limfjord_raster.grd", tz.study.area = "CET")
 
 #======================#
 # 3. Test algorithm ####
 #======================#
+
+# HF: HF test
+setwd("Limfjord_tester")
+output <- spbdRun(transition.layer = "Limfjord_raster.grd", tz.study.area = "CET")
+# ----
+
 SPBD1 <- SPBD(df.detec, df.tag, r.path = r.path, tz = "CET",
               time.lapse = 10, time.lapse.rec = 10, er.ad = 20)
 
