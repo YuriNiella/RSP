@@ -47,6 +47,11 @@ spbdRun <- function(transition.layer, tz.study.area) {
 # HF: HF test
 setwd("Limfjord_tester")
 output <- spbdRun(transition.layer = "Limfjord_raster.grd", tz.study.area = "CET")
+y
+SPBDist(data = output)
+SPBDiag(data = output)
+r <- raster:::raster("Limfjord_raster.grd", full.names = TRUE)
+SPBDplot(output[1], r, type = "Both")
 # ----
 
 SPBD1 <- SPBD(df.detec, df.tag, r.path = r.path, tz = "CET",

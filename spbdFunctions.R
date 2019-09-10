@@ -62,8 +62,8 @@ SPBDete <- function(location, tz.study.area, format.time, spatial, tag.data) { #
 #' 
 #' @return A dataframe with temporal differences in days between consecutive detection dates.
 #' 
-detectDiffer <- function(data) { 
-  dates <- unique(data$Date) 
+detectDiffer <- function(input) { 
+  dates <- unique(input$Date) 
   # dates.aux <- NA 
   # for (i in 1:(length(dates) - 1)) { # HF: Do we really need the difference between all detections or are we just looking for specific gaps? i.e. larger than x. If the latter, which I think it is, I have a faster method for this. very long for loops can get very slow
   #   aux <- as.numeric(difftime(dates[i + 1], dates[i], units = "days"))
@@ -84,31 +84,31 @@ detectDiffer <- function(data) {
 #' then named based on the interval between consecutive detection dates.
 #'
 #' @param df.detec # HF: missing variable
-#' @param data Detection dates and temporal lags in days as returned by detectDiffer.
+#' @param input Detection dates and temporal lags in days as returned by detectDiffer.
 #' @param time Temporal lag in days to be considered for the fine-scale tracking. Default is to consider 1-day intervals.
 #' 
 #' @return A dataframe with identified and named individual tracks for SPBD estimation.
 #' 
-trackNames <- function(df.detec, data, maximum.time = 1) {
+trackNames <- function(df.detec, input, maximum.time = 1) {
   # Identify detection dates with significant data for fine-scale data: single detection!
   # data$Time_day[1] <- 1000 # Replace NA of first data row
   dates <- NULL
   detections.per.day <- split(df.detec, df.detec$Date)
-  data$n <- table(df.detec$Date)
-  data <- data[!(data$n == 1 & (data$Time_day > maximum.time)), ]
+  input$n <- table(df.detec$Date)
+  input <- input[!(input$n == 1 & (input$Time_day > maximum.time)), ]
 
   # Naming starts
-  index <- which(data$Time_day > 1) # Identify individual tracks
-  if (index[length(index)] < (nrow(data) + 1))
-    index <- c(index, nrow(data) + 1)
+  index <- which(input$Time_day > 1) # Identify individual tracks
+  if (index[length(index)] < (nrow(input) + 1))
+    index <- c(index, nrow(input) + 1)
   track.names <- paste0("Track_", 1:length(index))
-  data$Track <- NA_character_
+  input$Track <- NA_character_
 
   for (i in 1:(length(index) - 1)) {
     index.track <- c(index[i], index[i + 1] - 1)
-    data$Track[index.track[1] : index.track[2]] <- track.names[i]
+    input$Track[index.track[1] : index.track[2]] <- track.names[i]
   }
-  return(data)
+  return(input)
 }
 
 
@@ -127,18 +127,18 @@ SPBDraster <- function(raster.hab = "shapefile.grd") { # HF: We need to discuss 
     load("spbd.transition.layer.RData")
   } else {
     actel:::appendTo("Screen", "M: Loading raster file.")
-    raster.hab <- raster:::raster(raster.hab, full.names = TRUE)
+    raster.hab <- raster::raster(raster.hab, full.names = TRUE)
     # Transition objects for estimating shortest distance paths:
     actel:::appendTo("Screen", "M: Creating transition layer.")
-    hd <- gdistance:::transition(raster.hab, transitionFunction = function(x) {x[2] - x[1]}, directions = 8, symm = TRUE) 
+    hd <- gdistance::transition(raster.hab, transitionFunction = function(x) {x[2] - x[1]}, directions = 8, symm = TRUE) 
     actel:::appendTo("Screen", "M: Correcting transition layer.")
-    slope <- gdistance:::geoCorrection(hd, scl = FALSE)
-    adj <- raster:::adjacent(raster.hab, cells = 1:raster:::ncell(raster.hab), 
+    slope <- gdistance::geoCorrection(hd, scl = FALSE)
+    adj <- raster::adjacent(raster.hab, cells = 1:raster::ncell(raster.hab), 
                              pairs = TRUE, directions = 8)
     speed <- slope
     speed[adj] <- exp(-3.5 * abs(slope[adj] + 0.05))
     actel:::appendTo("Screen", "M: Storing transition layer.")
-    transition.layer <- gdistance:::geoCorrection(speed, scl = FALSE)
+    transition.layer <- gdistance::geoCorrection(speed, scl = FALSE)
     save(transition.layer, file = "spbd.transition.layer.RData")
   }
   return(transition.layer)
@@ -163,7 +163,7 @@ SPBDrecreate <- function(df.track, tz, time.lapse, time.lapse.rec, r.path, er.ad
   
   aux.SPBD <- as.data.frame(df.track[-(1:.N)]) # Save SPBD
   
-  pb <- utils:::txtProgressBar(min = 0, max = nrow(df.track),  # HF: utils is part of the default packages of R, so we should not need to specify the namespace
+  pb <- utils::txtProgressBar(min = 0, max = nrow(df.track),  # HF: utils is part of the default packages of R, so we should not need to specify the namespace
                                initial = 0, style = 3, width = 60)
   
   station.shifts <- c(FALSE, df.track$Standard.Name[-1] != df.track$Standard.Name[-nrow(df.track)])
@@ -186,7 +186,7 @@ SPBDrecreate <- function(df.track, tz, time.lapse, time.lapse.rec, r.path, er.ad
       if (any(names(path.list) == path.name)) {
         AtoB.df <- path.list[[path.name]]
       } else {
-        AtoB <- gdistance:::shortestPath(r.path, A, B, output = "SpatialLines") 
+        AtoB <- gdistance::shortestPath(r.path, A, B, output = "SpatialLines") 
         AtoB.df <- as(as(AtoB, "SpatialPointsDataFrame"), "data.frame")[ ,c(4,5)] 
         path.list[[length(path.list) + 1]] <- AtoB.df
         names(path.list)[length(path.list)] <- path.name
@@ -303,7 +303,7 @@ SPBDrecreate <- function(df.track, tz, time.lapse, time.lapse.rec, r.path, er.ad
 #' @param time.lapse.rec Time lapse in minutes to be considered for consecutive detections at the same station.
 #' @param er.ad EError parameter in meters for consecutive detections at the same station.
 #' 
-#' @return A dataframe with the SPBD estimations of individual tracks for all animals.
+#' @return A list with the SPBD estimations of individual tracks per transmitter.
 #' 
 SPBD <- function(df.detec, tag, r.path, tz, time.lapse, time.lapse.rec, er.ad) {      
   if (TRUE) {
@@ -311,64 +311,50 @@ SPBD <- function(df.detec, tag, r.path, tz, time.lapse, time.lapse.rec, er.ad) {
     actel:::appendTo("Screen", "!!!--- Debug mode has been activated ---!!!")
   }
   
-  track.final <- NULL # Empty dataframe to save algorithm output
-  # animal <- sort(unique(df.detec$Animal)) # List of all tracked animals
-  animal <- names(df.detec)
+  track.final <- list() # Empty list to save algorithm output
+  tag <- names(df.detec)
   path.list <- list()
   # Recreate SPBD individually
-  for (i in 1:length(animal)) {
-     actel:::appendTo("Screen",
-                     crayon:::bold(crayon:::green((paste("Analyzing:", animal[i])))))
-    # df.aux <- subset(df.detec, Animal == animal[i]) # Detection data for that animal
+  for (i in 1:length(tag)) {
+    tag.recipient <- NULL
+    actel:::appendTo("Screen",
+                     crayon::bold(crayon::green((paste("Analyzing:", tag[i])))))
     dates.aux <- detectDiffer(df.detec[[i]]) # Identify time differences between detections (in days)
     dates.aux <- trackNames(df.detec[[i]], dates.aux) # Fine-scale tracking
-    # tracks <- unique(dates.aux$Track) # Analyze each track individually
     tracks <- split(dates.aux, dates.aux$Track)
 
-    for (ii in 1:length(tracks)) {
-      
+    for (ii in 1:length(tracks)) {     
       actel:::appendTo("Screen",
-                       paste0("Estimating ", animal[i], " SPBD: ", names(tracks)[ii]))
+                       paste0("Estimating ", tag[i], " SPBD: ", names(tracks)[ii]))
       
       # dates <- dates.aux$Date[dates.aux$Track == tracks[ii]]
       df.track <- NULL
       df.track <- df.detec[[i]][df.detec[[i]]$Date %in% tracks[[ii]]$Date, ]
       df.track$Position <- "Receiver"
       df.track$Track <- as.character(names(tracks)[ii]) 
-      
-      # HF: Moved this outside this function
-      # # Find timelapses between consecutive detections in minutes
-      # df.track$Time.lapse <- NA 
-      # for (iii in 2:length(df.track$Time.lapse)){
-      #   df.track$Time.lapse[iii] <- as.numeric(difftime(df.track$Date.time.local[iii],
-      #                                                   df.track$Date.time.local[iii - 1],
-      #                                                   units = "min"))
-      # }
-      
+
       # Recreate SPBD
-      recipient <- SPBDrecreate(df.track = df.track, tz = tz, time.lapse = time.lapse, 
+      function.recipient <- SPBDrecreate(df.track = df.track, tz = tz, time.lapse = time.lapse, 
         time.lapse.rec = time.lapse.rec, r.path = r.path, er.ad = er.ad, path.list = path.list)
-      aux.SPBD <- recipient[[1]]
-      path.list <- recipient[[2]]
+      aux.SPBD <- function.recipient[[1]]
+      path.list <- function.recipient[[2]]
 
       # Save detections and SPBD estimations together
-      track.final <- rbind(track.final, aux.SPBD, df.track)
-      track.final <- track.final[order(track.final$Date.time.local), ]
-      track.final$Date <- as.Date(substr(track.final$Date.time.local, 1, 10))
-      
+      tag.recipient <- rbind(tag.recipient, aux.SPBD, df.track)
     } 
-  } # Analyze each animal individually
-  
-  # Order tracking dataset by animal
-  track.final <- track.final[order(track.final$Transmitter), ]
-  
-  # Convert variables to factors
-  track.final$Position <- as.factor(track.final$Position)
-  track.final$Track <- as.factor(track.final$Track)
-  track.final$Receiver <- as.factor(track.final$Receiver)
-  track.final$Transmitter <- as.factor(track.final$Transmitter)
-  track.final$Standard.Name <- as.factor(track.final$Standard.Name)
-  return(track.final) # Remove unecessary columns!
+    # at the end of each tag
+    # Convert variables to factors
+    tag.recipient$Position <- as.factor(tag.recipient$Position)
+    tag.recipient$Track <- as.factor(tag.recipient$Track)
+    tag.recipient$Receiver <- as.factor(tag.recipient$Receiver)
+    tag.recipient$Transmitter <- as.factor(tag.recipient$Transmitter)
+    tag.recipient$Standard.Name <- as.factor(tag.recipient$Standard.Name)
+
+    track.final[[length(track.final) + 1]] <- tag.recipient[order(tag.recipient$Date.time.local), ]
+    names(track.final)[length(track.final)] <- tag[i]
+  } # Analyse each tag individually
+    
+  return(track.final)
 }
 
 
@@ -377,63 +363,66 @@ SPBD <- function(df.detec, tag, r.path, tz, time.lapse, time.lapse.rec, er.ad) {
 #' Compare the outputs of total distances travelled (in kilometers) for each tracked animal, 
 #' using only receiver locations and adding the SPBD positions.
 #'
-#' @param data SPBD dataset as returned by SPBD.
+#' @param input SPBD dataset as returned by SPBD.
 #' 
 #' @return A barplot of total distances travelled as a function of location type (Loc.type). 
 #' 
-SPBDist <- function(data) {
-  
-  animal <- unique(data$Transmitter)
-  
+SPBDist <- function(input) {
   Animal.tracked <- NULL
   Track <- NULL
   Day.n <- NULL
   Loc.type <- NULL
   Dist.travel <- NULL
   
-  # aux.list <- split(data, data$Transmitter)
+  for (i in 1:length(input)) { 
+    df.aux <- split(input[[i]], input[[i]]$Track)
+    track <- names(df.aux) # Analyze tracks individually
 
-  for (i in 1:length(animal)) { 
-    df.aux <- subset(data, Animal == animal[i])
-    track <- unique(df.aux$Track) # Analyze tracks individually
-    
-    for (ii in 1:length(track)) { 
-      df.aux2 <- subset(df.aux, Track == track[ii])
-      df.rec <- subset(df.aux2, Position == "Receiver")
-      rec.tot <- {}
-      for (pos in 1:(nrow(df.rec) - 1)) { 
-        aux.dist <- geosphere:::distm(x=c(df.rec$Longitude[pos], df.rec$Latitude[pos]),
-                                      y=c(df.rec$Longitude[pos + 1], df.rec$Latitude[pos + 1]))
-        rec.tot <- c(rec.tot, aux.dist)
-      }
+    for (ii in 1:length(df.aux)) { 
+      df.rec <- subset(df.aux[[ii]], Position == "Receiver")
+      rec.tot <- NULL
+      aux.coords <- data.frame(
+        x1 = df.rec$Longitude[-nrow(df.rec)],
+        y1 = df.rec$Latitude[-nrow(df.rec)],
+        x2 = df.rec$Longitude[-1],
+        y2 = df.rec$Latitude[-1])
+      rec.tot <- apply(aux.coords, 1, function(p) geosphere::distm(x = c(p[1], p[2]), y = c(p[3], p[4])))
       rec.tot <- sum(rec.tot) / 1000 # in Km
       
-      SPBD.tot <- {}
-      for (pos in 1:(nrow(df.aux2) - 1)) {
-        aux.dist <- geosphere:::distm(x=c(df.aux2$Longitude[pos], df.aux2$Latitude[pos]),
-                                      y=c(df.aux2$Longitude[pos + 1], df.aux2$Latitude[pos + 1]))
-        SPBD.tot <- c(SPBD.tot, aux.dist)
-      }
+      SPBD.tot <- NULL
+      aux.coords <- data.frame(
+        x1 = df.aux[[ii]]$Longitude[-nrow(df.aux[[ii]])],
+        y1 = df.aux[[ii]]$Latitude[-nrow(df.aux[[ii]])],
+        x2 = df.aux[[ii]]$Longitude[-1],
+        y2 = df.aux[[ii]]$Latitude[-1])
+      SPBD.tot <- apply(aux.coords, 1, function(p) geosphere::distm(x = c(p[1], p[2]), y = c(p[3], p[4])))
       SPBD.tot <- sum(SPBD.tot) / 1000 # in Km
       
       # Save output:
-      Animal.tracked <- c(Animal.tracked, rep(as.character(animal[i]), 2))
+      Animal.tracked <- c(Animal.tracked, rep(names(input)[i], 2))
       Track <- c(Track, rep(as.character(track[ii]), 2))
-      Day.n <- c(Day.n, rep(length(unique(df.aux2$Date)), 2))
+      Day.n <- c(Day.n, rep(length(unique(df.aux[[ii]]$Date)), 2))
       
       Loc.type <- c(Loc.type, c("Receiver", "SPBD"))
       Dist.travel <- c(Dist.travel, rec.tot, SPBD.tot) 
     }
   }
   
-  df.diag <- data.frame(Animal.tracked, Track, Day.n, Loc.type, Dist.travel)
+  df.diag <- data.frame(
+    Animal.tracked = Animal.tracked, 
+    Track = Track, 
+    Day.n = Day.n, 
+    Loc.type = Loc.type, 
+    Dist.travel = Dist.travel)
   
-  return(ggplot2:::ggplot(data=df.diag, ggplot2:::aes(x = Animal.tracked, y = Dist.travel, fill = Loc.type)) +
-           ggplot2:::geom_bar(stat = "identity", position = ggplot2:::position_dodge()) +
-           ggplot2:::labs(x = "Animal tracked", y = "Total distance travelled (km)") +
-           ggplot2:::scale_fill_brewer(palette = "Paired") +
-           ggplot2:::theme_classic() + 
-           ggplot2:::coord_cartesian(ylim = c(0, max(Dist.travel)), expand = F)) # HF: Wouldn't it be nice to store the plot in a file as well?
+  p <- ggplot2::ggplot(data = df.diag, ggplot2::aes(x = Animal.tracked, y = Dist.travel, fill = Loc.type))
+  p <- p + ggplot2::geom_bar(stat = "identity", position = ggplot2::position_dodge())
+  p <- p + ggplot2::labs(x = "Animal tracked", y = "Total distance travelled (km)", fill = "")
+  p <- p + ggplot2::scale_fill_brewer(palette = "Paired")
+  p <- p + ggplot2::theme_bw()
+  p <- p + ggplot2::coord_cartesian(ylim = c(0, max(Dist.travel) * 1.05), expand = FALSE)
+  p
+  # return(p)
 }
 
 
@@ -442,43 +431,38 @@ SPBDist <- function(data) {
 #' Compare the outputs of total number of individual location data for each tracked animal, 
 #' using only receiver locations and adding the SPBD positions.
 #'
-#' @param data SPBD dataset as returned by SPBD.
+#' @param input SPBD dataset as returned by SPBD.
 #' 
 #' @return A barplot of total number of locations as a function of location type (Loc.type). 
 #' 
-SPBDiag <- function(data) {
-  
+SPBDiag <- function(input) {
   Animal.tracked <- NULL
   Total.days <- NULL
   Finescale.freq <- NULL
   SPBD.locs <- NULL
   Rec.locs <- NULL
-  
-  animal <- unique(data$Animal)
-  
-  for(i in 1:length(animal)){
-    df.tot <- subset(data, Animal == animal[i], Position == "Receiver")
-    df.SPBD <- subset(data, Animal == animal[i])
     
-    Animal.tracked <- c(Animal.tracked, as.character(paste(animal[i])))
+  for(i in 1:length(input)){
+    df.tot <- subset(input[[i]], Position == "Receiver")    
+    Animal.tracked <- c(Animal.tracked, names(input)[i])
     Total.days <- c(Total.days, length(unique(df.tot$Date)))
-    Finescale.freq <- c(Finescale.freq, (length(unique(df.SPBD$Date)) * 100) / length(unique(df.tot$Date)))
-    SPBD.locs <- c(SPBD.locs, length(df.SPBD$Position[df.SPBD$Position == "SPBD"]))
-    Rec.locs <- c(Rec.locs, length(df.SPBD$Position[df.SPBD$Position == "Receiver"]))
+    Finescale.freq <- c(Finescale.freq, (length(unique(input[[i]]$Date)) * 100) / length(unique(df.tot$Date)))
+    SPBD.locs <- c(SPBD.locs, length(input[[i]]$Position[input[[i]]$Position == "SPBD"]))
+    Rec.locs <- c(Rec.locs, length(input[[i]]$Position[input[[i]]$Position == "Receiver"]))
   }
   
-  Total.locs <- c(Rec.locs, SPBD.locs)
-  Loc.type <- c(rep("Receiver", length(animal)), rep("SPBD", length(animal)))
-  Animal.tracked <- c(as.character(animal), as.character(animal))
-  df.diag <- data.frame(Animal.tracked, Total.locs, Loc.type)
+  df.diag <- data.frame(
+    Animal.tracked = rep(names(input), 2), 
+    Total.locs = c(Rec.locs, SPBD.locs), 
+    Loc.type = c(rep("Receiver", length(input)), rep("SPBD", length(input))))
 
-  return(ggplot2:::ggplot(data = df.diag, ggplot2:::aes(x = Animal.tracked, y = Total.locs, fill = Loc.type)) +
-           ggplot2:::geom_bar(stat = "identity", position = ggplot2:::position_dodge()) +
-           ggplot2:::labs(x = "Animal tracked", y = "Total number of locations") +
-           ggplot2:::scale_fill_brewer(palette = "Paired") +
-           ggplot2:::theme_classic() +
-           ggplot2:::coord_cartesian(ylim = c(0, max(Total.locs)), expand = F) # HF: Same as above
-  )
+  p <- ggplot2::ggplot(data = df.diag, ggplot2::aes(x = Animal.tracked, y = Total.locs, fill = Loc.type))
+  p <- p + ggplot2::geom_bar(stat = "identity", position = ggplot2::position_dodge())
+  p <- p + ggplot2::labs(x = "Animal tracked", y = "Total number of locations", fill = "")
+  p <- p + ggplot2::scale_fill_brewer(palette = "Paired")
+  p <- p + ggplot2::theme_bw()
+  p <- p + ggplot2::coord_cartesian(ylim = c(0, max(Total.locs) * 1.05), expand = FALSE)
+  p
 }
 
 
@@ -486,13 +470,13 @@ SPBDiag <- function(data) {
 #' 
 #' Compare total number of detections with SPBD output to calculate percentage of total data used.
 #'
-#' @param SPBD.data SPBD dataset as returned by SPBD.
+#' @param input SPBD dataset as returned by SPBD.
 #' @param detec.data Detection dataset as returned by SPBDete.
 #' 
 #' @return Percentage of detection data used for SPBD estimation. 
 #' 
-SPBData <- function(SPBD.data, detec.data) {
-  return((length(SPBD.data$Position[SPBD.data$Position == "Receiver"]) * 100) / nrow(detec.data)) # HF: Discuss this one in the meeting
+SPBData <- function(input, detec.data) {
+  return((length(input$Position[input$Position == "Receiver"]) * 100) / nrow(detec.data)) # HF: Discuss this one in the meeting
 }
 
 
@@ -500,89 +484,53 @@ SPBData <- function(SPBD.data, detec.data) {
 #' 
 #' Compare animal tracks using receiver locations and SPBD tracks.
 #'
-#' @param SPBD.data SPBD dataset as returned by SPBD.
+#' @param input SPBD dataset as returned by SPBD.
 #' @param animal Select a particular animal to plot.
 #' @param SPBD.raster Raster file of the study area.
 #' @param type Type of tracking plot to be generated: Receiver, SPBD or Both. 
 #' 
 #' @return Tracking plot for the interest animal.
 #' 
-SPBDplot <- function(SPBD.data, animal, SPBD.raster,
+SPBDplot <- function(input, SPBD.raster,
                      type = c("Receiver", "SPBD", "Both")) {
+
+  animal <- names(input)
+  input <- input[[1]]
+  type <- match.arg(type)
+  df.rec <- subset(input, Position == "Receiver") # Track dataset with only receiver positions
   
-  df.aux <- subset(SPBD.data, Animal == animal) # SPBD dataset for interest animal
-  df.rec <- subset(df.aux, Position == "Receiver") # Track dataset with only receiver positions
-  
-  tracks <- unique(df.aux$Track) # Individual tracks 
-  color.tracks <- grDevices:::palette(rainbow(length(tracks))) # Color palette for plotting tracks!
+  tracks <- unique(input$Track) # Individual tracks 
+  color.tracks <- grDevices::palette(rainbow(length(tracks))) # Color palette for plotting tracks!
   
   # Convert raster to points:
-  SPBD.raster_df <- raster:::rasterToPoints(SPBD.raster)
+  SPBD.raster_df <- raster::rasterToPoints(SPBD.raster)
   
   # Make the points a dataframe for ggplot
   df <- data.frame(SPBD.raster_df)
   colnames(df) <- c("Longitude", "Latitude", "MAP")
   
-  if (type == "Receiver") {
-    # Receiver plot
-    plot1 <- ggplot2:::ggplot(data = df, ggplot2:::aes(y = Latitude, x = Longitude)) +
-      ggplot2:::ggtitle(paste0(animal, ": Receiver")) +
-      ggplot2:::geom_raster(ggplot2:::aes(fill = MAP), show.legend = FALSE) +
-      ggplot2:::scale_fill_gradientn(colours=c(NA, "gray30")) +
-      ggplot2:::theme_bw() +
-      ggplot2:::geom_line(data = df.rec, ggplot2:::aes(x = Longitude, 
-                                                       y = Latitude, 
-                                                       colour = Track)) +
-      ggplot2:::theme(legend.position = "bottom") +
-      ggplot2:::guides(colour = ggplot2:::guide_legend(title = paste0("Tracking period: ", min(df.aux$Date), 
-                                                                      " | ", max(df.aux$Date))))
-    return(plot1)
+  p <- ggplot2::ggplot(data = df, ggplot2::aes(y = Latitude, x = Longitude))
+  p <- p + ggplot2::geom_raster(ggplot2::aes(fill = MAP), show.legend = FALSE)
+  p <- p + ggplot2::scale_fill_gradientn(colours = c(NA, "gray70"))
+  p <- p + ggplot2::theme_bw()
+  p <- p + ggplot2::theme(legend.position = "bottom")
+  p <- p + ggplot2::scale_x_continuous(expand = c(0, 0))
+  p <- p + ggplot2::scale_y_continuous(expand = c(0, 0))
+  p <- p + ggplot2::guides(colour = ggplot2::guide_legend(
+    title = paste0("Tracking period: ", min(input$Date), " | ", max(input$Date))))
+  if (type == "Receiver" | type == "Both") {
+    p1 <- p + ggplot2::geom_path(data = df.rec, ggplot2::aes(x = Longitude, y = Latitude, colour = Track))
+    p1 <- p1 + ggplot2::ggtitle(paste0(animal, ": Straight lines"))
   }
-  if (type == "SPBD") {
-    # SPBD plot
-    plot2 <- ggplot2:::ggplot(data = df, ggplot2:::aes(y = Latitude, x = Longitude)) +
-      ggplot2:::ggtitle(paste0(animal, ": SPBD")) +
-      ggplot2:::geom_raster(ggplot2:::aes(fill = MAP), show.legend = FALSE) +
-      ggplot2:::scale_fill_gradientn(colours = c(NA, "gray30")) +
-      ggplot2:::theme_bw() +
-      ggplot2:::geom_point(data=df.aux, ggplot2:::aes(x = Longitude, 
-                                                      y = Latitude, 
-                                                      colour = Track),
-                           size = 0.1) +
-      ggplot2:::theme(legend.position = "bottom") +
-      ggplot2:::guides(colour = ggplot2:::guide_legend(override.aes = list(size = 1),
-                                                       title = paste0("Tracking period: ", min(df.aux$Date), 
-                                                                      " | ", max(df.aux$Date))))
-    
-    return(plot2)
+  if (type == "SPBD" | type == "Both") {
+    p2 <- p + ggplot2::geom_path(data = input, ggplot2::aes(x = Longitude, y = Latitude, colour = Track))
+    p2 <- p2 + ggplot2::ggtitle(paste0(animal, ": SPBD"))
   }
-  if (type == "Both"){
-    # Receiver plot
-    plot1 <- ggplot2:::ggplot(data = df, ggplot2:::aes(y = Latitude, x = Longitude)) +
-      ggplot2:::ggtitle(paste0(animal, ": Receiver")) +
-      ggplot2:::geom_raster(ggplot2:::aes(fill = MAP), show.legend = FALSE) +
-      ggplot2:::scale_fill_gradientn(colours=c(NA, "gray30")) +
-      ggplot2:::theme_bw() +
-      ggplot2:::geom_line(data = df.rec, ggplot2:::aes(x = Longitude, 
-                                                       y = Latitude, 
-                                                       colour = Track)) +
-      ggplot2:::theme(legend.position = "bottom")
-    
-    # SPBD plot
-    plot2 <- ggplot2:::ggplot(data = df, ggplot2:::aes(y = Latitude, x = Longitude)) +
-      ggplot2:::ggtitle(paste0(animal, ": SPBD")) +
-      ggplot2:::geom_raster(ggplot2:::aes(fill = MAP), show.legend = FALSE) +
-      ggplot2:::scale_fill_gradientn(colours = c(NA, "gray30")) +
-      ggplot2:::theme_bw() +
-      ggplot2:::geom_point(data=df.aux, ggplot2:::aes(x = Longitude, 
-                                                      y = Latitude, 
-                                                      colour = Track),
-                           size = 0.1) +
-      ggplot2:::theme(legend.position = "bottom") +
-      ggplot2:::guides(colour = ggplot2:::guide_legend(override.aes = list(size = -20),
-                                                       label=F, 
-                                                       title = paste0("Tracking period: ", min(df.aux$Date), 
-                                                                      " | ", max(df.aux$Date))))
-    return(ggpubr:::ggarrange(plot1, plot2)) 
-  }
+
+  if (type == "Receiver")
+    return(p1)
+  if (type == "SPBD") 
+    return(p2)
+  if (type == "Both") 
+    ggpubr::ggarrange(p1, p2)
 }
