@@ -4,9 +4,7 @@
 #' species names and indexes for each tracked animal. Also coverts the UTC date and time column to the 
 #' local time zone of the study area.  
 #'
-#' @param location Local destination of data as csv.
 #' @param tz.study.area Timezone of the study area. 
-#' @param format.time Date and time format. 
 #' @param tag.data Tagging metadata of tracked individuals.
 #' @param spatial A list of spatial objects in the study area
 #' @param detect.range Detection range of acoustic receivers in meters. If detect.range = T, an extra 
@@ -16,7 +14,7 @@
 #' 
 #' @return A standardized dataframe to be used for SPBD calculation. 
 #' 
-SPBDete <- function(location, tz.study.area, format.time, spatial, tag.data) { # HF: Users of the actel package must have the detections in a "detections" folder and the "tag.data" in a biometrics.csv file. If we implement the same here then some variables can be spared.
+SPBDete <- function(tz.study.area, spatial, tag.data) { # HF: Users of the actel package must have the detections in a "detections" folder and the "tag.data" in a biometrics.csv file. If we implement the same here then some variables can be spared.
   # df.detec <- read.csv(location) # HF: faster method: data.table::fread()
   # df.detec$Station.Name <- as.character(df.detec$Station.Name)
   # Convert date and time to local time zone:  
@@ -204,7 +202,7 @@ SPBDrecreate <- function(df.track, tz, time.lapse, time.lapse.rec, r.path, er.ad
 
       # Add intermediate timeframe
       if (intermidiate.points == 1) {
-        tf.track <- time.lapse * 60 # HF: shouldn't this be df.track$Time.lapse * 60 / 2 ?
+        tf.track <- df.track$Time.lapse[i] * 60 / 2
       } else {
         tf.track <- df.track$Time.lapse[i] * 60 / intermidiate.points #length(mat.aux$Latitude)
       }
@@ -215,7 +213,7 @@ SPBDrecreate <- function(df.track, tz, time.lapse, time.lapse.rec, r.path, er.ad
         mat.aux[pos2, "Date.time.local"] <- format((baseline + tf.track), "%Y-%m-%d %H:%M:%S") # Add in seconds!
         baseline <- baseline + tf.track
       }
-      mat.aux$Date.time.local <- as.POSIXct(mat.aux$Date.time.local, "%Y-%m-%d %H:%M:%S", tz = tz)
+      mat.aux$Date.time.local <- fasttime::fastPOSIXct(mat.aux$Date.time.local, tz = tz)
         
       # If last estimated position = next detection! EXCLUDE SPBD LOCATION!
       if (mat.aux$Date.time.local[nrow(mat.aux)] ==
@@ -227,13 +225,10 @@ SPBDrecreate <- function(df.track, tz, time.lapse, time.lapse.rec, r.path, er.ad
       }
       
       # Add timelapse:
-      for (pos2 in 1:nrow(mat.aux)) {
-        mat.aux$Time.lapse[pos2] <- as.numeric(difftime(mat.aux$Date.time.local[pos2], 
-                                                        df.track$Date.time.local[i - 1], units = "mins"))
-      }
+        mat.aux$Time.lapse <- as.numeric(difftime(mat.aux$Date.time.local, baseline, units = "mins"))
         
       if (same.station.shift[i]) {
-        # Increase location error: by 50-m fold depending on timelapse
+        # Increase location error: by 20-m fold depending on timelapse
         if (nrow(mat.aux) <= 2) {
           base <- df.track$Error[1]
           for (pos2 in 1:nrow(mat.aux)) {
@@ -254,7 +249,9 @@ SPBDrecreate <- function(df.track, tz, time.lapse, time.lapse.rec, r.path, er.ad
               mat.aux$Error[pos2] <- base 
             }
         }
-      } 
+      } else {
+        mat.aux$Error <- mean(df.track$Error[(i - 1):i])
+      }
       # Repeat data from detected station
       mat.aux$CodeSpace <- df.track$CodeSpace[i]
       mat.aux$Signal <- df.track$Signal[i]
@@ -461,7 +458,7 @@ SPBDiag <- function(input) {
   p <- p + ggplot2::labs(x = "Animal tracked", y = "Total number of locations", fill = "")
   p <- p + ggplot2::scale_fill_brewer(palette = "Paired")
   p <- p + ggplot2::theme_bw()
-  p <- p + ggplot2::coord_cartesian(ylim = c(0, max(Total.locs) * 1.05), expand = FALSE)
+  p <- p + ggplot2::coord_cartesian(ylim = c(0, max(df.diag$Total.locs) * 1.05), expand = FALSE)
   p
 }
 
@@ -493,6 +490,8 @@ SPBData <- function(input, detec.data) {
 #' 
 SPBDplot <- function(input, SPBD.raster,
                      type = c("Receiver", "SPBD", "Both")) {
+
+  SPBD.raster <- raster:::raster(SPBD.raster, full.names = TRUE)
 
   animal <- names(input)
   input <- input[[1]]
