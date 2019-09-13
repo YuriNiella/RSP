@@ -50,9 +50,8 @@ output <- spbdRun(transition.layer = "Limfjord_raster.grd", tz.study.area = "CET
 y
 SPBDist(input = output)
 SPBDiag(input = output)
-r <- raster:::raster("Limfjord_raster.grd", full.names = TRUE)
 names(output) # Has the names of each tag
-SPBDplot(output[4], r, type = "Both")
+SPBDplot(output[4], SPBD.raster = "Limfjord_raster.grd", type = "Both")
 # ----
 
 SPBD1 <- SPBD(df.detec, df.tag, r.path = r.path, tz = "CET",
