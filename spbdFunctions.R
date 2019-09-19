@@ -15,30 +15,11 @@
 #' @return A standardized dataframe to be used for SPBD calculation. 
 #' 
 SPBDete <- function(tz.study.area, spatial, tag.data) { # HF: Users of the actel package must have the detections in a "detections" folder and the "tag.data" in a biometrics.csv file. If we implement the same here then some variables can be spared.
-  # df.detec <- read.csv(location) # HF: faster method: data.table::fread()
-  # df.detec$Station.Name <- as.character(df.detec$Station.Name)
-  # Convert date and time to local time zone:  
-  # df.detec$Date.and.Time..UTC. <- as.POSIXct(strptime(df.detec$Date.and.Time..UTC., format.time, tz="UTC")) # HF: much faster method: fasttime::fastPOSIXct() (requires the time stamp to be in yyyy-mm-dd hh:mm:ss though)
-  # attributes(df.detec$Date.and.Time..UTC.)$tzone <- tz # Convert from UTC to local time!
-  # names(df.detec)[1] <- "Date.time.local" # HF: Maybe we can use "Timestamp" for consitency with the rest of the package?
-  
   df.detec <- actel:::loadDetections(tz.study.area = tz.study.area)
   df.detec <- actel:::standardizeStations(input = df.detec, spatial = spatial)
 
   # Add date column
-  # df.detec$Date <- substr(df.detec$Date.time.local, 1, 10)
   df.detec$Date <- as.Date(df.detec$Timestamp, tz = tz.study.area) # HF: I think that if we run as.Date on the POSIX directly, it will give the date. That or use format(). Will likely improve performance
-  
-  # HF: Deactivated this part for now until we figure how to work it out.
-  # Add common name column and unique animal IDs # HF: I think we should use the tag ID's here instead, or move to a subsequent function
-  # animals <- unique(df.detec$Transmitter)
-  # df.detec$Spp <- NA_character_
-  # df.detec$Animal <- NA_character_
-  # for (i in 1:length(animals)) {
-  #   index <- which(df.detec$Transmitter == animals[i]) # HF: Use match here instead to get rid of the for loop
-  #   df.detec$Spp[index] <- as.character(unique(tag.data$common_name[tag.data$transmitter_id == animals[i]]))
-  #   df.detec$Animal[index] <- as.character(tag.data$tag_id[tag.data$transmitter_id == animals[i]])
-  # }
   
   if (any(colnames(spatial$stations) == "Range")) {
     link <- match(df.detec$Standard.Name, spatial$stations$Standard.Name)
@@ -62,11 +43,6 @@ SPBDete <- function(tz.study.area, spatial, tag.data) { # HF: Users of the actel
 #' 
 detectDiffer <- function(input) { 
   dates <- unique(input$Date) 
-  # dates.aux <- NA 
-  # for (i in 1:(length(dates) - 1)) { # HF: Do we really need the difference between all detections or are we just looking for specific gaps? i.e. larger than x. If the latter, which I think it is, I have a faster method for this. very long for loops can get very slow
-  #   aux <- as.numeric(difftime(dates[i + 1], dates[i], units = "days"))
-  #   dates.aux <- c(dates.aux, aux)
-  # }
   output <- data.table::data.table(
     Date = dates,
     Time_day = c(Inf, as.numeric(difftime(dates[-1], dates[-length(dates)], units = "days")))
@@ -89,7 +65,6 @@ detectDiffer <- function(input) {
 #' 
 trackNames <- function(df.detec, input, maximum.time = 1) {
   # Identify detection dates with significant data for fine-scale data: single detection!
-  # data$Time_day[1] <- 1000 # Replace NA of first data row
   dates <- NULL
   detections.per.day <- split(df.detec, df.detec$Date)
   input$n <- table(df.detec$Date)
@@ -185,7 +160,7 @@ SPBDrecreate <- function(df.track, tz.study.area, time.lapse, time.lapse.rec, r.
         AtoB.df <- path.list[[path.name]]
       } else {
         AtoB <- gdistance::shortestPath(r.path, A, B, output = "SpatialLines") 
-        AtoB.df <- as(as(AtoB, "SpatialPointsDataFrame"), "data.frame")[ ,c(4,5)] 
+        AtoB.df <- as(as(AtoB, "SpatialPointsDataFrame"), "data.frame")[, c(4, 5)] 
         path.list[[length(path.list) + 1]] <- AtoB.df
         names(path.list)[length(path.list)] <- path.name
       }
@@ -208,21 +183,10 @@ SPBDrecreate <- function(df.track, tz.study.area, time.lapse, time.lapse.rec, r.
         
       for (pos2 in 1:intermidiate.points) {
         incremented.baseline <- incremented.baseline + time.step
-        mat.aux[pos2, "Date.time.local"] <- format((incremented.baseline), "%Y-%m-%d %H:%M:%S") # Add in seconds!
-        incremented.baseline <- incremented.baseline
+        mat.aux[pos2, "Date.time.local"] <- incremented.baseline
       }
         
-      # If last estimated position = next detection! EXCLUDE SPBD LOCATION!
-      # This will never happen nnow because of the +1 when defining the time.step
-      # if (mat.aux$Date.time.local[nrow(mat.aux)] ==
-      #     df.track$Date.time.local[i]) {
-      #   mat.aux <- mat.aux[-nrow(mat.aux), ]
-      #   exclude.last.coordinates <- TRUE
-      # } else {
-      #   exclude.last.coordinates <- FALSE
-      # }
-      
-      # Add timelapse:for SPBD
+      # Add timelapse for SPBD
       mat.aux$Time.lapse.min[1] <- as.numeric(difftime(mat.aux$Date.time.local[1], df.track$Date.time.local[i - 1], units = "mins"))
       if(nrow(mat.aux) > 1)
         mat.aux$Time.lapse.min[2:nrow(mat.aux)] <- as.numeric(difftime(mat.aux$Date.time.local[-1], mat.aux$Date.time.local[-nrow(mat.aux)], units = "mins"))
@@ -269,13 +233,8 @@ SPBDrecreate <- function(df.track, tz.study.area, time.lapse, time.lapse.rec, r.
         mat.aux$Latitude <- df.track$Latitude[i]
         mat.aux$Longitude <- df.track$Longitude[i]
       } else {
-        # if (exclude.last.coordinates) {
-        #   mat.aux$Latitude <- AtoB.df$y[-nrow(AtoB.df)]
-        #   mat.aux$Longitude <- AtoB.df$x[-nrow(AtoB.df)]
-        # } else {
-          mat.aux$Latitude <- AtoB.df$y
-          mat.aux$Longitude <- AtoB.df$x
-        # }
+        mat.aux$Latitude <- AtoB.df$y
+        mat.aux$Longitude <- AtoB.df$x
         if (exists("AtoB"))
           rm(AtoB.df, AtoB)
         else
