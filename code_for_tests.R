@@ -1,4 +1,4 @@
-#wrapper function
+# Wrapper function
 spbdRun <- function(transition.layer, tz.study.area) {
   transition.layer <- SPBDraster(raster.hab = "Limfjord_raster.grd")
   bio <- actel:::loadBio(file = "biometrics.csv")
@@ -18,16 +18,17 @@ spbdRun <- function(transition.layer, tz.study.area) {
     tz.study.area = tz.study.area, time.lapse = 10, time.lapse.rec = 10, er.ad = 20)))
   return(output)
 }
-#------------------------------------------------------------------------#
 
-# setwd("..")
-source("spbdFunctions.R")
 
-# HF: HF test
+#--------------------------------------#
+# Testing the code and plotting graphs #
+#--------------------------------------#
+source("SPBD_Functions.R")
+source("dynBBMM_Functions.R")
+
+# Test for the Limfjord
 setwd("Limfjord_tester")
 output <- spbdRun(transition.layer = "Limfjord_raster.grd", tz.study.area = "CET")
-y
-print(output[[1]][Track == "Track_3"], topn = 200)
 
 for (i in names(output)) {
   cat("----------------\n")
@@ -47,24 +48,61 @@ for (i in names(output)) {
 SPBDist(input = output)
 SPBDiag(input = output)
 names(output) # Has the names of each tag
+
+# Plot comparison tracks: Receiver x SPBD 
 SPBDplot(output[1], SPBD.raster = "Limfjord_raster.grd", type = "Both")
-# ----
+SPBDplot(output[2], SPBD.raster = "Limfjord_raster.grd", type = "Both")
+SPBDplot(output[3], SPBD.raster = "Limfjord_raster.grd", type = "Both")
+SPBDplot(output[4], SPBD.raster = "Limfjord_raster.grd", type = "Both")
+SPBDplot(output[5], SPBD.raster = "Limfjord_raster.grd", type = "Both")
 
-SPBD1 <- SPBD(df.detec, df.tag, r.path = r.path, tz = "CET",
-              time.lapse = 10, time.lapse.rec = 10, er.ad = 20)
 
-summary(SPBD1)               
-SPBData(SPBD1, df.detec)   # Percentage of raw data used for SPBD estimation
-SPBDist(SPBD1)             # Difference in SPBD x Receiver travelled distances
-SPBDiag(SPBD1)             # Difference in SPBD x Receiver number of locations
+#=============================================#
+# Test Dynamic Brownian Bridge Movement Model #
+#=============================================#
 
-# Plot comparison tracks: Receiver x SPBD
-SPBDplot(SPBD1, "Browntrout1", r, type = "Both")
-SPBDplot(SPBD1, "Browntrout2", r, type = "Both")
-SPBDplot(SPBD1, "Browntrout3", r, type = "Both")
-SPBDplot(SPBD1, "Browntrout4", r, type = "Both")
-SPBDplot(SPBD1, "Browntrout5", r, type = "Both")
+dBBMM <- SPBDynBBMM(output, zone = 32) # Verbose = F is not working! :(
 
-# Example of increasing location error to SPBD 
-SPBD2 <- SPBD1[c(11:30), ] # When detected consecutively at the same station 
+### Graphs:
+# Plot all models
+move::plot(dBBMM[[1]], col = cmocean::cmocean('matter')(100))
+
+# Individual tracks: 50% and 95%
+move::contour(dBBMM[[1]]$R64K.4075_Track_8, levels=c(.5, .95))
+
+# Calculate areas: unit? 
+dbbmm_cont50 <- dBBMM[[1]] <=.50 # 50% 
+dbbmm_cont95 <- dBBMM[[1]] <=.95 # 95%
+area50 <- sum(raster::values(dbbmm_cont50))
+area95 <- sum(raster::values(dbbmm_cont95))
+area50 # 50% total area (all animals combined)
+area95 # 95% total area (all animals combined)
+
+
+#=======================================================================#
+## Export areas of usage as a shapefile (process in GIS): NOT WORKING!
+
+# Cast the data over to an adehabitatHR estUD
+dbbmm.px <- methods::as(dBBMM[[1]], "SpatialPixelsDataFrame")
+dbbmm.ud <- new("estUD", dbbmm.px)
+dbbmm.ud@vol = FALSE
+dbbmm.ud@h$meth = "dBBMM"
+# Convert the raw UD values to volume
+udvol <- move::getvolumeUD(dbbmm.ud, standardize=FALSE)
+plot(udvol) # TOTAL PLOT!
+image(udvol)
+
+# Export shapefile
+shp50 <- getverticeshr(dbbmm.ud, percent=50, standardize=TRUE)
+class(shp50) #Now is a SpatialPolygonsDataFrame
+map.ps50 <- SpatialPolygons2PolySet(shp50)
+#diss.map.50 <- joinPolys(map.ps50, operation = 'UNION')
+diss.map.50 <- as.PolySet(map.ps50, projection = 'UTM', zone = zone)
+diss.map.p50 <- PolySet2SpatialPolygons(diss.map.50, close_polys = TRUE)
+data50 <- data.frame(PID = 1)
+diss.map.p50 <- SpatialPolygonsDataFrame(diss.map.p50, data = data50)
+writeOGR(diss.map.p50, dsn = ".", layer="contour50", driver = "ESRI Shapefile")
+map.50 <- readOGR(dsn=".", layer="contour50")
+plot(map.50)
+
 
