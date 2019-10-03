@@ -65,10 +65,10 @@ dBBMM <- SPBDynBBMM(output, zone = 32) # Verbose = F is not working! :(
 
 ### Graphs:
 # Plot all models
-move::plot(dBBMM[[1]], col = cmocean::cmocean('matter')(100))
+move::plot(dBBMM[[1]]$R64K.4075_Track_8, col = cmocean::cmocean('matter')(100))
 
 # Individual tracks: 50% and 95%
-move::contour(dBBMM[[1]]$R64K.4075_Track_8, levels=c(.5, .95))
+move::contour(dBBMM[[1]]$R64K.4075_Track_8, levels=c(.50, .95))
 
 # Calculate areas: unit? 
 dbbmm_cont50 <- dBBMM[[1]] <=.50 # 50% 

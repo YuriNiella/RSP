@@ -14,7 +14,9 @@ LonLatToUTM <- function(x, y, zone) {
   xy <- data.frame(ID = 1:length(x), X = x, Y = y)
   sp::coordinates(xy) <- c("X", "Y")
   sp::proj4string(xy) <- sp::CRS("+proj=longlat +datum=WGS84")  ## for example
-  res <- sp::spTransform(xy, sp::CRS(paste0("+proj=utm +zone=", zone, " +datum=NAD83 +units=m +no_defs")))
+  #res <- sp::spTransform(xy, sp::CRS(paste0("+proj=utm +zone=", zone, " +datum=NAD83 +units=m +no_defs")))
+  res <- sp::spTransform(xy, sp::CRS(paste0("+proj=utm +zone=", zone, " +datum=WGS84 +units=m +no_defs")))
+
   return(as.data.frame(res))
 }
 
@@ -24,7 +26,7 @@ LonLatToUTM <- function(x, y, zone) {
 #' Calculates dynamic Brownian Bridge Movement Model (dBBMM) for each track and transmitter. 
 #' Estimations can be performed by grouping transmitters from the same species (biometrics file). 
 #'
-#' @param output List of fixed tracks as returned by SPBD . 
+#' @param output List of fixed tracks as returned by SPBD. 
 #' @param zone UTM zone of study area.
 #' @param Transmitters Vector of Transmitters to be analyzed. By default, all animals in the SPBD will be analised.
 #' @param Group By default, species-specific models are calculated. If set to FALSE, models will be calculated for each individual. 
@@ -46,7 +48,7 @@ SPBDynBBMM <- function(output, Transmitters = NULL, zone, Group = TRUE) {
   
   if (Group == TRUE) { 
     
-    actel:::appendTo("Screen", paste("Calculating species-specific dBBMM"))
+    actel:::appendTo(c("Screen", "Report"), "M: Calculating species-specific dBBMM")
     
     transmitter.aux <- names(output)
     signal.aux <- strsplit(transmitter.aux, "-")
@@ -58,8 +60,8 @@ SPBDynBBMM <- function(output, Transmitters = NULL, zone, Group = TRUE) {
     df.signal <- data.frame(Transmitter = transmitter.aux,
                             Signal = signal.save)
     
-    df.bio <- read.csv("biometrics.csv") 
-    df.signal$Group <- NA
+    df.bio <- actel:::loadBio(file = "biometrics.csv")
+    df.signal$Group <- NA_character_
     for (i in 1:nrow(df.signal)) {
       df.signal$Group[i] <- as.character(df.bio$Group[df.bio$Signal == df.signal$Signal[i]])
     }
@@ -78,7 +80,6 @@ SPBDynBBMM <- function(output, Transmitters = NULL, zone, Group = TRUE) {
       assign(x = paste0("df_", spp[i]), value = df.save) # Species-specific dataframe
       spp.df <- c(spp.df, paste0("df_", spp[i])) # Vector of dataframe names
     }
-    spp.df # Vector of species-specific dataset names!
     
     
     # Estimate dBBMM per species:
@@ -94,14 +95,15 @@ SPBDynBBMM <- function(output, Transmitters = NULL, zone, Group = TRUE) {
       df.aux$Y <- LonLatToUTM(df.aux$Longitude, df.aux$Latitude, zone)[ , 3]
       
       # Identify and remove duplicated timestamps: simultaneous detections at multiple receivers!
-      index <- which(duplicated(df.aux$Date.time.local) == T)
+      index <- which(duplicated(df.aux$Date.time.local) == TRUE)
       
       # Remove second duplicated detection (time lapse = 0)
       if (length(index) > 0) {
         df.aux <- df.aux[-index, ]
+        # Write warning
       }
       
-      ## Exclude tracks with number of positions < 7:
+      ## Exclude tracks with number of positions <= 8:
       # Because dBBMM needs a track to have the same number of locations
       # As the window.size and margin arguments (detect changes in behaviour)
       bad.track <- NULL
@@ -131,7 +133,7 @@ SPBDynBBMM <- function(output, Transmitters = NULL, zone, Group = TRUE) {
                                              dimSize = 100, 
                                              window.size = 7, margin = 3, # Small to account for short tracks!
                                              location.error = df.aux$Error,
-                                             verbose = F) # NOT WORKING! :(
+                                             verbose = FALSE) # NOT WORKING! :(
       
       # Save model as standardized areas of usage (50% and 95%):
       assign(x = paste0("dBBMM_", spp[i]), 
