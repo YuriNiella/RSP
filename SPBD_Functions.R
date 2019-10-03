@@ -159,8 +159,8 @@ SPBDrecreate <- function(df.track, tz.study.area, time.lapse, time.lapse.rec, r.
       if (any(names(path.list) == path.name)) {
         AtoB.df <- path.list[[path.name]]
       } else {
-        AtoB <- gdistance::shortestPath(r.path, A, B, output = "SpatialLines") 
-        AtoB.df <- as(as(AtoB, "SpatialPointsDataFrame"), "data.frame")[, c(4, 5)] 
+        AtoB <- gdistance::shortestPath(r.path, A, B, output = "SpatialLines")
+        AtoB.df <- as(as(AtoB, "SpatialPointsDataFrame"), "data.frame")[, c(4, 5)]
         path.list[[length(path.list) + 1]] <- AtoB.df
         names(path.list)[length(path.list)] <- path.name
       }
@@ -168,6 +168,163 @@ SPBDrecreate <- function(df.track, tz.study.area, time.lapse, time.lapse.rec, r.
       rows.to.keep <- as.integer(seq(from = 1, to = nrow(AtoB.df), length.out = as.integer(df.track$Time.lapse.min[i] / time.lapse) + 1))
 
       AtoB.df <- AtoB.df[rows.to.keep, ]
+      intermidiate.points <- nrow(AtoB.df)
+    }
+
+    if (exists("intermidiate.points")) {
+      # Auxiliar dataset to save intermediate positions:
+      mat.aux <- as.data.frame(df.track[-(1:.N)])
+
+      # Add intermediate timeframe
+      time.step <- df.track$Time.lapse.min[i] * 60 / (intermidiate.points + 1)
+
+      baseline <- df.track$Date.time.local[i - 1] # Base timeframe
+      incremented.baseline <- baseline
+        
+      for (pos2 in 1:intermidiate.points) {
+        incremented.baseline <- incremented.baseline + time.step
+        mat.aux[pos2, "Date.time.local"] <- incremented.baseline
+      }
+        
+      # Add timelapse for SPBD
+      mat.aux$Time.lapse.min[1] <- as.numeric(difftime(mat.aux$Date.time.local[1], df.track$Date.time.local[i - 1], units = "mins"))
+      if(nrow(mat.aux) > 1)
+        mat.aux$Time.lapse.min[2:nrow(mat.aux)] <- as.numeric(difftime(mat.aux$Date.time.local[-1], mat.aux$Date.time.local[-nrow(mat.aux)], units = "mins"))
+      # Correct timelapse for receiver detection
+      df.track$Time.lapse.min[i] <- as.numeric(difftime(df.track$Date.time.local[i], mat.aux$Date.time.local[nrow(mat.aux)], units = "mins"))
+
+      if (same.station.shift[i]) {
+        # Increase location error: by 20-m fold depending on timelapse
+        base <- df.track$Error[i]
+        if (nrow(mat.aux) <= 2) {
+          mat.aux$Error <- base + er.ad 
+        } else {
+          med.point <- actel:::roundUp(nrow(mat.aux) / 2, to = 1)          
+          incremented.base <- base
+          # Increasing error
+          for (pos2 in 1:med.point) { 
+            incremented.base <- incremented.base + er.ad
+            mat.aux$Error[pos2] <- incremented.base 
+          }
+          # Fail safe for even intermediate points
+          if (nrow(mat.aux) %% 2 == 0) {
+            mat.aux$Error[med.point + 1] <- incremented.base
+            start.decreasing <- med.point + 2
+          } else {
+            start.decreasing <- med.point + 1
+          }
+          # Decreasing error
+          for (pos2 in start.decreasing:nrow(mat.aux)) { 
+            incremented.base <- incremented.base - er.ad
+            mat.aux$Error[pos2] <- incremented.base 
+          }
+        }
+      } else {
+        mat.aux$Error <- mean(df.track$Error[(i - 1):i])
+      }
+      # Repeat data from detected station
+      mat.aux$CodeSpace <- df.track$CodeSpace[i]
+      mat.aux$Signal <- df.track$Signal[i]
+      mat.aux$Transmitter <- df.track$Transmitter[i]
+      mat.aux$Track <- df.track$Track[i]
+
+      # Fit in remaining variables
+      if (same.station.shift[i]) {
+        mat.aux$Latitude <- df.track$Latitude[i]
+        mat.aux$Longitude <- df.track$Longitude[i]
+      } else {
+        mat.aux$Latitude <- AtoB.df$y
+        mat.aux$Longitude <- AtoB.df$x
+        if (exists("AtoB"))
+          rm(AtoB.df, AtoB)
+        else
+          rm(AtoB.df)
+      }
+
+      mat.aux$Date <- as.Date(mat.aux$Date.time.local, tz = tz.study.area)
+      mat.aux$Position <- "SPBD"
+      
+      aux.SPBD <- rbind(aux.SPBD, mat.aux) # Save SPBD
+      rm(intermidiate.points)
+    }
+  }
+  close(pb)
+  return(list(aux.SPBD = aux.SPBD, path.list = path.list, df.track = df.track))
+}
+
+
+#' Recreating SPBD for a particular tracked animal
+#' 
+#' Estimates the SPBD individually for all tracks of a particular animal.
+#'
+#' @param df.track Detection data for that individual as imported using SPBDete.
+#' @param tz.study.area Time zone of the study area.
+#' @param distance Maximum distance between SPBD locations.
+#' @param time.lapse Time lapse in minutes to be considered for consecutive detections at the same station. 
+#' @param r.path TransitionLayer object as returned by LTDpath.
+#' @param er.ad Error parameter in meters for consecutive detections at the same station.
+#' @param path.list A list of previously calculated paths.
+#' 
+#' @return A dataframe with the SPBD estimations for all identified tracks for that animal.
+#' 
+new_SPBDrecreate <- function(df.track, tz.study.area, distance, time.lapse, r.path, er.ad, path.list) {
+  
+  aux.SPBD <- as.data.frame(df.track[-(1:.N)]) # Save SPBD
+  
+  pb <- utils::txtProgressBar(min = 0, max = nrow(df.track),  # HF: utils is part of the default packages of R, so we should not need to specify the namespace
+                               initial = 0, style = 3, width = 60)
+  
+  station.shifts <- c(FALSE, df.track$Standard.Name[-1] != df.track$Standard.Name[-nrow(df.track)])
+  time.shifts <- df.track$Time.lapse.min > time.lapse
+  different.station.shift <- station.shifts & time.shifts
+  same.station.shift <- !station.shifts & time.shifts
+  # Add intermediate positions to the SPBD track: 
+  for (i in 2:nrow(df.track)) {
+    setTxtProgressBar(pb, i) # Progress bar
+
+    if (same.station.shift[i]) {      
+      # Number of intermediate positions to add:
+      intermidiate.points <- as.integer(df.track$Time.lapse.min[i] / time.lapse)
+    } 
+
+    if (different.station.shift[i]) {
+      A <- with(df.track, c(Longitude[i - 1], Latitude[i - 1]))
+      B <- with(df.track, c(Longitude[i], Latitude[i]))
+      path.name <- paste0("from", paste0(A[1], B[1]), "to", paste0(A[2], B[2]))
+      if (any(names(path.list) == path.name)) {
+        AtoB.df <- path.list[[path.name]]
+      } else {
+        AtoB <- gdistance::shortestPath(r.path, A, B, output = "SpatialLines")
+        AtoB.df <- as(as(AtoB, "SpatialPointsDataFrame"), "data.frame")[, c(4, 5)] 
+        # Prepare to calculate distance between coordinate pairs
+        start <- AtoB.df[-nrow(AtoB.df), ]
+        stop <- AtoB.df[-1, ]
+        aux <- cbind(start, stop)
+        # Distance in meters
+        AtoB.df$Distance <- c(0, apply(aux, 1, function(m) geosphere::distm(x = m[1:2], y = m[3:4])))
+        # Cumulative distance
+        AtoB.df$cumSum <- cumsum(AtoB.df$Distance)
+        AtoB.dist <- sum(AtoB.df$Distance)
+        # Prepare to find points to keep
+        n.points <- actel:::roundDown(AtoB.dist / distance, to = 1)
+        if (n.points == 0) {
+          cat("\n")
+          actel:::appendTo(c("Screen", "Report", "Warning"), 
+            paste0("W: One of the inter-station SPBD segments within ", df.track$Track[1], 
+            " is too short to fit extra \n   detections (Total distance: ", round(AtoB.dist, 0), 
+            "m). Adding one single point between detections."))
+          n.points <- 1
+          markers <- AtoB.dist / 2
+        } else {
+          markers <- seq(from = distance, to = distance * n.points, by = distance)
+        }
+        # Find rows closest to markers
+        rows.to.keep <- sapply(markers, function(x) which.min(abs(AtoB.df$cumSum - x)))
+        AtoB.df <- AtoB.df[rows.to.keep, c(1, 2, 4)]
+        # Save condensed data frame for later use
+        path.list[[length(path.list) + 1]] <- AtoB.df
+        names(path.list)[length(path.list)] <- path.name
+      }
       intermidiate.points <- nrow(AtoB.df)
     }
 
@@ -297,6 +454,73 @@ SPBD <- function(df.detec, tag, r.path, tz.study.area, time.lapse, time.lapse.re
       # Recreate SPBD
       function.recipient <- SPBDrecreate(df.track = df.track, tz.study.area = tz.study.area, time.lapse = time.lapse, 
         time.lapse.rec = time.lapse.rec, r.path = r.path, er.ad = er.ad, path.list = path.list)
+      aux.SPBD <- function.recipient[[1]]
+      path.list <- function.recipient[[2]]
+      df.track <- function.recipient[[3]]
+
+      # Save detections and SPBD estimations together
+      tag.recipient <- rbind(tag.recipient, aux.SPBD, df.track)
+    } 
+    # at the end of each tag
+    # Convert variables to factors
+    tag.recipient$Position <- as.factor(tag.recipient$Position)
+    tag.recipient$Track <- as.factor(tag.recipient$Track)
+    tag.recipient$Receiver <- as.factor(tag.recipient$Receiver)
+    tag.recipient$Transmitter <- as.factor(tag.recipient$Transmitter)
+    tag.recipient$Standard.Name <- as.factor(tag.recipient$Standard.Name)
+
+    track.final[[length(track.final) + 1]] <- tag.recipient[order(tag.recipient$Date.time.local), ]
+    names(track.final)[length(track.final)] <- tag[i]
+  } # Analyse each tag individually
+    
+  return(track.final)
+}
+
+#' Recreating SPBD for all tracked animals
+#' 
+#' Automatically estimates the SPBD for all tracked individuals within a particular study area. 
+#'
+#' @param df.detec Detection data for that individual as imported using SPBDete.
+#' @param tag Tagging details metadata.
+#' @param r.path TransitionLayer object as returned by LTDpath.
+#' @param tz.study.area Timezone of the study area.
+#' @param distance Maximum distance between SPBD locations.
+#' @param time.lapse Time lapse in minutes to be considered for consecutive detections at the same station. 
+#' @param er.ad EError parameter in meters for consecutive detections at the same station.
+#' 
+#' @return A list with the SPBD estimations of individual tracks per transmitter.
+#' 
+new_SPBD <- function(df.detec, tag, r.path, tz.study.area, distance, time.lapse, er.ad) {      
+  if (TRUE) {
+    on.exit(save(list = ls(), file = "spbd_debug.RData"), add = TRUE)
+    actel:::appendTo("Screen", "!!!--- Debug mode has been activated ---!!!")
+  }
+  
+  track.final <- list() # Empty list to save algorithm output
+  tag <- names(df.detec)
+  path.list <- list()
+  # Recreate SPBD individually
+  for (i in 1:length(tag)) {
+    tag.recipient <- NULL
+    actel:::appendTo("Screen",
+                     crayon::bold(crayon::green((paste("Analyzing:", tag[i])))))
+    dates.aux <- detectDiffer(df.detec[[i]]) # Identify time differences between detections (in days)
+    dates.aux <- trackNames(df.detec[[i]], dates.aux) # Fine-scale tracking
+    tracks <- split(dates.aux, dates.aux$Track)
+
+    for (ii in 1:length(tracks)) {     
+      actel:::appendTo("Screen",
+                       paste0("Estimating ", tag[i], " SPBD: ", names(tracks)[ii]))
+      
+      # dates <- dates.aux$Date[dates.aux$Track == tracks[ii]]
+      df.track <- NULL
+      df.track <- df.detec[[i]][df.detec[[i]]$Date %in% tracks[[ii]]$Date, ]
+      df.track$Position <- "Receiver"
+      df.track$Track <- as.character(names(tracks)[ii]) 
+
+      # Recreate SPBD
+      function.recipient <- new_SPBDrecreate(df.track = df.track, tz.study.area = tz.study.area, distance = distance, 
+        time.lapse = time.lapse, r.path = r.path, er.ad = er.ad, path.list = path.list)
       aux.SPBD <- function.recipient[[1]]
       path.list <- function.recipient[[2]]
       df.track <- function.recipient[[3]]
@@ -454,12 +678,13 @@ SPBData <- function(input, detec.data) {
 #' @return Tracking plot for the interest animal.
 #' 
 SPBDplot <- function(input, SPBD.raster,
-                     type = c("Receiver", "SPBD", "Both")) {
+                     display = c("Receiver", "SPBD", "Both"), type = c("lines", "points")) {
 
   SPBD.raster <- raster:::raster(SPBD.raster, full.names = TRUE)
 
   animal <- names(input)
   input <- input[[1]]
+  display <- match.arg(display)
   type <- match.arg(type)
   df.rec <- subset(input, Position == "Receiver") # Track dataset with only receiver positions
   
@@ -482,19 +707,25 @@ SPBDplot <- function(input, SPBD.raster,
   p <- p + ggplot2::scale_y_continuous(expand = c(0, 0))
   p <- p + ggplot2::guides(colour = ggplot2::guide_legend(
     title = paste0("Tracking period: ", min(input$Date), " | ", max(input$Date))))
-  if (type == "Receiver" | type == "Both") {
-    p1 <- p + ggplot2::geom_path(data = df.rec, ggplot2::aes(x = Longitude, y = Latitude, colour = Track))
+  if (display == "Receiver" | display == "Both") {
+    if (type == "lines")
+      p1 <- p + ggplot2::geom_path(data = df.rec, ggplot2::aes(x = Longitude, y = Latitude, colour = Track))
+    if (type == "points")
+      p1 <- p + ggplot2::geom_point(data = df.rec, ggplot2::aes(x = Longitude, y = Latitude, colour = Track))
     p1 <- p1 + ggplot2::ggtitle(paste0(animal, ": Straight lines"))
   }
-  if (type == "SPBD" | type == "Both") {
-    p2 <- p + ggplot2::geom_path(data = input, ggplot2::aes(x = Longitude, y = Latitude, colour = Track))
+  if (display == "SPBD" | display == "Both") {
+    if (type == "lines")
+      p2 <- p + ggplot2::geom_path(data = input, ggplot2::aes(x = Longitude, y = Latitude, colour = Track))
+    if (type == "points")
+      p2 <- p + ggplot2::geom_point(data = input, ggplot2::aes(x = Longitude, y = Latitude, colour = Track))
     p2 <- p2 + ggplot2::ggtitle(paste0(animal, ": SPBD"))
   }
 
-  if (type == "Receiver")
+  if (display == "Receiver")
     return(p1)
-  if (type == "SPBD") 
+  if (display == "SPBD") 
     return(p2)
-  if (type == "Both") 
+  if (display == "Both") 
     ggpubr::ggarrange(p1, p2)
 }

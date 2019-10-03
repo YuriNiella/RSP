@@ -4,3 +4,8 @@ An exception occurred, stopping the process!
 
 -------------------
 M: Saving report as '2019-09-20.15.18.55.actel.log-STOP.txt'.
+Analyzing: R64K-4075
+M: Loading raster file.
+M: Loading raster file.
+M: Loading raster file.
+M: Loading raster file.

@@ -4,7 +4,8 @@ spbdRun <- function(transition.layer, tz.study.area) {
   bio <- actel:::loadBio(file = "biometrics.csv")
   spatial <- actel:::assembleSpatial(file = "spatial.csv", bio = bio, sections = NULL)
   detections <- SPBDete(tz.study.area = tz.study.area, spatial = spatial)
-  recipient <- actel:::splitDetections(detections = detections, bio = bio, spatial = spatial)
+  # recipient <- actel:::splitDetections(detections = detections, bio = bio, spatial = spatial)
+  recipient <- actel:::deprecated_splitDetections(detections = detections, bio = bio, spatial = spatial)
   detections.list <- recipient[[1]]
   bio <- recipient[[2]]
   rm(recipient)
@@ -19,6 +20,28 @@ spbdRun <- function(transition.layer, tz.study.area) {
   return(output)
 }
 
+new_spbdRun <- function(transition.layer, tz.study.area, distance = 250, time.lapse = 10) {
+  transition.layer <- SPBDraster(raster.hab = "Limfjord_raster.grd")
+  bio <- actel:::loadBio(file = "biometrics.csv")
+  spatial <- actel:::assembleSpatial(file = "spatial.csv", bio = bio, sections = NULL)
+  detections <- SPBDete(tz.study.area = tz.study.area, spatial = spatial)
+  # recipient <- actel:::splitDetections(detections = detections, bio = bio, spatial = spatial)
+  recipient <- actel:::deprecated_splitDetections(detections = detections, bio = bio, spatial = spatial)
+  detections.list <- recipient[[1]]
+  bio <- recipient[[2]]
+  rm(recipient)
+  detections.list <- lapply(detections.list, function(x){
+    x$Time.lapse.min <- c(0, as.numeric(difftime(x$Date.time.local[-1], x$Date.time.local[-nrow(x)], units = "mins")))
+    x$Longitude <- spatial$stations$Longitude[match(x$Receiver, spatial$stations$Receiver)]
+    x$Latitude <- spatial$stations$Latitude[match(x$Receiver, spatial$stations$Receiver)]
+    return(x)
+  })
+  print(system.time(output <- new_SPBD(df.detec = detections.list, tag = bio, r.path = transition.layer, 
+    tz.study.area = tz.study.area, distance = distance, time.lapse = time.lapse, er.ad = 20)))
+  return(output)
+}
+
+
 
 #--------------------------------------#
 # Testing the code and plotting graphs #
@@ -28,7 +51,10 @@ source("dynBBMM_Functions.R")
 
 # Test for the Limfjord
 setwd("Limfjord_tester")
-output <- spbdRun(transition.layer = "Limfjord_raster.grd", tz.study.area = "CET")
+output_original <- spbdRun(transition.layer = "Limfjord_raster.grd", tz.study.area = "CET")
+output_250 <- new_spbdRun(transition.layer = "Limfjord_raster.grd", tz.study.area = "Europe/Copenhagen", distance = 250)
+output_500 <- new_spbdRun(transition.layer = "Limfjord_raster.grd", tz.study.area = "Europe/Copenhagen", distance = 500)
+output_1000 <- new_spbdRun(transition.layer = "Limfjord_raster.grd", tz.study.area = "Europe/Copenhagen", distance = 1000)
 
 for (i in names(output)) {
   cat("----------------\n")
@@ -50,7 +76,23 @@ SPBDiag(input = output)
 names(output) # Has the names of each tag
 
 # Plot comparison tracks: Receiver x SPBD 
-SPBDplot(output[1], SPBD.raster = "Limfjord_raster.grd", type = "Both")
+SPBDplot(output_original[1], SPBD.raster = "Limfjord_raster.grd", display = "Both", type = "points")
+dev.new()
+SPBDplot(output_1000[1], SPBD.raster = "Limfjord_raster.grd", display = "Both", type = "points")
+ggplot2::ggsave("1000m_points.pdf")
+SPBDplot(output_500[1], SPBD.raster = "Limfjord_raster.grd", display = "Both", type = "points")
+ggplot2::ggsave("500m_points.pdf")
+
+# Check that the points are ~ 1000m appart
+x <- output_1000[[1]][Track == "Track_8"]
+start <- x[-.N, c("Longitude", "Latitude")]
+stop <- x[-1, c("Longitude", "Latitude")]
+aux <- cbind(start, stop)
+apply(aux, 1, function(m) geosphere::distm(x = m[1:2], y = m[3:4]))
+# ---
+
+
+
 SPBDplot(output[2], SPBD.raster = "Limfjord_raster.grd", type = "Both")
 SPBDplot(output[3], SPBD.raster = "Limfjord_raster.grd", type = "Both")
 SPBDplot(output[4], SPBD.raster = "Limfjord_raster.grd", type = "Both")

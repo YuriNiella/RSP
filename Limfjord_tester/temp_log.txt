@@ -54,3 +54,96 @@ M: Using detections previously compiled on 2019-09-13 16:11:54.
 M: Data time range: 2018-02-11 20:27:37 to 2018-08-31 15:43:46 (CET).
 M: Using detections previously compiled on 2019-09-13 16:11:54.
 M: Data time range: 2018-02-11 20:27:37 to 2018-08-31 15:43:46 (CET).
+M: Using detections previously compiled on 2019-09-13 08:11:54.
+M: Data time range: 2018-02-11 20:27:37 to 2018-08-31 15:43:46 (CET).
+M: Using detections previously compiled on 2019-09-13 08:11:54.
+M: Data time range: 2018-02-11 20:27:37 to 2018-08-31 15:43:46 (CET).
+M: Using detections previously compiled on 2019-09-13 08:11:54.
+M: Data time range: 2018-02-11 20:27:37 to 2018-08-31 15:43:46 (CET).
+M: Using detections previously compiled on 2019-09-13 08:11:54.
+M: Data time range: 2018-02-11 20:27:37 to 2018-08-31 15:43:46 (CET).
+M: Using detections previously compiled on 2019-09-13 08:11:54.
+M: Data time range: 2018-02-11 20:27:37 to 2018-08-31 15:43:46 (CET).
+M: Using detections previously compiled on 2019-09-13 08:11:54.
+M: Data time range: 2018-02-11 20:27:37 to 2018-08-31 15:43:46 (Europe/Copenhagen).
+M: Using detections previously compiled on 2019-09-13 08:11:54.
+M: Data time range: 2018-02-11 20:27:37 to 2018-08-31 15:43:46 (CET).
+M: Using detections previously compiled on 2019-09-13 08:11:54.
+M: Data time range: 2018-02-11 20:27:37 to 2018-08-31 15:43:46 (Europe/Copenhagen).
+M: Using detections previously compiled on 2019-09-13 08:11:54.
+M: Data time range: 2018-02-11 20:27:37 to 2018-08-31 15:43:46 (Europe/Copenhagen).
+M: Using detections previously compiled on 2019-09-13 08:11:54.
+M: Data time range: 2018-02-11 20:27:37 to 2018-08-31 15:43:46 (Europe/Copenhagen).
+M: Using detections previously compiled on 2019-09-13 08:11:54.
+M: Data time range: 2018-02-11 20:27:37 to 2018-08-31 15:43:46 (CET).
+M: Using detections previously compiled on 2019-09-13 08:11:54.
+M: Data time range: 2018-02-11 20:27:37 to 2018-08-31 15:43:46 (Europe/Copenhagen).
+M: Using detections previously compiled on 2019-09-13 08:11:54.
+M: Data time range: 2018-02-11 20:27:37 to 2018-08-31 15:43:46 (Europe/Copenhagen).
+W: One of the inter-station SPBD segments within Track_7 is too short to fit extra detections (Total distance: 445m). Adding one single point between detections.
+W: One of the inter-station SPBD segments within Track_7 is too short to fit extra detections (Total distance: 445m).
+   Adding one single point between detections.
+W: One of the inter-station SPBD segments within Track_7 is too short to fit extra 
+   detections (Total distance: 445m). Adding one single point between detections.
+M: Using detections previously compiled on 2019-09-13 08:11:54.
+M: Data time range: 2018-02-11 20:27:37 to 2018-08-31 15:43:46 (Europe/Copenhagen).
+W: One of the inter-station SPBD segments within Track_7 is too short to fit extra 
+   detections (Total distance: 445m). Adding one single point between detections.
+W: One of the inter-station SPBD segments within Track_6 is too short to fit extra 
+   detections (Total distance: 430m). Adding one single point between detections.
+M: Using detections previously compiled on 2019-09-13 08:11:54.
+M: Data time range: 2018-02-11 20:27:37 to 2018-08-31 15:43:46 (Europe/Copenhagen).
+W: One of the inter-station SPBD segments within Track_7 is too short to fit extra 
+   detections (Total distance: 445m). Adding one single point between detections.
+W: One of the inter-station SPBD segments within Track_6 is too short to fit extra 
+   detections (Total distance: 430m). Adding one single point between detections.
+W: One of the inter-station SPBD segments within Track_7 is too short to fit extra 
+   detections (Total distance: 350m). Adding one single point between detections.
+W: One of the inter-station SPBD segments within Track_7 is too short to fit extra 
+   detections (Total distance: 350m). Adding one single point between detections.
+W: One of the inter-station SPBD segments within Track_3 is too short to fit extra 
+   detections (Total distance: 445m). Adding one single point between detections.
+W: One of the inter-station SPBD segments within Track_4 is too short to fit extra 
+   detections (Total distance: 430m). Adding one single point between detections.
+M: Using detections previously compiled on 2019-09-13 08:11:54.
+M: Data time range: 2018-02-11 20:27:37 to 2018-08-31 15:43:46 (Europe/Copenhagen).
+W: One of the inter-station SPBD segments within Track_7 is too short to fit extra 
+   detections (Total distance: 445m). Adding one single point between detections.
+W: One of the inter-station SPBD segments within Track_6 is too short to fit extra 
+   detections (Total distance: 430m). Adding one single point between detections.
+W: One of the inter-station SPBD segments within Track_7 is too short to fit extra 
+   detections (Total distance: 350m). Adding one single point between detections.
+W: One of the inter-station SPBD segments within Track_7 is too short to fit extra 
+   detections (Total distance: 350m). Adding one single point between detections.
+W: One of the inter-station SPBD segments within Track_3 is too short to fit extra 
+   detections (Total distance: 445m). Adding one single point between detections.
+W: One of the inter-station SPBD segments within Track_4 is too short to fit extra 
+   detections (Total distance: 430m). Adding one single point between detections.
+M: Using detections previously compiled on 2019-09-13 08:11:54.
+M: Data time range: 2018-02-11 20:27:37 to 2018-08-31 15:43:46 (Europe/Copenhagen).
+W: One of the inter-station SPBD segments within Track_7 is too short to fit extra 
+   detections (Total distance: 445m). Adding one single point between detections.
+W: One of the inter-station SPBD segments within Track_6 is too short to fit extra 
+   detections (Total distance: 430m). Adding one single point between detections.
+W: One of the inter-station SPBD segments within Track_7 is too short to fit extra 
+   detections (Total distance: 350m). Adding one single point between detections.
+W: One of the inter-station SPBD segments within Track_7 is too short to fit extra 
+   detections (Total distance: 350m). Adding one single point between detections.
+W: One of the inter-station SPBD segments within Track_3 is too short to fit extra 
+   detections (Total distance: 445m). Adding one single point between detections.
+W: One of the inter-station SPBD segments within Track_4 is too short to fit extra 
+   detections (Total distance: 430m). Adding one single point between detections.
+M: Using detections previously compiled on 2019-09-13 08:11:54.
+M: Data time range: 2018-02-11 20:27:37 to 2018-08-31 15:43:46 (Europe/Copenhagen).
+W: One of the inter-station SPBD segments within Track_7 is too short to fit extra 
+   detections (Total distance: 445m). Adding one single point between detections.
+W: One of the inter-station SPBD segments within Track_6 is too short to fit extra 
+   detections (Total distance: 430m). Adding one single point between detections.
+W: One of the inter-station SPBD segments within Track_7 is too short to fit extra 
+   detections (Total distance: 350m). Adding one single point between detections.
+W: One of the inter-station SPBD segments within Track_7 is too short to fit extra 
+   detections (Total distance: 350m). Adding one single point between detections.
+W: One of the inter-station SPBD segments within Track_3 is too short to fit extra 
+   detections (Total distance: 445m). Adding one single point between detections.
+W: One of the inter-station SPBD segments within Track_4 is too short to fit extra 
+   detections (Total distance: 430m). Adding one single point between detections.
