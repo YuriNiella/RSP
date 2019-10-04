@@ -4,8 +4,10 @@ spbdRun <- function(transition.layer, tz.study.area) {
   bio <- actel:::loadBio(file = "biometrics.csv")
   spatial <- actel:::assembleSpatial(file = "spatial.csv", bio = bio, sections = NULL)
   detections <- SPBDete(tz.study.area = tz.study.area, spatial = spatial)
-  # recipient <- actel:::splitDetections(detections = detections, bio = bio, spatial = spatial)
-  recipient <- actel:::deprecated_splitDetections(detections = detections, bio = bio, spatial = spatial)
+  if (Sys.getenv("USERNAME") == "hdmfla")
+    recipient <- actel:::deprecated_splitDetections(detections = detections, bio = bio, spatial = spatial)
+  else
+    recipient <- actel:::splitDetections(detections = detections, bio = bio, spatial = spatial)
   detections.list <- recipient[[1]]
   bio <- recipient[[2]]
   rm(recipient)
@@ -25,8 +27,10 @@ new_spbdRun <- function(transition.layer, tz.study.area, distance = 250, time.la
   bio <- actel:::loadBio(file = "biometrics.csv")
   spatial <- actel:::assembleSpatial(file = "spatial.csv", bio = bio, sections = NULL)
   detections <- SPBDete(tz.study.area = tz.study.area, spatial = spatial)
-  # recipient <- actel:::splitDetections(detections = detections, bio = bio, spatial = spatial)
-  recipient <- actel:::deprecated_splitDetections(detections = detections, bio = bio, spatial = spatial)
+  if (Sys.getenv("USERNAME") == "hdmfla")
+    recipient <- actel:::deprecated_splitDetections(detections = detections, bio = bio, spatial = spatial)
+  else
+    recipient <- actel:::splitDetections(detections = detections, bio = bio, spatial = spatial)
   detections.list <- recipient[[1]]
   bio <- recipient[[2]]
   rm(recipient)
