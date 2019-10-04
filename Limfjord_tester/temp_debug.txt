@@ -3441,3 +3441,618 @@ Estimating R64K-4138 SPBD: Track_3
 Estimating R64K-4138 SPBD: Track_4
 Estimating R64K-4138 SPBD: Track_5
 Estimating R64K-4138 SPBD: Track_6
+Starting loadBio.
+M: No Release site has been indicated in the biometrics file. Creating a 'Release.site' column to avoid function failure. Filling with 'unspecified'.
+Terminating loadbio.
+Starting assembleSpatial.
+Starting loadSpatial.
+Terminating loadSpatial.
+Creating 'stations'.
+Creating 'release.sites'.
+Done.
+M: The detections have been processed on 2019-09-13 16:11:54.
+   If the input detection files were not changed, it is safe to use these again.
+Y
+M: Using detections previously compiled on 2019-09-13 16:11:54.
+Starting convertTimes.
+Terminating convertTimes.
+M: Data time range: 2018-02-11 20:27:37 to 2018-08-31 15:43:46 (Europe/Copenhagen).
+Starting standardizeStations.
+Terminating standardizeStations.
+W: Could not find a 'Range' column in the spatial file; assuming a range of 500 metres for each receiver.
+Starting loadBio.
+M: No Release site has been indicated in the biometrics file. Creating a 'Release.site' column to avoid function failure. Filling with 'unspecified'.
+Terminating loadbio.
+Starting assembleSpatial.
+Starting loadSpatial.
+Terminating loadSpatial.
+Creating 'stations'.
+Creating 'release.sites'.
+Done.
+M: The detections have been processed on 2019-09-13 16:11:54.
+   If the input detection files were not changed, it is safe to use these again.
+Y
+M: Using detections previously compiled on 2019-09-13 16:11:54.
+Starting convertTimes.
+Terminating convertTimes.
+M: Data time range: 2018-02-11 20:27:37 to 2018-08-31 15:43:46 (CET).
+Starting standardizeStations.
+Terminating standardizeStations.
+W: Could not find a 'Range' column in the spatial file; assuming a range of 500 metres for each receiver.
+Starting loadBio.
+M: No Release site has been indicated in the biometrics file. Creating a 'Release.site' column to avoid function failure. Filling with 'unspecified'.
+Terminating loadbio.
+Starting assembleSpatial.
+Starting loadSpatial.
+Terminating loadSpatial.
+Creating 'stations'.
+Creating 'release.sites'.
+Done.
+M: The detections have been processed on 2019-09-13 16:11:54.
+   If the input detection files were not changed, it is safe to use these again.
+Y
+M: Using detections previously compiled on 2019-09-13 16:11:54.
+Starting convertTimes.
+Terminating convertTimes.
+M: Data time range: 2018-02-11 20:27:37 to 2018-08-31 15:43:46 (CET).
+Starting standardizeStations.
+Terminating standardizeStations.
+W: Could not find a 'Range' column in the spatial file; assuming a range of 500 metres for each receiver.
+Starting loadBio.
+M: No Release site has been indicated in the biometrics file. Creating a 'Release.site' column to avoid function failure. Filling with 'unspecified'.
+Terminating loadbio.
+Starting assembleSpatial.
+Starting loadSpatial.
+Terminating loadSpatial.
+Creating 'stations'.
+Creating 'release.sites'.
+Done.
+M: The detections have been processed on 2019-09-13 16:11:54.
+   If the input detection files were not changed, it is safe to use these again.
+Y
+M: Using detections previously compiled on 2019-09-13 16:11:54.
+Starting convertTimes.
+Terminating convertTimes.
+M: Data time range: 2018-02-11 20:27:37 to 2018-08-31 15:43:46 (CET).
+Starting standardizeStations.
+Terminating standardizeStations.
+W: Could not find a 'Range' column in the spatial file; assuming a range of 500 metres for each receiver.
+Starting loadBio.
+M: No Release site has been indicated in the biometrics file. Creating a 'Release.site' column to avoid function failure. Filling with 'unspecified'.
+Terminating loadbio.
+Starting assembleSpatial.
+Starting loadSpatial.
+Terminating loadSpatial.
+Creating 'stations'.
+Creating 'release.sites'.
+Done.
+M: The detections have been processed on 2019-09-13 16:11:54.
+   If the input detection files were not changed, it is safe to use these again.
+Y
+M: Using detections previously compiled on 2019-09-13 16:11:54.
+Starting convertTimes.
+Terminating convertTimes.
+M: Data time range: 2018-02-11 20:27:37 to 2018-08-31 15:43:46 (CET).
+Starting standardizeStations.
+Terminating standardizeStations.
+W: Could not find a 'Range' column in the spatial file; assuming a range of 500 metres for each receiver.
+Starting loadBio.
+M: No Release site has been indicated in the biometrics file. Creating a 'Release.site' column to avoid function failure. Filling with 'unspecified'.
+Terminating loadbio.
+Starting assembleSpatial.
+Starting loadSpatial.
+Terminating loadSpatial.
+Creating 'stations'.
+Creating 'release.sites'.
+Done.
+M: The detections have been processed on 2019-09-13 16:11:54.
+   If the input detection files were not changed, it is safe to use these again.
+Y
+M: Using detections previously compiled on 2019-09-13 16:11:54.
+Starting convertTimes.
+Terminating convertTimes.
+M: Data time range: 2018-02-11 20:27:37 to 2018-08-31 15:43:46 (CET).
+Starting standardizeStations.
+Terminating standardizeStations.
+W: Could not find a 'Range' column in the spatial file; assuming a range of 500 metres for each receiver.
+Starting loadBio.
+M: No Release site has been indicated in the biometrics file. Creating a 'Release.site' column to avoid function failure. Filling with 'unspecified'.
+Terminating loadbio.
+Starting assembleSpatial.
+Starting loadSpatial.
+Terminating loadSpatial.
+Creating 'stations'.
+Creating 'release.sites'.
+Done.
+M: The detections have been processed on 2019-09-13 16:11:54.
+   If the input detection files were not changed, it is safe to use these again.
+Y
+M: Using detections previously compiled on 2019-09-13 16:11:54.
+Starting convertTimes.
+Terminating convertTimes.
+M: Data time range: 2018-02-11 20:27:37 to 2018-08-31 15:43:46 (CET).
+Starting standardizeStations.
+Terminating standardizeStations.
+W: Could not find a 'Range' column in the spatial file; assuming a range of 500 metres for each receiver.
+Starting splitDetections.
+Starting excludeTags.
+Terminating excludeTags.
+Starting noDetectionsCheck.
+Terminating noDetectionsCheck.
+Starting dupSignalsCheck.
+Terminating dupSignalsCheck.
+Debug: Creating 'trimmed.list'.
+Starting collectStrays.
+Terminating collectStrays.
+Starting storeStrays.
+Terminating storeStrays.
+Starting assignArrays.
+Terminating assignArrays.
+Starting assignArrays.
+Terminating assignArrays.
+Starting assignArrays.
+Terminating assignArrays.
+Starting assignArrays.
+Terminating assignArrays.
+Starting assignArrays.
+Terminating assignArrays.
+Terminating splitDetections.
+!!!--- Debug mode has been activated ---!!!
+[1m[32mAnalyzing: R64K-4075[39m[22m
+Estimating R64K-4075 SPBD: Track_1
+Estimating R64K-4075 SPBD: Track_2
+Estimating R64K-4075 SPBD: Track_3
+Estimating R64K-4075 SPBD: Track_4
+Estimating R64K-4075 SPBD: Track_5
+Estimating R64K-4075 SPBD: Track_6
+Estimating R64K-4075 SPBD: Track_7
+Estimating R64K-4075 SPBD: Track_8
+[1m[32mAnalyzing: R64K-4080[39m[22m
+Estimating R64K-4080 SPBD: Track_1
+Estimating R64K-4080 SPBD: Track_2
+Estimating R64K-4080 SPBD: Track_3
+Estimating R64K-4080 SPBD: Track_4
+Estimating R64K-4080 SPBD: Track_5
+Estimating R64K-4080 SPBD: Track_6
+Estimating R64K-4080 SPBD: Track_7
+[1m[32mAnalyzing: R64K-4125[39m[22m
+Estimating R64K-4125 SPBD: Track_1
+Estimating R64K-4125 SPBD: Track_2
+Estimating R64K-4125 SPBD: Track_3
+Estimating R64K-4125 SPBD: Track_4
+Estimating R64K-4125 SPBD: Track_5
+Estimating R64K-4125 SPBD: Track_6
+[1m[32mAnalyzing: R64K-4128[39m[22m
+Estimating R64K-4128 SPBD: Track_1
+Estimating R64K-4128 SPBD: Track_2
+Estimating R64K-4128 SPBD: Track_3
+Estimating R64K-4128 SPBD: Track_4
+Estimating R64K-4128 SPBD: Track_5
+[1m[32mAnalyzing: R64K-4138[39m[22m
+Estimating R64K-4138 SPBD: Track_1
+Estimating R64K-4138 SPBD: Track_2
+Estimating R64K-4138 SPBD: Track_3
+Estimating R64K-4138 SPBD: Track_4
+Estimating R64K-4138 SPBD: Track_5
+Estimating R64K-4138 SPBD: Track_6
+Starting loadBio.
+M: No Release site has been indicated in the biometrics file. Creating a 'Release.site' column to avoid function failure. Filling with 'unspecified'.
+Terminating loadbio.
+Starting assembleSpatial.
+Starting loadSpatial.
+Terminating loadSpatial.
+Creating 'stations'.
+Creating 'release.sites'.
+Done.
+M: The detections have been processed on 2019-09-13 16:11:54.
+   If the input detection files were not changed, it is safe to use these again.
+output_250 <- new_spbdRun(transition.layer = "Limfjord_raster.grd", tz.study.area = "Europe/Copenhagen", distance = 250)
+M: Using detections previously compiled on 2019-09-13 16:11:54.
+Starting convertTimes.
+Terminating convertTimes.
+M: Data time range: 2018-02-11 20:27:37 to 2018-08-31 15:43:46 (CET).
+Starting standardizeStations.
+Terminating standardizeStations.
+W: Could not find a 'Range' column in the spatial file; assuming a range of 500 metres for each receiver.
+Starting splitDetections.
+Starting excludeTags.
+Terminating excludeTags.
+Starting noDetectionsCheck.
+Terminating noDetectionsCheck.
+Starting dupSignalsCheck.
+Terminating dupSignalsCheck.
+Debug: Creating 'trimmed.list'.
+Starting collectStrays.
+Terminating collectStrays.
+Starting storeStrays.
+Terminating storeStrays.
+Starting assignArrays.
+Terminating assignArrays.
+Starting assignArrays.
+Terminating assignArrays.
+Starting assignArrays.
+Terminating assignArrays.
+Starting assignArrays.
+Terminating assignArrays.
+Starting assignArrays.
+Terminating assignArrays.
+Terminating splitDetections.
+!!!--- Debug mode has been activated ---!!!
+[1m[32mAnalyzing: R64K-4075[39m[22m
+Estimating R64K-4075 SPBD: Track_1
+Estimating R64K-4075 SPBD: Track_2
+Estimating R64K-4075 SPBD: Track_3
+Estimating R64K-4075 SPBD: Track_4
+Estimating R64K-4075 SPBD: Track_5
+Estimating R64K-4075 SPBD: Track_6
+Estimating R64K-4075 SPBD: Track_7
+Starting loadBio.
+M: No Release site has been indicated in the biometrics file. Creating a 'Release.site' column to avoid function failure. Filling with 'unspecified'.
+Terminating loadbio.
+Starting assembleSpatial.
+Starting loadSpatial.
+Terminating loadSpatial.
+Creating 'stations'.
+Creating 'release.sites'.
+Done.
+M: The detections have been processed on 2019-09-13 16:11:54.
+   If the input detection files were not changed, it is safe to use these again.
+Y
+M: Using detections previously compiled on 2019-09-13 16:11:54.
+Starting convertTimes.
+Terminating convertTimes.
+M: Data time range: 2018-02-11 20:27:37 to 2018-08-31 15:43:46 (CET).
+Starting standardizeStations.
+Terminating standardizeStations.
+W: Could not find a 'Range' column in the spatial file; assuming a range of 500 metres for each receiver.
+Starting splitDetections.
+Starting excludeTags.
+Terminating excludeTags.
+Starting noDetectionsCheck.
+Terminating noDetectionsCheck.
+Starting dupSignalsCheck.
+Terminating dupSignalsCheck.
+Debug: Creating 'trimmed.list'.
+Starting collectStrays.
+Terminating collectStrays.
+Starting storeStrays.
+Terminating storeStrays.
+Starting assignArrays.
+Terminating assignArrays.
+Starting assignArrays.
+Terminating assignArrays.
+Starting assignArrays.
+Terminating assignArrays.
+Starting assignArrays.
+Terminating assignArrays.
+Starting assignArrays.
+Terminating assignArrays.
+Terminating splitDetections.
+!!!--- Debug mode has been activated ---!!!
+[1m[32mAnalyzing: R64K-4075[39m[22m
+Estimating R64K-4075 SPBD: Track_1
+Estimating R64K-4075 SPBD: Track_2
+Estimating R64K-4075 SPBD: Track_3
+Estimating R64K-4075 SPBD: Track_4
+Estimating R64K-4075 SPBD: Track_5
+Estimating R64K-4075 SPBD: Track_6
+Estimating R64K-4075 SPBD: Track_7
+Estimating R64K-4075 SPBD: Track_8
+[1m[32mAnalyzing: R64K-4080[39m[22m
+Estimating R64K-4080 SPBD: Track_1
+Estimating R64K-4080 SPBD: Track_2
+Estimating R64K-4080 SPBD: Track_3
+Estimating R64K-4080 SPBD: Track_4
+Estimating R64K-4080 SPBD: Track_5
+Estimating R64K-4080 SPBD: Track_6
+Estimating R64K-4080 SPBD: Track_7
+[1m[32mAnalyzing: R64K-4125[39m[22m
+Estimating R64K-4125 SPBD: Track_1
+Estimating R64K-4125 SPBD: Track_2
+Estimating R64K-4125 SPBD: Track_3
+Estimating R64K-4125 SPBD: Track_4
+Estimating R64K-4125 SPBD: Track_5
+Estimating R64K-4125 SPBD: Track_6
+[1m[32mAnalyzing: R64K-4128[39m[22m
+Estimating R64K-4128 SPBD: Track_1
+Estimating R64K-4128 SPBD: Track_2
+Estimating R64K-4128 SPBD: Track_3
+Estimating R64K-4128 SPBD: Track_4
+Estimating R64K-4128 SPBD: Track_5
+[1m[32mAnalyzing: R64K-4138[39m[22m
+Estimating R64K-4138 SPBD: Track_1
+Estimating R64K-4138 SPBD: Track_2
+Estimating R64K-4138 SPBD: Track_3
+Estimating R64K-4138 SPBD: Track_4
+Estimating R64K-4138 SPBD: Track_5
+Estimating R64K-4138 SPBD: Track_6
+M: Calculating species-specific dBBMM
+M: Calculating species-specific dBBMM
+Starting loadBio.
+M: No Release site has been indicated in the biometrics file. Creating a 'Release.site' column to avoid function failure. Filling with 'unspecified'.
+Terminating loadbio.
+dBBMM for: Brown Trout
+Starting loadBio.
+M: No Release site has been indicated in the biometrics file. Creating a 'Release.site' column to avoid function failure. Filling with 'unspecified'.
+Terminating loadbio.
+Starting assembleSpatial.
+Starting loadSpatial.
+Terminating loadSpatial.
+Creating 'stations'.
+Creating 'release.sites'.
+Done.
+M: The detections have been processed on 2019-09-13 16:11:54.
+   If the input detection files were not changed, it is safe to use these again.
+output_500 <- new_spbdRun(transition.layer = "Limfjord_raster.grd", tz.study.area = "Europe/Copenhagen", distance = 500)
+M: Using detections previously compiled on 2019-09-13 16:11:54.
+Starting convertTimes.
+Terminating convertTimes.
+M: Data time range: 2018-02-11 20:27:37 to 2018-08-31 15:43:46 (Europe/Copenhagen).
+Starting standardizeStations.
+Terminating standardizeStations.
+W: Could not find a 'Range' column in the spatial file; assuming a range of 500 metres for each receiver.
+Starting splitDetections.
+Starting excludeTags.
+Terminating excludeTags.
+Starting noDetectionsCheck.
+Terminating noDetectionsCheck.
+Starting dupSignalsCheck.
+Terminating dupSignalsCheck.
+Debug: Creating 'trimmed.list'.
+Starting collectStrays.
+Terminating collectStrays.
+Starting storeStrays.
+Terminating storeStrays.
+Starting assignArrays.
+Terminating assignArrays.
+Starting assignArrays.
+Terminating assignArrays.
+Starting assignArrays.
+Terminating assignArrays.
+Starting assignArrays.
+Terminating assignArrays.
+Starting assignArrays.
+Terminating assignArrays.
+Terminating splitDetections.
+!!!--- Debug mode has been activated ---!!!
+[1m[32mAnalyzing: R64K-4075[39m[22m
+Estimating R64K-4075 SPBD: Track_1
+Estimating R64K-4075 SPBD: Track_2
+Estimating R64K-4075 SPBD: Track_3
+Estimating R64K-4075 SPBD: Track_4
+Estimating R64K-4075 SPBD: Track_5
+Estimating R64K-4075 SPBD: Track_6
+Estimating R64K-4075 SPBD: Track_7
+Estimating R64K-4075 SPBD: Track_8
+[1m[32mAnalyzing: R64K-4080[39m[22m
+Estimating R64K-4080 SPBD: Track_1
+Estimating R64K-4080 SPBD: Track_2
+Estimating R64K-4080 SPBD: Track_3
+Estimating R64K-4080 SPBD: Track_4
+Estimating R64K-4080 SPBD: Track_5
+Estimating R64K-4080 SPBD: Track_6
+Estimating R64K-4080 SPBD: Track_7
+[1m[32mAnalyzing: R64K-4125[39m[22m
+Estimating R64K-4125 SPBD: Track_1
+Estimating R64K-4125 SPBD: Track_2
+Estimating R64K-4125 SPBD: Track_3
+Estimating R64K-4125 SPBD: Track_4
+Estimating R64K-4125 SPBD: Track_5
+Estimating R64K-4125 SPBD: Track_6
+[1m[32mAnalyzing: R64K-4128[39m[22m
+Estimating R64K-4128 SPBD: Track_1
+Estimating R64K-4128 SPBD: Track_2
+Estimating R64K-4128 SPBD: Track_3
+Estimating R64K-4128 SPBD: Track_4
+Estimating R64K-4128 SPBD: Track_5
+[1m[32mAnalyzing: R64K-4138[39m[22m
+Estimating R64K-4138 SPBD: Track_1
+Estimating R64K-4138 SPBD: Track_2
+Estimating R64K-4138 SPBD: Track_3
+Estimating R64K-4138 SPBD: Track_4
+Estimating R64K-4138 SPBD: Track_5
+Estimating R64K-4138 SPBD: Track_6
+Starting loadBio.
+M: No Release site has been indicated in the biometrics file. Creating a 'Release.site' column to avoid function failure. Filling with 'unspecified'.
+Terminating loadbio.
+Starting assembleSpatial.
+Starting loadSpatial.
+Terminating loadSpatial.
+Creating 'stations'.
+Creating 'release.sites'.
+Done.
+M: The detections have been processed on 2019-09-13 16:11:54.
+   If the input detection files were not changed, it is safe to use these again.
+Y
+M: Using detections previously compiled on 2019-09-13 16:11:54.
+Starting convertTimes.
+Terminating convertTimes.
+M: Data time range: 2018-02-11 20:27:37 to 2018-08-31 15:43:46 (Europe/Copenhagen).
+Starting standardizeStations.
+Terminating standardizeStations.
+W: Could not find a 'Range' column in the spatial file; assuming a range of 500 metres for each receiver.
+Starting splitDetections.
+Starting excludeTags.
+Terminating excludeTags.
+Starting noDetectionsCheck.
+Terminating noDetectionsCheck.
+Starting dupSignalsCheck.
+Terminating dupSignalsCheck.
+Debug: Creating 'trimmed.list'.
+Starting collectStrays.
+Terminating collectStrays.
+Starting storeStrays.
+Terminating storeStrays.
+Starting assignArrays.
+Terminating assignArrays.
+Starting assignArrays.
+Terminating assignArrays.
+Starting assignArrays.
+Terminating assignArrays.
+Starting assignArrays.
+Terminating assignArrays.
+Starting assignArrays.
+Terminating assignArrays.
+Terminating splitDetections.
+!!!--- Debug mode has been activated ---!!!
+[1m[32mAnalyzing: R64K-4075[39m[22m
+Estimating R64K-4075 SPBD: Track_1
+Estimating R64K-4075 SPBD: Track_2
+Estimating R64K-4075 SPBD: Track_3
+Estimating R64K-4075 SPBD: Track_4
+Estimating R64K-4075 SPBD: Track_5
+Estimating R64K-4075 SPBD: Track_6
+Estimating R64K-4075 SPBD: Track_7
+W: One of the inter-station SPBD segments within Track_7 is too short to fit extra 
+   detections (Total distance: 445m). Adding one single point between detections.
+Estimating R64K-4075 SPBD: Track_8
+[1m[32mAnalyzing: R64K-4080[39m[22m
+Estimating R64K-4080 SPBD: Track_1
+Estimating R64K-4080 SPBD: Track_2
+Estimating R64K-4080 SPBD: Track_3
+Estimating R64K-4080 SPBD: Track_4
+Estimating R64K-4080 SPBD: Track_5
+Estimating R64K-4080 SPBD: Track_6
+W: One of the inter-station SPBD segments within Track_6 is too short to fit extra 
+   detections (Total distance: 430m). Adding one single point between detections.
+Estimating R64K-4080 SPBD: Track_7
+W: One of the inter-station SPBD segments within Track_7 is too short to fit extra 
+   detections (Total distance: 350m). Adding one single point between detections.
+W: One of the inter-station SPBD segments within Track_7 is too short to fit extra 
+   detections (Total distance: 350m). Adding one single point between detections.
+[1m[32mAnalyzing: R64K-4125[39m[22m
+Estimating R64K-4125 SPBD: Track_1
+Estimating R64K-4125 SPBD: Track_2
+Estimating R64K-4125 SPBD: Track_3
+W: One of the inter-station SPBD segments within Track_3 is too short to fit extra 
+   detections (Total distance: 445m). Adding one single point between detections.
+Estimating R64K-4125 SPBD: Track_4
+Estimating R64K-4125 SPBD: Track_5
+Estimating R64K-4125 SPBD: Track_6
+[1m[32mAnalyzing: R64K-4128[39m[22m
+Estimating R64K-4128 SPBD: Track_1
+Estimating R64K-4128 SPBD: Track_2
+Estimating R64K-4128 SPBD: Track_3
+Estimating R64K-4128 SPBD: Track_4
+W: One of the inter-station SPBD segments within Track_4 is too short to fit extra 
+   detections (Total distance: 430m). Adding one single point between detections.
+Estimating R64K-4128 SPBD: Track_5
+[1m[32mAnalyzing: R64K-4138[39m[22m
+Estimating R64K-4138 SPBD: Track_1
+Estimating R64K-4138 SPBD: Track_2
+Estimating R64K-4138 SPBD: Track_3
+Estimating R64K-4138 SPBD: Track_4
+Estimating R64K-4138 SPBD: Track_5
+Estimating R64K-4138 SPBD: Track_6
+Starting loadBio.
+M: No Release site has been indicated in the biometrics file. Creating a 'Release.site' column to avoid function failure. Filling with 'unspecified'.
+Terminating loadbio.
+Starting assembleSpatial.
+Starting loadSpatial.
+Terminating loadSpatial.
+Creating 'stations'.
+Creating 'release.sites'.
+Done.
+M: The detections have been processed on 2019-09-13 16:11:54.
+   If the input detection files were not changed, it is safe to use these again.
+
+M: Using detections previously compiled on 2019-09-13 16:11:54.
+Starting convertTimes.
+Terminating convertTimes.
+M: Data time range: 2018-02-11 20:27:37 to 2018-08-31 15:43:46 (Europe/Copenhagen).
+Starting standardizeStations.
+Terminating standardizeStations.
+W: Could not find a 'Range' column in the spatial file; assuming a range of 500 metres for each receiver.
+Starting splitDetections.
+Starting excludeTags.
+Terminating excludeTags.
+Starting noDetectionsCheck.
+Terminating noDetectionsCheck.
+Starting dupSignalsCheck.
+Terminating dupSignalsCheck.
+Debug: Creating 'trimmed.list'.
+Starting collectStrays.
+Terminating collectStrays.
+Starting storeStrays.
+Terminating storeStrays.
+Starting assignArrays.
+Terminating assignArrays.
+Starting assignArrays.
+Terminating assignArrays.
+Starting assignArrays.
+Terminating assignArrays.
+Starting assignArrays.
+Terminating assignArrays.
+Starting assignArrays.
+Terminating assignArrays.
+Terminating splitDetections.
+!!!--- Debug mode has been activated ---!!!
+[1m[32mAnalyzing: R64K-4075[39m[22m
+Estimating R64K-4075 SPBD: Track_1
+Estimating R64K-4075 SPBD: Track_2
+Estimating R64K-4075 SPBD: Track_3
+Estimating R64K-4075 SPBD: Track_4
+Estimating R64K-4075 SPBD: Track_5
+Estimating R64K-4075 SPBD: Track_6
+Estimating R64K-4075 SPBD: Track_7
+W: One of the inter-station SPBD segments within Track_7 is too short to fit extra 
+   detections (Total distance: 445m). Adding one single point between detections.
+Estimating R64K-4075 SPBD: Track_8
+[1m[32mAnalyzing: R64K-4080[39m[22m
+Estimating R64K-4080 SPBD: Track_1
+Estimating R64K-4080 SPBD: Track_2
+Estimating R64K-4080 SPBD: Track_3
+Estimating R64K-4080 SPBD: Track_4
+Estimating R64K-4080 SPBD: Track_5
+Estimating R64K-4080 SPBD: Track_6
+W: One of the inter-station SPBD segments within Track_6 is too short to fit extra 
+   detections (Total distance: 430m). Adding one single point between detections.
+Estimating R64K-4080 SPBD: Track_7
+W: One of the inter-station SPBD segments within Track_7 is too short to fit extra 
+   detections (Total distance: 350m). Adding one single point between detections.
+W: One of the inter-station SPBD segments within Track_7 is too short to fit extra 
+   detections (Total distance: 350m). Adding one single point between detections.
+[1m[32mAnalyzing: R64K-4125[39m[22m
+Estimating R64K-4125 SPBD: Track_1
+Estimating R64K-4125 SPBD: Track_2
+Estimating R64K-4125 SPBD: Track_3
+W: One of the inter-station SPBD segments within Track_3 is too short to fit extra 
+   detections (Total distance: 445m). Adding one single point between detections.
+Estimating R64K-4125 SPBD: Track_4
+Estimating R64K-4125 SPBD: Track_5
+Estimating R64K-4125 SPBD: Track_6
+[1m[32mAnalyzing: R64K-4128[39m[22m
+Estimating R64K-4128 SPBD: Track_1
+Estimating R64K-4128 SPBD: Track_2
+Estimating R64K-4128 SPBD: Track_3
+Estimating R64K-4128 SPBD: Track_4
+W: One of the inter-station SPBD segments within Track_4 is too short to fit extra 
+   detections (Total distance: 430m). Adding one single point between detections.
+Estimating R64K-4128 SPBD: Track_5
+[1m[32mAnalyzing: R64K-4138[39m[22m
+Estimating R64K-4138 SPBD: Track_1
+Estimating R64K-4138 SPBD: Track_2
+Estimating R64K-4138 SPBD: Track_3
+Estimating R64K-4138 SPBD: Track_4
+Estimating R64K-4138 SPBD: Track_5
+Estimating R64K-4138 SPBD: Track_6
+M: Calculating species-specific dBBMM
+Starting loadBio.
+M: No Release site has been indicated in the biometrics file. Creating a 'Release.site' column to avoid function failure. Filling with 'unspecified'.
+Terminating loadbio.
+dBBMM for: Brown Trout
+M: Calculating species-specific dBBMM
+Starting loadBio.
+M: No Release site has been indicated in the biometrics file. Creating a 'Release.site' column to avoid function failure. Filling with 'unspecified'.
+Terminating loadbio.
+dBBMM for: Brown Trout
+M: Calculating species-specific dBBMM
+Starting loadBio.
+M: No Release site has been indicated in the biometrics file. Creating a 'Release.site' column to avoid function failure. Filling with 'unspecified'.
+Terminating loadbio.
+dBBMM for: Brown Trout
+M: Calculating species-specific dBBMM
+Starting loadBio.
+M: No Release site has been indicated in the biometrics file. Creating a 'Release.site' column to avoid function failure. Filling with 'unspecified'.
+Terminating loadbio.
+dBBMM for: Brown Trout

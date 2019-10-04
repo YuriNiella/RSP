@@ -95,8 +95,6 @@ aux <- cbind(start, stop)
 apply(aux, 1, function(m) geosphere::distm(x = m[1:2], y = m[3:4]))
 # ---
 
-
-
 SPBDplot(output[2], SPBD.raster = "Limfjord_raster.grd", type = "Both")
 SPBDplot(output[3], SPBD.raster = "Limfjord_raster.grd", type = "Both")
 SPBDplot(output[4], SPBD.raster = "Limfjord_raster.grd", type = "Both")
@@ -107,8 +105,33 @@ SPBDplot(output[5], SPBD.raster = "Limfjord_raster.grd", type = "Both")
 # Test Dynamic Brownian Bridge Movement Model #
 #=============================================#
 
-dBBMM <- SPBDynBBMM(output, zone = 32) # Verbose = F is not working! :(
+dBBMM1 <- SPBDynBBMM(output_original, zone = 32) # Verbose = F is not working! :(
+dBBMM2 <- SPBDynBBMM(output_250, zone = 32) # Verbose = F is not working! :(
+dBBMM3 <- SPBDynBBMM(output_500, zone = 32) # Verbose = F is not working! :(
+dBBMM4 <- SPBDynBBMM(output_1000, zone = 32) # Verbose = F is not working! :(
 
+# Plot:
+jpeg("dBBMM_compare.jpeg", width=10, height=10, units="in", 
+     pointsize=18, quality=300,bg="white", res=300)
+par(mfrow=c(2,2))
+plot.dBBMM(dBBMM1, group = "Brown Trout",
+           Transmitter = "R64K.4075_Track_8",
+           SPBD.raster = "Limfjord_raster.grd", title = "Original") 
+plot.dBBMM(dBBMM2, group = "Brown Trout",
+           Transmitter = "R64K.4075_Track_8",
+           SPBD.raster = "Limfjord_raster.grd", title = "250 m") 
+plot.dBBMM(dBBMM3, group = "Brown Trout",
+           Transmitter = "R64K.4075_Track_8",
+           SPBD.raster = "Limfjord_raster.grd", title = "500 m") 
+plot.dBBMM(dBBMM4, group = "Brown Trout",
+           Transmitter = "R64K.4075_Track_8",
+           SPBD.raster = "Limfjord_raster.grd", title = "1000 m") 
+dev.off()
+
+
+
+
+#---------------------------
 ### Graphs:
 # Plot all models
 move::plot(dBBMM[[1]]$R64K.4075_Track_8, col = cmocean::cmocean('matter')(100))

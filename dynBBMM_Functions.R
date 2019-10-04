@@ -26,20 +26,20 @@ LonLatToUTM <- function(x, y, zone) {
 #' Calculates dynamic Brownian Bridge Movement Model (dBBMM) for each track and transmitter. 
 #' Estimations can be performed by grouping transmitters from the same species (biometrics file). 
 #'
-#' @param output List of fixed tracks as returned by SPBD. 
+#' @param input List of fixed tracks as returned by SPBD. 
 #' @param zone UTM zone of study area.
 #' @param Transmitters Vector of Transmitters to be analyzed. By default, all animals in the SPBD will be analised.
 #' @param Group By default, species-specific models are calculated. If set to FALSE, models will be calculated for each individual. 
 #' 
 #' @return List with dBBMM per species/individual. 
 #' 
-SPBDynBBMM <- function(output, Transmitters = NULL, zone, Group = TRUE) {
+SPBDynBBMM <- function(input, Transmitters = NULL, zone, Group = TRUE) {
   
   # Select specific transmitters to analyze
   if (is.null(Transmitters) == FALSE) {
-    total.transmitters <- names(output)
+    total.transmitters <- names(input)
     index <- which(total.transmitters %in% Transmitters)
-    output <- output[index]
+    input <- input[index]
   }
   
   #---------------------------------------------------------#
@@ -50,7 +50,7 @@ SPBDynBBMM <- function(output, Transmitters = NULL, zone, Group = TRUE) {
     
     actel:::appendTo(c("Screen", "Report"), "M: Calculating species-specific dBBMM")
     
-    transmitter.aux <- names(output)
+    transmitter.aux <- names(input)
     signal.aux <- strsplit(transmitter.aux, "-")
     signal.save <- NULL
     for (i in 1:length(transmitter.aux)) {
@@ -71,10 +71,10 @@ SPBDynBBMM <- function(output, Transmitters = NULL, zone, Group = TRUE) {
     spp.df <- NULL # Auxiliar object with species-specific dataset names (to be used bellow)
     for (i in 1:length(spp)) {
       transmitter.aux <- as.character(df.signal$Transmitter[df.signal$Group == spp[i]])
-      aux <- which(names(output) == transmitter.aux)
+      aux <- which(names(input) == transmitter.aux)
       df.save <- NULL
       for(ii in 1:length(aux)) {
-        aux2 <- output[[aux[ii]]]
+        aux2 <- input[[aux[ii]]]
         df.save <- rbind(df.save, aux2)
       }
       assign(x = paste0("df_", spp[i]), value = df.save) # Species-specific dataframe
@@ -157,5 +157,84 @@ SPBDynBBMM <- function(output, Transmitters = NULL, zone, Group = TRUE) {
   }
   
   return(dBBMM)  
+}
+
+
+
+#' Plot dBBMM
+#'
+#' 
+#'   
+#' @param input Dynamic Brownian Bridge Movement Model object as returned by SPBDynBBMM.
+#' @param Transmitter Transmitter to plot
+#' 
+#' @return Dataframe with the converted coordinates.
+#' 
+plot.dBBMM <- function(input, group, Transmitter, SPBD.raster, title) {
+ 
+  # EXCLUDE!
+  #SPBD.raster <- "Limfjord_raster.grd"
+  #group <- "Brown Trout"
+  #input <- dBBMM
+  #Transmitter <- "R64K.4075_Track_8"
+  # EXCLUDE!
+  
+  # Get group and transmitter of interest:
+  aux.raster <- input[[group]] # Get group of interest
+  aux.name <- names(aux.raster) # Names of transmitters + track
+  index <- which(aux.name == Transmitter)
+  aux.raster <- aux.raster[[index]]
+  
+  # Convert projection to lonlat projection for plotting:
+  dBBMM.lonlat <- raster::projectRaster(from = aux.raster,
+                                        crs = "+proj=longlat +datum=WGS84")
+  
+  ### Plot with ggplot2: contours are slightly distorted! Using base R instead...
+
+  # ## Get intervals of intererst as df:
+  # contour.50 <- dBBMM.lonlat <=.50 # 50% 
+  # contour.50 <- raster::rasterToPoints(contour.50)
+  # contour.50 <- data.frame(contour.50)
+    
+  # contour.95 <- dBBMM.lonlat <=.95 # 95% 
+  # contour.95 <- raster::rasterToPoints(contour.95)
+  # contour.95 <- data.frame(contour.95)
+    
+  # # Convert raster from study area as df:
+  # SPBD.raster <- raster:::raster(SPBD.raster, full.names = TRUE)
+  # SPBD.raster_df <- raster::rasterToPoints(SPBD.raster)
+  # df <- data.frame(SPBD.raster_df)
+  # colnames(df) <- c("Longitude", "Latitude", "MAP")
+  
+  # ggplot2::ggplot() +
+  #   ggplot2::geom_raster(data = df, ggplot2::aes(y = Latitude, x = Longitude, fill = MAP), show.legend = FALSE) +
+  #   ggplot2::scale_fill_gradientn(colours = c(NA, "gray70")) + 
+  #   ggplot2::theme_bw() +
+    
+  #   # Contours: 
+  #   ggplot2::geom_contour(data = contour.95, ggplot2::aes(x = x, y = y, z = layer), 
+  #                breaks = 1, colour = "cyan") +
+    
+  #   ggplot2::geom_contour(data = contour.50, ggplot2::aes(x = x, y = y, z = layer), 
+  #                breaks = 1, colour = "darkblue")
+  
+  
+  ### Plot with base R: 
+  SPBD.raster <- raster:::raster(SPBD.raster, full.names = TRUE) # Raster from study area
+  
+  return(
+  # Study area: 
+  raster::plot(SPBD.raster, legend=F, col = c(NA, "gray"),
+               xlim = c(8, 10.5), ylim = c(56.3, 57.2),
+               xlab = "Longitude", ylab = "Latitude",
+               main = title) +
+  # 95%
+  move::contour(dBBMM.lonlat, levels=c(.95), 
+                drawlabels = F, col="cyan", add = T) +
+  # 50%
+  move::contour(dBBMM.lonlat, levels=c(.50),
+                drawlabels = F, col="darkblue", add = T)
+  )
+
 }
 

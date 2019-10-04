@@ -44,3 +44,15 @@ y
 
 y
 y
+Y
+Y
+Y
+Y
+Y
+Y
+Y
+output_250 <- new_spbdRun(transition.layer = "Limfjord_raster.grd", tz.study.area = "Europe/Copenhagen", distance = 250)
+Y
+output_500 <- new_spbdRun(transition.layer = "Limfjord_raster.grd", tz.study.area = "Europe/Copenhagen", distance = 500)
+Y
+
