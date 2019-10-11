@@ -1,58 +1,25 @@
-Y
-Y
-Y
-Y
-Y
-Y
-Y
-Y
-SPBDist(input = output)
-Y
-Y
-Y
-Y
-Y
-Y
-Y
-Y
-Y
-Y
-Y
-Y
-Y
-Y
-Y
-Y
-Y
-Y
-Y
-y
-y
-y
-y
-y
-y
-y
-y
-y
-y
-output_1000 <- new_spbdRun(transition.layer = "Limfjord_raster.grd", tz.study.area = "Europe/Copenhagen", distance = 1000)
-SPBDplot(output_1000[1], SPBD.raster = "Limfjord_raster.grd", display = "SPBD", type = "points")
 
-y
-y
 
-y
-y
-Y
-Y
-Y
-Y
-Y
-Y
-Y
-output_250 <- new_spbdRun(transition.layer = "Limfjord_raster.grd", tz.study.area = "Europe/Copenhagen", distance = 250)
-Y
-output_500 <- new_spbdRun(transition.layer = "Limfjord_raster.grd", tz.study.area = "Europe/Copenhagen", distance = 500)
-Y
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+output500 <- SPBDrun.dist(SPBD.raster = "Limfjord_raster.grd", tz.study.area = "CET",
+
+
+
+
 

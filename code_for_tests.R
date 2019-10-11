@@ -1,155 +1,114 @@
-# Wrapper function
-spbdRun <- function(transition.layer, tz.study.area) {
-  transition.layer <- SPBDraster(raster.hab = "Limfjord_raster.grd")
-  bio <- actel:::loadBio(file = "biometrics.csv")
-  spatial <- actel:::assembleSpatial(file = "spatial.csv", bio = bio, sections = NULL)
-  detections <- SPBDete(tz.study.area = tz.study.area, spatial = spatial)
-  if (Sys.getenv("USERNAME") == "hdmfla")
-    recipient <- actel:::deprecated_splitDetections(detections = detections, bio = bio, spatial = spatial)
-  else
-    recipient <- actel:::splitDetections(detections = detections, bio = bio, spatial = spatial)
-  detections.list <- recipient[[1]]
-  bio <- recipient[[2]]
-  rm(recipient)
-  detections.list <- lapply(detections.list, function(x){
-    x$Time.lapse.min <- c(0, as.numeric(difftime(x$Date.time.local[-1], x$Date.time.local[-nrow(x)], units = "mins")))
-    x$Longitude <- spatial$stations$Longitude[match(x$Receiver, spatial$stations$Receiver)]
-    x$Latitude <- spatial$stations$Latitude[match(x$Receiver, spatial$stations$Receiver)]
-    return(x)
-  })
-  print(system.time(output <- SPBD(df.detec = detections.list, tag = bio, r.path = transition.layer, 
-    tz.study.area = tz.study.area, time.lapse = 10, time.lapse.rec = 10, er.ad = 20)))
-  return(output)
-}
+#============================================================#
+# Testing the Shortest Path Between Detection (SPBD) toolkit #
+#                                                            #
+#                                 Yuri Niella & Hugo Flavio  #
+#============================================================#
 
-new_spbdRun <- function(transition.layer, tz.study.area, distance = 250, time.lapse = 10) {
-  transition.layer <- SPBDraster(raster.hab = "Limfjord_raster.grd")
-  bio <- actel:::loadBio(file = "biometrics.csv")
-  spatial <- actel:::assembleSpatial(file = "spatial.csv", bio = bio, sections = NULL)
-  detections <- SPBDete(tz.study.area = tz.study.area, spatial = spatial)
-  if (Sys.getenv("USERNAME") == "hdmfla")
-    recipient <- actel:::deprecated_splitDetections(detections = detections, bio = bio, spatial = spatial)
-  else
-    recipient <- actel:::splitDetections(detections = detections, bio = bio, spatial = spatial)
-  detections.list <- recipient[[1]]
-  bio <- recipient[[2]]
-  rm(recipient)
-  detections.list <- lapply(detections.list, function(x){
-    x$Time.lapse.min <- c(0, as.numeric(difftime(x$Date.time.local[-1], x$Date.time.local[-nrow(x)], units = "mins")))
-    x$Longitude <- spatial$stations$Longitude[match(x$Receiver, spatial$stations$Receiver)]
-    x$Latitude <- spatial$stations$Latitude[match(x$Receiver, spatial$stations$Receiver)]
-    return(x)
-  })
-  print(system.time(output <- new_SPBD(df.detec = detections.list, tag = bio, r.path = transition.layer, 
-    tz.study.area = tz.study.area, distance = distance, time.lapse = time.lapse, er.ad = 20)))
-  return(output)
-}
-
-
-
-#--------------------------------------#
-# Testing the code and plotting graphs #
-#--------------------------------------#
-source("SPBD_Functions.R")
+## Loading functions
+source("SPBD_Functions.R") # YN: Wrapper functions moved to this file!
 source("dynBBMM_Functions.R")
 
-# Test for the Limfjord
+#--------------------------#
+# Test for the Limfjord ####
+#--------------------------#
 setwd("Limfjord_tester")
-output_original <- spbdRun(transition.layer = "Limfjord_raster.grd", tz.study.area = "CET")
-output_250 <- new_spbdRun(transition.layer = "Limfjord_raster.grd", tz.study.area = "Europe/Copenhagen", distance = 250)
-output_500 <- new_spbdRun(transition.layer = "Limfjord_raster.grd", tz.study.area = "Europe/Copenhagen", distance = 500)
-output_1000 <- new_spbdRun(transition.layer = "Limfjord_raster.grd", tz.study.area = "Europe/Copenhagen", distance = 1000)
 
-for (i in names(output)) {
-  cat("----------------\n")
-  cat(i)
-  cat("\n")
-  cat("---------\n")
-  cat("First position:\n")
-  aux <- split(output[[i]], output[[i]]$Track)
-  print(unlist(lapply(aux, function(x) x$Position[1])))
-  cat("---------\n")
-  cat("Last position:\n")
-  aux <- split(output[[i]], output[[i]]$Track)
-  print(unlist(lapply(aux, function(x) x$Position[nrow(x)])))
-  cat("----------------\n")
-}
+## Estimate SPBD: by time and distance
+output <- SPBDrun(SPBD.raster = "Limfjord_raster.grd", tz.study.area = "CET",
+                  time.lapse = 10, time.lapse.rec = 10)
+output250 <- SPBDrun.dist(SPBD.raster = "Limfjord_raster.grd", tz.study.area = "CET",
+                          distance = 250, time.lapse = 10)
+output500 <- SPBDrun.dist(SPBD.raster = "Limfjord_raster.grd", tz.study.area = "CET",
+                          distance = 500, time.lapse = 10)
+output1000 <- SPBDrun.dist(SPBD.raster = "Limfjord_raster.grd", tz.study.area = "CET",
+                           distance = 1000, time.lapse = 10)
 
-SPBDist(input = output)
-SPBDiag(input = output)
-names(output) # Has the names of each tag
+## Comparison plots: time x distance 
+
+# Total distances travelled
+plot1 <- SPBDist(input = output)
+plot2 <-SPBDist(input = output250)
+plot3 <-SPBDist(input = output500)
+plot4 <-SPBDist(input = output1000)
+ggpubr::ggarrange(plot1, plot2, plot3, plot4, # Similar distances travelled!
+                  labels = c("SPBD", "250 m", "500 m", "1000 m"))
+
+# Total number of locations
+plot1 <- SPBDiag(input = output)
+plot2 <-SPBDiag(input = output250)
+plot3 <-SPBDiag(input = output500)
+plot4 <-SPBDiag(input = output1000)
+ggpubr::ggarrange(plot1, plot2, plot3, plot4, # Lower number of added locations
+                  labels = c("SPBD", "250 m", "500 m", "1000 m"))
+rm(plot1, plot2, plot3, plot4)
 
 # Plot comparison tracks: Receiver x SPBD 
-SPBDplot(output_original[1], SPBD.raster = "Limfjord_raster.grd", display = "Both", type = "points")
-dev.new()
-SPBDplot(output_1000[1], SPBD.raster = "Limfjord_raster.grd", display = "Both", type = "points")
-ggplot2::ggsave("1000m_points.pdf")
-SPBDplot(output_500[1], SPBD.raster = "Limfjord_raster.grd", display = "Both", type = "points")
-ggplot2::ggsave("500m_points.pdf")
+SPBDplot(output[1], SPBD.raster = "Limfjord_raster.grd", display = "Both", type = "points")
+SPBDplot(output250[1], SPBD.raster = "Limfjord_raster.grd", display = "Both", type = "points")
+SPBDplot(output500[1], SPBD.raster = "Limfjord_raster.grd", display = "Both", type = "points")
+SPBDplot(output1000[1], SPBD.raster = "Limfjord_raster.grd", display = "Both", type = "points")
 
 # Check that the points are ~ 1000m appart
-x <- output_1000[[1]][Track == "Track_8"]
+x <- output1000[[1]][Track == "Track_8"]
 start <- x[-.N, c("Longitude", "Latitude")]
 stop <- x[-1, c("Longitude", "Latitude")]
 aux <- cbind(start, stop)
 apply(aux, 1, function(m) geosphere::distm(x = m[1:2], y = m[3:4]))
-# ---
-
-SPBDplot(output[2], SPBD.raster = "Limfjord_raster.grd", type = "Both")
-SPBDplot(output[3], SPBD.raster = "Limfjord_raster.grd", type = "Both")
-SPBDplot(output[4], SPBD.raster = "Limfjord_raster.grd", type = "Both")
-SPBDplot(output[5], SPBD.raster = "Limfjord_raster.grd", type = "Both")
 
 
-#=============================================#
-# Test Dynamic Brownian Bridge Movement Model #
-#=============================================#
+#-----------------------------------------------------#
+# Test Dynamic Brownian Bridge Movement Model (dBBMM) #
+#-----------------------------------------------------#
 
-dBBMM1 <- SPBDynBBMM(output_original, zone = 32) # Verbose = F is not working! :(
-dBBMM2 <- SPBDynBBMM(output_250, zone = 32) # Verbose = F is not working! :(
-dBBMM3 <- SPBDynBBMM(output_500, zone = 32) # Verbose = F is not working! :(
-dBBMM4 <- SPBDynBBMM(output_1000, zone = 32) # Verbose = F is not working! :(
+## 1. Total dBBMM:
+dBBMM1 <- SPBDynBBMM(output, tz.study.area = "CET", zone = 32, SPBD.raster = "Limfjord_raster.grd") 
+dBBMM2 <- SPBDynBBMM(output250, tz.study.area = "CET", zone = 32, SPBD.raster = "Limfjord_raster.grd") 
+dBBMM3 <- SPBDynBBMM(output500, tz.study.area = "CET", zone = 32, SPBD.raster = "Limfjord_raster.grd") 
+dBBMM4 <- SPBDynBBMM(output1000, tz.study.area = "CET", zone = 32, SPBD.raster = "Limfjord_raster.grd") 
 
-# Plot:
-jpeg("dBBMM_compare.jpeg", width=10, height=10, units="in", 
-     pointsize=18, quality=300,bg="white", res=300)
-par(mfrow=c(2,2))
-plot.dBBMM(dBBMM1, group = "Brown Trout",
-           Transmitter = "R64K.4075_Track_8",
-           SPBD.raster = "Limfjord_raster.grd", title = "Original") 
-plot.dBBMM(dBBMM2, group = "Brown Trout",
-           Transmitter = "R64K.4075_Track_8",
-           SPBD.raster = "Limfjord_raster.grd", title = "250 m") 
-plot.dBBMM(dBBMM3, group = "Brown Trout",
-           Transmitter = "R64K.4075_Track_8",
-           SPBD.raster = "Limfjord_raster.grd", title = "500 m") 
-plot.dBBMM(dBBMM4, group = "Brown Trout",
-           Transmitter = "R64K.4075_Track_8",
-           SPBD.raster = "Limfjord_raster.grd", title = "1000 m") 
-dev.off()
+# Retreive track metadata:
+df.track1 <- dBBMM1[[2]]
+df.track2 <- dBBMM2[[2]]
+df.track3 <- dBBMM3[[2]]
+df.track4 <- dBBMM4[[2]]
 
-
+# Compare the dBBMM for different SPBD estimations for a same track: 
+par(mfrow = c(2, 2))
+plot.dBBMM(dBBMM1, group = "Brown Trout1", Track = "R64K.4075_Track_8", main = "SPBD",
+           SPBD.raster = "Limfjord_raster.grd", level1 = .50, level2 = .95) 
+plot.dBBMM(dBBMM2, group = "Brown Trout1", Track = "R64K.4075_Track_8", main = "250 m",
+           SPBD.raster = "Limfjord_raster.grd", level1 = .50, level2 = .95) 
+plot.dBBMM(dBBMM3, group = "Brown Trout1", Track = "R64K.4075_Track_8", main = "500 m",
+           SPBD.raster = "Limfjord_raster.grd", level1 = .50, level2 = .95) 
+plot.dBBMM(dBBMM4, group = "Brown Trout1", Track = "R64K.4075_Track_8", main = "1000 m",
+           SPBD.raster = "Limfjord_raster.grd", level1 = .50, level2 = .95) 
 
 
-#---------------------------
-### Graphs:
-# Plot all models
-move::plot(dBBMM[[1]]$R64K.4075_Track_8, col = cmocean::cmocean('matter')(100))
+## 2. Fine-scale dBBMM:
+dBBMM.fine1 <- SPBDynBBMM.fine(output, tz.study.area = "CET", zone = 32, timeframe = 6,
+                              SPBD.raster = "Limfjord_raster.grd")
+dBBMM.fine2 <- SPBDynBBMM.fine(output250, tz.study.area = "CET", zone = 32, timeframe = 6,
+                              SPBD.raster = "Limfjord_raster.grd")
+dBBMM.fine3 <- SPBDynBBMM.fine(output500, tz.study.area = "CET", zone = 32, timeframe = 6,
+                              SPBD.raster = "Limfjord_raster.grd")
+dBBMM.fine4 <- SPBDynBBMM.fine(output1000, tz.study.area = "CET", zone = 32, timeframe = 6,
+                              SPBD.raster = "Limfjord_raster.grd")
 
-# Individual tracks: 50% and 95%
-move::contour(dBBMM[[1]]$R64K.4075_Track_8, levels=c(.50, .95))
-
-# Calculate areas: unit? 
-dbbmm_cont50 <- dBBMM[[1]] <=.50 # 50% 
-dbbmm_cont95 <- dBBMM[[1]] <=.95 # 95%
-area50 <- sum(raster::values(dbbmm_cont50))
-area95 <- sum(raster::values(dbbmm_cont95))
-area50 # 50% total area (all animals combined)
-area95 # 95% total area (all animals combined)
+# Retreive fine-scale data:
+df.fine1 <- dBBMM.fine1[[1]]
+df.fine2 <- dBBMM.fine2[[1]]
+df.fine3 <- dBBMM.fine3[[1]]
+df.fine4 <- dBBMM.fine4[[1]]
 
 
-#=======================================================================#
-## Export areas of usage as a shapefile (process in GIS): NOT WORKING!
+
+
+
+
+
+
+#----------------------------------------------
+# Export areas of usage as a shapefile (process in GIS): NOT WORKING YET!
 
 # Cast the data over to an adehabitatHR estUD
 dbbmm.px <- methods::as(dBBMM[[1]], "SpatialPixelsDataFrame")

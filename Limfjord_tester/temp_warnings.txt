@@ -7,74 +7,35 @@ W: Could not find a 'Range' column in the spatial file; assuming a range of 500 
 W: Could not find a 'Range' column in the spatial file; assuming a range of 500 metres for each receiver.
 W: Could not find a 'Range' column in the spatial file; assuming a range of 500 metres for each receiver.
 W: Could not find a 'Range' column in the spatial file; assuming a range of 500 metres for each receiver.
-W: Could not find a 'Range' column in the spatial file; assuming a range of 500 metres for each receiver.
-W: Could not find a 'Range' column in the spatial file; assuming a range of 500 metres for each receiver.
-W: Could not find a 'Range' column in the spatial file; assuming a range of 500 metres for each receiver.
-W: Could not find a 'Range' column in the spatial file; assuming a range of 500 metres for each receiver.
-W: Could not find a 'Range' column in the spatial file; assuming a range of 500 metres for each receiver.
-W: Could not find a 'Range' column in the spatial file; assuming a range of 500 metres for each receiver.
-W: Could not find a 'Range' column in the spatial file; assuming a range of 500 metres for each receiver.
-W: Could not find a 'Range' column in the spatial file; assuming a range of 500 metres for each receiver.
-W: Could not find a 'Range' column in the spatial file; assuming a range of 500 metres for each receiver.
-W: Could not find a 'Range' column in the spatial file; assuming a range of 500 metres for each receiver.
-W: Could not find a 'Range' column in the spatial file; assuming a range of 500 metres for each receiver.
-W: Could not find a 'Range' column in the spatial file; assuming a range of 500 metres for each receiver.
-W: Could not find a 'Range' column in the spatial file; assuming a range of 500 metres for each receiver.
-W: Could not find a 'Range' column in the spatial file; assuming a range of 500 metres for each receiver.
-W: Could not find a 'Range' column in the spatial file; assuming a range of 500 metres for each receiver.
-W: Could not find a 'Range' column in the spatial file; assuming a range of 500 metres for each receiver.
-W: Could not find a 'Range' column in the spatial file; assuming a range of 500 metres for each receiver.
-W: Could not find a 'Range' column in the spatial file; assuming a range of 500 metres for each receiver.
-W: Could not find a 'Range' column in the spatial file; assuming a range of 500 metres for each receiver.
-W: Could not find a 'Range' column in the spatial file; assuming a range of 500 metres for each receiver.
-W: Could not find a 'Range' column in the spatial file; assuming a range of 500 metres for each receiver.
-W: Could not find a 'Range' column in the spatial file; assuming a range of 500 metres for each receiver.
-W: Could not find a 'Range' column in the spatial file; assuming a range of 500 metres for each receiver.
-W: Could not find a 'Range' column in the spatial file; assuming a range of 500 metres for each receiver.
-W: Could not find a 'Range' column in the spatial file; assuming a range of 500 metres for each receiver.
-W: Could not find a 'Range' column in the spatial file; assuming a range of 500 metres for each receiver.
-W: Could not find a 'Range' column in the spatial file; assuming a range of 500 metres for each receiver.
-W: Could not find a 'Range' column in the spatial file; assuming a range of 500 metres for each receiver.
-W: Could not find a 'Range' column in the spatial file; assuming a range of 500 metres for each receiver.
-W: Could not find a 'Range' column in the spatial file; assuming a range of 500 metres for each receiver.
-W: Could not find a 'Range' column in the spatial file; assuming a range of 500 metres for each receiver.
-W: Could not find a 'Range' column in the spatial file; assuming a range of 500 metres for each receiver.
-W: One of the inter-station SPBD segments within Track_7 is too short to fit extra detections (Total distance: 445m). Adding one single point between detections.
-W: One of the inter-station SPBD segments within Track_7 is too short to fit extra detections (Total distance: 445m).
-   Adding one single point between detections.
-W: One of the inter-station SPBD segments within Track_7 is too short to fit extra 
-   detections (Total distance: 445m). Adding one single point between detections.
-W: Could not find a 'Range' column in the spatial file; assuming a range of 500 metres for each receiver.
-W: One of the inter-station SPBD segments within Track_7 is too short to fit extra 
-   detections (Total distance: 445m). Adding one single point between detections.
 W: One of the inter-station SPBD segments within Track_6 is too short to fit extra 
    detections (Total distance: 430m). Adding one single point between detections.
-W: Could not find a 'Range' column in the spatial file; assuming a range of 500 metres for each receiver.
-W: One of the inter-station SPBD segments within Track_7 is too short to fit extra 
-   detections (Total distance: 445m). Adding one single point between detections.
-W: One of the inter-station SPBD segments within Track_6 is too short to fit extra 
-   detections (Total distance: 430m). Adding one single point between detections.
-W: One of the inter-station SPBD segments within Track_7 is too short to fit extra 
-   detections (Total distance: 350m). Adding one single point between detections.
 W: One of the inter-station SPBD segments within Track_7 is too short to fit extra 
    detections (Total distance: 350m). Adding one single point between detections.
 W: One of the inter-station SPBD segments within Track_3 is too short to fit extra 
    detections (Total distance: 445m). Adding one single point between detections.
+W: One of the inter-station SPBD segments within Track_5 is too short to fit extra 
+   detections (Total distance: 350m). Adding one single point between detections.
 W: One of the inter-station SPBD segments within Track_4 is too short to fit extra 
    detections (Total distance: 430m). Adding one single point between detections.
 W: Could not find a 'Range' column in the spatial file; assuming a range of 500 metres for each receiver.
-W: One of the inter-station SPBD segments within Track_7 is too short to fit extra 
-   detections (Total distance: 445m). Adding one single point between detections.
 W: One of the inter-station SPBD segments within Track_6 is too short to fit extra 
    detections (Total distance: 430m). Adding one single point between detections.
 W: One of the inter-station SPBD segments within Track_7 is too short to fit extra 
    detections (Total distance: 350m). Adding one single point between detections.
+W: One of the inter-station SPBD segments within Track_3 is too short to fit extra 
+   detections (Total distance: 445m). Adding one single point between detections.
+W: One of the inter-station SPBD segments within Track_5 is too short to fit extra 
+   detections (Total distance: 350m). Adding one single point between detections.
+W: Could not find a 'Range' column in the spatial file; assuming a range of 500 metres for each receiver.
+W: Could not find a 'Range' column in the spatial file; assuming a range of 500 metres for each receiver.
+W: One of the inter-station SPBD segments within Track_6 is too short to fit extra 
+   detections (Total distance: 430m). Adding one single point between detections.
 W: One of the inter-station SPBD segments within Track_7 is too short to fit extra 
    detections (Total distance: 350m). Adding one single point between detections.
 W: One of the inter-station SPBD segments within Track_3 is too short to fit extra 
    detections (Total distance: 445m). Adding one single point between detections.
-W: One of the inter-station SPBD segments within Track_4 is too short to fit extra 
-   detections (Total distance: 430m). Adding one single point between detections.
+W: One of the inter-station SPBD segments within Track_5 is too short to fit extra 
+   detections (Total distance: 350m). Adding one single point between detections.
 W: Could not find a 'Range' column in the spatial file; assuming a range of 500 metres for each receiver.
 W: One of the inter-station SPBD segments within Track_7 is too short to fit extra 
    detections (Total distance: 445m). Adding one single point between detections.
@@ -103,9 +64,31 @@ W: One of the inter-station SPBD segments within Track_4 is too short to fit ext
    detections (Total distance: 430m). Adding one single point between detections.
 W: Could not find a 'Range' column in the spatial file; assuming a range of 500 metres for each receiver.
 W: Could not find a 'Range' column in the spatial file; assuming a range of 500 metres for each receiver.
+W: One of the inter-station SPBD segments within Track_7 is too short to fit extra 
+   detections (Total distance: 445m). Adding one single point between detections.
+W: One of the inter-station SPBD segments within Track_6 is too short to fit extra 
+   detections (Total distance: 430m). Adding one single point between detections.
+W: One of the inter-station SPBD segments within Track_7 is too short to fit extra 
+   detections (Total distance: 350m). Adding one single point between detections.
+W: One of the inter-station SPBD segments within Track_7 is too short to fit extra 
+   detections (Total distance: 350m). Adding one single point between detections.
+W: One of the inter-station SPBD segments within Track_3 is too short to fit extra 
+   detections (Total distance: 445m). Adding one single point between detections.
+W: One of the inter-station SPBD segments within Track_4 is too short to fit extra 
+   detections (Total distance: 430m). Adding one single point between detections.
 W: Could not find a 'Range' column in the spatial file; assuming a range of 500 metres for each receiver.
-W: Could not find a 'Range' column in the spatial file; assuming a range of 500 metres for each receiver.
-W: Could not find a 'Range' column in the spatial file; assuming a range of 500 metres for each receiver.
+W: One of the inter-station SPBD segments within Track_7 is too short to fit extra 
+   detections (Total distance: 445m). Adding one single point between detections.
+W: One of the inter-station SPBD segments within Track_6 is too short to fit extra 
+   detections (Total distance: 430m). Adding one single point between detections.
+W: One of the inter-station SPBD segments within Track_7 is too short to fit extra 
+   detections (Total distance: 350m). Adding one single point between detections.
+W: One of the inter-station SPBD segments within Track_7 is too short to fit extra 
+   detections (Total distance: 350m). Adding one single point between detections.
+W: One of the inter-station SPBD segments within Track_3 is too short to fit extra 
+   detections (Total distance: 445m). Adding one single point between detections.
+W: One of the inter-station SPBD segments within Track_4 is too short to fit extra 
+   detections (Total distance: 430m). Adding one single point between detections.
 W: Could not find a 'Range' column in the spatial file; assuming a range of 500 metres for each receiver.
 W: Could not find a 'Range' column in the spatial file; assuming a range of 500 metres for each receiver.
 W: Could not find a 'Range' column in the spatial file; assuming a range of 500 metres for each receiver.
@@ -137,3 +120,4 @@ W: One of the inter-station SPBD segments within Track_3 is too short to fit ext
    detections (Total distance: 445m). Adding one single point between detections.
 W: One of the inter-station SPBD segments within Track_4 is too short to fit extra 
    detections (Total distance: 430m). Adding one single point between detections.
+W: Could not find a 'Range' column in the spatial file; assuming a range of 500 metres for each receiver.

@@ -124,7 +124,7 @@ SPBDraster <- function(raster.hab = "shapefile.grd") { # HF: We need to discuss 
 #'
 #' @param df.track Detection data for that individual as imported using SPBDete.
 #' @param tz.study.area Time zone of the study area.
-#' @param time.lapse Time lapse in minutes to be considered for adding positions.
+#' @param time.lapse Time lapse in minutes to be considered for adding estimated track positions.
 #' @param time.lapse.rec Time lapse in minutes to be considered for consecutive detections at the same station. 
 #' @param r.path TransitionLayer object as returned by LTDpath.
 #' @param er.ad Error parameter in meters for consecutive detections at the same station.
@@ -435,8 +435,8 @@ SPBD <- function(df.detec, tag, r.path, tz.study.area, time.lapse, time.lapse.re
   # Recreate SPBD individually
   for (i in 1:length(tag)) {
     tag.recipient <- NULL
-    actel:::appendTo("Screen",
-                     crayon::bold(crayon::green((paste("Analyzing:", tag[i])))))
+    actel:::appendTo(c("Screen", "Report"),
+                     paste("M: Analyzing:", crayon::bold(crayon::green((paste(tag[i]))))))
     dates.aux <- detectDiffer(df.detec[[i]]) # Identify time differences between detections (in days)
     dates.aux <- trackNames(df.detec[[i]], dates.aux) # Fine-scale tracking
     tracks <- split(dates.aux, dates.aux$Track)
@@ -543,6 +543,75 @@ new_SPBD <- function(df.detec, tag, r.path, tz.study.area, distance, time.lapse,
   return(track.final)
 }
 
+#' Shortest Path Between Detection (SPBD) analysis
+#' 
+#' Estimates the SPBD for a series of animals tracked with acoustic transmitters. All input files
+#' must be placed on the same work directory including: 1. the raw detections file as downloaded from
+#' the receivers; 2. the biometrics file...
+#'
+#' @param SPBD.raster Raster file from the study area defining land (1) and water (0) regions. 
+#' @param tz.study.area Time zone of the study area.
+#' @param time.lapse Time lapse in minutes to be considered for adding estimated track positions.
+#' @param time.lapse.rec Time lapse in minutes to be considered for consecutive detections at the same station. 
+#' @return Returns a list of SPBD tracks (as dataframe) for each transmitter detected. 
+#' 
+SPBDrun <- function(SPBD.raster, tz.study.area, time.lapse = 10, time.lapse.rec = 10) {
+  transition.layer <- SPBDraster(raster.hab = "Limfjord_raster.grd")
+  bio <- actel:::loadBio(file = "biometrics.csv")
+  spatial <- actel:::assembleSpatial(file = "spatial.csv", bio = bio, sections = NULL)
+  detections <- SPBDete(tz.study.area = tz.study.area, spatial = spatial)
+  if (Sys.getenv("USERNAME") == "hdmfla")
+    recipient <- actel:::deprecated_splitDetections(detections = detections, bio = bio, spatial = spatial)
+  else
+    recipient <- actel:::splitDetections(detections = detections, bio = bio, spatial = spatial)
+  detections.list <- recipient[[1]]
+  bio <- recipient[[2]]
+  rm(recipient)
+  detections.list <- lapply(detections.list, function(x){
+    x$Time.lapse.min <- c(0, as.numeric(difftime(x$Date.time.local[-1], x$Date.time.local[-nrow(x)], units = "mins")))
+    x$Longitude <- spatial$stations$Longitude[match(x$Receiver, spatial$stations$Receiver)]
+    x$Latitude <- spatial$stations$Latitude[match(x$Receiver, spatial$stations$Receiver)]
+    return(x)
+  })
+  print(system.time(output <- SPBD(df.detec = detections.list, tag = bio, r.path = transition.layer, 
+                                   tz.study.area = tz.study.area, time.lapse = time.lapse, time.lapse.rec = time.lapse.rec, er.ad = 5)))
+  return(output)
+}
+
+#' Shortest Path Between Detection (SPBD) analysis by fixed distance intervals
+#' 
+#' Estimates the SPBD for a series of animals tracked with acoustic transmitters. Intermediate
+#' locations are estimated according to fixed distance and temporal intervals.
+#'
+#' @param SPBD.raster Raster file from the study area defining land (1) and water (0) regions. 
+#' @param tz.study.area Time zone of the study area.
+#' @param distance Fixed distances in meters to add intermediate track locations. By default intermediate positions are added every 250 m.
+#' @param time.lapse Temporal window in minutes to add intermediate track locations. By default intermediate positions are added every 10 min.
+#' 
+#' @return Returns a list of SPBD tracks (as dataframe) for each transmitter detected. 
+#' 
+SPBDrun.dist <- function(SPBD.raster, tz.study.area, distance = 250, time.lapse = 10) {
+  transition.layer <- SPBDraster(raster.hab = "Limfjord_raster.grd")
+  bio <- actel:::loadBio(file = "biometrics.csv")
+  spatial <- actel:::assembleSpatial(file = "spatial.csv", bio = bio, sections = NULL)
+  detections <- SPBDete(tz.study.area = tz.study.area, spatial = spatial)
+  if (Sys.getenv("USERNAME") == "hdmfla")
+    recipient <- actel:::deprecated_splitDetections(detections = detections, bio = bio, spatial = spatial)
+  else
+    recipient <- actel:::splitDetections(detections = detections, bio = bio, spatial = spatial)
+  detections.list <- recipient[[1]]
+  bio <- recipient[[2]]
+  rm(recipient)
+  detections.list <- lapply(detections.list, function(x){
+    x$Time.lapse.min <- c(0, as.numeric(difftime(x$Date.time.local[-1], x$Date.time.local[-nrow(x)], units = "mins")))
+    x$Longitude <- spatial$stations$Longitude[match(x$Receiver, spatial$stations$Receiver)]
+    x$Latitude <- spatial$stations$Latitude[match(x$Receiver, spatial$stations$Receiver)]
+    return(x)
+  })
+  print(system.time(output <- new_SPBD(df.detec = detections.list, tag = bio, r.path = transition.layer, 
+                                       tz.study.area = tz.study.area, distance = distance, time.lapse = time.lapse, er.ad = 5)))
+  return(output)
+}
 
 #' Analyze SPBD x Receiver total distances travelled 
 #' 
