@@ -23,3 +23,17 @@ output500 <- SPBDrun.dist(SPBD.raster = "Limfjord_raster.grd", tz.study.area = "
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+

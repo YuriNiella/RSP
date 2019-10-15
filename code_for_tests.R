@@ -73,9 +73,8 @@ df.track3 <- dBBMM3[[2]]
 df.track4 <- dBBMM4[[2]]
 
 # Compare the dBBMM for different SPBD estimations for a same track: 
-par(mfrow = c(2, 2))
 plot.dBBMM(dBBMM1, group = "Brown Trout1", Track = "R64K.4075_Track_8", main = "SPBD",
-           SPBD.raster = "Limfjord_raster.grd", level1 = .50, level2 = .95) 
+           SPBD.raster = "Limfjord_raster.grd") 
 plot.dBBMM(dBBMM2, group = "Brown Trout1", Track = "R64K.4075_Track_8", main = "250 m",
            SPBD.raster = "Limfjord_raster.grd", level1 = .50, level2 = .95) 
 plot.dBBMM(dBBMM3, group = "Brown Trout1", Track = "R64K.4075_Track_8", main = "500 m",
@@ -86,13 +85,13 @@ plot.dBBMM(dBBMM4, group = "Brown Trout1", Track = "R64K.4075_Track_8", main = "
 
 ## 2. Fine-scale dBBMM:
 dBBMM.fine1 <- SPBDynBBMM.fine(output, tz.study.area = "CET", zone = 32, timeframe = 6,
-                              SPBD.raster = "Limfjord_raster.grd")
+                               SPBD.raster = "Limfjord_raster.grd")
 dBBMM.fine2 <- SPBDynBBMM.fine(output250, tz.study.area = "CET", zone = 32, timeframe = 6,
-                              SPBD.raster = "Limfjord_raster.grd")
+                               SPBD.raster = "Limfjord_raster.grd")
 dBBMM.fine3 <- SPBDynBBMM.fine(output500, tz.study.area = "CET", zone = 32, timeframe = 6,
-                              SPBD.raster = "Limfjord_raster.grd")
+                               SPBD.raster = "Limfjord_raster.grd")
 dBBMM.fine4 <- SPBDynBBMM.fine(output1000, tz.study.area = "CET", zone = 32, timeframe = 6,
-                              SPBD.raster = "Limfjord_raster.grd")
+                               SPBD.raster = "Limfjord_raster.grd")
 
 # Retreive fine-scale data:
 df.fine1 <- dBBMM.fine1[[1]]

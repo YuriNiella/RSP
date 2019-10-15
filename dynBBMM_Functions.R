@@ -15,7 +15,7 @@ LonLatToUTM <- function(x, y, zone) {
   sp::coordinates(xy) <- c("X", "Y")
   sp::proj4string(xy) <- sp::CRS("+proj=longlat +datum=WGS84")  ## for example
   res <- sp::spTransform(xy, sp::CRS(paste0("+proj=utm +zone=", zone, " +datum=WGS84 +units=m +no_defs")))
-
+  
   return(as.data.frame(res))
 }
 
@@ -48,6 +48,11 @@ SPBDynBBMM <- function(input, tz.study.area, zone, Transmitters = NULL, SPBD.ras
   raster::crs(raster.aux) <- "+proj=longlat +datum=WGS84" # Base raster in lonlat CRS
   raster.aux <- raster::projectRaster(from = raster.aux,  # Converto to UTM
                                       crs = paste0("+proj=utm +zone=", zone, " +units=m +ellps=WGS84"))
+  
+  # Secondary raster file to crop in-land contours
+  raster.base <- raster.aux
+  raster.base[which(raster::values(raster.base) == 0)] <- NA # Zero values to NA = mask
+  
   
   # Split transmitters per group variable
   transmitter.aux <- names(input)
@@ -85,6 +90,8 @@ SPBDynBBMM <- function(input, tz.study.area, zone, Transmitters = NULL, SPBD.ras
   good.track <- NULL 
   good.initial <- NULL
   good.final <- NULL
+  good.a50 <- NULL
+  good.a95 <- NULL
   dbbmm.df <- NULL # Auxiliar to save output names
   
   
@@ -147,18 +154,45 @@ SPBDynBBMM <- function(input, tz.study.area, zone, Transmitters = NULL, SPBD.ras
                                                                       location.error = df.aux$Error), 
                                pattern = "Computational size:")
     
-    # Save model as standardized areas of usage (50% and 95%):
-    assign(x = paste0("dBBMM_", spp[i]), 
-           value = move::getVolumeUD(mod_dbbmm)) # Standardized areas!
-    dbbmm.df <- c(dbbmm.df, paste0("dBBMM_", spp[i])) # Vector of dataframe names
+    raster.dBBMM <- move::getVolumeUD(mod_dbbmm) # Standardized areas
     
+    # Clip dBBMM contours by land limits
+    trans.aux <- names(raster.dBBMM)
+    for (iii in 1:length(trans.aux)){
+      raster.dBBMM2 <- raster.dBBMM[[iii]]
+      
+      extent1 <- raster::extent(raster.dBBMM2)  # Get both rasters with the same extent
+      raster::extent(raster.base) <- extent1
+      raster.base <- raster::resample(raster.base, raster.dBBMM2)
+      raster.crop <- raster::mask(x = raster.dBBMM2,
+                                  mask = raster.base,
+                                  inverse = TRUE)
+      
+      # Calculate contour areas
+      dbbmm_cont50 <- raster.crop[[1]] <=.50 # 50% 
+      dbbmm_cont95 <- raster.crop[[1]] <=.95 # 95%
+      area50 <- sum(raster::values(dbbmm_cont50), na.rm = TRUE)
+      area95 <- sum(raster::values(dbbmm_cont95), na.rm = TRUE)
+      
+      # Save areas for track metadata
+      good.a50 <- c(good.a50, area50)
+      good.a95 <- c(good.a95, area95)
+      
+      # Save dBBMM output
+      assign(x = paste0(spp[i], "_", trans.aux[iii]), 
+             value = raster.crop) # Standardized areas cropped by land
+      
+      dbbmm.df <- c(dbbmm.df, paste0(spp[i], "_", trans.aux[iii])) # Vector of dataframe names
+    }
   }
   
   # Save good track info
   Track.info <- data.frame(Group = good.group,
                            Track = good.track,
                            Initial = as.character(good.initial),
-                           Final = as.character(good.final))
+                           Final = as.character(good.final),
+                           A50 = good.a50,
+                           A95 = good.a95)
   Track.info$Initial <- as.POSIXct(Track.info$Initial, tz = tz.study.area)
   Track.info$Final <- as.POSIXct(Track.info$Final, tz = tz.study.area)
   Track.info$Time.lapse.min <- as.numeric(difftime(time1 = Track.info$Final, 
@@ -168,7 +202,7 @@ SPBDynBBMM <- function(input, tz.study.area, zone, Transmitters = NULL, SPBD.ras
   # Save output as a list:
   dBBMM <- mget(dbbmm.df)
   dBBMM <- list(dBBMM, Track.info)
-  names(dBBMM) <- c("Total dBBMM", "Track.info") 
+  names(dBBMM) <- c("dBBMM", "Track.info") 
   
   return(dBBMM)  
 }
@@ -185,17 +219,6 @@ SPBDynBBMM <- function(input, tz.study.area, zone, Transmitters = NULL, SPBD.ras
 #' @return List with dBBMM per species/individual. 
 #' 
 SPBDynBBMM.fine <- function(input, tz.study.area, zone, timeframe = 6, SPBD.raster) {
-  
-  # EXCLUDE!
-  #input <- output
-  #zone <- 32
-  #timeframe <- 6
-  #SPBD.raster <- "Limfjord_raster.grd"
-  # Artificial multiple groups:
-  #df.bio$Group <- c("Brown Trout1","Brown Trout1","Brown Trout2",
-  #                  "Brown Trout1","Brown Trout2")
-  # EXCLUDE!
-  
   
   ## Raster of study area as UTM: to be used for the dBBMM
   raster.aux <- raster::raster(SPBD.raster)
@@ -247,12 +270,16 @@ SPBDynBBMM.fine <- function(input, tz.study.area, zone, timeframe = 6, SPBD.rast
   }
   
   # Separate total timeframe of tracking into temporal windows:
-  time.study <- range(df.aux$Date.time.local)
+  time.study <- range(df.aux$Date.time.local) # Use round hours (45 min +/-)
+  time.study[1] <- round.POSIXt(x = (time.study[1] - 2700),
+                                units = "hours")
+  time.study[2] <- round.POSIXt(x = (time.study[2] + 2700),
+                                units = "hours")
   time.study <- seq(from = time.study[1], 
                     to = time.study[2],
                     by = 3600 * timeframe) # Use-defined intervals
   
-  # Create empty vectors for each group: OLD!!!!
+  # Create empty vectors for each group to save output
   var1 <- NULL
   var2 <- NULL
   for (i in 1:length(groups)) {
@@ -265,8 +292,6 @@ SPBDynBBMM.fine <- function(input, tz.study.area, zone, timeframe = 6, SPBD.rast
     var1 <- c(var1, var.aux1)
     var2 <- c(var2, var.aux2)
   }
-  
-  # Create empty vectors for each group (saving values): NEW!!
   time1 <- NULL
   time2 <- NULL
   group1 <- NULL
@@ -282,17 +307,18 @@ SPBDynBBMM.fine <- function(input, tz.study.area, zone, timeframe = 6, SPBD.rast
   over.names.50 <- NULL # Save 50% overlap contours
   over.names.95 <- NULL # Save 95% overlap contours
   
+  
   # Estimate group-specific dBBMM per timestamp:
   actel:::appendTo("Screen", 
                    paste0("M: Calculating fine-scale dBBMM ",
                           crayon::bold(crayon::green(paste0("(", timeframe, "-h intervals)")))))
-
+  
   pb <-  txtProgressBar(min = 0, max = length(time.study),  
                         initial = 0, style = 3, width = 60)
   
   for (i in 1:(length(time.study) - 1)) {
     setTxtProgressBar(pb, i) # Progress bar    
-    
+    # i <- 207
     df.aux2 <- subset(df.aux, Date.time.local >= time.study[i] &
                         Date.time.local < time.study[i + 1])
     
@@ -309,6 +335,10 @@ SPBDynBBMM.fine <- function(input, tz.study.area, zone, timeframe = 6, SPBD.rast
     for (ii in 1:length(groups)) { 
       df.aux3 <- subset(df.aux2, Group == groups[ii])
       
+      # Secondary raster file to crop in-land contours
+      raster.base <- raster.aux
+      raster.base[which(raster::values(raster.base) == 0)] <- NA # Zero values to NA = mask
+      
       if (nrow(df.aux3) == 0) { # No detections for this temporal window
         time1 <- c(time1, as.character(time.study[i]))
         time2 <- c(time2, as.character(time.study[i + 1]))
@@ -321,7 +351,7 @@ SPBDynBBMM.fine <- function(input, tz.study.area, zone, timeframe = 6, SPBD.rast
         A50.2 <- c(A50.2, 0)
         A95.2 <- c(A95.2, 0)
         over.50 <- c(over.50, 0) 
-        over.95 <- c(over.50, 0) 
+        over.95 <- c(over.95, 0) 
       }
       
       else {
@@ -341,11 +371,6 @@ SPBDynBBMM.fine <- function(input, tz.study.area, zone, timeframe = 6, SPBD.rast
         # Only proceed to dBBMM if number of final positions >= 8
         if (nrow(df.aux3) >= 8) {
           
-          # Save number of transmitters detected
-          #aux.n <- get(paste0(groups[ii], "_N")) 
-          #aux.n <- c(aux.n, as.numeric(length(unique(df.aux3$Transmitter))))
-          #assign(x = paste0(groups[ii], "_N"), value = aux.n)
-          
           # Create a move object for all animals together:
           loc <- move::move(x = df.aux3$X, y = df.aux3$Y, time = df.aux3$Date.time.local,
                             proj = sp::CRS(paste0("+proj=utm +zone=", zone, 
@@ -359,14 +384,21 @@ SPBDynBBMM.fine <- function(input, tz.study.area, zone, timeframe = 6, SPBD.rast
                                                                             location.error = df.aux3$Error, verbose = FALSE),
                                      pattern = "Computational size:")
           
-          # Save model as standardized areas of usage:
-          stand.dbbmm <- move::getVolumeUD(mod_dbbmm) 
+          raster.dBBMM <- move::getVolumeUD(mod_dbbmm) # Standardized areas
           
-          # Calculate areas: 
-          dbbmm_cont50 <- stand.dbbmm[[1]] <=.50 # 50% 
-          dbbmm_cont95 <- stand.dbbmm[[1]] <=.95 # 95%
-          area50 <- sum(raster::values(dbbmm_cont50))
-          area95 <- sum(raster::values(dbbmm_cont95))
+          # Clip dBBMM contours by land limits
+          extent1 <- raster::extent(raster.dBBMM)  # Get both rasters with the same extent
+          raster::extent(raster.base) <- extent1
+          raster.base <- raster::resample(raster.base, raster.dBBMM)
+          raster.crop <- raster::mask(x = raster.dBBMM,
+                                      mask = raster.base,
+                                      inverse = TRUE)
+          
+          # Calculate areas:
+          dbbmm_cont50 <- raster.crop <=.50 # 50% 
+          dbbmm_cont95 <- raster.crop <=.95 # 95%
+          area50 <- sum(raster::values(dbbmm_cont50), na.rm = TRUE)
+          area95 <- sum(raster::values(dbbmm_cont95), na.rm = TRUE)
           
           # If multiple groups were not detected on that time timestamp
           if (aux.detec == "FALSE") {
@@ -403,7 +435,7 @@ SPBDynBBMM.fine <- function(input, tz.study.area, zone, timeframe = 6, SPBD.rast
           A50.2 <- c(A50.2, 0)
           A95.2 <- c(A95.2, 0)
           over.50 <- c(over.50, 0) 
-          over.95 <- c(over.50, 0) 
+          over.95 <- c(over.95, 0) 
         }
       }
     } 
@@ -419,31 +451,53 @@ SPBDynBBMM.fine <- function(input, tz.study.area, zone, timeframe = 6, SPBD.rast
         n1 <- c(n1, length(unique(df.aux2$Transmitter[df.aux2$Group == groups.detected[iii]])))
         n2 <- c(n2, length(unique((df.aux2$Transmitter[df.aux2$Group == groups.detected[iii + 1]]))))
         
-        ## Calculate overlapping areas (%):
+        
+        # Calculate overlapping areas (%)
         
         # 50% contours
-        over.50 <- raster::mosaic(x = get(paste0(groups.detected[iii],"_50_overlap")),
-                                  y = get(paste0(groups.detected[iii + 1],"_50_overlap")),
-                                  fun = min)
+        over1 <- get(paste0(groups.detected[iii],"_50_overlap"))
+        over2 <- get(paste0(groups.detected[iii+1],"_50_overlap"))
+        over.1 <- sum(raster::values(get(paste0(groups.detected[iii],"_50_overlap"))), na.rm = TRUE) 
+        over.2 <- sum(raster::values(get(paste0(groups.detected[iii + 1],"_50_overlap"))), na.rm = TRUE) 
+        over.max <- c(over.1, over.2)
+        over.max <- which(over.max == max(over.max)) 
+        over.min <- c(over.1, over.2)
+        over.min <- which(over.min == min(over.min)) 
         
-        over.1 <- sum(raster::values(get(paste0(groups.detected[iii],"_50_overlap")))) 
-        over.2 <- sum(raster::values(get(paste0(groups.detected[iii + 1],"_50_overlap")))) 
-        over.50.area <- sum(raster::values(over.50)) 
-        over.50.area <- over.50.area/(min(over.1, over.2))
+        over1 <- get(paste0("over", over.min)) # Smaller area
+        over2 <- get(paste0("over", over.max)) # Larger area
+        
+        extent1 <- raster::extent(over2)      
+        raster::extent(over1) <- extent1
+        raster.base <- raster::resample(over1, over2)
+        over.50.aux <- raster::mask(x = over2, mask = over1, inverse = TRUE)
+        over.50.area <- sum(raster::values(over.50.aux), na.rm = TRUE) 
+        over.50.area <- over.50.area/(min(over.1, over.2, na.rm = TRUE))
         # Save
         A50.1 <- c(A50.1, over.1)
         A50.2 <- c(A50.2, over.2)
         over.50 <- c(over.50, over.50.area)
         
-        # 95% contours
-        over.95 <- raster::mosaic(x = get(paste0(groups.detected[iii],"_95_overlap")),
-                                  y = get(paste0(groups.detected[iii + 1],"_95_overlap")),
-                                  fun = min)
         
-        over.1 <- sum(raster::values(get(paste0(groups.detected[iii],"_95_overlap")))) 
-        over.2 <- sum(raster::values(get(paste0(groups.detected[iii + 1],"_95_overlap")))) 
-        over.95.area <- sum(raster::values(over.95)) 
-        over.95.area <- over.95.area/(min(over.1, over.2))
+        # 95% contours
+        over1 <- get(paste0(groups.detected[iii],"_95_overlap"))
+        over2 <- get(paste0(groups.detected[iii+1],"_95_overlap"))
+        over.1 <- sum(raster::values(get(paste0(groups.detected[iii],"_95_overlap"))), na.rm = TRUE) 
+        over.2 <- sum(raster::values(get(paste0(groups.detected[iii + 1],"_95_overlap"))), na.rm = TRUE) 
+        over.max <- c(over.1, over.2)
+        over.max <- which(over.max == max(over.max)) 
+        over.min <- c(over.1, over.2)
+        over.min <- which(over.min == min(over.min)) 
+        
+        over1 <- get(paste0("over", over.min)) # Smaller area
+        over2 <- get(paste0("over", over.max)) # Larger area
+        
+        #extent1 <- raster::extent(over2)      
+        #raster::extent(over1) <- extent1
+        raster.base <- raster::resample(over1, over2)
+        over.95.aux <- raster::mask(x = over2, mask = over1, inverse = TRUE)
+        over.95.area <- sum(raster::values(over.95.aux), na.rm = TRUE) 
+        over.95.area <- over.50.area/(min(over.1, over.2, na.rm = TRUE))
         # Save
         A95.1 <- c(A95.1, over.1)
         A95.2 <- c(A95.2, over.2)
@@ -453,7 +507,7 @@ SPBDynBBMM.fine <- function(input, tz.study.area, zone, timeframe = 6, SPBD.rast
         if (over.50.area > 0) {
           assign(x = paste0(groups.detected[iii], "_",
                             groups.detected[iii + 1], "_", as.character(time.study[i])),
-                 value = over.50)
+                 value = over.50.aux)
           
           over.names.50 <- c(over.names.50, paste0(groups.detected[iii], "_",
                                                    groups.detected[iii + 1], "_", 
@@ -464,7 +518,7 @@ SPBDynBBMM.fine <- function(input, tz.study.area, zone, timeframe = 6, SPBD.rast
           assign(x = paste0(groups.detected[iii], "_",
                             groups.detected[iii + 1], "_", 
                             as.character(time.study[i])),
-                 value = over.95)
+                 value = over.95.aux)
           
           over.names.95 <- c(over.names.95, paste0(groups.detected[iii], "_",
                                                    groups.detected[iii + 1], "_", 
@@ -474,21 +528,6 @@ SPBDynBBMM.fine <- function(input, tz.study.area, zone, timeframe = 6, SPBD.rast
     }
   }
   close(pb)
-  
-  # If no overlap was found!
-  if (length(over.names.50) == 0) {
-    over.50 <- 0
-  } else {
-    # Save overlap contours 
-    dBBMM_overlaps_50 <- list(get(over.names.50[1:length(over.names.50)]))
-  }
-  if (length(over.names.95) == 0) {
-    over.95 <- 0
-  } else {
-    # Save overlap contours 
-    dBBMM_overlaps_95 <- list(get(over.names.95[1:length(over.names.95)])) 
-  }
-  
   
   # Save final dataframe
   df.save <- data.frame(Time1 = as.POSIXct(time1, tz = tz.study.area),
@@ -500,7 +539,7 @@ SPBDynBBMM.fine <- function(input, tz.study.area, zone, timeframe = 6, SPBD.rast
                         O50 = over.50, O95 = over.95
   )
   
-  # Remove empty timestamps:
+  # Remove timestamps with empty data: no detection + no overlap
   row.empty <- NULL
   for (i in 1:nrow(df.save)) {
     aux <- sum(df.save[i, c(4:6, 8:ncol(df.save))])  
@@ -527,7 +566,6 @@ SPBDynBBMM.fine <- function(input, tz.study.area, zone, timeframe = 6, SPBD.rast
   return(dBBMM.fine) 
 }
 
-
 #' Plot dynamic Brownian Bridge Movement Models (dBBMM)
 #'
 #' Plot specific dBBMM contours. By default, the inside contour (level1) is chosen to be the 50% 
@@ -537,19 +575,17 @@ SPBDynBBMM.fine <- function(input, tz.study.area, zone, timeframe = 6, SPBD.rast
 #' @param group Group/species of transmitters.
 #' @param Track Transmitter and track names to plot.
 #' @param SPBD.raster Raster file of the study area.
-#' @param level1 Numeric. Internal contour to plot. Default is 0.5 (50%).
-#' @param level2 Numeric. External contour to plot. Default is 0.95 (95%).
-#' @param col1 Color of the internal contour. 
-#' @param col2 Color of the external contour.
+#' @param levels Numeric vector os use areas to plot. By default the 95%, 75%, 50% and 25% areas will be returned.
+#' @param land.col Color of the land mass. 
 #' 
 #' @return dynamic Brownian Bridge Movement Model plot.
 #' 
 plot.dBBMM <- function(input, group, Track, SPBD.raster,
-                       level1 = .5, level2 = .95, main = NULL, 
-                       col1 = "#005EB3", col2 = "#70BBFF") {
- 
+                       levels = c(.95, .75, .50, .25), main = NULL,
+                       land.col = "#BABCBF") {
+  
   # Get specific track of interest from total dBBMM object
-  aux <- which(names(input[[1]]) == paste0("dBBMM_", group))
+  aux <- which(names(input[[1]]) == paste0(group, "_", Track))
   input <- input[[1]][aux]
   aux <- which(names(input[[1]]) == Track)
   input <- input[[1]][[aux]]
@@ -557,21 +593,43 @@ plot.dBBMM <- function(input, group, Track, SPBD.raster,
   # Convert projection to lonlat projection for plotting:
   dBBMM.lonlat <- raster::projectRaster(from = input, crs = "+proj=longlat +datum=WGS84")
   
+  # Base map raster
+  raster.base <- raster::raster(SPBD.raster)
+  raster::crs(raster.base) <- "+proj=longlat +datum=WGS84"
+  raster.base[which(raster::values(raster.base) != 1)] <- NA
+  raster.base <- raster::resample(raster.base, dBBMM.lonlat)
   
-  # Plotting with base R: ggplot2 contours became slightly distorted at this stage
-  SPBD.raster <- raster:::raster(SPBD.raster, full.names = TRUE) # Raster from study area
+  # Convert map raster to points
+  base.map <- raster::rasterToPoints(raster.base)
+  base.map <- data.frame(base.map)
+  colnames(base.map) <- c("x", "y", "MAP")
   
-  return(
-  # Study area: 
-    raster::plot(SPBD.raster, legend=F, col = c(NA, "gray"),
-                 xlab = "Longitude", ylab = "Latitude",
-                 main = main) +
-      # 50%
-      move::contour(dBBMM.lonlat, levels=c(level1),
-                    drawlabels = F, col=col1, add = T) +
-      # 95%
-      move::contour(dBBMM.lonlat, levels=c(level2), 
-                    drawlabels = F, col=col2, add = T)
-  )
+  # Get desired contours:
+  df.contour <- NULL
+  for (i in 1:length(levels)) {
+    aux.contour <- dBBMM.lonlat[[1]] <= levels[i]
+    raster.df <- raster::rasterToPoints(aux.contour)
+    raster.df <- data.frame(raster.df)
+    names(raster.df) <- c("x", "y", "layer")
+    raster.df <- subset(raster.df, layer > 0)
+    raster.df$Contour <- paste0((levels[i]*100),"%")
+    
+    df.contour <- rbind(df.contour, raster.df)
+  }
+  df.contour$Contour <- as.factor(df.contour$Contour)
+  color.plot <- cmocean::cmocean('matter')(length(levels)) # Color pallete
+  
+  # Plot
+  p <- ggplot2::ggplot()
+  p <- p + ggplot2::geom_raster(data = base.map, ggplot2::aes(x = x, y = y, fill = MAP), 
+                                show.legend = FALSE, fill = land.col) 
+  p <- p + ggplot2::theme_bw() 
+  p <- p + ggplot2::scale_x_continuous(expand = c(0, 0))
+  p <- p + ggplot2::scale_y_continuous(expand = c(0, 0))
+  p <- p + ggplot2::geom_tile(data = df.contour,
+                              ggplot2::aes(x = x, y = y, fill = Contour))
+  p <- p + ggplot2::scale_fill_manual(values = rev(color.plot))
+  p <- p + ggplot2::labs(x = "Longitude", y = "Latitude", fill = "Space use")
+  
+  return(p)
 }
-

@@ -262,3 +262,170 @@ M: Analyzing: [1m[32mR64K-4080[39m[22m
 M: Analyzing: [1m[32mR64K-4125[39m[22m
 M: Analyzing: [1m[32mR64K-4128[39m[22m
 M: Analyzing: [1m[32mR64K-4138[39m[22m
+M: Using detections previously compiled on 2019-09-13 16:11:54.
+M: Data time range: 2018-02-11 20:27:37 to 2018-08-31 15:43:46 (CET).
+M: Analyzing: [1m[32mR64K-4075[39m[22m
+M: Analyzing: [1m[32mR64K-4080[39m[22m
+M: Analyzing: [1m[32mR64K-4125[39m[22m
+M: Analyzing: [1m[32mR64K-4128[39m[22m
+M: Analyzing: [1m[32mR64K-4138[39m[22m
+M: Using detections previously compiled on 2019-09-13 16:11:54.
+M: Data time range: 2018-02-11 20:27:37 to 2018-08-31 15:43:46 (CET).
+M: No specific transmitters selected. All detected will be used for analysis.
+W: 481 individual locations were removed due to simultaneous detections at two receivers.
+W: 522 individual locations were removed due to simultaneous detections at two receivers.
+M: No specific transmitters selected. All detected will be used for analysis.
+W: 459 individual locations were removed due to simultaneous detections at two receivers.
+W: 500 individual locations were removed due to simultaneous detections at two receivers.
+M: Using detections previously compiled on 2019-09-13 16:11:54.
+M: Data time range: 2018-02-11 20:27:37 to 2018-08-31 15:43:46 (CET).
+M: Analyzing: [1m[32mR64K-4075[39m[22m
+M: Using detections previously compiled on 2019-09-13 16:11:54.
+M: Data time range: 2018-02-11 20:27:37 to 2018-08-31 15:43:46 (CET).
+M: Analyzing: [1m[32mR64K-4075[39m[22m
+M: Analyzing: [1m[32mR64K-4080[39m[22m
+M: Analyzing: [1m[32mR64K-4125[39m[22m
+M: Analyzing: [1m[32mR64K-4128[39m[22m
+M: Analyzing: [1m[32mR64K-4138[39m[22m
+M: Using detections previously compiled on 2019-09-13 16:11:54.
+M: Data time range: 2018-02-11 20:27:37 to 2018-08-31 15:43:46 (CET).
+M: Analyzing: [1m[32mR64K-4075[39m[22m
+M: Analyzing: [1m[32mR64K-4080[39m[22m
+M: Analyzing: [1m[32mR64K-4125[39m[22m
+M: Analyzing: [1m[32mR64K-4128[39m[22m
+M: Analyzing: [1m[32mR64K-4138[39m[22m
+M: No specific transmitters selected. All detected will be used for analysis.
+W: 481 individual locations were removed due to simultaneous detections at two receivers.
+W: 522 individual locations were removed due to simultaneous detections at two receivers.
+M: Using detections previously compiled on 2019-09-13 16:11:54.
+M: Data time range: 2018-02-11 20:27:37 to 2018-08-31 15:43:46 (CET).
+M: No specific transmitters selected. All detected will be used for analysis.
+W: 459 individual locations were removed due to simultaneous detections at two receivers.
+W: 500 individual locations were removed due to simultaneous detections at two receivers.
+M: Using detections previously compiled on 2019-09-13 16:11:54.
+M: Data time range: 2018-02-11 20:27:37 to 2018-08-31 15:43:46 (CET).
+M: No specific transmitters selected. All detected will be used for analysis.
+W: 459 individual locations were removed due to simultaneous detections at two receivers.
+W: 500 individual locations were removed due to simultaneous detections at two receivers.
+M: Using detections previously compiled on 2019-09-13 16:11:54.
+M: Data time range: 2018-02-11 20:27:37 to 2018-08-31 15:43:46 (CET).
+M: Analyzing: [1m[32mR64K-4075[39m[22m
+M: Analyzing: [1m[32mR64K-4080[39m[22m
+M: Analyzing: [1m[32mR64K-4125[39m[22m
+M: Analyzing: [1m[32mR64K-4128[39m[22m
+M: Analyzing: [1m[32mR64K-4138[39m[22m
+M: No specific transmitters selected. All detected will be used for analysis.
+W: 481 individual locations were removed due to simultaneous detections at two receivers.
+W: 522 individual locations were removed due to simultaneous detections at two receivers.
+M: Using detections previously compiled on 2019-09-13 16:11:54.
+M: Data time range: 2018-02-11 20:27:37 to 2018-08-31 15:43:46 (CET).
+M: Analyzing: [1m[32mR64K-4075[39m[22m
+M: Analyzing: [1m[32mR64K-4080[39m[22m
+M: Analyzing: [1m[32mR64K-4125[39m[22m
+M: Analyzing: [1m[32mR64K-4128[39m[22m
+M: Analyzing: [1m[32mR64K-4138[39m[22m
+M: No specific transmitters selected. All detected will be used for analysis.
+W: 481 individual locations were removed due to simultaneous detections at two receivers.
+W: 522 individual locations were removed due to simultaneous detections at two receivers.
+M: Using detections previously compiled on 2019-09-13 16:11:54.
+M: Data time range: 2018-02-11 20:27:37 to 2018-08-31 15:43:46 (CET).
+M: Analyzing: [1m[32mR64K-4075[39m[22m
+M: Analyzing: [1m[32mR64K-4080[39m[22m
+M: Analyzing: [1m[32mR64K-4125[39m[22m
+M: Analyzing: [1m[32mR64K-4128[39m[22m
+M: Analyzing: [1m[32mR64K-4138[39m[22m
+M: No specific transmitters selected. All detected will be used for analysis.
+W: 481 individual locations were removed due to simultaneous detections at two receivers.
+W: 522 individual locations were removed due to simultaneous detections at two receivers.
+M: No specific transmitters selected. All detected will be used for analysis.
+W: 481 individual locations were removed due to simultaneous detections at two receivers.
+W: 522 individual locations were removed due to simultaneous detections at two receivers.
+M: No specific transmitters selected. All detected will be used for analysis.
+W: 481 individual locations were removed due to simultaneous detections at two receivers.
+W: 522 individual locations were removed due to simultaneous detections at two receivers.
+M: No specific transmitters selected. All detected will be used for analysis.
+M: No specific transmitters selected. All detected will be used for analysis.
+W: 481 individual locations were removed due to simultaneous detections at two receivers.
+W: 522 individual locations were removed due to simultaneous detections at two receivers.
+M: No specific transmitters selected. All detected will be used for analysis.
+M: No specific transmitters selected. All detected will be used for analysis.
+W: 481 individual locations were removed due to simultaneous detections at two receivers.
+W: 522 individual locations were removed due to simultaneous detections at two receivers.
+M: No specific transmitters selected. All detected will be used for analysis.
+W: 481 individual locations were removed due to simultaneous detections at two receivers.
+W: 522 individual locations were removed due to simultaneous detections at two receivers.
+M: No specific transmitters selected. All detected will be used for analysis.
+W: 481 individual locations were removed due to simultaneous detections at two receivers.
+W: 522 individual locations were removed due to simultaneous detections at two receivers.
+M: No specific transmitters selected. All detected will be used for analysis.
+W: 481 individual locations were removed due to simultaneous detections at two receivers.
+W: 522 individual locations were removed due to simultaneous detections at two receivers.
+M: No specific transmitters selected. All detected will be used for analysis.
+W: 481 individual locations were removed due to simultaneous detections at two receivers.
+W: 522 individual locations were removed due to simultaneous detections at two receivers.
+M: No specific transmitters selected. All detected will be used for analysis.
+W: 481 individual locations were removed due to simultaneous detections at two receivers.
+W: 522 individual locations were removed due to simultaneous detections at two receivers.
+M: No specific transmitters selected. All detected will be used for analysis.
+W: 481 individual locations were removed due to simultaneous detections at two receivers.
+W: 522 individual locations were removed due to simultaneous detections at two receivers.
+M: No specific transmitters selected. All detected will be used for analysis.
+W: 481 individual locations were removed due to simultaneous detections at two receivers.
+W: 522 individual locations were removed due to simultaneous detections at two receivers.
+M: No specific transmitters selected. All detected will be used for analysis.
+W: 481 individual locations were removed due to simultaneous detections at two receivers.
+W: 522 individual locations were removed due to simultaneous detections at two receivers.
+M: No specific transmitters selected. All detected will be used for analysis.
+W: 481 individual locations were removed due to simultaneous detections at two receivers.
+W: 522 individual locations were removed due to simultaneous detections at two receivers.
+M: No specific transmitters selected. All detected will be used for analysis.
+W: 481 individual locations were removed due to simultaneous detections at two receivers.
+W: 522 individual locations were removed due to simultaneous detections at two receivers.
+M: No specific transmitters selected. All detected will be used for analysis.
+W: 481 individual locations were removed due to simultaneous detections at two receivers.
+W: 522 individual locations were removed due to simultaneous detections at two receivers.
+W: 2219 individual locations were removed due to simultaneous detections at two receivers.
+W: 2260 individual locations were removed due to simultaneous detections at two receivers.
+M: No specific transmitters selected. All detected will be used for analysis.
+M: Using detections previously compiled on 2019-09-13 16:11:54.
+M: Data time range: 2018-02-11 20:27:37 to 2018-08-31 15:43:46 (CET).
+M: Analyzing: [1m[32mR64K-4075[39m[22m
+M: Analyzing: [1m[32mR64K-4080[39m[22m
+M: Analyzing: [1m[32mR64K-4125[39m[22m
+M: Analyzing: [1m[32mR64K-4128[39m[22m
+M: Analyzing: [1m[32mR64K-4138[39m[22m
+M: No specific transmitters selected. All detected will be used for analysis.
+W: 481 individual locations were removed due to simultaneous detections at two receivers.
+W: 522 individual locations were removed due to simultaneous detections at two receivers.
+M: Using detections previously compiled on 2019-09-13 16:11:54.
+M: Data time range: 2018-02-11 20:27:37 to 2018-08-31 15:43:46 (CET).
+M: Analyzing: [1m[32mR64K-4075[39m[22m
+M: Analyzing: [1m[32mR64K-4080[39m[22m
+M: Analyzing: [1m[32mR64K-4125[39m[22m
+M: Analyzing: [1m[32mR64K-4128[39m[22m
+M: Analyzing: [1m[32mR64K-4138[39m[22m
+M: No specific transmitters selected. All detected will be used for analysis.
+M: No specific transmitters selected. All detected will be used for analysis.
+W: 481 individual locations were removed due to simultaneous detections at two receivers.
+W: 522 individual locations were removed due to simultaneous detections at two receivers.
+M: Using detections previously compiled on 2019-09-13 16:11:54.
+M: Data time range: 2018-02-11 20:27:37 to 2018-08-31 15:43:46 (CET).
+M: Analyzing: [1m[32mR64K-4075[39m[22m
+M: Analyzing: [1m[32mR64K-4080[39m[22m
+M: Analyzing: [1m[32mR64K-4125[39m[22m
+M: Analyzing: [1m[32mR64K-4128[39m[22m
+M: Analyzing: [1m[32mR64K-4138[39m[22m
+M: No specific transmitters selected. All detected will be used for analysis.
+M: No specific transmitters selected. All detected will be used for analysis.
+W: 481 individual locations were removed due to simultaneous detections at two receivers.
+W: 522 individual locations were removed due to simultaneous detections at two receivers.
+M: Using detections previously compiled on 2019-09-13 16:11:54.
+M: Data time range: 2018-02-11 20:27:37 to 2018-08-31 15:43:46 (CET).
+M: Analyzing: [1m[32mR64K-4075[39m[22m
+M: Analyzing: [1m[32mR64K-4080[39m[22m
+M: Analyzing: [1m[32mR64K-4125[39m[22m
+M: Analyzing: [1m[32mR64K-4128[39m[22m
+M: Analyzing: [1m[32mR64K-4138[39m[22m
+M: No specific transmitters selected. All detected will be used for analysis.
+W: 481 individual locations were removed due to simultaneous detections at two receivers.
+W: 522 individual locations were removed due to simultaneous detections at two receivers.
