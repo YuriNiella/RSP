@@ -48,7 +48,7 @@ SPBDplot(output250[1], SPBD.raster = "Limfjord_raster.grd", display = "Both", ty
 SPBDplot(output500[1], SPBD.raster = "Limfjord_raster.grd", display = "Both", type = "points")
 SPBDplot(output1000[1], SPBD.raster = "Limfjord_raster.grd", display = "Both", type = "points")
 
-# Check that the points are ~ 1000m appart
+# Check that the points are ~ 1000m apart
 x <- output1000[[1]][Track == "Track_8"]
 start <- x[-.N, c("Longitude", "Latitude")]
 stop <- x[-1, c("Longitude", "Latitude")]
@@ -66,7 +66,7 @@ dBBMM2 <- SPBDynBBMM(output250, tz.study.area = "CET", zone = 32, SPBD.raster = 
 dBBMM3 <- SPBDynBBMM(output500, tz.study.area = "CET", zone = 32, SPBD.raster = "Limfjord_raster.grd") 
 dBBMM4 <- SPBDynBBMM(output1000, tz.study.area = "CET", zone = 32, SPBD.raster = "Limfjord_raster.grd") 
 
-# Retreive track metadata:
+# Retrieve track metadata:
 df.track1 <- dBBMM1[[2]]
 df.track2 <- dBBMM2[[2]]
 df.track3 <- dBBMM3[[2]]
