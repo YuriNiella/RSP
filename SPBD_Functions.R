@@ -552,7 +552,7 @@ SPBDrun <- function(SPBD.raster, tz.study.area, time.lapse = 10, time.lapse.rec 
   bio <- actel:::loadBio(file = "biometrics.csv")
   spatial <- actel:::assembleSpatial(file = "spatial.csv", bio = bio, sections = NULL)
   detections <- SPBDete(tz.study.area = tz.study.area, spatial = spatial)
-  if (Sys.getenv("USERNAME") == "hdmfla")
+  if (grepl("0.0.4", packageVersion("actel")))
     recipient <- actel:::deprecated_splitDetections(detections = detections, bio = bio, spatial = spatial)
   else
     recipient <- actel:::splitDetections(detections = detections, bio = bio, spatial = spatial)
@@ -587,7 +587,7 @@ SPBDrun.dist <- function(SPBD.raster, tz.study.area, distance = 250, time.lapse 
   bio <- actel:::loadBio(file = "biometrics.csv")
   spatial <- actel:::assembleSpatial(file = "spatial.csv", bio = bio, sections = NULL)
   detections <- SPBDete(tz.study.area = tz.study.area, spatial = spatial)
-  if (Sys.getenv("USERNAME") == "hdmfla")
+  if (grepl("0.0.4", packageVersion("actel")))
     recipient <- actel:::deprecated_splitDetections(detections = detections, bio = bio, spatial = spatial)
   else
     recipient <- actel:::splitDetections(detections = detections, bio = bio, spatial = spatial)
