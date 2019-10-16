@@ -148,11 +148,12 @@ SPBDynBBMM <- function(input, tz.study.area, zone, Transmitters = NULL, SPBD.ras
                      paste("M: Calculating dBBMM:", 
                            crayon::bold(crayon::green((paste(strsplit(spp.df[i], "_")[[1]][2]))))))
     
-    pkgcond::suppress_messages(mod_dbbmm <- move::brownian.bridge.dyn(object = loc, 
+    print(system.time(suppressMessages(mod_dbbmm <- move::brownian.bridge.dyn(object = loc, # HF use base Suppress functions instead
                                                                       raster = raster.aux,  
                                                                       window.size = 7, margin = 3,
-                                                                      location.error = df.aux$Error), 
-                               pattern = "Computational size:")
+                                                                      location.error = df.aux$Error)
+                               # , pattern = "Computational size:"
+                               )))
     
     raster.dBBMM <- move::getVolumeUD(mod_dbbmm) # Standardized areas
     
@@ -378,11 +379,12 @@ SPBDynBBMM.fine <- function(input, tz.study.area, zone, timeframe = 6, SPBD.rast
                             animal = df.aux3$ID)
           
           # Compute dynamic Brownian Bridge Movement Model:
-          pkgcond::suppress_messages(mod_dbbmm <- move::brownian.bridge.dyn(object = loc,
+          suppressMessages(mod_dbbmm <- move::brownian.bridge.dyn(object = loc,
                                                                             raster = raster.aux,
                                                                             window.size = 7, margin = 3, # Small to account for short tracks!
-                                                                            location.error = df.aux3$Error, verbose = FALSE),
-                                     pattern = "Computational size:")
+                                                                            location.error = df.aux3$Error, verbose = FALSE)
+                                     # , pattern = "Computational size:"
+                                     )
           
           raster.dBBMM <- move::getVolumeUD(mod_dbbmm) # Standardized areas
           
