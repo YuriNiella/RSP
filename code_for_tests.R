@@ -112,12 +112,13 @@ setwd("Lake_Macquarie_tester")
 # 1. Estimate SPBD
 output <- SPBDrun(SPBD.raster = "Lake_Macquarie.grd", tz.study.area = "Australia/Sydney",
                   time.lapse = 10, time.lapse.rec = 10)
-
-
 output1000 <- SPBDrun.dist(SPBD.raster = "Lake_Macquarie.grd", tz.study.area = "Australia/Sydney",
                            distance = 1000, time.lapse = 30, er.ad = 20)
 
-
+# Plot comparison tracks: Receiver x SPBD 
+SPBDplot(output[1], SPBD.raster = "Lake_Macquarie.grd", display = "Both", type = "points")
+dev.new()
+SPBDplot(output1000[1], SPBD.raster = "Lake_Macquarie.grd", display = "Both", type = "points")
 
 
 
