@@ -1,6 +1,0 @@
-Error: No 'Receiver' columns found in the spatial file.
-
-An exception occurred, stopping the process!
-
--------------------
-M: Saving report as '2019-10-16.18.25.46.actel.log-STOP.txt'.
