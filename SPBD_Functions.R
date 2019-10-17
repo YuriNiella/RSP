@@ -620,8 +620,8 @@ SPBDrun <- function(SPBD.raster, tz.study.area, time.lapse = 10, time.lapse.rec 
   # rm(recipient)
   detections.list <- lapply(detections.list, function(x){
     x$Time.lapse.min <- c(0, as.numeric(difftime(x$Date.time.local[-1], x$Date.time.local[-nrow(x)], units = "mins")))
-    x$Longitude <- spatial$stations$Longitude[match(x$Receiver, spatial$stations$Receiver)]
-    x$Latitude <- spatial$stations$Latitude[match(x$Receiver, spatial$stations$Receiver)]
+    x$Longitude <- spatial$stations$Longitude[match(x$Standard.Name, spatial$stations$Standard.Name)]
+    x$Latitude <- spatial$stations$Latitude[match(x$Standard.Name, spatial$stations$Standard.Name)]
     return(x)
   })
   print(system.time(output <- SPBD(df.detec = detections.list, tag = bio, r.path = transition.layer, 
