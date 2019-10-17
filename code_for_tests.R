@@ -18,13 +18,12 @@ setwd("Limfjord_tester")
 
 output <- SPBDrun(SPBD.raster = "Limfjord_raster.grd", tz.study.area = "CET",
                   time.lapse = 10, time.lapse.rec = 10)
-# THESE ARE NOT WORKING
 # output250 <- SPBDrun.dist(SPBD.raster = "Limfjord_raster.grd", tz.study.area = "CET",
 #                           distance = 250, time.lapse = 10)
-# output500 <- SPBDrun.dist(SPBD.raster = "Limfjord_raster.grd", tz.study.area = "CET",
-#                           distance = 500, time.lapse = 10)
-# output1000 <- SPBDrun.dist(SPBD.raster = "Limfjord_raster.grd", tz.study.area = "CET",
-#                            distance = 1000, time.lapse = 10)
+output500 <- SPBDrun.dist(SPBD.raster = "Limfjord_raster.grd", tz.study.area = "CET",
+                          distance = 500, time.lapse = 10)
+output1000 <- SPBDrun.dist(SPBD.raster = "Limfjord_raster.grd", tz.study.area = "CET",
+                           distance = 1000, time.lapse = 10)
 
 ## Comparison plots: time x distance 
 
