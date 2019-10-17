@@ -1,0 +1,5 @@
+Error: No 'Receiver' columns found in the spatial file.
+
+An exception occurred, stopping the process!
+
+-------------------
