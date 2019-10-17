@@ -65,7 +65,7 @@ SPBDynBBMM <- function(input, tz.study.area, zone, Transmitters = NULL, SPBD.ras
   df.signal <- data.frame(Transmitter = transmitter.aux,
                           Signal = signal.save)
   
-  df.bio <- actel:::loadBio(file = "biometrics.csv")
+  df.bio <- actel:::loadBio(file = "biometrics.csv", tz.study.area = tz.study.area)
   df.signal$Group <- NA_character_
   for (i in 1:nrow(df.signal)) {
     df.signal$Group[i] <- as.character(df.bio$Group[df.bio$Signal == df.signal$Signal[i]])
@@ -228,7 +228,7 @@ SPBDynBBMM.fine <- function(input, tz.study.area, zone, timeframe = 6, SPBD.rast
                                       crs = paste0("+proj=utm +zone=", zone, " +units=m +ellps=WGS84"))
   
   ## Identify different tracked groups:
-  df.bio <- actel:::loadBio(file = "biometrics.csv")
+  df.bio <- actel:::loadBio(file = "biometrics.csv", tz.study.area = tz.study.area)
   groups <- unique(df.bio$Group)
   
   transmitter.aux <- names(input)
