@@ -619,7 +619,7 @@ plot.dBBMM <- function(input, group, Track, SPBD.raster,
     df.contour <- rbind(df.contour, raster.df)
   }
   df.contour$Contour <- as.factor(df.contour$Contour)
-  color.plot <- cmocean::cmocean('matter')(length(levels)) # Color pallete
+  color.plot <- cmocean::cmocean('matter')(length(levels) + 1)[-1] # Color pallete
   
   # Plot
   p <- ggplot2::ggplot()
