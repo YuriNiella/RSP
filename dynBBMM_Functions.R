@@ -112,8 +112,8 @@ SPBDynBBMM <- function(input, tz.study.area, zone, Transmitters = NULL, SPBD.ras
     # Remove second duplicated detection (time lapse = 0)
     if (length(index) > 0) {
       df.aux <- df.aux[-index, ]
-      actel:::appendTo(c("Report"), 
-                       paste("W:", index, "individual locations were removed due to simultaneous detections at two receivers."))
+      actel:::appendTo(c("Report", "Warning", "Screen"), 
+                       paste("W:", index, "individual detections were removed due to simultaneous detections at two receivers."))
     }
     
     ## Exclude tracks shorter than 30 minutes:
