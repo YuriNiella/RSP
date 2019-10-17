@@ -1,0 +1,17 @@
+M: Data time range: 2013-09-02 15:53:03 to 2015-05-24 15:53:04 (Australia/Sydney).
+M: Using detections previously compiled on 2019-10-16 15:01:03.
+M: Data time range: 2013-09-02 15:53:03 to 2015-05-24 15:53:04 (Australia/Sydney).
+M: Data time range: 2013-09-02 15:53:03 to 2015-05-24 15:53:04 (Australia/Sydney).
+M: Using detections previously compiled on 2019-10-16 15:36:54.
+M: Data time range: 2013-09-02 15:53:03 to 2015-05-24 15:53:04 (Australia/Sydney).
+
+An exception occurred, stopping the process!
+
+-------------------
+User inverventions:
+-------------------
+
+n
+
+-------------------
+M: Saving report as '2019-10-16.18.12.03.actel.log-STOP.txt'.

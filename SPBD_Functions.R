@@ -608,7 +608,7 @@ SPBDrun <- function(SPBD.raster, tz.study.area, time.lapse = 10, time.lapse.rec 
   # detections.list <- actel:::labelUnknowns(detections.list = detections.list)
   # detections.list <- actel:::checkDetectionsBeforeRelease(input = detections.list, bio = bio)
 
-  transition.layer <- SPBDraster(raster.hab = "Limfjord_raster.grd")
+  transition.layer <- SPBDraster(raster.hab = SPBD.raster)
   # bio <- actel:::loadBio(file = "biometrics.csv")
   # spatial <- actel:::assembleSpatial(file = "spatial.csv", bio = bio, sections = NULL)
   # if (grepl("0.0.4", packageVersion("actel")))

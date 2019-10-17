@@ -1,0 +1,222 @@
+M: Loading raster file.
+M: Loading raster file.
+M: Loading raster file.
+M: Creating transition layer.
+M: Loading raster file.
+M: Creating transition layer.
+M: Correcting transition layer.
+M: Storing transition layer.
+Starting loadBio.
+
+An exception occurred, stopping the process!
+
+-------------------
+M: Saving report as '2019-10-16.14.54.41.actel.log-STOP.txt'.
+Starting loadBio.
+
+An exception occurred, stopping the process!
+
+-------------------
+M: Saving report as '2019-10-16.14.56.30.actel.log-STOP.txt'.
+M: Loading raster file.
+M: Creating transition layer.
+M: Correcting transition layer.
+M: Storing transition layer.
+Starting loadBio.
+
+An exception occurred, stopping the process!
+
+-------------------
+M: Saving report as '2019-10-16.14.57.32.actel.log-STOP.txt'.
+Starting loadBio.
+M: No Release site has been indicated in the biometrics file. Creating a 'Release.site' column to avoid function failure. Filling with 'unspecified'.
+Terminating loadbio.
+Starting assembleSpatial.
+Starting loadSpatial.
+Terminating loadSpatial.
+Creating 'stations'.
+Creating 'release.sites'.
+Done.
+M: Compiling detections...
+Starting findFiles.
+Terminating findFiles.
+Importing file 'detections/Lake_Macquarie_VEMCO_raw.csv'.
+File 'detections/Lake_Macquarie_VEMCO_raw.csv' matches a Vemco log.
+Starting processVemcoFile.
+Processing data inside the file...
+Done!
+Terminating processVemcoFile.
+Starting bindDetections.
+Compiling the data object.
+Terminating bindDetections.
+Starting convertCodes.
+Terminating convertCodes.
+Starting convertTimes.
+Terminating convertTimes.
+M: Data time range: 2013-09-02 15:53:03 to 2015-05-24 15:53:04 (Australia/Sydney).
+Terminating loadDetections.
+Starting standardizeStations.
+Terminating standardizeStations.
+W: Could not find a 'Range' column in the spatial file; assuming a range of 500 metres for each receiver.
+Starting splitDetections.
+Starting excludeTags.
+Terminating excludeTags.
+Starting noDetectionsCheck.
+Terminating noDetectionsCheck.
+Starting dupSignalsCheck.
+Terminating dupSignalsCheck.
+Debug: Creating 'trimmed.list'.
+Starting collectStrays.
+Starting loadBio.
+M: No Release site has been indicated in the biometrics file. Creating a 'Release.site' column to avoid function failure. Filling with 'unspecified'.
+Terminating loadbio.
+Starting assembleSpatial.
+Starting loadSpatial.
+Terminating loadSpatial.
+Creating 'stations'.
+Creating 'release.sites'.
+Done.
+M: The detections have been processed on 2019-10-16 15:01:03.
+   If the input detection files were not changed, it is safe to use these again.
+
+M: Using detections previously compiled on 2019-10-16 15:01:03.
+Starting convertTimes.
+Terminating convertTimes.
+M: Data time range: 2013-09-02 15:53:03 to 2015-05-24 15:53:04 (Australia/Sydney).
+Starting standardizeStations.
+Terminating standardizeStations.
+W: Could not find a 'Range' column in the spatial file; assuming a range of 500 metres for each receiver.
+Starting splitDetections.
+Starting excludeTags.
+Terminating excludeTags.
+Starting noDetectionsCheck.
+Terminating noDetectionsCheck.
+Starting dupSignalsCheck.
+Terminating dupSignalsCheck.
+Debug: Creating 'trimmed.list'.
+Starting collectStrays.
+Starting loadBio.
+M: No Release site has been indicated in the biometrics file. Creating a 'Release.site' column to avoid function failure. Filling with 'unspecified'.
+Terminating loadbio.
+Starting assembleSpatial.
+Starting loadSpatial.
+Terminating loadSpatial.
+Creating 'stations'.
+Creating 'release.sites'.
+Done.
+M: The detections have been processed on 2019-10-16 15:01:03.
+   If the input detection files were not changed, it is safe to use these again.
+n
+M: Reprocessing the detections.
+M: Compiling detections...
+Starting findFiles.
+Terminating findFiles.
+Importing file 'detections/Lake_Macquarie_VEMCO_raw.csv'.
+File 'detections/Lake_Macquarie_VEMCO_raw.csv' matches a Vemco log.
+Starting processVemcoFile.
+Processing data inside the file...
+Done!
+Terminating processVemcoFile.
+Starting bindDetections.
+Compiling the data object.
+Terminating bindDetections.
+Starting convertCodes.
+Terminating convertCodes.
+Starting convertTimes.
+Terminating convertTimes.
+M: Data time range: 2013-09-02 15:53:03 to 2015-05-24 15:53:04 (Australia/Sydney).
+Terminating loadDetections.
+Starting standardizeStations.
+Terminating standardizeStations.
+W: Could not find a 'Range' column in the spatial file; assuming a range of 500 metres for each receiver.
+Starting splitDetections.
+Starting excludeTags.
+Terminating excludeTags.
+Starting noDetectionsCheck.
+Terminating noDetectionsCheck.
+Starting dupSignalsCheck.
+Terminating dupSignalsCheck.
+Debug: Creating 'trimmed.list'.
+Starting collectStrays.
+Starting loadBio.
+M: No Release site has been indicated in the biometrics file. Creating a 'Release.site' column to avoid function failure. Filling with 'unspecified'.
+Terminating loadbio.
+Starting assembleSpatial.
+Starting loadSpatial.
+Terminating loadSpatial.
+Creating 'stations'.
+Creating 'release.sites'.
+Done.
+M: The detections have been processed on 2019-10-16 15:36:54.
+   If the input detection files were not changed, it is safe to use these again.
+
+M: Using detections previously compiled on 2019-10-16 15:36:54.
+Starting convertTimes.
+Terminating convertTimes.
+M: Data time range: 2013-09-02 15:53:03 to 2015-05-24 15:53:04 (Australia/Sydney).
+Starting standardizeStations.
+Terminating standardizeStations.
+W: Could not find a 'Range' column in the spatial file; assuming a range of 500 metres for each receiver.
+Starting splitDetections.
+Starting excludeTags.
+Terminating excludeTags.
+Starting noDetectionsCheck.
+Terminating noDetectionsCheck.
+Starting dupSignalsCheck.
+Terminating dupSignalsCheck.
+Debug: Creating 'trimmed.list'.
+Starting collectStrays.
+Starting loadBio.
+
+An exception occurred, stopping the process!
+
+-------------------
+User inverventions:
+-------------------
+
+n
+
+-------------------
+M: Saving report as '2019-10-16.18.12.03.actel.log-STOP.txt'.
+Starting loadBio.
+M: No Release site has been indicated in the biometrics file. Creating a 'Release.site' column to avoid function failure. Filling with 'unspecified'.
+Terminating loadbio.
+Starting assembleSpatial.
+Starting loadSpatial.
+Error: No 'Receiver' columns found in the spatial file.
+
+An exception occurred, stopping the process!
+
+-------------------
+M: Saving report as '2019-10-16.18.13.40.actel.log-STOP.txt'.
+Starting loadBio.
+M: No Release site has been indicated in the biometrics file. Creating a 'Release.site' column to avoid function failure. Filling with 'unspecified'.
+Terminating loadbio.
+Starting assembleSpatial.
+Starting loadSpatial.
+Error: No 'Receiver' columns found in the spatial file.
+
+An exception occurred, stopping the process!
+
+-------------------
+M: Saving report as '2019-10-16.18.25.46.actel.log-STOP.txt'.
+Starting loadBio.
+M: No Release site has been indicated in the biometrics file. Creating a 'Release.site' column to avoid function failure. Filling with 'unspecified'.
+Terminating loadbio.
+Starting assembleSpatial.
+Starting loadSpatial.
+Error: No 'Receiver' columns found in the spatial file.
+
+An exception occurred, stopping the process!
+
+-------------------
+Starting loadBio.
+M: No Release site has been indicated in the biometrics file. Creating a 'Release.site' column to avoid function failure. Filling with 'unspecified'.
+Terminating loadbio.
+Starting assembleSpatial.
+Starting loadSpatial.
+Error: No 'Receiver' columns found in the spatial file.
+
+An exception occurred, stopping the process!
+
+-------------------

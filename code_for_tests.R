@@ -104,6 +104,19 @@ df.fine4 <- dBBMM.fine4[[1]]
 
 
 
+#--------------------------------#
+# Test for the Lake Macquarie ####
+#--------------------------------#
+
+setwd("Lake_Macquarie_tester")
+
+# 1. Estimate SPBD
+output <- SPBDrun(SPBD.raster = "Lake_Macquarie.grd", tz.study.area = "Australia/Sydney",
+                  time.lapse = 10, time.lapse.rec = 10)
+
+
+
+
 
 
 
