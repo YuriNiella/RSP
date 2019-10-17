@@ -12,16 +12,19 @@ source("dynBBMM_Functions.R")
 # Test for the Limfjord ####
 #--------------------------#
 setwd("Limfjord_tester")
-
+# actel::updateStudy(tz.study.area = "Europe/Copenhagen")
+# library(actel)
 ## Estimate SPBD: by time and distance
+
 output <- SPBDrun(SPBD.raster = "Limfjord_raster.grd", tz.study.area = "CET",
                   time.lapse = 10, time.lapse.rec = 10)
-output250 <- SPBDrun.dist(SPBD.raster = "Limfjord_raster.grd", tz.study.area = "CET",
-                          distance = 250, time.lapse = 10)
-output500 <- SPBDrun.dist(SPBD.raster = "Limfjord_raster.grd", tz.study.area = "CET",
-                          distance = 500, time.lapse = 10)
-output1000 <- SPBDrun.dist(SPBD.raster = "Limfjord_raster.grd", tz.study.area = "CET",
-                           distance = 1000, time.lapse = 10)
+# THESE ARE NOT WORKING
+# output250 <- SPBDrun.dist(SPBD.raster = "Limfjord_raster.grd", tz.study.area = "CET",
+#                           distance = 250, time.lapse = 10)
+# output500 <- SPBDrun.dist(SPBD.raster = "Limfjord_raster.grd", tz.study.area = "CET",
+#                           distance = 500, time.lapse = 10)
+# output1000 <- SPBDrun.dist(SPBD.raster = "Limfjord_raster.grd", tz.study.area = "CET",
+#                            distance = 1000, time.lapse = 10)
 
 ## Comparison plots: time x distance 
 
