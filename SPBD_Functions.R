@@ -431,8 +431,8 @@ new_SPBDrecreate <- function(df.track, tz.study.area, distance, time.lapse, r.pa
 #' 
 #' @return A list with the SPBD estimations of individual tracks per transmitter.
 #' 
-SPBD <- function(df.detec, tag, r.path, tz.study.area, time.lapse, time.lapse.rec, er.ad) {      
-  if (TRUE) {
+SPBD <- function(df.detec, tag, r.path, tz.study.area, time.lapse, time.lapse.rec, er.ad, debug = FALSE) {      
+  if (debug) {
     on.exit(save(list = ls(), file = "spbd_debug.RData"), add = TRUE)
     actel:::appendTo("Screen", "!!!--- Debug mode has been activated ---!!!")
   }
@@ -498,8 +498,8 @@ SPBD <- function(df.detec, tag, r.path, tz.study.area, time.lapse, time.lapse.re
 #' 
 #' @return A list with the SPBD estimations of individual tracks per transmitter.
 #' 
-new_SPBD <- function(df.detec, tag, r.path, tz.study.area, distance, time.lapse, er.ad) {      
-  if (TRUE) {
+new_SPBD <- function(df.detec, tag, r.path, tz.study.area, distance, time.lapse, er.ad, debug = FALSE) {      
+  if (debug) {
     on.exit(save(list = ls(), file = "spbd_debug.RData"), add = TRUE)
     actel:::appendTo("Screen", "!!!--- Debug mode has been activated ---!!!")
   }
@@ -635,7 +635,7 @@ SPBDrun <- function(SPBD.raster, tz.study.area, time.lapse = 10, time.lapse.rec 
 
 # Start data processing 
   print(system.time(output <- SPBD(df.detec = detections.list, tag = bio, r.path = transition.layer, 
-                                   tz.study.area = tz.study.area, time.lapse = time.lapse, time.lapse.rec = time.lapse.rec, er.ad = er.ad)))
+                                   tz.study.area = tz.study.area, time.lapse = time.lapse, time.lapse.rec = time.lapse.rec, er.ad = er.ad, debug = debug)))
 # ---------------------
   return(output)
 }
@@ -653,7 +653,7 @@ SPBDrun <- function(SPBD.raster, tz.study.area, time.lapse = 10, time.lapse.rec 
 #' @return Returns a list of SPBD tracks (as dataframe) for each transmitter detected. 
 #' 
 SPBDrun.dist <- function(SPBD.raster, tz.study.area, distance = 250, time.lapse = 10, 
-  start.timestamp = NULL, end.timestamp = NULL, sections = NULL, exclude.tags = NULL, er.ad = 10) {
+  start.timestamp = NULL, end.timestamp = NULL, sections = NULL, exclude.tags = NULL, er.ad = 10, debug = FALSE) {
 # Load, structure and check the inputs
   actel:::appendTo(c("Screen", "Report"), "M: Importing data. This process may take a while.")
   bio <- actel::loadBio(file = "biometrics.csv", tz.study.area = tz.study.area)
@@ -723,7 +723,7 @@ SPBDrun.dist <- function(SPBD.raster, tz.study.area, distance = 250, time.lapse 
 
 # Start data processing  
   print(system.time(output <- new_SPBD(df.detec = detections.list, tag = bio, r.path = transition.layer, 
-                                       tz.study.area = tz.study.area, distance = distance, time.lapse = time.lapse, er.ad = er.ad)))
+                                       tz.study.area = tz.study.area, distance = distance, time.lapse = time.lapse, er.ad = er.ad, debug = debug)))
 # ---------------------
   return(output)
 }
