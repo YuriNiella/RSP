@@ -21,9 +21,9 @@ output <- SPBDrun(SPBD.raster = "Limfjord_raster.grd", tz.study.area = "CET",
 # output250 <- SPBDrun.dist(SPBD.raster = "Limfjord_raster.grd", tz.study.area = "CET",
 #                           distance = 250, time.lapse = 10)
 output500 <- SPBDrun.dist(SPBD.raster = "Limfjord_raster.grd", tz.study.area = "CET",
-                          distance = 500, time.lapse = 10)
+                          distance = 500, time.lapse = 30)
 output1000 <- SPBDrun.dist(SPBD.raster = "Limfjord_raster.grd", tz.study.area = "CET",
-                           distance = 1000, time.lapse = 10)
+                           distance = 1000, time.lapse = 30, er.ad = 20)
 
 ## Comparison plots: time x distance 
 
@@ -78,11 +78,11 @@ df.track4 <- dBBMM4[[2]]
 plot.dBBMM(dBBMM1, group = "Brown Trout1", Track = "R64K.4075_Track_8", main = "SPBD",
            SPBD.raster = "Limfjord_raster.grd") 
 plot.dBBMM(dBBMM2, group = "Brown Trout1", Track = "R64K.4075_Track_8", main = "250 m",
-           SPBD.raster = "Limfjord_raster.grd", level1 = .50, level2 = .95) 
+           SPBD.raster = "Limfjord_raster.grd") 
 plot.dBBMM(dBBMM3, group = "Brown Trout1", Track = "R64K.4075_Track_8", main = "500 m",
-           SPBD.raster = "Limfjord_raster.grd", level1 = .50, level2 = .95) 
+           SPBD.raster = "Limfjord_raster.grd") 
 plot.dBBMM(dBBMM4, group = "Brown Trout1", Track = "R64K.4075_Track_8", main = "1000 m",
-           SPBD.raster = "Limfjord_raster.grd", level1 = .50, level2 = .95) 
+           SPBD.raster = "Limfjord_raster.grd") 
 
 
 ## 2. Fine-scale dBBMM:

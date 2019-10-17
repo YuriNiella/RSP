@@ -1,7 +1,8 @@
 ### Sorting Matt's data into the SPBD format:
 
 df <- read.csv("lakemac_data.csv") # Total dataset
-df$Date_time_UTC <- as.POSIXct(strptime(df$Date_time_UTC, "%Y-%m-%d %H:%M:%S"), tz = "UTC") # Sort UTC date format
+df$Date_time_UTC <- fasttime::fastPOSIXct(df$Date_time_UTC) # Sort UTC date format
+df$Date_time_AEST <- fasttime::fastPOSIXct(df$Date_time_UTC, tz = "Australia/Sydney") # Sort UTC date format
 df$Transmitter2 <- paste0(substr(df$Transmitter, 1, 3), "-", substr(df$Transmitter,4,7),"-",substr(df$Transmitter,9,12))
 
 ### GET DATASETS IN ACTEL FORMAT:
@@ -38,8 +39,8 @@ Station.name <- NULL
 for (i in 1:length(receivers)) {
   aux <- subset(df, Receiver == receivers[i])
   
-  Start <- c(Start, as.character(min(aux$Date_time_UTC)))
-  Stop  <- c(Stop, as.character(max(aux$Date_time_UTC)))
+  Start <- c(Start, as.character(min(aux$Date_time_AEST) - 1))
+  Stop  <- c(Stop, as.character(max(aux$Date_time_AEST) + 1))
   Station.name <- c(Station.name, aux$Station_Name[1])
 }
 

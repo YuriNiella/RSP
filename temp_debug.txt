@@ -9,3 +9,8 @@ M: Loading raster file.
 M: Loading raster file.
 M: Loading raster file.
 M: Loading raster file.
+Starting loadBio.
+
+An exception occurred, stopping the process!
+
+-------------------

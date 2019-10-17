@@ -319,17 +319,16 @@ SPBDynBBMM.fine <- function(input, tz.study.area, zone, timeframe = 6, SPBD.rast
   
   for (i in 1:(length(time.study) - 1)) {
     setTxtProgressBar(pb, i) # Progress bar    
-    # i <- 207
     df.aux2 <- subset(df.aux, Date.time.local >= time.study[i] &
                         Date.time.local < time.study[i + 1])
     
     # Check if multiple groups were detected on that timestamp:
     aux.detec <- unique(df.aux2$Group)
     if (length(aux.detec) > 1) {
-      aux.detec <- "TRUE"
+      aux.detec <- TRUE
       groups.detected <- unique(df.aux2$Group)
     } else {
-      aux.detec <- "FALSE"
+      aux.detec <- FALSE
     }
     
     ### Calculate dBBMM for each group
@@ -403,7 +402,12 @@ SPBDynBBMM.fine <- function(input, tz.study.area, zone, timeframe = 6, SPBD.rast
           area95 <- sum(raster::values(dbbmm_cont95), na.rm = TRUE)
           
           # If multiple groups were not detected on that time timestamp
-          if (aux.detec == "FALSE") {
+          if (aux.detec) {
+            if (groups[ii] %in% groups.detected) { # If the group was detected on this timestamp
+              assign(x = paste0(groups[ii], "_50_overlap"), value = dbbmm_cont50)
+              assign(x = paste0(groups[ii], "_95_overlap"), value = dbbmm_cont95)
+            }
+          } else {
             time1 <- c(time1, as.character(time.study[i]))
             time2 <- c(time2, as.character(time.study[i + 1]))
             group1 <- c(group1, groups[ii])
@@ -419,12 +423,7 @@ SPBDynBBMM.fine <- function(input, tz.study.area, zone, timeframe = 6, SPBD.rast
           }
           
           # If multiple groups were detected on that time timestamp!
-          if (aux.detec == "TRUE") {
-            if (groups[ii] %in% groups.detected) { # If the group was detected on this timestamp
-              assign(x = paste0(groups[ii], "_50_overlap"), value = dbbmm_cont50)
-              assign(x = paste0(groups[ii], "_95_overlap"), value = dbbmm_cont95)
-            }
-          }
+          
         } else { # If nrows < 8: no models to be computed!
           time1 <- c(time1, as.character(time.study[i]))
           time2 <- c(time2, as.character(time.study[i + 1]))
@@ -443,7 +442,7 @@ SPBDynBBMM.fine <- function(input, tz.study.area, zone, timeframe = 6, SPBD.rast
     } 
     
     # When multiple groups detected on timestamp, calculate overlaps for each pair
-    if (aux.detec == "TRUE") {
+    if (aux.detec) {
       
       for (iii in 1:(length(groups.detected) - 1)) {
         time1 <- c(time1, as.character(time.study[i]))
@@ -458,7 +457,7 @@ SPBDynBBMM.fine <- function(input, tz.study.area, zone, timeframe = 6, SPBD.rast
         
         # 50% contours
         over1 <- get(paste0(groups.detected[iii],"_50_overlap"))
-        over2 <- get(paste0(groups.detected[iii+1],"_50_overlap"))
+        over2 <- get(paste0(groups.detected[iii + 1],"_50_overlap"))
         over.1 <- sum(raster::values(get(paste0(groups.detected[iii],"_50_overlap"))), na.rm = TRUE) 
         over.2 <- sum(raster::values(get(paste0(groups.detected[iii + 1],"_50_overlap"))), na.rm = TRUE) 
         over.max <- c(over.1, over.2)
@@ -474,7 +473,7 @@ SPBDynBBMM.fine <- function(input, tz.study.area, zone, timeframe = 6, SPBD.rast
         raster.base <- raster::resample(over1, over2)
         over.50.aux <- raster::mask(x = over2, mask = over1, inverse = TRUE)
         over.50.area <- sum(raster::values(over.50.aux), na.rm = TRUE) 
-        over.50.area <- over.50.area/(min(over.1, over.2, na.rm = TRUE))
+        over.50.area <- over.50.area / (min(over.1, over.2, na.rm = TRUE))
         # Save
         A50.1 <- c(A50.1, over.1)
         A50.2 <- c(A50.2, over.2)
@@ -483,7 +482,7 @@ SPBDynBBMM.fine <- function(input, tz.study.area, zone, timeframe = 6, SPBD.rast
         
         # 95% contours
         over1 <- get(paste0(groups.detected[iii],"_95_overlap"))
-        over2 <- get(paste0(groups.detected[iii+1],"_95_overlap"))
+        over2 <- get(paste0(groups.detected[iii + 1],"_95_overlap"))
         over.1 <- sum(raster::values(get(paste0(groups.detected[iii],"_95_overlap"))), na.rm = TRUE) 
         over.2 <- sum(raster::values(get(paste0(groups.detected[iii + 1],"_95_overlap"))), na.rm = TRUE) 
         over.max <- c(over.1, over.2)
@@ -499,7 +498,7 @@ SPBDynBBMM.fine <- function(input, tz.study.area, zone, timeframe = 6, SPBD.rast
         raster.base <- raster::resample(over1, over2)
         over.95.aux <- raster::mask(x = over2, mask = over1, inverse = TRUE)
         over.95.area <- sum(raster::values(over.95.aux), na.rm = TRUE) 
-        over.95.area <- over.50.area/(min(over.1, over.2, na.rm = TRUE))
+        over.95.area <- over.50.area / (min(over.1, over.2, na.rm = TRUE))
         # Save
         A95.1 <- c(A95.1, over.1)
         A95.2 <- c(A95.2, over.2)
@@ -541,7 +540,7 @@ SPBDynBBMM.fine <- function(input, tz.study.area, zone, timeframe = 6, SPBD.rast
                         O50 = over.50, O95 = over.95
   )
   
-  # Remove timestamps with empty data: no detection + no overlap
+  # Remove timestamps with empty data: no detection 
   row.empty <- NULL
   for (i in 1:nrow(df.save)) {
     aux <- sum(df.save[i, c(4:6, 8:ncol(df.save))])  
@@ -561,7 +560,8 @@ SPBDynBBMM.fine <- function(input, tz.study.area, zone, timeframe = 6, SPBD.rast
   }
   
   ## Saving output as a list
-  dBBMM.fine <- list(df.save, dBBMM_overlaps_50, dBBMM_overlaps_95)
+  dBBMM.fine <- list(data = df.save, dBBMM_overlaps_50 = dBBMM_overlaps_50, 
+                     dBBMM_overlaps_95 = dBBMM_overlaps_95)
   names(dBBMM.fine) <- c("data", "dBBMM_overlaps_50", "dBBMM_overlaps_95")
   
   

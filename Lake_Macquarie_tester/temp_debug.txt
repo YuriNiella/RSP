@@ -220,3 +220,224 @@ Error: No 'Receiver' columns found in the spatial file.
 An exception occurred, stopping the process!
 
 -------------------
+Starting loadBio.
+M: No Release site has been indicated in the biometrics file. Creating a 'Release.site' column to avoid function failure. Filling with 'unspecified'.
+Terminating loadbio.
+Starting loadDeployments.
+Terminating loadDeployments.
+Terminating checkDeploymentTimes
+Terminating checkDeploymentTimes
+Starting loadSpatial.
+Starting setSpatialStandards
+Terminating setSpatialStandards
+Terminating loadSpatial.
+Terminating checkDeploymentStations
+Terminating checkDeploymentStations
+Terminating createUniqueSerials
+Terminating createUniqueSerials
+M: Compiling detections...
+Starting findFiles.
+Terminating findFiles.
+Importing file 'detections/Lake_Macquarie_VEMCO_raw.csv'.
+File 'detections/Lake_Macquarie_VEMCO_raw.csv' matches a Vemco log.
+Starting processVemcoFile.
+Processing data inside the file...
+Done!
+Terminating processVemcoFile.
+Starting bindDetections.
+Compiling the data object.
+Terminating bindDetections.
+Starting convertCodes.
+Terminating convertCodes.
+Starting convertTimes.
+Terminating convertTimes.
+M: Data time range: 2013-09-02 15:53:03 to 2015-05-24 15:53:04 (Australia/Sydney).
+Terminating loadDetections.
+Terminating createStandards
+Error: 17 detections for receiver 1 do not fall within deployment periods.
+b
+Error: 1 detections for receiver 100474 do not fall within deployment periods.
+b
+Error: 4 detections for receiver 100724 do not fall within deployment periods.
+b
+Error: 1 detections for receiver 100738 do not fall within deployment periods.
+b
+Error: 1 detections for receiver 102363 do not fall within deployment periods.
+b
+Error: 2 detections for receiver 104139 do not fall within deployment periods.
+b
+Error: 3 detections for receiver 104764 do not fall within deployment periods.
+b
+Error: 1 detections for receiver 107368 do not fall within deployment periods.
+b
+Error: 2 detections for receiver 107517 do not fall within deployment periods.
+b
+Error: 6 detections for receiver 107525 do not fall within deployment periods.
+b
+Error: 2 detections for receiver 107527 do not fall within deployment periods.
+b
+Error: 3 detections for receiver 107537 do not fall within deployment periods.
+b
+Error: 1 detections for receiver 107541 do not fall within deployment periods.
+b
+Error: 1 detections for receiver 107544 do not fall within deployment periods.
+b
+Error: 3 detections for receiver 109575 do not fall within deployment periods.
+b
+Error: 8 detections for receiver 110494 do not fall within deployment periods.
+b
+Error: 1 detections for receiver 112858 do not fall within deployment periods.
+b
+Error: 1 detections for receiver 114417 do not fall within deployment periods.
+b
+Error: 1 detections for receiver 114420 do not fall within deployment periods.
+b
+Error: 2 detections for receiver 115409 do not fall within deployment periods.
+b
+Error: 1 detections for receiver 115418 do not fall within deployment periods.
+b
+Error: 5 detections for receiver 119287 do not fall within deployment periods.
+b
+Error: 4 detections for receiver 121032 do not fall within deployment periods.
+b
+Error: 3 detections for receiver 121033 do not fall within deployment periods.
+b
+Error: 1 detections for receiver 121036 do not fall within deployment periods.
+Starting loadBio.
+M: No Release site has been indicated in the biometrics file. Creating a 'Release.site' column to avoid function failure. Filling with 'unspecified'.
+Terminating loadbio.
+Starting loadDeployments.
+Terminating loadDeployments.
+Terminating checkDeploymentTimes
+Terminating checkDeploymentTimes
+Starting loadSpatial.
+Starting setSpatialStandards
+Terminating setSpatialStandards
+Terminating loadSpatial.
+Terminating checkDeploymentStations
+Terminating checkDeploymentStations
+Terminating createUniqueSerials
+Terminating createUniqueSerials
+M: The detections have been processed on 2019-10-17 19:01:53.
+   If the input detection files were not changed, it is safe to use these again.
+
+M: Using detections previously compiled on 2019-10-17 19:01:53.
+Starting convertTimes.
+Terminating convertTimes.
+M: Data time range: 2013-09-02 15:53:03 to 2015-05-24 15:53:04 (Australia/Sydney).
+Terminating createStandards
+Error: 17 detections for receiver 1 do not fall within deployment periods.
+b
+Error: 1 detections for receiver 100474 do not fall within deployment periods.
+b
+Error: 4 detections for receiver 100724 do not fall within deployment periods.
+b
+Error: 1 detections for receiver 100738 do not fall within deployment periods.
+b
+Error: 1 detections for receiver 102363 do not fall within deployment periods.
+b
+Error: 2 detections for receiver 104139 do not fall within deployment periods.
+b
+Error: 3 detections for receiver 104764 do not fall within deployment periods.
+b
+Error: 1 detections for receiver 107368 do not fall within deployment periods.
+b
+Error: 2 detections for receiver 107517 do not fall within deployment periods.
+b
+Error: 6 detections for receiver 107525 do not fall within deployment periods.
+b
+Error: 2 detections for receiver 107527 do not fall within deployment periods.
+b
+Error: 3 detections for receiver 107537 do not fall within deployment periods.
+b
+Error: 1 detections for receiver 107541 do not fall within deployment periods.
+b
+Error: 1 detections for receiver 107544 do not fall within deployment periods.
+b
+Error: 3 detections for receiver 109575 do not fall within deployment periods.
+b
+Error: 8 detections for receiver 110494 do not fall within deployment periods.
+b
+Error: 1 detections for receiver 112858 do not fall within deployment periods.
+b
+Error: 1 detections for receiver 114417 do not fall within deployment periods.
+b
+Error: 1 detections for receiver 114420 do not fall within deployment periods.
+b
+Error: 2 detections for receiver 115409 do not fall within deployment periods.
+b
+Error: 1 detections for receiver 115418 do not fall within deployment periods.
+b
+Error: 5 detections for receiver 119287 do not fall within deployment periods.
+b
+Error: 4 detections for receiver 121032 do not fall within deployment periods.
+b
+Error: 3 detections for receiver 121033 do not fall within deployment periods.
+b
+Error: 1 detections for receiver 121036 do not fall within deployment periods.
+b
+Error: 4 detections for receiver 121038 do not fall within deployment periods.
+b
+Error: 3 detections for receiver 121040 do not fall within deployment periods.
+b
+Error: 8 detections for receiver 121041 do not fall within deployment periods.
+bb
+b
+Error: 5 detections for receiver 121045 do not fall within deployment periods.
+b
+Error: 3 detections for receiver 121047 do not fall within deployment periods.
+b
+Error: 4 detections for receiver 121048 do not fall within deployment periods.
+b
+Error: 22 detections for receiver 121049 do not fall within deployment periods.
+b
+Error: 3 detections for receiver 121050 do not fall within deployment periods.
+b
+Error: 4 detections for receiver 121052 do not fall within deployment periods.
+b
+Error: 2 detections for receiver 121358 do not fall within deployment periods.
+b
+Error: 1 detections for receiver 121360 do not fall within deployment periods.
+b
+M: Number of ALS: 36 (of which 0 had no detections)
+Terminating createStandards
+Terminating unknownReceivers
+Terminating unknownReceivers
+Starting new_assembleSpatial.
+Creating 'stations'.
+Creating 'release.sites'.
+Terminating new_assembleSpatial
+W: Could not find a 'Range' column in the spatial file; assuming a range of 500 metres for each receiver.
+Starting splitDetections.
+Starting excludeTags.
+Terminating excludeTags.
+Starting noDetectionsCheck.
+Terminating noDetectionsCheck.
+Starting dupSignalsCheck.
+Terminating dupSignalsCheck.
+Debug: Creating 'trimmed.list'.
+Starting collectStrays.
+Starting loadBio.
+M: No Release site has been indicated in the biometrics file. Creating a 'Release.site' column to avoid function failure. Filling with 'unspecified'.
+Terminating loadbio.
+Starting loadDeployments.
+Terminating loadDeployments.
+Terminating checkDeploymentTimes
+Terminating checkDeploymentTimes
+Starting loadSpatial.
+Starting setSpatialStandards
+Terminating setSpatialStandards
+Terminating loadSpatial.
+Terminating checkDeploymentStations
+Terminating checkDeploymentStations
+Terminating createUniqueSerials
+Terminating createUniqueSerials
+M: The detections have been processed on 2019-10-17 19:01:53.
+   If the input detection files were not changed, it is safe to use these again.
+
+M: Using detections previously compiled on 2019-10-17 19:01:53.
+Starting convertTimes.
+Terminating convertTimes.
+M: Data time range: 2013-09-02 15:53:03 to 2015-05-24 15:53:04 (Australia/Sydney).
+Terminating createStandards
+Error: 61 detections for receiver 1 do not fall within deployment periods.
