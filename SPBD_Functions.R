@@ -33,6 +33,22 @@ SPBDete <- function(tz.study.area, spatial, tag.data) { # HF: Users of the actel
   return(df.detec)
 }
 
+new_SPBDete <- function(detections, tz.study.area, spatial, tag.data) { # HF: Users of the actel package must have the detections in a "detections" folder and the "tag.data" in a biometrics.csv file. If we implement the same here then some variables can be spared.
+  # Add date column
+  detections$Date <- as.Date(detections$Timestamp, tz = tz.study.area) # HF: I think that if we run as.Date on the POSIX directly, it will give the date. That or use format(). Will likely improve performance
+  
+  if (any(colnames(spatial$stations) == "Range")) {
+    link <- match(detections$Standard.Name, spatial$stations$Standard.Name)
+    detections$Error <- spatial$stations$Range[link] # May make more sense to call this column "Range"
+  } else {
+    actel:::appendTo(c("Screen", "Warning"), "W: Could not find a 'Range' column in the spatial file; assuming a range of 500 metres for each receiver.")
+    detections$Error <- 500
+  }
+  
+  names(detections)[1] <- "Date.time.local" # added this here so the functions downstream don't break
+  return(detections)
+}
+
 #' Calculate temporal differences between consecutive detections
 #' 
 #' Calculates temporal differences in days between consecutive detection dates.
@@ -547,18 +563,61 @@ new_SPBD <- function(df.detec, tag, r.path, tz.study.area, distance, time.lapse,
 #' @param time.lapse.rec Time lapse in minutes to be considered for consecutive detections at the same station. 
 #' @return Returns a list of SPBD tracks (as dataframe) for each transmitter detected. 
 #' 
-SPBDrun <- function(SPBD.raster, tz.study.area, time.lapse = 10, time.lapse.rec = 10) {
-  transition.layer <- SPBDraster(raster.hab = "Limfjord_raster.grd")
+#' 
+SPBDrun <- function(SPBD.raster, tz.study.area, time.lapse = 10, time.lapse.rec = 10, 
+  start.timestamp = NULL, end.timestamp = NULL, sections = NULL, exclude.tags = NULL) {
+  # appendTo(c("Screen", "Report"), "M: Importing data. This process may take a while.")
   bio <- actel:::loadBio(file = "biometrics.csv")
-  spatial <- actel:::assembleSpatial(file = "spatial.csv", bio = bio, sections = NULL)
-  detections <- SPBDete(tz.study.area = tz.study.area, spatial = spatial)
-  if (grepl("0.0.4", packageVersion("actel")))
-    recipient <- actel:::deprecated_splitDetections(detections = detections, bio = bio, spatial = spatial)
-  else
-    recipient <- actel:::splitDetections(detections = detections, bio = bio, spatial = spatial)
+  # appendTo(c("Screen", "Report"), paste("M: Number of target tags: ", nrow(bio), ".", sep = ""))
+  # Check that all the overriden fish are part of the study
+  # if (!is.null(override) && any(link <- is.na(match(unlist(lapply(strsplit(override, "-"), function(x) tail(x, 1))), bio$Signal))))
+    # stop("Some tag signals listed in 'override' ('", paste0(override[link], collapse = "', '"), "') are not listed in the biometrics file.\n")
+  deployments <- actel:::loadDeployments(file = "deployments.csv", tz.study.area = tz.study.area)
+  actel:::checkDeploymentTimes(input = deployments) # check that receivers are not deployed before being retrieved
+  spatial <- actel::loadSpatial(file = "spatial.csv", verbose = TRUE)
+  deployments <- actel:::checkDeploymentStations(input = deployments, spatial = spatial) # match Station.Name in the deployments to Station.Name in spatial, and vice-versa
+  deployments <- actel:::createUniqueSerials(input = deployments) # Prepare serial numbers to overwrite the serials in detections
+  detections <- actel:::loadDetections(start.timestamp = start.timestamp, end.timestamp = end.timestamp, tz.study.area = tz.study.area)
+  detections <- actel:::createStandards(detections = detections, spatial = spatial, deployments = deployments) # get standardize station and receiver names, check for receivers with no detections
+  unknown.detections <- actel:::checkUnknownReceivers(input = detections) # Check if there are detections from unknown detections
+  # if (file.exists("spatial.dot")) {
+    # appendTo(c("Screen", "Report"), "M: A 'spatial.dot' file was detected, activating multi-branch analysis.")
+    # recipient <- loadDot(input = "spatial.dot", spatial = spatial, sections = sections)
+  # } else {
+    fakedot <- paste(unique(spatial$Array), collapse = "->")
+    recipient <- actel:::loadDot(string = fakedot, spatial = spatial, sections = sections)
+  # }
+  dot <- recipient[[1]]
+  arrays <- recipient[[2]]
+  rm(recipient)
+  spatial <- actel:::transformSpatial(spatial = spatial, bio = bio, sections = sections) # Finish structuring the spatial file
+  arrays <- arrays[unlist(spatial$array.order)]
+  # recipient <- loadDistances(spatial = spatial) # Load distances and check if they are valid
+  # dist.mat <- recipient[[1]]
+  # invalid.dist <- recipient[[2]]
+  # rm(recipient)
+  detections <- new_SPBDete(detections = detections, tz.study.area = tz.study.area, spatial = spatial)
+  recipient <- actel:::splitDetections(detections = detections, bio = bio, exclude.tags = exclude.tags) # Split the detections by tag, store full transmitter names in bio
   detections.list <- recipient[[1]]
   bio <- recipient[[2]]
   rm(recipient)
+  recipient <- actel:::checkTagsInUnknownReceivers(detections.list = detections.list, deployments = deployments, spatial = spatial) # Check if there is any data loss due to unknown receivers
+  spatial <- recipient[[1]]
+  deployments <- recipient[[2]]
+  rm(recipient)
+  # detections.list <- actel:::labelUnknowns(detections.list = detections.list)
+  # detections.list <- actel:::checkDetectionsBeforeRelease(input = detections.list, bio = bio)
+
+  transition.layer <- SPBDraster(raster.hab = "Limfjord_raster.grd")
+  # bio <- actel:::loadBio(file = "biometrics.csv")
+  # spatial <- actel:::assembleSpatial(file = "spatial.csv", bio = bio, sections = NULL)
+  # if (grepl("0.0.4", packageVersion("actel")))
+    # recipient <- actel:::deprecated_splitDetections(detections = detections, bio = bio, spatial = spatial)
+  # else
+    # recipient <- actel:::splitDetections(detections = detections, bio = bio, spatial = spatial)
+  # detections.list <- recipient[[1]]
+  # bio <- recipient[[2]]
+  # rm(recipient)
   detections.list <- lapply(detections.list, function(x){
     x$Time.lapse.min <- c(0, as.numeric(difftime(x$Date.time.local[-1], x$Date.time.local[-nrow(x)], units = "mins")))
     x$Longitude <- spatial$stations$Longitude[match(x$Receiver, spatial$stations$Receiver)]
