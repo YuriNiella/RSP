@@ -1,1 +1,81 @@
 W: Could not find a 'Range' column in the spatial file; assuming a range of 500 metres for each receiver.
+W: Could not find a 'Range' column in the spatial file; assuming a range of 500 metres for each receiver.
+W: 6956 individual detections were removed due to simultaneous detections at two receivers.
+W: 6956 individual detections were removed due to simultaneous detections at two receivers.
+W: 1 individual detections were removed due to simultaneous detections at two receivers.
+W: 5 tracks are shorter than 30 minutes and will not be analysed.
+W: 5 tracks are shorter than 30 minutes and will not be analysed.
+W: Could not find a 'Range' column in the spatial file; assuming a range of 500 metres for each receiver.
+W: One of the inter-station SPBD segments within Track_1 is too short to fit extra 
+   detections (Total distance: 763m). Adding one single point between detections.
+W: One of the inter-station SPBD segments within Track_1 is too short to fit extra 
+   detections (Total distance: 763m). Adding one single point between detections.
+W: One of the inter-station SPBD segments within Track_5 is too short to fit extra 
+   detections (Total distance: 567m). Adding one single point between detections.
+W: One of the inter-station SPBD segments within Track_5 is too short to fit extra 
+   detections (Total distance: 567m). Adding one single point between detections.
+W: One of the inter-station SPBD segments within Track_4 is too short to fit extra 
+   detections (Total distance: 840m). Adding one single point between detections.
+W: One of the inter-station SPBD segments within Track_7 is too short to fit extra 
+   detections (Total distance: 766m). Adding one single point between detections.
+W: One of the inter-station SPBD segments within Track_1 is too short to fit extra 
+   detections (Total distance: 771m). Adding one single point between detections.
+W: One of the inter-station SPBD segments within Track_1 is too short to fit extra 
+   detections (Total distance: 771m). Adding one single point between detections.
+W: One of the inter-station SPBD segments within Track_2 is too short to fit extra 
+   detections (Total distance: 793m). Adding one single point between detections.
+W: One of the inter-station SPBD segments within Track_2 is too short to fit extra 
+   detections (Total distance: 835m). Adding one single point between detections.
+W: One of the inter-station SPBD segments within Track_2 is too short to fit extra 
+   detections (Total distance: 793m). Adding one single point between detections.
+W: One of the inter-station SPBD segments within Track_3 is too short to fit extra 
+   detections (Total distance: 840m). Adding one single point between detections.
+W: One of the inter-station SPBD segments within Track_4 is too short to fit extra 
+   detections (Total distance: 835m). Adding one single point between detections.
+W: 1 individual detections were removed due to simultaneous detections at two receivers.
+W: 1 tracks are shorter than 30 minutes and will not be analysed.
+W: 1 individual detections were removed due to simultaneous detections at two receivers.
+W: 1 tracks are shorter than 30 minutes and will not be analysed.
+W: 1 individual detections were removed due to simultaneous detections at two receivers.
+W: 1 tracks are shorter than 30 minutes and will not be analysed.
+W: 1 individual detections were removed due to simultaneous detections at two receivers.
+W: 1 tracks are shorter than 30 minutes and will not be analysed.
+W: 1 individual detections were removed due to simultaneous detections at two receivers.
+W: 1 tracks are shorter than 30 minutes and will not be analysed.
+W: Could not find a 'Range' column in the spatial file; assuming a range of 500 metres for each receiver.
+W: 1 individual detections were removed due to simultaneous detections at two receivers.
+W: 1 tracks are shorter than 30 minutes and will not be analysed.
+W: 1 individual detections were removed due to simultaneous detections at two receivers.
+W: 21 individual detections were removed due to simultaneous detections at two receivers.
+W: 7 tracks are shorter than 30 minutes and will not be analysed.
+W: 1 individual detections were removed due to simultaneous detections at two receivers.
+W: 1 tracks are shorter than 30 minutes and will not be analysed.
+W: 1 individual detections were removed due to simultaneous detections at two receivers.
+W: 1 tracks are shorter than 30 minutes and will not be analysed.
+W: Could not find a 'Range' column in the spatial file; assuming a range of 500 metres for each receiver.
+W: 1 individual detections were removed due to simultaneous detections at two receivers.
+W: 1 tracks are shorter than 30 minutes and will not be analysed.
+W: 1 individual detections were removed due to simultaneous detections at two receivers.
+W: 1 tracks are shorter than 30 minutes and will not be analysed.
+W: 18 tracks are shorter than 30 minutes and will not be analysed.
+W: 1 individual detections were removed due to simultaneous detections at two receivers.
+W: 19 tracks are shorter than 30 minutes and will not be analysed.
+W: 1 individual detections were removed due to simultaneous detections at two receivers.
+W: 3 tracks are shorter than 30 minutes and will not be analysed.
+W: 20 individual detections were removed due to simultaneous detections at two receivers.
+W: 12 tracks are shorter than 30 minutes and will not be analysed.
+W: 18 individual detections were removed due to simultaneous detections at two receivers.
+W: 7 tracks are shorter than 30 minutes and will not be analysed.
+W: 1 individual detections were removed due to simultaneous detections at two receivers.
+W: 3 tracks are shorter than 30 minutes and will not be analysed.
+W: 20 individual detections were removed due to simultaneous detections at two receivers.
+W: 12 tracks are shorter than 30 minutes and will not be analysed.
+W: 1 individual detections were removed due to simultaneous detections at two receivers.
+W: 3 tracks are shorter than 30 minutes and will not be analysed.
+W: 20 individual detections were removed due to simultaneous detections at two receivers.
+W: 12 tracks are shorter than 30 minutes and will not be analysed.
+W: Could not find a 'Range' column in the spatial file; assuming a range of 500 metres for each receiver.
+W: 1 individual detections were removed due to simultaneous detections at two receivers.
+W: 2 track(s) are shorter than 30 minutes and will not be analysed.
+W: 20 individual detections were removed due to simultaneous detections at two receivers.
+W: 11 track(s) are shorter than 30 minutes and will not be analysed.

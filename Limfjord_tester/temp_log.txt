@@ -480,3 +480,179 @@ M: Analyzing: [1m[32mR64K-4080[39m[22m
 M: Analyzing: [1m[32mR64K-4125[39m[22m
 M: Analyzing: [1m[32mR64K-4128[39m[22m
 M: Analyzing: [1m[32mR64K-4138[39m[22m
+M: Using detections previously compiled on 2019-09-13 16:11:54.
+M: Data time range: 2018-02-11 20:27:37 to 2018-08-31 15:43:46 (CET).
+M: Number of ALS: 9 (of which 1 had no detections)
+W: No detections were found for receiver(s) 408.
+M: Analyzing: [1m[32mR64K-4075[39m[22m
+M: Using detections previously compiled on 2019-09-13 16:11:54.
+M: Data time range: 2018-02-11 20:27:37 to 2018-08-31 15:43:46 (CET).
+M: Number of ALS: 9 (of which 1 had no detections)
+W: No detections were found for receiver(s) 408.
+M: Analyzing: [1m[32mR64K-4075[39m[22m
+M: Using detections previously compiled on 2019-09-13 16:11:54.
+M: Data time range: 2018-02-11 20:27:37 to 2018-08-31 15:43:46 (CET).
+M: Number of ALS: 9 (of which 1 had no detections)
+W: No detections were found for receiver(s) 408.
+M: Analyzing: [1m[32mR64K-4075[39m[22m
+M: Analyzing: [1m[32mR64K-4080[39m[22m
+M: Analyzing: [1m[32mR64K-4125[39m[22m
+M: Analyzing: [1m[32mR64K-4128[39m[22m
+M: Analyzing: [1m[32mR64K-4138[39m[22m
+M: No specific transmitters selected. All detected will be used for analysis.
+W: 481 individual detections were removed due to simultaneous detections at two receivers.
+W: 522 individual detections were removed due to simultaneous detections at two receivers.
+M: Using detections previously compiled on 2019-09-13 16:11:54.
+M: Data time range: 2018-02-11 20:27:37 to 2018-08-31 15:43:46 (CET).
+M: Number of ALS: 9 (of which 1 had no detections)
+W: No detections were found for receiver(s) 408.
+W: One of the inter-station SPBD segments within Track_7 is too short to fit extra 
+   detections (Total distance: 445m). Adding one single point between detections.
+W: One of the inter-station SPBD segments within Track_6 is too short to fit extra 
+   detections (Total distance: 430m). Adding one single point between detections.
+W: One of the inter-station SPBD segments within Track_7 is too short to fit extra 
+   detections (Total distance: 350m). Adding one single point between detections.
+W: One of the inter-station SPBD segments within Track_7 is too short to fit extra 
+   detections (Total distance: 350m). Adding one single point between detections.
+W: One of the inter-station SPBD segments within Track_3 is too short to fit extra 
+   detections (Total distance: 445m). Adding one single point between detections.
+W: One of the inter-station SPBD segments within Track_4 is too short to fit extra 
+   detections (Total distance: 430m). Adding one single point between detections.
+M: No specific transmitters selected. All detected will be used for analysis.
+W: 375 individual detections were removed due to simultaneous detections at two receivers.
+W: 416 individual detections were removed due to simultaneous detections at two receivers.
+M: Using detections previously compiled on 2019-09-13 16:11:54.
+M: Data time range: 2018-02-11 20:27:37 to 2018-08-31 15:43:46 (CET).
+M: Number of ALS: 9 (of which 1 had no detections)
+W: No detections were found for receiver(s) 408.
+W: One of the inter-station SPBD segments within Track_6 is too short to fit extra 
+   detections (Total distance: 430m). Adding one single point between detections.
+W: One of the inter-station SPBD segments within Track_7 is too short to fit extra 
+   detections (Total distance: 350m). Adding one single point between detections.
+W: One of the inter-station SPBD segments within Track_3 is too short to fit extra 
+   detections (Total distance: 445m). Adding one single point between detections.
+W: One of the inter-station SPBD segments within Track_5 is too short to fit extra 
+   detections (Total distance: 350m). Adding one single point between detections.
+M: No specific transmitters selected. All detected will be used for analysis.
+W: 246 individual detections were removed due to simultaneous detections at two receivers.
+W: 287 individual detections were removed due to simultaneous detections at two receivers.
+M: Using detections previously compiled on 2019-09-13 16:11:54.
+M: Data time range: 2018-02-11 20:27:37 to 2018-08-31 15:43:46 (CET).
+M: Number of ALS: 9 (of which 1 had no detections)
+W: No detections were found for receiver(s) 408.
+M: Analyzing: [1m[32mR64K-4075[39m[22m
+M: Analyzing: [1m[32mR64K-4080[39m[22m
+M: Analyzing: [1m[32mR64K-4125[39m[22m
+M: Analyzing: [1m[32mR64K-4128[39m[22m
+M: Analyzing: [1m[32mR64K-4138[39m[22m
+M: Importing data. This process may take a while.
+M: Number of target tags: 5.
+M: Using detections previously compiled on 2019-09-13 16:11:54.
+M: Data time range: 2018-02-11 20:27:37 to 2018-08-31 15:43:46 (CET).
+M: Number of ALS: 9 (of which 1 had no detections)
+W: No detections were found for receiver(s) 408.
+M: Data successfully imported!
+M: Analyzing: [1m[32mR64K-4075[39m[22m
+M: Analyzing: [1m[32mR64K-4080[39m[22m
+M: Analyzing: [1m[32mR64K-4125[39m[22m
+M: Analyzing: [1m[32mR64K-4128[39m[22m
+M: Analyzing: [1m[32mR64K-4138[39m[22m
+M: No specific transmitters selected. All detected will be used for analysis.
+W: 56 tracks are shorter than 30 minutes and will not be analysed.
+M: No specific transmitters selected. All detected will be used for analysis.
+W: 56 tracks are shorter than 30 minutes and will not be analysed.
+W: 2 individual detections were removed due to simultaneous detections at two receivers.
+W: 18 tracks are shorter than 30 minutes and will not be analysed.
+M: Importing data. This process may take a while.
+M: Number of target tags: 5.
+M: Using detections previously compiled on 2019-09-13 16:11:54.
+M: Data time range: 2018-02-11 20:27:37 to 2018-08-31 15:43:46 (CET).
+M: Number of ALS: 9 (of which 1 had no detections)
+W: No detections were found for receiver(s) 408.
+M: Data successfully imported!
+M: Analyzing: [1m[32mR64K-4075[39m[22m
+M: Analyzing: [1m[32mR64K-4080[39m[22m
+M: Analyzing: [1m[32mR64K-4125[39m[22m
+M: Analyzing: [1m[32mR64K-4128[39m[22m
+M: Analyzing: [1m[32mR64K-4138[39m[22m
+M: No specific transmitters selected. All detected will be used for analysis.
+W: 10 tracks are shorter than 30 minutes and will not be analysed.
+W: 2 individual detections were removed due to simultaneous detections at two receivers.
+W: 4 tracks are shorter than 30 minutes and will not be analysed.
+M: Importing data. This process may take a while.
+M: Number of target tags: 5.
+M: Using detections previously compiled on 2019-09-13 16:11:54.
+M: Data time range: 2018-02-11 20:27:37 to 2018-08-31 15:43:46 (CET).
+M: Number of ALS: 9 (of which 1 had no detections)
+W: No detections were found for receiver(s) 408.
+M: Data successfully imported!
+M: No specific transmitters selected. All detected will be used for analysis.
+W: 10 tracks are shorter than 30 minutes and will not be analysed.
+M: Importing data. This process may take a while.
+M: Number of target tags: 5.
+M: Using detections previously compiled on 2019-09-13 16:11:54.
+M: Data time range: 2018-02-11 20:27:37 to 2018-08-31 15:43:46 (CET).
+M: Number of ALS: 9 (of which 1 had no detections)
+W: No detections were found for receiver(s) 408.
+M: Data successfully imported!
+M: No specific transmitters selected. All detected will be used for analysis.
+W: 10 tracks are shorter than 30 minutes and will not be analysed.
+W: 2 individual detections were removed due to simultaneous detections at two receivers.
+W: 4 tracks are shorter than 30 minutes and will not be analysed.
+M: Importing data. This process may take a while.
+M: Number of target tags: 5.
+M: Using detections previously compiled on 2019-09-13 16:11:54.
+M: Data time range: 2018-02-11 20:27:37 to 2018-08-31 15:43:46 (CET).
+M: Number of ALS: 9 (of which 1 had no detections)
+W: No detections were found for receiver(s) 408.
+M: Data successfully imported!
+M: No specific transmitters selected. All detected will be used for analysis.
+W: 10 tracks are shorter than 30 minutes and will not be analysed.
+M: No specific transmitters selected. All detected will be used for analysis.
+W: 10 tracks are shorter than 30 minutes and will not be analysed.
+M: Importing data. This process may take a while.
+M: Number of target tags: 5.
+M: Using detections previously compiled on 2019-09-13 16:11:54.
+M: Data time range: 2018-02-11 20:27:37 to 2018-08-31 15:43:46 (CET).
+M: Number of ALS: 9 (of which 1 had no detections)
+W: No detections were found for receiver(s) 408.
+M: Data successfully imported!
+M: No specific transmitters selected. All detected will be used for analysis.
+W: 10 individual detections were removed due to simultaneous detections at two receivers.
+M: No specific transmitters selected. All detected will be used for analysis.
+W: 10 track(s) are shorter than 30 minutes and will not be analysed.
+M: No specific transmitters selected. All detected will be used for analysis.
+W: 10 track(s) are shorter than 30 minutes and will not be analysed.
+W: 2 individual detections were removed due to simultaneous detections at two receivers.
+W: 4 track(s) are shorter than 30 minutes and will not be analysed.
+M: Importing data. This process may take a while.
+M: Number of target tags: 5.
+M: Using detections previously compiled on 2019-09-13 16:11:54.
+M: Data time range: 2018-02-11 20:27:37 to 2018-08-31 15:43:46 (CET).
+M: Number of ALS: 9 (of which 1 had no detections)
+W: No detections were found for receiver(s) 408.
+M: Data successfully imported!
+M: No specific transmitters selected. All detected will be used for analysis.
+W: 10 track(s) are shorter than 30 minutes and will not be analysed.
+W: 2 individual detections were removed due to simultaneous detections at two receivers.
+W: 4 track(s) are shorter than 30 minutes and will not be analysed.
+M: Importing data. This process may take a while.
+M: Number of target tags: 5.
+M: Using detections previously compiled on 2019-09-13 16:11:54.
+M: Data time range: 2018-02-11 20:27:37 to 2018-08-31 15:43:46 (CET).
+M: Number of ALS: 9 (of which 1 had no detections)
+W: No detections were found for receiver(s) 408.
+M: Data successfully imported!
+M: No specific transmitters selected. All detected will be used for analysis.
+W: 10 track(s) are shorter than 30 minutes and will not be analysed.
+M: Importing data. This process may take a while.
+M: Number of target tags: 5.
+M: Using detections previously compiled on 2019-09-13 16:11:54.
+M: Data time range: 2018-02-11 20:27:37 to 2018-08-31 15:43:46 (CET).
+M: Number of ALS: 9 (of which 1 had no detections)
+W: No detections were found for receiver(s) 408.
+M: Data successfully imported!
+M: No specific transmitters selected. All detected will be used for analysis.
+W: 10 track(s) are shorter than 30 minutes and will not be analysed.
+W: 2 individual detections were removed due to simultaneous detections at two receivers.
+W: 4 track(s) are shorter than 30 minutes and will not be analysed.

@@ -18,8 +18,8 @@ setwd("Limfjord_tester")
 
 output <- SPBDrun(SPBD.raster = "Limfjord_raster.grd", tz.study.area = "CET",
                   time.lapse = 10, time.lapse.rec = 10)
-# output250 <- SPBDrun.dist(SPBD.raster = "Limfjord_raster.grd", tz.study.area = "CET",
-#                           distance = 250, time.lapse = 10)
+output250 <- SPBDrun.dist(SPBD.raster = "Limfjord_raster.grd", tz.study.area = "CET",
+                          distance = 250, time.lapse = 10, er.ad = 20)
 output500 <- SPBDrun.dist(SPBD.raster = "Limfjord_raster.grd", tz.study.area = "CET",
                           distance = 500, time.lapse = 30)
 output1000 <- SPBDrun.dist(SPBD.raster = "Limfjord_raster.grd", tz.study.area = "CET",
@@ -113,13 +113,16 @@ setwd("Lake_Macquarie_tester")
 output <- SPBDrun(SPBD.raster = "Lake_Macquarie.grd", tz.study.area = "Australia/Sydney",
                   time.lapse = 10, time.lapse.rec = 10)
 output1000 <- SPBDrun.dist(SPBD.raster = "Lake_Macquarie.grd", tz.study.area = "Australia/Sydney",
-                           distance = 1000, time.lapse = 30, er.ad = 20)
+                           distance = 100, time.lapse = 30, er.ad = 20)
 
 # Plot comparison tracks: Receiver x SPBD 
 SPBDplot(output[1], SPBD.raster = "Lake_Macquarie.grd", display = "Both", type = "points")
 dev.new()
 SPBDplot(output1000[1], SPBD.raster = "Lake_Macquarie.grd", display = "Both", type = "points")
 
+
+# dBBMM
+dBBMM1 <- SPBDynBBMM(output1000, tz.study.area = "Australia/Sydney", zone = 56, SPBD.raster = "Lake_Macquarie.grd") 
 
 
 

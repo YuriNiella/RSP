@@ -53,7 +53,6 @@ SPBDynBBMM <- function(input, tz.study.area, zone, Transmitters = NULL, SPBD.ras
   raster.base <- raster.aux
   raster.base[which(raster::values(raster.base) == 0)] <- NA # Zero values to NA = mask
   
-  
   # Split transmitters per group variable
   transmitter.aux <- names(input)
   signal.aux <- strsplit(transmitter.aux, "-")
@@ -75,7 +74,7 @@ SPBDynBBMM <- function(input, tz.study.area, zone, Transmitters = NULL, SPBD.ras
   spp.df <- NULL # Auxiliar object with group-specific dataset names (to be used bellow)
   for (i in 1:length(spp)) {
     transmitter.aux <- as.character(df.signal$Transmitter[df.signal$Group == spp[i]])
-    aux <- which(names(input) == transmitter.aux)
+    aux <- which(names(input) %in% transmitter.aux)
     df.save <- NULL
     for(ii in 1:length(aux)) {
       aux2 <- input[[aux[ii]]]
@@ -97,6 +96,10 @@ SPBDynBBMM <- function(input, tz.study.area, zone, Transmitters = NULL, SPBD.ras
   
   # Calculate dBBMM per group:
   for (i in 1:length(spp.df)) {
+    actel:::appendTo("Screen",
+                     paste("M: Calculating dBBMM:", 
+                           crayon::bold(crayon::green((paste(strsplit(spp.df[i], "_")[[1]][2]))))))
+    
     df.aux <- get(spp.df[i]) # Use auxiliar object!
     
     # Calculate BBMM for each animal + track!
@@ -113,7 +116,7 @@ SPBDynBBMM <- function(input, tz.study.area, zone, Transmitters = NULL, SPBD.ras
     if (length(index) > 0) {
       df.aux <- df.aux[-index, ]
       actel:::appendTo(c("Report", "Warning", "Screen"), 
-                       paste("W:", index, "individual detections were removed due to simultaneous detections at two receivers."))
+                       paste("W:", length(index), "individual detections were removed due to simultaneous detections at two receivers."))
     }
     
     ## Exclude tracks shorter than 30 minutes:
@@ -122,7 +125,8 @@ SPBDynBBMM <- function(input, tz.study.area, zone, Transmitters = NULL, SPBD.ras
     for (ii in 1:length(tot.track)) {
       aux <- subset(df.aux, ID == tot.track[ii])
       time.int <- as.numeric(difftime(aux$Date.time.local[nrow(aux)], aux$Date.time.local[1], units = "min"))
-      if (time.int < 30) {
+      if (time.int < 30 |
+          nrow(aux) <= 8) {
         bad.track <- c(bad.track, as.character(tot.track[ii])) 
       } else { # Save good track statistics to return as an output
         good.group <- c(good.group, as.character(spp[i]))
@@ -134,6 +138,8 @@ SPBDynBBMM <- function(input, tz.study.area, zone, Transmitters = NULL, SPBD.ras
     index <- which(df.aux$ID %in% bad.track)
     if (length(index) > 0) {
       df.aux <- df.aux[-index, ]
+      actel:::appendTo(c("Report", "Warning", "Screen"), 
+                       paste("W:", length(unique(bad.track)), "track(s) are shorter than 30 minutes and will not be analysed."))
     }
     df.aux$ID <- as.factor(paste(df.aux$ID))
     
@@ -144,10 +150,6 @@ SPBDynBBMM <- function(input, tz.study.area, zone, Transmitters = NULL, SPBD.ras
                       animal = df.aux$ID)
     
     # Calculate dynamic Brownian Bridge Movement Model:
-    actel:::appendTo("Screen",
-                     paste("M: Calculating dBBMM:", 
-                           crayon::bold(crayon::green((paste(strsplit(spp.df[i], "_")[[1]][2]))))))
-    
     print(system.time(suppressMessages(mod_dbbmm <- move::brownian.bridge.dyn(object = loc, # HF use base Suppress functions instead
                                                                       raster = raster.aux,  
                                                                       window.size = 7, margin = 3,
@@ -181,7 +183,7 @@ SPBDynBBMM <- function(input, tz.study.area, zone, Transmitters = NULL, SPBD.ras
       
       # Save dBBMM output
       assign(x = paste0(spp[i], "_", trans.aux[iii]), 
-             value = raster.crop) # Standardized areas cropped by land
+             value = raster.dBBMM2) # Standardized areas non-cropped by land
       
       dbbmm.df <- c(dbbmm.df, paste0(spp[i], "_", trans.aux[iii])) # Vector of dataframe names
     }
@@ -623,14 +625,14 @@ plot.dBBMM <- function(input, group, Track, SPBD.raster,
   
   # Plot
   p <- ggplot2::ggplot()
+  p <- p + ggplot2::geom_tile(data = df.contour,
+                              ggplot2::aes(x = x, y = y, fill = Contour))
+  p <- p + ggplot2::scale_fill_manual(values = rev(color.plot))
   p <- p + ggplot2::geom_raster(data = base.map, ggplot2::aes(x = x, y = y, fill = MAP), 
                                 show.legend = FALSE, fill = land.col) 
   p <- p + ggplot2::theme_bw() 
   p <- p + ggplot2::scale_x_continuous(expand = c(0, 0))
   p <- p + ggplot2::scale_y_continuous(expand = c(0, 0))
-  p <- p + ggplot2::geom_tile(data = df.contour,
-                              ggplot2::aes(x = x, y = y, fill = Contour))
-  p <- p + ggplot2::scale_fill_manual(values = rev(color.plot))
   p <- p + ggplot2::labs(x = "Longitude", y = "Latitude", fill = "Space use")
   
   return(p)
