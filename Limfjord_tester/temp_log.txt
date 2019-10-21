@@ -480,3 +480,50 @@ M: Analyzing: [1m[32mR64K-4080[39m[22m
 M: Analyzing: [1m[32mR64K-4125[39m[22m
 M: Analyzing: [1m[32mR64K-4128[39m[22m
 M: Analyzing: [1m[32mR64K-4138[39m[22m
+M: Importing data. This process may take a while.
+M: Number of target tags: 5.
+M: Using detections previously compiled on 2019-09-13 16:11:54.
+M: Data time range: 2018-02-11 20:27:37 to 2018-08-31 15:43:46 (CET).
+M: Number of ALS: 9 (of which 1 had no detections)
+W: No detections were found for receiver(s) 408.
+M: Data successfully imported!
+M: Analyzing: [1m[32mR64K-4075[39m[22m
+M: Analyzing: [1m[32mR64K-4080[39m[22m
+M: Analyzing: [1m[32mR64K-4125[39m[22m
+M: Analyzing: [1m[32mR64K-4128[39m[22m
+M: Analyzing: [1m[32mR64K-4138[39m[22m
+W: 14 track(s) are shorter than 30 minutes and will not be used.
+M: No specific transmitters selected. All detected will be used for analysis.
+W: 10 track(s) are shorter than 30 minutes and will not be used.
+M: No specific transmitters selected. All detected will be used for analysis.
+W: 10 track(s) are shorter than 30 minutes and will not be used.
+M: No specific transmitters selected. All detected will be used for analysis.
+W: 10 track(s) are shorter than 30 minutes and will not be used.
+W: 2 individual detections were removed due to simultaneous detections at two receivers.
+W: 4 track(s) are shorter than 30 minutes and will not be used.
+M: No specific transmitters selected. All detected will be used for analysis.
+W: 10 track(s) are shorter than 30 minutes and will not be used.
+W: 2 individual detections were removed due to simultaneous detections at two receivers.
+W: 4 track(s) are shorter than 30 minutes and will not be used.
+W: 14 track(s) are shorter than 30 minutes and will not be used.
+M: Importing data. This process may take a while.
+M: Number of target tags: 5.
+M: Using detections previously compiled on 2019-09-13 16:11:54.
+M: Data time range: 2018-02-11 20:27:37 to 2018-08-31 15:43:46 (CET).
+M: Number of ALS: 9 (of which 1 had no detections)
+W: No detections were found for receiver(s) 408.
+M: Data successfully imported!
+M: Analyzing: [1m[32mR64K-4075[39m[22m
+M: Analyzing: [1m[32mR64K-4080[39m[22m
+M: Analyzing: [1m[32mR64K-4125[39m[22m
+M: Analyzing: [1m[32mR64K-4128[39m[22m
+M: Analyzing: [1m[32mR64K-4138[39m[22m
+W: 14 track(s) are shorter than 30 minutes and will not be used.
+W: 14 track(s) are shorter than 30 minutes and will not be used.
+W: 14 track(s) are shorter than 30 minutes and will not be used.
+W: 14 track(s) are shorter than 30 minutes and will not be used.
+W: 14 track(s) are shorter than 30 minutes and will not be used.
+W: 2 individual detections were removed due to simultaneous detections at two receivers.
+W: 14 track(s) are shorter than 30 minutes and will not be used.
+W: 2 individual detections were removed due to simultaneous detections at two receivers.
+W: 14 track(s) are shorter than 30 minutes and will not be used.

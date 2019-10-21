@@ -75,7 +75,7 @@ SPBDynBBMM <- function(input, tz.study.area, zone, Transmitters = NULL, SPBD.ras
   spp.df <- NULL # Auxiliar object with group-specific dataset names (to be used bellow)
   for (i in 1:length(spp)) {
     transmitter.aux <- as.character(df.signal$Transmitter[df.signal$Group == spp[i]])
-    aux <- which(names(input) == transmitter.aux)
+    aux <- which(names(input) %in% transmitter.aux)
     df.save <- NULL
     for(ii in 1:length(aux)) {
       aux2 <- input[[aux[ii]]]
@@ -97,6 +97,11 @@ SPBDynBBMM <- function(input, tz.study.area, zone, Transmitters = NULL, SPBD.ras
   
   # Calculate dBBMM per group:
   for (i in 1:length(spp.df)) {
+    
+    actel:::appendTo("Screen",
+                     paste("M: Calculating dBBMM:", 
+                           crayon::bold(crayon::green((paste(strsplit(spp.df[i], "_")[[1]][2]))))))
+    
     df.aux <- get(spp.df[i]) # Use auxiliar object!
     
     # Calculate BBMM for each animal + track!
@@ -108,12 +113,10 @@ SPBDynBBMM <- function(input, tz.study.area, zone, Transmitters = NULL, SPBD.ras
     
     # Identify and remove duplicated timestamps: simultaneous detections at multiple receivers!
     index <- which(duplicated(df.aux$Date.time.local) == TRUE)
-    
-    # Remove second duplicated detection (time lapse = 0)
     if (length(index) > 0) {
       df.aux <- df.aux[-index, ]
       actel:::appendTo(c("Report", "Warning", "Screen"), 
-                       paste("W:", index, "individual detections were removed due to simultaneous detections at two receivers."))
+                       paste("W:", length(index), "individual detections were removed due to simultaneous detections at two receivers."))
     }
     
     ## Exclude tracks shorter than 30 minutes:
@@ -122,7 +125,8 @@ SPBDynBBMM <- function(input, tz.study.area, zone, Transmitters = NULL, SPBD.ras
     for (ii in 1:length(tot.track)) {
       aux <- subset(df.aux, ID == tot.track[ii])
       time.int <- as.numeric(difftime(aux$Date.time.local[nrow(aux)], aux$Date.time.local[1], units = "min"))
-      if (time.int < 30) {
+      if (time.int < 30 |
+          nrow(aux) <= 8) {
         bad.track <- c(bad.track, as.character(tot.track[ii])) 
       } else { # Save good track statistics to return as an output
         good.group <- c(good.group, as.character(spp[i]))
@@ -134,8 +138,11 @@ SPBDynBBMM <- function(input, tz.study.area, zone, Transmitters = NULL, SPBD.ras
     index <- which(df.aux$ID %in% bad.track)
     if (length(index) > 0) {
       df.aux <- df.aux[-index, ]
+      actel:::appendTo(c("Report", "Warning", "Screen"), 
+                       paste("W:", length(unique(bad.track)), "track(s) are shorter than 30 minutes and will not be used."))
     }
     df.aux$ID <- as.factor(paste(df.aux$ID))
+    
     
     # Create a move object for all animals together:
     loc <- move::move(x = df.aux$X, y = df.aux$Y, time = df.aux$Date.time.local,
@@ -144,30 +151,21 @@ SPBDynBBMM <- function(input, tz.study.area, zone, Transmitters = NULL, SPBD.ras
                       animal = df.aux$ID)
     
     # Calculate dynamic Brownian Bridge Movement Model:
-    actel:::appendTo("Screen",
-                     paste("M: Calculating dBBMM:", 
-                           crayon::bold(crayon::green((paste(strsplit(spp.df[i], "_")[[1]][2]))))))
-    
-    print(system.time(suppressMessages(mod_dbbmm <- move::brownian.bridge.dyn(object = loc, # HF use base Suppress functions instead
+    print(system.time(suppressMessages(mod_dbbmm <- move::brownian.bridge.dyn(object = loc,
                                                                       raster = raster.aux,  
                                                                       window.size = 7, margin = 3,
-                                                                      location.error = df.aux$Error)
-                               # , pattern = "Computational size:"
-                               )))
-    
+                                                                      location.error = df.aux$Error))))
     raster.dBBMM <- move::getVolumeUD(mod_dbbmm) # Standardized areas
     
     # Clip dBBMM contours by land limits
     trans.aux <- names(raster.dBBMM)
     for (iii in 1:length(trans.aux)){
       raster.dBBMM2 <- raster.dBBMM[[iii]]
-      
+     
       extent1 <- raster::extent(raster.dBBMM2)  # Get both rasters with the same extent
       raster::extent(raster.base) <- extent1
       raster.base <- raster::resample(raster.base, raster.dBBMM2)
-      raster.crop <- raster::mask(x = raster.dBBMM2,
-                                  mask = raster.base,
-                                  inverse = TRUE)
+      raster.crop <- raster::mask(x = raster.dBBMM2, mask = raster.base, inverse = TRUE)
       
       # Calculate contour areas
       dbbmm_cont50 <- raster.crop[[1]] <=.50 # 50% 
@@ -181,8 +179,9 @@ SPBDynBBMM <- function(input, tz.study.area, zone, Transmitters = NULL, SPBD.ras
       
       # Save dBBMM output
       assign(x = paste0(spp[i], "_", trans.aux[iii]), 
-             value = raster.crop) # Standardized areas cropped by land
+             value = raster.dBBMM) # Standardized total areas non-cropped by land
       
+      #fix.name <- gsub(pattern = "[.]", replacement = "-", x = trans.aux[iii])
       dbbmm.df <- c(dbbmm.df, paste0(spp[i], "_", trans.aux[iii])) # Vector of dataframe names
     }
   }
@@ -194,6 +193,7 @@ SPBDynBBMM <- function(input, tz.study.area, zone, Transmitters = NULL, SPBD.ras
                            Final = as.character(good.final),
                            A50 = good.a50,
                            A95 = good.a95)
+  
   Track.info$Initial <- as.POSIXct(Track.info$Initial, tz = tz.study.area)
   Track.info$Final <- as.POSIXct(Track.info$Final, tz = tz.study.area)
   Track.info$Time.lapse.min <- as.numeric(difftime(time1 = Track.info$Final, 
@@ -226,7 +226,7 @@ SPBDynBBMM.fine <- function(input, tz.study.area, zone, timeframe = 6, SPBD.rast
   raster::crs(raster.aux) <- "+proj=longlat +datum=WGS84"
   raster.aux <- raster::projectRaster(from = raster.aux,
                                       crs = paste0("+proj=utm +zone=", zone, " +units=m +ellps=WGS84"))
-  
+
   ## Identify different tracked groups:
   df.bio <- actel:::loadBio(file = "biometrics.csv", tz.study.area = tz.study.area)
   groups <- unique(df.bio$Group)
@@ -246,23 +246,33 @@ SPBDynBBMM.fine <- function(input, tz.study.area, zone, timeframe = 6, SPBD.rast
     df.signal$Group[i] <- as.character(df.bio$Group[df.bio$Signal == df.signal$Signal[i]])
   }
   
-  ## Exclude tracks shorter than 30 minutes:
+  # Identify and remove duplicated timestamps: simultaneous detections at multiple receivers!
   df.aux <- plyr::ldply(input, data.frame)
+  index <- which(duplicated(df.aux$Date.time.local) == TRUE)
+  if (length(index) > 0) {
+    df.aux <- df.aux[-index, ]
+    actel:::appendTo(c("Report", "Warning", "Screen"), 
+                     paste("W:", length(index), "individual detections were removed due to simultaneous detections at two receivers."))
+  }
+  
+  ## Exclude tracks shorter than 30 minutes:
   df.aux$ID <- paste0(df.aux$Transmitter, "_", df.aux$Track)
   bad.track <- NULL
   tot.track <- unique(df.aux$ID)
   for (ii in 1:length(tot.track)) {
     aux <- subset(df.aux, ID == tot.track[ii])
     time.int <- as.numeric(difftime(aux$Date.time.local[nrow(aux)], aux$Date.time.local[1], units = "min"))
-    if (time.int < 30) {
+    if (time.int < 30 |
+        nrow(aux) <= 8) {
       bad.track <- c(bad.track, as.character(tot.track[ii])) 
     }
   }
   index <- which(df.aux$ID %in% bad.track)
   if (length(index) > 0) {
     df.aux <- df.aux[-index, ]
+    actel:::appendTo(c("Report", "Warning", "Screen"), 
+                     paste("W:", length(unique(bad.track)), "track(s) are shorter than 30 minutes and will not be used."))
   }
-  df.aux$ID <- as.factor(paste(df.aux$ID))
   
   # Add group variable to total dataset:
   df.aux$Group <- NA_character_
@@ -271,11 +281,13 @@ SPBDynBBMM.fine <- function(input, tz.study.area, zone, timeframe = 6, SPBD.rast
   }
   
   # Separate total timeframe of tracking into temporal windows:
-  time.study <- range(df.aux$Date.time.local) # Use round hours (45 min +/-)
-  time.study[1] <- round.POSIXt(x = (time.study[1] - 2700),
-                                units = "hours")
-  time.study[2] <- round.POSIXt(x = (time.study[2] + 2700),
-                                units = "hours")
+  time.study <- range(df.aux$Date.time.local) # Use round hours + 1 sec = so that time does not dissapear!
+  time.study[1] <- as.POSIXct(as.character(paste0(substr(time.study[1], 1, 11),
+                                                  "00:00:01")), tz = tz.study.area)
+  
+  time.study[2] <- as.POSIXct(as.character(paste0(substr(round.POSIXt(x = (time.study[2] + 43200), # + 12-h!
+                                                                      units = "days"), 1, 11),
+                                                  "00:00:01")), tz = tz.study.area)
   time.study <- seq(from = time.study[1], 
                     to = time.study[2],
                     by = 3600 * timeframe) # Use-defined intervals
@@ -317,7 +329,7 @@ SPBDynBBMM.fine <- function(input, tz.study.area, zone, timeframe = 6, SPBD.rast
   pb <-  txtProgressBar(min = 0, max = length(time.study),  
                         initial = 0, style = 3, width = 60)
   
-  for (i in 1:(length(time.study) - 1)) {
+  print(system.time(for (i in 1:(length(time.study) - 1)) {
     setTxtProgressBar(pb, i) # Progress bar    
     df.aux2 <- subset(df.aux, Date.time.local >= time.study[i] &
                         Date.time.local < time.study[i + 1])
@@ -358,15 +370,6 @@ SPBDynBBMM.fine <- function(input, tz.study.area, zone, timeframe = 6, SPBD.rast
         # Get coordinates in UTM
         df.aux3$X <- LonLatToUTM(df.aux3$Longitude, df.aux3$Latitude, zone)[ , 2]
         df.aux3$Y <- LonLatToUTM(df.aux3$Longitude, df.aux3$Latitude, zone)[ , 3]
-        
-        # Identify and remove duplicated timestamps: simultaneous detections at multiple receivers!
-        index <- which(duplicated(df.aux3$Date.time.local) == TRUE)
-        
-        # Remove second duplicated detection (time lapse = 0)
-        if (length(index) > 0) {
-          df.aux3 <- df.aux3[-index, ]
-          # Write warning
-        }
         
         # Only proceed to dBBMM if number of final positions >= 8
         if (nrow(df.aux3) >= 8) {
@@ -527,7 +530,7 @@ SPBDynBBMM.fine <- function(input, tz.study.area, zone, timeframe = 6, SPBD.rast
         }
       }
     }
-  }
+  }))
   close(pb)
   
   # Save final dataframe
@@ -539,6 +542,8 @@ SPBDynBBMM.fine <- function(input, tz.study.area, zone, timeframe = 6, SPBD.rast
                         G2_A50 = A50.2, G2_A95 = A95.2,
                         O50 = over.50, O95 = over.95
   )
+  df.save$Time1 <- df.save$Time1 - 1
+  df.save$Time2 <- df.save$Time2 - 1
   
   # Remove timestamps with empty data: no detection 
   row.empty <- NULL
@@ -583,7 +588,7 @@ SPBDynBBMM.fine <- function(input, tz.study.area, zone, timeframe = 6, SPBD.rast
 #' @return dynamic Brownian Bridge Movement Model plot.
 #' 
 plot.dBBMM <- function(input, group, Track, SPBD.raster,
-                       levels = c(.95, .75, .50, .25), main = NULL,
+                       levels = c(.99, .95, .75, .50, .25), main = NULL,
                        land.col = "#BABCBF") {
   
   # Get specific track of interest from total dBBMM object
@@ -623,15 +628,15 @@ plot.dBBMM <- function(input, group, Track, SPBD.raster,
   
   # Plot
   p <- ggplot2::ggplot()
+  p <- p + ggplot2::geom_tile(data = df.contour,
+                              ggplot2::aes(x = x, y = y, fill = Contour))
+  p <- p + ggplot2::scale_fill_manual(values = rev(color.plot))
   p <- p + ggplot2::geom_raster(data = base.map, ggplot2::aes(x = x, y = y, fill = MAP), 
                                 show.legend = FALSE, fill = land.col) 
   p <- p + ggplot2::theme_bw() 
   p <- p + ggplot2::scale_x_continuous(expand = c(0, 0))
   p <- p + ggplot2::scale_y_continuous(expand = c(0, 0))
-  p <- p + ggplot2::geom_tile(data = df.contour,
-                              ggplot2::aes(x = x, y = y, fill = Contour))
-  p <- p + ggplot2::scale_fill_manual(values = rev(color.plot))
-  p <- p + ggplot2::labs(x = "Longitude", y = "Latitude", fill = "Space use")
+  p <- p + ggplot2::labs(x = "Longitude", y = "Latitude", fill = "Space use", title = main)
   
   return(p)
 }

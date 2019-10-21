@@ -5,7 +5,7 @@
 #============================================================#
 
 ## Loading functions
-source("SPBD_Functions.R") # YN: Wrapper functions moved to this file!
+source("SPBD_Functions.R") 
 source("dynBBMM_Functions.R")
 
 #--------------------------#
@@ -119,6 +119,23 @@ output1000 <- SPBDrun.dist(SPBD.raster = "Lake_Macquarie.grd", tz.study.area = "
 SPBDplot(output[1], SPBD.raster = "Lake_Macquarie.grd", display = "Both", type = "points")
 dev.new()
 SPBDplot(output1000[1], SPBD.raster = "Lake_Macquarie.grd", display = "Both", type = "points")
+
+
+## 2. Total dBBMM:
+dBBMM1 <- SPBDynBBMM(output, tz.study.area = "Australia/Sydney", zone = 56, SPBD.raster = "Lake_Macquarie.grd") 
+
+# Retrieve track metadata:
+df.track1 <- dBBMM1[[2]]
+
+
+# Plot dBBMM
+plot.dBBMM(dBBMM1, group = "Bream", Track = "A69-9004-496_Track_3", main = "Bream",
+           SPBD.raster = "Lake_Macquarie.grd") 
+
+
+## 3. Fine-scale dBBMM:
+dBBMM.fine1 <- SPBDynBBMM.fine(output1000, tz.study.area = "Australia/Sydney", zone = 56, timeframe = 6,
+                               SPBD.raster = "Lake_Macquarie.grd")
 
 
 

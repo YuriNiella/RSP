@@ -441,3 +441,675 @@ Terminating convertTimes.
 M: Data time range: 2013-09-02 15:53:03 to 2015-05-24 15:53:04 (Australia/Sydney).
 Terminating createStandards
 Error: 61 detections for receiver 1 do not fall within deployment periods.
+M: Importing data. This process may take a while.
+Starting loadBio.
+Terminating loadbio.
+M: Number of target tags: 18.
+Starting loadDeployments.
+Terminating loadDeployments.
+Terminating checkDeploymentTimes
+Terminating checkDeploymentTimes
+Starting loadSpatial.
+Starting setSpatialStandards
+Terminating setSpatialStandards
+Terminating loadSpatial.
+Terminating checkDeploymentStations
+Terminating checkDeploymentStations
+Terminating createUniqueSerials
+Terminating createUniqueSerials
+M: The detections have been processed on 2019-10-18 00:35:30.
+   If the input detection files were not changed, it is safe to use these again.
+
+M: Using detections previously compiled on 2019-10-18 00:35:30.
+Starting convertTimes.
+Terminating convertTimes.
+M: Data time range: 2013-09-02 15:53:03 to 2015-05-24 15:53:04 (Australia/Sydney).
+Terminating createStandards
+M: Number of ALS: 36 (of which 0 had no detections)
+Terminating createStandards
+Terminating unknownReceivers
+Terminating unknownReceivers
+M: A 'spatial.dot' file was detected, activating multi-branch analysis.
+Starting transformSpatial.
+Creating 'stations'.
+Creating 'release.sites'.
+Terminating transformSpatial
+Creating 'dist.mat' if distances file is present.
+W: Could not find a 'Range' column in the spatial file; assuming a range of 500 metres for each receiver.
+Starting splitDetections.
+Starting excludeTags.
+Terminating excludeTags.
+Starting noDetectionsCheck.
+Terminating noDetectionsCheck.
+Starting dupSignalsCheck.
+Terminating dupSignalsCheck.
+Debug: Creating 'trimmed.list'.
+Starting collectStrays.
+Terminating collectStrays.
+Starting storeStrays.
+Terminating storeStrays.
+Terminating splitDetections.
+Starting tagsInUnknownReceivers
+Terminating unknownReceiversCheckB.
+Starting detectionBeforeReleaseCheck.
+Terminating detectionBeforeReleaseCheck.
+M: Data successfully imported!
+M: Analyzing: [1m[32mA69-9004-481[39m[22m
+Estimating A69-9004-481 SPBD: Track_1
+Estimating A69-9004-481 SPBD: Track_2
+Estimating A69-9004-481 SPBD: Track_3
+Estimating A69-9004-481 SPBD: Track_4
+Estimating A69-9004-481 SPBD: Track_5
+Estimating A69-9004-481 SPBD: Track_6
+Estimating A69-9004-481 SPBD: Track_7
+Estimating A69-9004-481 SPBD: Track_8
+Estimating A69-9004-481 SPBD: Track_9
+M: Analyzing: [1m[32mA69-9004-483[39m[22m
+Estimating A69-9004-483 SPBD: Track_1
+Estimating A69-9004-483 SPBD: Track_2
+Estimating A69-9004-483 SPBD: Track_3
+Estimating A69-9004-483 SPBD: Track_4
+Estimating A69-9004-483 SPBD: Track_5
+Estimating A69-9004-483 SPBD: Track_6
+Estimating A69-9004-483 SPBD: Track_7
+M: Analyzing: [1m[32mA69-9004-485[39m[22m
+Estimating A69-9004-485 SPBD: Track_1
+Estimating A69-9004-485 SPBD: Track_2
+Estimating A69-9004-485 SPBD: Track_3
+Estimating A69-9004-485 SPBD: Track_4
+Estimating A69-9004-485 SPBD: Track_5
+Estimating A69-9004-485 SPBD: Track_6
+M: Analyzing: [1m[32mA69-9004-489[39m[22m
+Estimating A69-9004-489 SPBD: Track_1
+Estimating A69-9004-489 SPBD: Track_2
+Estimating A69-9004-489 SPBD: Track_3
+M: Analyzing: [1m[32mA69-9004-492[39m[22m
+Estimating A69-9004-492 SPBD: Track_1
+Estimating A69-9004-492 SPBD: Track_10
+Estimating A69-9004-492 SPBD: Track_11
+Estimating A69-9004-492 SPBD: Track_12
+Estimating A69-9004-492 SPBD: Track_13
+Estimating A69-9004-492 SPBD: Track_14
+Estimating A69-9004-492 SPBD: Track_15
+Estimating A69-9004-492 SPBD: Track_16
+Estimating A69-9004-492 SPBD: Track_17
+Estimating A69-9004-492 SPBD: Track_2
+Estimating A69-9004-492 SPBD: Track_3
+Estimating A69-9004-492 SPBD: Track_4
+Estimating A69-9004-492 SPBD: Track_5
+Estimating A69-9004-492 SPBD: Track_6
+Estimating A69-9004-492 SPBD: Track_7
+Estimating A69-9004-492 SPBD: Track_8
+Estimating A69-9004-492 SPBD: Track_9
+M: Analyzing: [1m[32mA69-9004-493[39m[22m
+Estimating A69-9004-493 SPBD: Track_1
+Estimating A69-9004-493 SPBD: Track_2
+Estimating A69-9004-493 SPBD: Track_3
+Estimating A69-9004-493 SPBD: Track_4
+Estimating A69-9004-493 SPBD: Track_5
+Estimating A69-9004-493 SPBD: Track_6
+Estimating A69-9004-493 SPBD: Track_7
+Estimating A69-9004-493 SPBD: Track_8
+M: Analyzing: [1m[32mA69-9004-494[39m[22m
+Estimating A69-9004-494 SPBD: Track_1
+Estimating A69-9004-494 SPBD: Track_10
+Estimating A69-9004-494 SPBD: Track_11
+Estimating A69-9004-494 SPBD: Track_12
+Estimating A69-9004-494 SPBD: Track_13
+Estimating A69-9004-494 SPBD: Track_14
+Estimating A69-9004-494 SPBD: Track_15
+Estimating A69-9004-494 SPBD: Track_16
+Estimating A69-9004-494 SPBD: Track_17
+Estimating A69-9004-494 SPBD: Track_18
+Estimating A69-9004-494 SPBD: Track_19
+Estimating A69-9004-494 SPBD: Track_2
+Estimating A69-9004-494 SPBD: Track_20
+Estimating A69-9004-494 SPBD: Track_21
+Estimating A69-9004-494 SPBD: Track_22
+Estimating A69-9004-494 SPBD: Track_23
+Estimating A69-9004-494 SPBD: Track_3
+Estimating A69-9004-494 SPBD: Track_4
+Estimating A69-9004-494 SPBD: Track_5
+Estimating A69-9004-494 SPBD: Track_6
+Estimating A69-9004-494 SPBD: Track_7
+Estimating A69-9004-494 SPBD: Track_8
+Estimating A69-9004-494 SPBD: Track_9
+M: Analyzing: [1m[32mA69-9004-495[39m[22m
+Estimating A69-9004-495 SPBD: Track_1
+Estimating A69-9004-495 SPBD: Track_2
+Estimating A69-9004-495 SPBD: Track_3
+Estimating A69-9004-495 SPBD: Track_4
+Estimating A69-9004-495 SPBD: Track_5
+Estimating A69-9004-495 SPBD: Track_6
+M: Analyzing: [1m[32mA69-9004-496[39m[22m
+Estimating A69-9004-496 SPBD: Track_1
+Estimating A69-9004-496 SPBD: Track_2
+Estimating A69-9004-496 SPBD: Track_3
+M: Importing data. This process may take a while.
+Starting loadBio.
+Terminating loadbio.
+M: Number of target tags: 18.
+Starting loadDeployments.
+Terminating loadDeployments.
+Terminating checkDeploymentTimes
+Terminating checkDeploymentTimes
+Starting loadSpatial.
+Starting setSpatialStandards
+Terminating setSpatialStandards
+Terminating loadSpatial.
+Terminating checkDeploymentStations
+Terminating checkDeploymentStations
+Terminating createUniqueSerials
+Terminating createUniqueSerials
+M: The detections have been processed on 2019-10-18 00:35:30.
+   If the input detection files were not changed, it is safe to use these again.
+
+M: Using detections previously compiled on 2019-10-18 00:35:30.
+Starting convertTimes.
+Terminating convertTimes.
+M: Data time range: 2013-09-02 15:53:03 to 2015-05-24 15:53:04 (Australia/Sydney).
+Terminating createStandards
+M: Number of ALS: 36 (of which 0 had no detections)
+Terminating createStandards
+Terminating unknownReceivers
+Terminating unknownReceivers
+M: A 'spatial.dot' file was detected, activating multi-branch analysis.
+Starting transformSpatial.
+Creating 'stations'.
+Creating 'release.sites'.
+Terminating transformSpatial
+Creating 'dist.mat' if distances file is present.
+W: Could not find a 'Range' column in the spatial file; assuming a range of 500 metres for each receiver.
+Starting splitDetections.
+Starting excludeTags.
+Terminating excludeTags.
+Starting noDetectionsCheck.
+Terminating noDetectionsCheck.
+Starting dupSignalsCheck.
+Terminating dupSignalsCheck.
+Debug: Creating 'trimmed.list'.
+Starting collectStrays.
+Terminating collectStrays.
+Starting storeStrays.
+Terminating storeStrays.
+Terminating splitDetections.
+Starting tagsInUnknownReceivers
+Terminating unknownReceiversCheckB.
+Starting detectionBeforeReleaseCheck.
+Terminating detectionBeforeReleaseCheck.
+M: Data successfully imported!
+M: Analyzing: [1m[32mA69-9004-481[39m[22m
+Estimating A69-9004-481 SPBD: Track_1
+Estimating A69-9004-481 SPBD: Track_2
+Estimating A69-9004-481 SPBD: Track_3
+Estimating A69-9004-481 SPBD: Track_4
+Estimating A69-9004-481 SPBD: Track_5
+Estimating A69-9004-481 SPBD: Track_6
+Estimating A69-9004-481 SPBD: Track_7
+Estimating A69-9004-481 SPBD: Track_8
+Estimating A69-9004-481 SPBD: Track_9
+M: Analyzing: [1m[32mA69-9004-483[39m[22m
+Estimating A69-9004-483 SPBD: Track_1
+Estimating A69-9004-483 SPBD: Track_2
+Estimating A69-9004-483 SPBD: Track_3
+Estimating A69-9004-483 SPBD: Track_4
+Estimating A69-9004-483 SPBD: Track_5
+Estimating A69-9004-483 SPBD: Track_6
+Estimating A69-9004-483 SPBD: Track_7
+M: Analyzing: [1m[32mA69-9004-485[39m[22m
+Estimating A69-9004-485 SPBD: Track_1
+Estimating A69-9004-485 SPBD: Track_2
+Estimating A69-9004-485 SPBD: Track_3
+Estimating A69-9004-485 SPBD: Track_4
+Estimating A69-9004-485 SPBD: Track_5
+Estimating A69-9004-485 SPBD: Track_6
+M: Analyzing: [1m[32mA69-9004-489[39m[22m
+Estimating A69-9004-489 SPBD: Track_1
+Estimating A69-9004-489 SPBD: Track_2
+Estimating A69-9004-489 SPBD: Track_3
+M: Analyzing: [1m[32mA69-9004-492[39m[22m
+Estimating A69-9004-492 SPBD: Track_1
+Estimating A69-9004-492 SPBD: Track_10
+Estimating A69-9004-492 SPBD: Track_11
+Estimating A69-9004-492 SPBD: Track_12
+Estimating A69-9004-492 SPBD: Track_13
+Estimating A69-9004-492 SPBD: Track_14
+Estimating A69-9004-492 SPBD: Track_15
+Estimating A69-9004-492 SPBD: Track_16
+Estimating A69-9004-492 SPBD: Track_17
+Estimating A69-9004-492 SPBD: Track_2
+Estimating A69-9004-492 SPBD: Track_3
+Estimating A69-9004-492 SPBD: Track_4
+Estimating A69-9004-492 SPBD: Track_5
+Estimating A69-9004-492 SPBD: Track_6
+Estimating A69-9004-492 SPBD: Track_7
+Estimating A69-9004-492 SPBD: Track_8
+Estimating A69-9004-492 SPBD: Track_9
+M: Analyzing: [1m[32mA69-9004-493[39m[22m
+Estimating A69-9004-493 SPBD: Track_1
+Estimating A69-9004-493 SPBD: Track_2
+Estimating A69-9004-493 SPBD: Track_3
+Estimating A69-9004-493 SPBD: Track_4
+Estimating A69-9004-493 SPBD: Track_5
+Estimating A69-9004-493 SPBD: Track_6
+Estimating A69-9004-493 SPBD: Track_7
+Estimating A69-9004-493 SPBD: Track_8
+M: Analyzing: [1m[32mA69-9004-494[39m[22m
+Estimating A69-9004-494 SPBD: Track_1
+Estimating A69-9004-494 SPBD: Track_10
+Estimating A69-9004-494 SPBD: Track_11
+Estimating A69-9004-494 SPBD: Track_12
+Estimating A69-9004-494 SPBD: Track_13
+Estimating A69-9004-494 SPBD: Track_14
+Estimating A69-9004-494 SPBD: Track_15
+Estimating A69-9004-494 SPBD: Track_16
+Estimating A69-9004-494 SPBD: Track_17
+Estimating A69-9004-494 SPBD: Track_18
+Estimating A69-9004-494 SPBD: Track_19
+Estimating A69-9004-494 SPBD: Track_2
+Estimating A69-9004-494 SPBD: Track_20
+Estimating A69-9004-494 SPBD: Track_21
+Estimating A69-9004-494 SPBD: Track_22
+Estimating A69-9004-494 SPBD: Track_23
+Estimating A69-9004-494 SPBD: Track_3
+Estimating A69-9004-494 SPBD: Track_4
+Estimating A69-9004-494 SPBD: Track_5
+Estimating A69-9004-494 SPBD: Track_6
+Estimating A69-9004-494 SPBD: Track_7
+Estimating A69-9004-494 SPBD: Track_8
+Estimating A69-9004-494 SPBD: Track_9
+M: Analyzing: [1m[32mA69-9004-495[39m[22m
+Estimating A69-9004-495 SPBD: Track_1
+Estimating A69-9004-495 SPBD: Track_2
+Estimating A69-9004-495 SPBD: Track_3
+Estimating A69-9004-495 SPBD: Track_4
+Estimating A69-9004-495 SPBD: Track_5
+Estimating A69-9004-495 SPBD: Track_6
+M: Analyzing: [1m[32mA69-9004-496[39m[22m
+Estimating A69-9004-496 SPBD: Track_1
+Estimating A69-9004-496 SPBD: Track_2
+Estimating A69-9004-496 SPBD: Track_3
+Estimating A69-9004-496 SPBD: Track_4
+Estimating A69-9004-496 SPBD: Track_5
+Estimating A69-9004-496 SPBD: Track_6
+M: Analyzing: [1m[32mA69-9004-497[39m[22m
+Estimating A69-9004-497 SPBD: Track_1
+Estimating A69-9004-497 SPBD: Track_10
+Estimating A69-9004-497 SPBD: Track_11
+Estimating A69-9004-497 SPBD: Track_12
+Estimating A69-9004-497 SPBD: Track_13
+Estimating A69-9004-497 SPBD: Track_14
+Estimating A69-9004-497 SPBD: Track_15
+Estimating A69-9004-497 SPBD: Track_2
+Estimating A69-9004-497 SPBD: Track_3
+Estimating A69-9004-497 SPBD: Track_4
+Estimating A69-9004-497 SPBD: Track_5
+Estimating A69-9004-497 SPBD: Track_6
+Estimating A69-9004-497 SPBD: Track_7
+Estimating A69-9004-497 SPBD: Track_8
+Estimating A69-9004-497 SPBD: Track_9
+M: Analyzing: [1m[32mA69-9002-8154[39m[22m
+Estimating A69-9002-8154 SPBD: Track_1
+Estimating A69-9002-8154 SPBD: Track_2
+Estimating A69-9002-8154 SPBD: Track_3
+Estimating A69-9002-8154 SPBD: Track_4
+Estimating A69-9002-8154 SPBD: Track_5
+M: Analyzing: [1m[32mA69-9002-8155[39m[22m
+Estimating A69-9002-8155 SPBD: Track_1
+Estimating A69-9002-8155 SPBD: Track_2
+Estimating A69-9002-8155 SPBD: Track_3
+Estimating A69-9002-8155 SPBD: Track_4
+Estimating A69-9002-8155 SPBD: Track_5
+M: Analyzing: [1m[32mA69-9002-8162[39m[22m
+Estimating A69-9002-8162 SPBD: Track_1
+Estimating A69-9002-8162 SPBD: Track_2
+M: Analyzing: [1m[32mA69-9002-8163[39m[22m
+Estimating A69-9002-8163 SPBD: Track_1
+M: Analyzing: [1m[32mA69-9002-10473[39m[22m
+Estimating A69-9002-10473 SPBD: Track_1
+Estimating A69-9002-10473 SPBD: Track_10
+Estimating A69-9002-10473 SPBD: Track_11
+Estimating A69-9002-10473 SPBD: Track_12
+Estimating A69-9002-10473 SPBD: Track_13
+Estimating A69-9002-10473 SPBD: Track_2
+Estimating A69-9002-10473 SPBD: Track_3
+Estimating A69-9002-10473 SPBD: Track_4
+Estimating A69-9002-10473 SPBD: Track_5
+Estimating A69-9002-10473 SPBD: Track_6
+Estimating A69-9002-10473 SPBD: Track_7
+Estimating A69-9002-10473 SPBD: Track_8
+Estimating A69-9002-10473 SPBD: Track_9
+M: Analyzing: [1m[32mA69-9002-10474[39m[22m
+Estimating A69-9002-10474 SPBD: Track_1
+Estimating A69-9002-10474 SPBD: Track_2
+Estimating A69-9002-10474 SPBD: Track_3
+Estimating A69-9002-10474 SPBD: Track_4
+Estimating A69-9002-10474 SPBD: Track_5
+Estimating A69-9002-10474 SPBD: Track_6
+Estimating A69-9002-10474 SPBD: Track_7
+Estimating A69-9002-10474 SPBD: Track_8
+M: Analyzing: [1m[32mA69-9002-10480[39m[22m
+Estimating A69-9002-10480 SPBD: Track_1
+Estimating A69-9002-10480 SPBD: Track_2
+Estimating A69-9002-10480 SPBD: Track_3
+Estimating A69-9002-10480 SPBD: Track_4
+Estimating A69-9002-10480 SPBD: Track_5
+Estimating A69-9002-10480 SPBD: Track_6
+Estimating A69-9002-10480 SPBD: Track_7
+Estimating A69-9002-10480 SPBD: Track_8
+M: Analyzing: [1m[32mA69-9002-10481[39m[22m
+Estimating A69-9002-10481 SPBD: Track_1
+Estimating A69-9002-10481 SPBD: Track_2
+Estimating A69-9002-10481 SPBD: Track_3
+Estimating A69-9002-10481 SPBD: Track_4
+Estimating A69-9002-10481 SPBD: Track_5
+M: No specific transmitters selected. All detected will be used for analysis.
+Starting loadBio.
+Terminating loadbio.
+M: No specific transmitters selected. All detected will be used for analysis.
+Starting loadBio.
+Terminating loadbio.
+W: 6956 individual detections were removed due to simultaneous detections at two receivers.
+M: Calculating dBBMM: [1m[32mTarwhine[39m[22m
+M: No specific transmitters selected. All detected will be used for analysis.
+Starting loadBio.
+Terminating loadbio.
+M: Calculating dBBMM: [1m[32mTarwhine[39m[22m
+W: 1 individual detections were removed due to simultaneous detections at two receivers.
+W: 2 track(s) are shorter than 30 minutes and will not be used.
+M: Calculating dBBMM: [1m[32mBream[39m[22m
+W: 18 individual detections were removed due to simultaneous detections at two receivers.
+W: 7 track(s) are shorter than 30 minutes and will not be used.
+M: Calculating dBBMM: [1m[32mLuderick[39m[22m
+W: 1 individual detections were removed due to simultaneous detections at two receivers.
+W: 3 track(s) are shorter than 30 minutes and will not be used.
+Starting loadBio.
+Terminating loadbio.
+Starting loadBio.
+Terminating loadbio.
+Starting loadBio.
+Terminating loadbio.
+W: 12 track(s) are shorter than 30 minutes and will not be used.
+Starting loadBio.
+Terminating loadbio.
+W: 12 track(s) are shorter than 30 minutes and will not be used.
+M: Calculating fine-scale dBBMM [1m[32m(6-h intervals)[39m[22m
+Starting loadBio.
+Terminating loadbio.
+W: 12 track(s) are shorter than 30 minutes and will not be used.
+M: Calculating fine-scale dBBMM [1m[32m(6-h intervals)[39m[22m
+Starting loadBio.
+Terminating loadbio.
+W: 12 track(s) are shorter than 30 minutes and will not be used.
+M: Calculating fine-scale dBBMM [1m[32m(6-h intervals)[39m[22m
+W: 1 track(s) are shorter than 30 minutes and will not be used.
+Starting loadBio.
+Terminating loadbio.
+M: Calculating fine-scale dBBMM [1m[32m(6-h intervals)[39m[22m
+Starting loadBio.
+Terminating loadbio.
+M: Calculating fine-scale dBBMM [1m[32m(6-h intervals)[39m[22m
+Starting loadBio.
+Terminating loadbio.
+W: 45 individual detections were removed due to simultaneous detections at two receivers.
+Starting loadBio.
+Terminating loadbio.
+W: 12 track(s) are shorter than 30 minutes and will not be used.
+M: Calculating fine-scale dBBMM [1m[32m(6-h intervals)[39m[22m
+Starting loadBio.
+Terminating loadbio.
+W: 12 track(s) are shorter than 30 minutes and will not be used.
+M: Calculating fine-scale dBBMM [1m[32m(6-h intervals)[39m[22m
+Starting loadBio.
+Terminating loadbio.
+W: 12 track(s) are shorter than 30 minutes and will not be used.
+M: Calculating fine-scale dBBMM [1m[32m(6-h intervals)[39m[22m
+M: Importing data. This process may take a while.
+Starting loadBio.
+Terminating loadbio.
+M: Number of target tags: 18.
+Starting loadDeployments.
+Terminating loadDeployments.
+Terminating checkDeploymentTimes
+Terminating checkDeploymentTimes
+Starting loadSpatial.
+Starting setSpatialStandards
+Terminating setSpatialStandards
+Terminating loadSpatial.
+Terminating checkDeploymentStations
+Terminating checkDeploymentStations
+Terminating createUniqueSerials
+Terminating createUniqueSerials
+M: The detections have been processed on 2019-10-18 00:35:30.
+   If the input detection files were not changed, it is safe to use these again.
+
+M: Using detections previously compiled on 2019-10-18 00:35:30.
+Starting convertTimes.
+Terminating convertTimes.
+M: Data time range: 2013-09-02 15:53:03 to 2015-05-24 15:53:04 (Australia/Sydney).
+Terminating createStandards
+M: Number of ALS: 36 (of which 0 had no detections)
+Terminating createStandards
+Terminating unknownReceivers
+Terminating unknownReceivers
+M: A 'spatial.dot' file was detected, activating multi-branch analysis.
+Starting transformSpatial.
+Creating 'stations'.
+Creating 'release.sites'.
+Terminating transformSpatial
+Creating 'dist.mat' if distances file is present.
+W: Could not find a 'Range' column in the spatial file; assuming a range of 500 metres for each receiver.
+Starting splitDetections.
+Starting excludeTags.
+Terminating excludeTags.
+Starting noDetectionsCheck.
+Terminating noDetectionsCheck.
+Starting dupSignalsCheck.
+Terminating dupSignalsCheck.
+Debug: Creating 'trimmed.list'.
+Starting collectStrays.
+Terminating collectStrays.
+Starting storeStrays.
+Terminating storeStrays.
+Terminating splitDetections.
+Starting tagsInUnknownReceivers
+Terminating unknownReceiversCheckB.
+Starting detectionBeforeReleaseCheck.
+Terminating detectionBeforeReleaseCheck.
+M: Data successfully imported!
+[1m[32mAnalyzing: A69-9004-481[39m[22m
+Estimating A69-9004-481 SPBD: Track_1
+W: One of the inter-station SPBD segments within Track_1 is too short to fit extra 
+   detections (Total distance: 763m). Adding one single point between detections.
+W: One of the inter-station SPBD segments within Track_1 is too short to fit extra 
+   detections (Total distance: 763m). Adding one single point between detections.
+Estimating A69-9004-481 SPBD: Track_2
+Estimating A69-9004-481 SPBD: Track_3
+Estimating A69-9004-481 SPBD: Track_4
+Estimating A69-9004-481 SPBD: Track_5
+W: One of the inter-station SPBD segments within Track_5 is too short to fit extra 
+   detections (Total distance: 567m). Adding one single point between detections.
+W: One of the inter-station SPBD segments within Track_5 is too short to fit extra 
+   detections (Total distance: 567m). Adding one single point between detections.
+Estimating A69-9004-481 SPBD: Track_6
+Estimating A69-9004-481 SPBD: Track_7
+Estimating A69-9004-481 SPBD: Track_8
+Estimating A69-9004-481 SPBD: Track_9
+[1m[32mAnalyzing: A69-9004-483[39m[22m
+Estimating A69-9004-483 SPBD: Track_1
+Estimating A69-9004-483 SPBD: Track_2
+Estimating A69-9004-483 SPBD: Track_3
+Estimating A69-9004-483 SPBD: Track_4
+W: One of the inter-station SPBD segments within Track_4 is too short to fit extra 
+   detections (Total distance: 840m). Adding one single point between detections.
+Estimating A69-9004-483 SPBD: Track_5
+Estimating A69-9004-483 SPBD: Track_6
+Estimating A69-9004-483 SPBD: Track_7
+W: One of the inter-station SPBD segments within Track_7 is too short to fit extra 
+   detections (Total distance: 766m). Adding one single point between detections.
+[1m[32mAnalyzing: A69-9004-485[39m[22m
+Estimating A69-9004-485 SPBD: Track_1
+W: One of the inter-station SPBD segments within Track_1 is too short to fit extra 
+   detections (Total distance: 771m). Adding one single point between detections.
+W: One of the inter-station SPBD segments within Track_1 is too short to fit extra 
+   detections (Total distance: 771m). Adding one single point between detections.
+Estimating A69-9004-485 SPBD: Track_2
+W: One of the inter-station SPBD segments within Track_2 is too short to fit extra 
+   detections (Total distance: 793m). Adding one single point between detections.
+W: One of the inter-station SPBD segments within Track_2 is too short to fit extra 
+   detections (Total distance: 835m). Adding one single point between detections.
+W: One of the inter-station SPBD segments within Track_2 is too short to fit extra 
+   detections (Total distance: 793m). Adding one single point between detections.
+Estimating A69-9004-485 SPBD: Track_3
+Estimating A69-9004-485 SPBD: Track_4
+Estimating A69-9004-485 SPBD: Track_5
+Estimating A69-9004-485 SPBD: Track_6
+[1m[32mAnalyzing: A69-9004-489[39m[22m
+Estimating A69-9004-489 SPBD: Track_1
+Estimating A69-9004-489 SPBD: Track_2
+Estimating A69-9004-489 SPBD: Track_3
+[1m[32mAnalyzing: A69-9004-492[39m[22m
+Estimating A69-9004-492 SPBD: Track_1
+Estimating A69-9004-492 SPBD: Track_10
+Estimating A69-9004-492 SPBD: Track_11
+Estimating A69-9004-492 SPBD: Track_12
+Estimating A69-9004-492 SPBD: Track_13
+Estimating A69-9004-492 SPBD: Track_14
+Estimating A69-9004-492 SPBD: Track_15
+Estimating A69-9004-492 SPBD: Track_16
+Estimating A69-9004-492 SPBD: Track_17
+Estimating A69-9004-492 SPBD: Track_2
+Estimating A69-9004-492 SPBD: Track_3
+Estimating A69-9004-492 SPBD: Track_4
+Estimating A69-9004-492 SPBD: Track_5
+Estimating A69-9004-492 SPBD: Track_6
+Estimating A69-9004-492 SPBD: Track_7
+Estimating A69-9004-492 SPBD: Track_8
+Estimating A69-9004-492 SPBD: Track_9
+[1m[32mAnalyzing: A69-9004-493[39m[22m
+Estimating A69-9004-493 SPBD: Track_1
+Estimating A69-9004-493 SPBD: Track_2
+Estimating A69-9004-493 SPBD: Track_3
+Estimating A69-9004-493 SPBD: Track_4
+Estimating A69-9004-493 SPBD: Track_5
+Estimating A69-9004-493 SPBD: Track_6
+Estimating A69-9004-493 SPBD: Track_7
+Estimating A69-9004-493 SPBD: Track_8
+[1m[32mAnalyzing: A69-9004-494[39m[22m
+Estimating A69-9004-494 SPBD: Track_1
+Estimating A69-9004-494 SPBD: Track_10
+Estimating A69-9004-494 SPBD: Track_11
+Estimating A69-9004-494 SPBD: Track_12
+Estimating A69-9004-494 SPBD: Track_13
+Estimating A69-9004-494 SPBD: Track_14
+Estimating A69-9004-494 SPBD: Track_15
+Estimating A69-9004-494 SPBD: Track_16
+Estimating A69-9004-494 SPBD: Track_17
+Estimating A69-9004-494 SPBD: Track_18
+Estimating A69-9004-494 SPBD: Track_19
+Estimating A69-9004-494 SPBD: Track_2
+Estimating A69-9004-494 SPBD: Track_20
+Estimating A69-9004-494 SPBD: Track_21
+Estimating A69-9004-494 SPBD: Track_22
+Estimating A69-9004-494 SPBD: Track_23
+Estimating A69-9004-494 SPBD: Track_3
+Estimating A69-9004-494 SPBD: Track_4
+Estimating A69-9004-494 SPBD: Track_5
+Estimating A69-9004-494 SPBD: Track_6
+Estimating A69-9004-494 SPBD: Track_7
+Estimating A69-9004-494 SPBD: Track_8
+Estimating A69-9004-494 SPBD: Track_9
+[1m[32mAnalyzing: A69-9004-495[39m[22m
+Estimating A69-9004-495 SPBD: Track_1
+Estimating A69-9004-495 SPBD: Track_2
+Estimating A69-9004-495 SPBD: Track_3
+Estimating A69-9004-495 SPBD: Track_4
+Estimating A69-9004-495 SPBD: Track_5
+Estimating A69-9004-495 SPBD: Track_6
+[1m[32mAnalyzing: A69-9004-496[39m[22m
+Estimating A69-9004-496 SPBD: Track_1
+Estimating A69-9004-496 SPBD: Track_2
+Estimating A69-9004-496 SPBD: Track_3
+Estimating A69-9004-496 SPBD: Track_4
+Estimating A69-9004-496 SPBD: Track_5
+Estimating A69-9004-496 SPBD: Track_6
+[1m[32mAnalyzing: A69-9004-497[39m[22m
+Estimating A69-9004-497 SPBD: Track_1
+Estimating A69-9004-497 SPBD: Track_10
+Estimating A69-9004-497 SPBD: Track_11
+Estimating A69-9004-497 SPBD: Track_12
+Estimating A69-9004-497 SPBD: Track_13
+Estimating A69-9004-497 SPBD: Track_14
+Estimating A69-9004-497 SPBD: Track_15
+Estimating A69-9004-497 SPBD: Track_2
+Estimating A69-9004-497 SPBD: Track_3
+Estimating A69-9004-497 SPBD: Track_4
+Estimating A69-9004-497 SPBD: Track_5
+Estimating A69-9004-497 SPBD: Track_6
+Estimating A69-9004-497 SPBD: Track_7
+Estimating A69-9004-497 SPBD: Track_8
+Estimating A69-9004-497 SPBD: Track_9
+[1m[32mAnalyzing: A69-9002-8154[39m[22m
+Estimating A69-9002-8154 SPBD: Track_1
+Estimating A69-9002-8154 SPBD: Track_2
+Estimating A69-9002-8154 SPBD: Track_3
+Estimating A69-9002-8154 SPBD: Track_4
+Estimating A69-9002-8154 SPBD: Track_5
+[1m[32mAnalyzing: A69-9002-8155[39m[22m
+Estimating A69-9002-8155 SPBD: Track_1
+Estimating A69-9002-8155 SPBD: Track_2
+Estimating A69-9002-8155 SPBD: Track_3
+Estimating A69-9002-8155 SPBD: Track_4
+Estimating A69-9002-8155 SPBD: Track_5
+[1m[32mAnalyzing: A69-9002-8162[39m[22m
+Estimating A69-9002-8162 SPBD: Track_1
+Estimating A69-9002-8162 SPBD: Track_2
+[1m[32mAnalyzing: A69-9002-8163[39m[22m
+Estimating A69-9002-8163 SPBD: Track_1
+[1m[32mAnalyzing: A69-9002-10473[39m[22m
+Estimating A69-9002-10473 SPBD: Track_1
+Estimating A69-9002-10473 SPBD: Track_10
+Estimating A69-9002-10473 SPBD: Track_11
+Estimating A69-9002-10473 SPBD: Track_12
+Estimating A69-9002-10473 SPBD: Track_13
+Estimating A69-9002-10473 SPBD: Track_2
+Estimating A69-9002-10473 SPBD: Track_3
+W: One of the inter-station SPBD segments within Track_3 is too short to fit extra 
+   detections (Total distance: 840m). Adding one single point between detections.
+Estimating A69-9002-10473 SPBD: Track_4
+Estimating A69-9002-10473 SPBD: Track_5
+Estimating A69-9002-10473 SPBD: Track_6
+Estimating A69-9002-10473 SPBD: Track_7
+Estimating A69-9002-10473 SPBD: Track_8
+Estimating A69-9002-10473 SPBD: Track_9
+[1m[32mAnalyzing: A69-9002-10474[39m[22m
+Estimating A69-9002-10474 SPBD: Track_1
+Estimating A69-9002-10474 SPBD: Track_2
+Estimating A69-9002-10474 SPBD: Track_3
+Estimating A69-9002-10474 SPBD: Track_4
+W: One of the inter-station SPBD segments within Track_4 is too short to fit extra 
+   detections (Total distance: 835m). Adding one single point between detections.
+Estimating A69-9002-10474 SPBD: Track_5
+Estimating A69-9002-10474 SPBD: Track_6
+Estimating A69-9002-10474 SPBD: Track_7
+Estimating A69-9002-10474 SPBD: Track_8
+[1m[32mAnalyzing: A69-9002-10480[39m[22m
+Estimating A69-9002-10480 SPBD: Track_1
+Estimating A69-9002-10480 SPBD: Track_2
+Estimating A69-9002-10480 SPBD: Track_3
+Estimating A69-9002-10480 SPBD: Track_4
+Estimating A69-9002-10480 SPBD: Track_5
+Estimating A69-9002-10480 SPBD: Track_6
+Estimating A69-9002-10480 SPBD: Track_7
+Estimating A69-9002-10480 SPBD: Track_8
+[1m[32mAnalyzing: A69-9002-10481[39m[22m
+Estimating A69-9002-10481 SPBD: Track_1
+Estimating A69-9002-10481 SPBD: Track_2
+Estimating A69-9002-10481 SPBD: Track_3
+Estimating A69-9002-10481 SPBD: Track_4
+Estimating A69-9002-10481 SPBD: Track_5
+Starting loadBio.
+Terminating loadbio.
+W: 23 individual detections were removed due to simultaneous detections at two receivers.
+W: 19 track(s) are shorter than 30 minutes and will not be used.
+M: Calculating fine-scale dBBMM [1m[32m(6-h intervals)[39m[22m

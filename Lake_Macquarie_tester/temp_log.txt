@@ -66,3 +66,98 @@ M: Number of ALS: 36 (of which 0 had no detections)
 M: Using detections previously compiled on 2019-10-17 19:01:53.
 M: Data time range: 2013-09-02 15:53:03 to 2015-05-24 15:53:04 (Australia/Sydney).
 Error: 61 detections for receiver 1 do not fall within deployment periods.
+M: Importing data. This process may take a while.
+M: Number of target tags: 18.
+M: Using detections previously compiled on 2019-10-18 00:35:30.
+M: Data time range: 2013-09-02 15:53:03 to 2015-05-24 15:53:04 (Australia/Sydney).
+M: Number of ALS: 36 (of which 0 had no detections)
+M: A 'spatial.dot' file was detected, activating multi-branch analysis.
+M: Data successfully imported!
+M: Analyzing: [1m[32mA69-9004-481[39m[22m
+M: Analyzing: [1m[32mA69-9004-483[39m[22m
+M: Analyzing: [1m[32mA69-9004-485[39m[22m
+M: Analyzing: [1m[32mA69-9004-489[39m[22m
+M: Analyzing: [1m[32mA69-9004-492[39m[22m
+M: Analyzing: [1m[32mA69-9004-493[39m[22m
+M: Analyzing: [1m[32mA69-9004-494[39m[22m
+M: Analyzing: [1m[32mA69-9004-495[39m[22m
+M: Analyzing: [1m[32mA69-9004-496[39m[22m
+M: Importing data. This process may take a while.
+M: Number of target tags: 18.
+M: Using detections previously compiled on 2019-10-18 00:35:30.
+M: Data time range: 2013-09-02 15:53:03 to 2015-05-24 15:53:04 (Australia/Sydney).
+M: Number of ALS: 36 (of which 0 had no detections)
+M: A 'spatial.dot' file was detected, activating multi-branch analysis.
+M: Data successfully imported!
+M: Analyzing: [1m[32mA69-9004-481[39m[22m
+M: Analyzing: [1m[32mA69-9004-483[39m[22m
+M: Analyzing: [1m[32mA69-9004-485[39m[22m
+M: Analyzing: [1m[32mA69-9004-489[39m[22m
+M: Analyzing: [1m[32mA69-9004-492[39m[22m
+M: Analyzing: [1m[32mA69-9004-493[39m[22m
+M: Analyzing: [1m[32mA69-9004-494[39m[22m
+M: Analyzing: [1m[32mA69-9004-495[39m[22m
+M: Analyzing: [1m[32mA69-9004-496[39m[22m
+M: Analyzing: [1m[32mA69-9004-497[39m[22m
+M: Analyzing: [1m[32mA69-9002-8154[39m[22m
+M: Analyzing: [1m[32mA69-9002-8155[39m[22m
+M: Analyzing: [1m[32mA69-9002-8162[39m[22m
+M: Analyzing: [1m[32mA69-9002-8163[39m[22m
+M: Analyzing: [1m[32mA69-9002-10473[39m[22m
+M: Analyzing: [1m[32mA69-9002-10474[39m[22m
+M: Analyzing: [1m[32mA69-9002-10480[39m[22m
+M: Analyzing: [1m[32mA69-9002-10481[39m[22m
+M: No specific transmitters selected. All detected will be used for analysis.
+M: No specific transmitters selected. All detected will be used for analysis.
+W: 6956 individual detections were removed due to simultaneous detections at two receivers.
+M: No specific transmitters selected. All detected will be used for analysis.
+W: 1 individual detections were removed due to simultaneous detections at two receivers.
+W: 2 track(s) are shorter than 30 minutes and will not be used.
+W: 18 individual detections were removed due to simultaneous detections at two receivers.
+W: 7 track(s) are shorter than 30 minutes and will not be used.
+W: 1 individual detections were removed due to simultaneous detections at two receivers.
+W: 3 track(s) are shorter than 30 minutes and will not be used.
+W: 12 track(s) are shorter than 30 minutes and will not be used.
+W: 12 track(s) are shorter than 30 minutes and will not be used.
+W: 12 track(s) are shorter than 30 minutes and will not be used.
+W: 12 track(s) are shorter than 30 minutes and will not be used.
+W: 1 track(s) are shorter than 30 minutes and will not be used.
+W: 45 individual detections were removed due to simultaneous detections at two receivers.
+W: 12 track(s) are shorter than 30 minutes and will not be used.
+W: 12 track(s) are shorter than 30 minutes and will not be used.
+W: 12 track(s) are shorter than 30 minutes and will not be used.
+M: Importing data. This process may take a while.
+M: Number of target tags: 18.
+M: Using detections previously compiled on 2019-10-18 00:35:30.
+M: Data time range: 2013-09-02 15:53:03 to 2015-05-24 15:53:04 (Australia/Sydney).
+M: Number of ALS: 36 (of which 0 had no detections)
+M: A 'spatial.dot' file was detected, activating multi-branch analysis.
+M: Data successfully imported!
+W: One of the inter-station SPBD segments within Track_1 is too short to fit extra 
+   detections (Total distance: 763m). Adding one single point between detections.
+W: One of the inter-station SPBD segments within Track_1 is too short to fit extra 
+   detections (Total distance: 763m). Adding one single point between detections.
+W: One of the inter-station SPBD segments within Track_5 is too short to fit extra 
+   detections (Total distance: 567m). Adding one single point between detections.
+W: One of the inter-station SPBD segments within Track_5 is too short to fit extra 
+   detections (Total distance: 567m). Adding one single point between detections.
+W: One of the inter-station SPBD segments within Track_4 is too short to fit extra 
+   detections (Total distance: 840m). Adding one single point between detections.
+W: One of the inter-station SPBD segments within Track_7 is too short to fit extra 
+   detections (Total distance: 766m). Adding one single point between detections.
+W: One of the inter-station SPBD segments within Track_1 is too short to fit extra 
+   detections (Total distance: 771m). Adding one single point between detections.
+W: One of the inter-station SPBD segments within Track_1 is too short to fit extra 
+   detections (Total distance: 771m). Adding one single point between detections.
+W: One of the inter-station SPBD segments within Track_2 is too short to fit extra 
+   detections (Total distance: 793m). Adding one single point between detections.
+W: One of the inter-station SPBD segments within Track_2 is too short to fit extra 
+   detections (Total distance: 835m). Adding one single point between detections.
+W: One of the inter-station SPBD segments within Track_2 is too short to fit extra 
+   detections (Total distance: 793m). Adding one single point between detections.
+W: One of the inter-station SPBD segments within Track_3 is too short to fit extra 
+   detections (Total distance: 840m). Adding one single point between detections.
+W: One of the inter-station SPBD segments within Track_4 is too short to fit extra 
+   detections (Total distance: 835m). Adding one single point between detections.
+W: 23 individual detections were removed due to simultaneous detections at two receivers.
+W: 19 track(s) are shorter than 30 minutes and will not be used.
