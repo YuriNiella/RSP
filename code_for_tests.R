@@ -66,7 +66,7 @@ apply(aux, 1, function(m) geosphere::distm(x = m[1:2], y = m[3:4]))
 dBBMM1 <- SPBDynBBMM(output, tz.study.area = "CET", zone = 32, SPBD.raster = "Limfjord_raster.grd") 
 dBBMM2 <- SPBDynBBMM(output250, tz.study.area = "CET", zone = 32, SPBD.raster = "Limfjord_raster.grd") 
 dBBMM3 <- SPBDynBBMM(output500, tz.study.area = "CET", zone = 32, SPBD.raster = "Limfjord_raster.grd") 
-dBBMM4 <- SPBDynBBMM(output1000, tz.study.area = "CET", zone = 32, SPBD.raster = "Limfjord_raster.grd") 
+dBBMM4 <- SPBDynBBMM(output1000, tz.study.area = "CET", zone = 32, SPBD.raster = "Limfjord_raster.grd", breaks = c(0.2, 0.5, 0.95), debug = TRUE) 
 
 # Retrieve track metadata:
 df.track1 <- dBBMM1[[2]]

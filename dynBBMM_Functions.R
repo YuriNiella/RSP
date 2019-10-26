@@ -19,194 +19,251 @@ LonLatToUTM <- function(x, y, zone) {
   return(as.data.frame(res))
 }
 
+  # Select specific transmitters to analyze
+bbmm_trimDetections <- function(detections, Transmitters = NULL) {
+  if (!is.null(Transmitters)) {
+    if (any(link <- is.na(match(Transmitters, names(detections))))) {
+      actel:::emergencyBreak()
+      stop("Transmitters", paste(Transmitters[link], collapse = ", "), "are not part of the input data.", call. = FALSE)
+    }
+    detections <- detections[Transmitters]
+  } else {
+    actel:::appendTo(c("Screen", "Report"), 
+                     "M: No specific transmitters selected. All the data will be used for analysis.")
+  }
+  return(detections)
+}
+
+  # Raster of study area as UTM: to be used for the dBBMM
+bbmm_loadRaster <- function(SPBD.raster, zone) {
+  raster.aux <- raster::raster(SPBD.raster)
+  raster::crs(raster.aux) <- "+proj=longlat +datum=WGS84" # Base raster in lonlat CRS
+  raster.aux <- raster::projectRaster(from = raster.aux,  # Convert to UTM
+                                      crs = paste0("+proj=utm +zone=", zone, " +units=m +ellps=WGS84"))
+  return(raster.aux)
+}
+
+bbmm_groupDetections <- function(detections, tz.study.area, zone) {
+  # Split transmitters per group variable
+  df.signal <- data.frame(Transmitter = names(detections),
+                          Signal = actel:::stripCodeSpaces(names(detections)))
+  
+  bio <- actel:::loadBio(file = "biometrics.csv", tz.study.area = tz.study.area)
+  # HF: remove spaces from groups
+  if (any(grepl(" ", bio$Group))) {
+    actel:::appendTo(c("Screen", "Warning", "Report"), "W: Substituting spaces in group names to avoid function failure.")
+    bio$Group <- gsub(" ", "_", bio$Group)
+  }
+  df.signal$Group <- bio$Group[match(bio$Signal, df.signal$Signal)]
+  
+  # Join detections by group
+  signal.list <- split(df.signal, df.signal$Group)
+  group.list <- lapply(signal.list, function(x) {
+    output <- do.call(rbind.data.frame, detections[match(x$Transmitter, names(detections))])
+    output$ID <- paste0(output$Transmitter, "_", output$Track) 
+    return(output)
+  })
+  
+  aux <- names(group.list) # HF: The lapply was losing the names for some reason, so I give them back at the end
+  group.list <- lapply(names(group.list), function(i) {
+    output <- checkDupTimestamps(input = group.list[[i]], group = i)
+    output <- checkTrackTimes(input = output, group = i)
+    output <- checkTrackPoints(input = output, group = i)
+    output <- getUTM(input = output, zone = zone)
+    return(output)
+  })
+  names(group.list) <- aux
+  return(group.list)
+}
+
+
+# Identify and remove duplicated timestamps: simultaneous detections at multiple receivers!
+checkDupTimestamps <- function(input, group) {
+  index <- which(duplicated(input$Date.time.local))
+  if (length(index) > 0) {
+    input <- input[-index, ]
+    actel:::appendTo(c("Report", "Warning", "Screen"), 
+                     paste0("W: ", length(index), " individual detections were removed in group ", group," due to simultaneous detections at two receivers."))
+  }
+  return(input)
+}
+
+    ## Exclude tracks shorter than 30 minutes:
+checkTrackTimes <- function(input, group) {
+  tracks <- split(input, input$ID)
+  link <- unlist(lapply(tracks, function(x) {
+    as.numeric(difftime(x$Date.time.local[[nrow(x)]], x$Date.time.local[[1]], units = "min"))
+  })) >= 30
+  output <- tracks[link]
+  if (length(tracks) > length(output))
+    actel:::appendTo(c("Report", "Warning", "Screen"), 
+                     paste("W:", sum(link), "track(s) in group", group, "are shorter than 30 minutes and will not be used."))
+  return(do.call(rbind.data.frame, output))
+}
+
+    ## Exclude tracks with less than 8 detections
+checkTrackPoints <- function(input, group) {
+  tracks <- split(input, input$ID)
+  link <- unlist(lapply(tracks, nrow)) > 8
+  output <- tracks[link]
+  if (length(tracks) > length(output))
+    actel:::appendTo(c("Report", "Warning", "Screen"), 
+                     paste("W:", length(tracks) - length(output), "track(s) in group", group, "have less than eight detections and will not be used."))
+  return(do.call(rbind.data.frame, output))
+}
+
+# Get coordinates in UTM
+getUTM <- function(input, zone) {
+  aux <- LonLatToUTM(input$Longitude, input$Latitude, zone = zone)
+  input$X <- aux[, 2]
+  input$Y <- aux[, 3]
+  return(input)
+}
+
+bbmm_calculateDBBMM <- function(input, zone, raster) {
+  # Create a move object for all animals together:
+  loc <- lapply(input, function(i) {
+    move::move(x = i$X, y = i$Y, time = i$Date.time.local,
+               proj = sp::CRS(paste0("+proj=utm +zone=", zone, " +units=m +ellps=WGS84")), 
+               animal = i$ID)
+  })
+
+  # Calculate dynamic Brownian Bridge Movement Model:
+  mod_dbbmm <- lapply(seq_along(loc), function(i) {
+    actel:::appendTo("Screen", paste("M: Calculating dBBMM:", crayon::bold(crayon::green(names(loc)[i]))))
+    time.spent <- system.time(suppressMessages(
+      output <- move::brownian.bridge.dyn(object = loc[[i]],
+                                raster = raster,  
+                                window.size = 7, margin = 3,
+                                location.error = input[[i]]$Error)
+      ))
+    actel:::appendTo("Screen", 
+      paste0("M: Success! (Time spent: ", actel::minuteTime(time.spent["elapsed"], format = "s", seconds = TRUE), ")"))
+    return(output)
+    })
+  names(mod_dbbmm) <- names(loc)
+  return(mod_dbbmm)
+}
+
+bbmm_getWaterAreas <- function(dbbmm, raster, breaks) {
+  raster.dBBMM <- lapply(dbbmm, move::getVolumeUD) # Standardized areas
+  names(raster.dBBMM) <- names(dbbmm)
+
+  # Secondary raster file to crop in-land contours
+  raster.base <- raster
+  raster.base[which(raster::values(raster.base) == 0)] <- NA # Zero values to NA = mask
+  rm(raster)
+
+  # Clip dBBMM contours by land limits
+  water.areas <- lapply(raster.dBBMM, function(the.dbbmm) {
+    output_i <- lapply(names(the.dbbmm), function(i){
+      x <- the.dbbmm[[i]] 
+      raster.extent <- raster::extent(x)
+      raster::extent(raster.base) <- raster::extent(x) # Get both rasters with the same extent
+      raster.base <- raster::resample(raster.base, x)
+      raster.crop <- raster::mask(x = x, mask = raster.base, inverse = TRUE)
+      # Calculate contour areas
+      output_breaks <- lapply(breaks, function(v) {
+        aux <- raster.crop[[1]] <= v
+        output <- sum(raster::values(aux), na.rm = TRUE)
+        return(output)
+      })
+      names(output_breaks) <- breaks
+      return(output_breaks) 
+    })
+    names(output_i) <- names(the.dbbmm)
+    return(output_i)
+  })
+  names(water.areas) <- names(dbbmm)
+
+  # simplify the output  
+  output <- lapply(water.areas, function(group) {
+    recipient <- do.call(rbind.data.frame, lapply(group, unlist))
+    rownames(recipient) <- names(group)
+    colnames(recipient) <- paste0("area", gsub("^0", "", breaks))
+    return(recipient)
+  })
+  names(output) <- names(water.areas)
+
+  return(output)   
+}
+
 #' Total dynamic Brownian Bridge Movement Model 
 #' 
 #' Calculates dynamic Brownian Bridge Movement Model (dBBMM) for each track and transmitter. Tracks shorter than 30 minutes
 #' are automatically identified and not included in the analysis.
 #'
-#' @param input List of estimated track data as returned by SPBDrun or SPBDrun.dist. 
+#' @param detections List of estimated track data as returned by SPBDrun or SPBDrun.dist. 
 #' @param tz.study.area Timezone of the study area.
 #' @param zone UTM zone of the study area.
 #' @param Transmitters Vector of transmitters to be analyzed. By default all transmitters from the SPBD estimation will be analised.
 #' @param SPBD.raster Path to the raster file from the study area. 
+#' @param breaks the contour lines to be extracted.
 #' 
 #' @return List of calculated dBBMMs and metadata on each track used for the modelling. 
 #' 
-SPBDynBBMM <- function(input, tz.study.area, zone, Transmitters = NULL, SPBD.raster) {
-  
-  # Select specific transmitters to analyze
-  if (is.null(Transmitters) == FALSE) {
-    total.transmitters <- names(input)
-    index <- which(total.transmitters %in% Transmitters)
-    input <- input[index]
-  } else {
-    actel:::appendTo(c("Screen", "Report"), 
-                     "M: No specific transmitters selected. All detected will be used for analysis.")
+SPBDynBBMM <- function(detections, tz.study.area, zone, Transmitters = NULL, SPBD.raster, breaks, debug = FALSE) {
+  if (debug) {
+    on.exit(save(list = ls(), file = "bbmm_debug.RData"), add = TRUE)
+    actel:::appendTo("Screen", "!!!--- Debug mode has been activated ---!!!")
   }
+
+  # check input quality
+  if (!is.numeric(zone))
+    stop("'zone' must be numeric.", call. = FALSE)
+  if (length(zone) > 1)
+    stop("Please provide only one value for 'zone.", call. = FALSE)
+  if (!is.numeric(breaks))
+    stop("'breaks' must be numeric.", call. = FALSE)
+  if (any(breaks <= 0 | breaks >= 1))
+    stop("'breaks' must be between 0 and 1 (both exclusive).", call. = FALSE)
+  if (any(duplicated(breaks)))
+    stop("All values in 'breaks' must be unique.", call. = FALSE)
+
+  # Load raster
+  raster.aux <- bbmm_loadRaster(SPBD.raster = SPBD.raster, zone = zone)
+
+  # Prepare detections
+  actel:::appendTo("Screen", paste("M: Preparing data to apply dBBMM."))
+  detections <- bbmm_trimDetections(detections = detections, Transmitters = Transmitters)
+  group.list <- bbmm_groupDetections(detections = detections, tz.study.area = tz.study.area, zone = zone) 
+
+  # Calculate dBBMM
+  mod_dbbmm <- bbmm_calculateDBBMM(input = group.list, zone = zone, raster = raster.aux)
+
+  # Remove land areas
+  actel:::appendTo("Screen", paste("M: Subtracting land areas from output."))
+  water.areas <- bbmm_getWaterAreas(dbbmm = mod_dbbmm, raster = raster.aux, breaks = breaks)
+
+  # Save track info
+  actel:::appendTo("Screen", paste("M: Storing final results."))
+  track.info <- lapply(group.list, function(x) {
+    by.ID <- split(x, x$ID)
+    output <- data.frame(
+      Track = names(by.ID),
+      Start = unlist(lapply(by.ID, function(xi) as.character(xi$Date.time.local[1]))),
+      Stop = unlist(lapply(by.ID, function(xi) as.character(xi$Date.time.local[nrow(xi)]))))
+    return(output)
+  })
+
+  # Save area info
+  track.info <- lapply(seq_along(track.info), function(i) {
+    cbind(track.info[[i]], water.areas[[i]])
+  })
+
+  # Convert times
+  track.info <- lapply(track.info, function(x) {
+    x$Start <- as.POSIXct(x$Start, tz = tz.study.area)
+    x$Stop <- as.POSIXct(x$Stop, tz = tz.study.area)
+    x$Time.lapse.min <- as.numeric(difftime(time1 = x$Stop, 
+                                            time2 = x$Start,
+                                            units = "mins"))
+    return(x)
+  })
+  names(track.info) <- names(group.list)
   
-  # Raster of study area as UTM: to be used for the dBBMM
-  raster.aux <- raster::raster(SPBD.raster)
-  raster::crs(raster.aux) <- "+proj=longlat +datum=WGS84" # Base raster in lonlat CRS
-  raster.aux <- raster::projectRaster(from = raster.aux,  # Converto to UTM
-                                      crs = paste0("+proj=utm +zone=", zone, " +units=m +ellps=WGS84"))
-  
-  # Secondary raster file to crop in-land contours
-  raster.base <- raster.aux
-  raster.base[which(raster::values(raster.base) == 0)] <- NA # Zero values to NA = mask
-  
-  
-  # Split transmitters per group variable
-  transmitter.aux <- names(input)
-  signal.aux <- strsplit(transmitter.aux, "-")
-  signal.save <- NULL
-  for (i in 1:length(transmitter.aux)) {
-    aux <- signal.aux[[i]][length(signal.aux[[i]])]
-    signal.save <- c(signal.save, aux)
-  }
-  df.signal <- data.frame(Transmitter = transmitter.aux,
-                          Signal = signal.save)
-  
-  df.bio <- actel:::loadBio(file = "biometrics.csv", tz.study.area = tz.study.area)
-  df.signal$Group <- NA_character_
-  for (i in 1:nrow(df.signal)) {
-    df.signal$Group[i] <- as.character(df.bio$Group[df.bio$Signal == df.signal$Signal[i]])
-  }
-  
-  spp <- unique(df.signal$Group)
-  spp.df <- NULL # Auxiliar object with group-specific dataset names (to be used bellow)
-  for (i in 1:length(spp)) {
-    transmitter.aux <- as.character(df.signal$Transmitter[df.signal$Group == spp[i]])
-    aux <- which(names(input) %in% transmitter.aux)
-    df.save <- NULL
-    for(ii in 1:length(aux)) {
-      aux2 <- input[[aux[ii]]]
-      df.save <- rbind(df.save, aux2)
-    }
-    assign(x = paste0("df_", spp[i]), value = df.save) # Species-specific dataframe
-    spp.df <- c(spp.df, paste0("df_", spp[i])) # Vector of dataframe names
-  }
-  
-  # Empty auxiliary files to save outputs
-  good.group <- NULL
-  good.track <- NULL 
-  good.initial <- NULL
-  good.final <- NULL
-  good.a50 <- NULL
-  good.a95 <- NULL
-  dbbmm.df <- NULL # Auxiliar to save output names
-  
-  
-  # Calculate dBBMM per group:
-  for (i in 1:length(spp.df)) {
-    
-    actel:::appendTo("Screen",
-                     paste("M: Calculating dBBMM:", 
-                           crayon::bold(crayon::green((paste(strsplit(spp.df[i], "_")[[1]][2]))))))
-    
-    df.aux <- get(spp.df[i]) # Use auxiliar object!
-    
-    # Calculate BBMM for each animal + track!
-    df.aux$ID <- paste0(df.aux$Transmitter, "_", df.aux$Track) 
-    
-    # Get coordinates in UTM
-    df.aux$X <- LonLatToUTM(df.aux$Longitude, df.aux$Latitude, zone)[ , 2]
-    df.aux$Y <- LonLatToUTM(df.aux$Longitude, df.aux$Latitude, zone)[ , 3]
-    
-    # Identify and remove duplicated timestamps: simultaneous detections at multiple receivers!
-    index <- which(duplicated(df.aux$Date.time.local) == TRUE)
-    if (length(index) > 0) {
-      df.aux <- df.aux[-index, ]
-      actel:::appendTo(c("Report", "Warning", "Screen"), 
-                       paste("W:", length(index), "individual detections were removed due to simultaneous detections at two receivers."))
-    }
-    
-    ## Exclude tracks shorter than 30 minutes:
-    bad.track <- NULL 
-    tot.track <- unique(df.aux$ID)
-    for (ii in 1:length(tot.track)) {
-      aux <- subset(df.aux, ID == tot.track[ii])
-      time.int <- as.numeric(difftime(aux$Date.time.local[nrow(aux)], aux$Date.time.local[1], units = "min"))
-      if (time.int < 30 |
-          nrow(aux) <= 8) {
-        bad.track <- c(bad.track, as.character(tot.track[ii])) 
-      } else { # Save good track statistics to return as an output
-        good.group <- c(good.group, as.character(spp[i]))
-        good.track <- c(good.track, as.character(tot.track[ii]))
-        good.initial <- c(good.initial, as.character(aux$Date.time.local[1]))
-        good.final <- c(good.final, as.character(aux$Date.time.local[nrow(aux)]))
-      }
-    }
-    index <- which(df.aux$ID %in% bad.track)
-    if (length(index) > 0) {
-      df.aux <- df.aux[-index, ]
-      actel:::appendTo(c("Report", "Warning", "Screen"), 
-                       paste("W:", length(unique(bad.track)), "track(s) are shorter than 30 minutes and will not be used."))
-    }
-    df.aux$ID <- as.factor(paste(df.aux$ID))
-    
-    
-    # Create a move object for all animals together:
-    loc <- move::move(x = df.aux$X, y = df.aux$Y, time = df.aux$Date.time.local,
-                      proj = sp::CRS(paste0("+proj=utm +zone=", zone, 
-                                            " +units=m +ellps=WGS84")), 
-                      animal = df.aux$ID)
-    
-    # Calculate dynamic Brownian Bridge Movement Model:
-    print(system.time(suppressMessages(mod_dbbmm <- move::brownian.bridge.dyn(object = loc,
-                                                                      raster = raster.aux,  
-                                                                      window.size = 7, margin = 3,
-                                                                      location.error = df.aux$Error))))
-    raster.dBBMM <- move::getVolumeUD(mod_dbbmm) # Standardized areas
-    
-    # Clip dBBMM contours by land limits
-    trans.aux <- names(raster.dBBMM)
-    for (iii in 1:length(trans.aux)){
-      raster.dBBMM2 <- raster.dBBMM[[iii]]
-     
-      extent1 <- raster::extent(raster.dBBMM2)  # Get both rasters with the same extent
-      raster::extent(raster.base) <- extent1
-      raster.base <- raster::resample(raster.base, raster.dBBMM2)
-      raster.crop <- raster::mask(x = raster.dBBMM2, mask = raster.base, inverse = TRUE)
-      
-      # Calculate contour areas
-      dbbmm_cont50 <- raster.crop[[1]] <=.50 # 50% 
-      dbbmm_cont95 <- raster.crop[[1]] <=.95 # 95%
-      area50 <- sum(raster::values(dbbmm_cont50), na.rm = TRUE)
-      area95 <- sum(raster::values(dbbmm_cont95), na.rm = TRUE)
-      
-      # Save areas for track metadata
-      good.a50 <- c(good.a50, area50)
-      good.a95 <- c(good.a95, area95)
-      
-      # Save dBBMM output
-      assign(x = paste0(spp[i], "_", trans.aux[iii]), 
-             value = raster.dBBMM) # Standardized total areas non-cropped by land
-      
-      #fix.name <- gsub(pattern = "[.]", replacement = "-", x = trans.aux[iii])
-      dbbmm.df <- c(dbbmm.df, paste0(spp[i], "_", trans.aux[iii])) # Vector of dataframe names
-    }
-  }
-  
-  # Save good track info
-  Track.info <- data.frame(Group = good.group,
-                           Track = good.track,
-                           Initial = as.character(good.initial),
-                           Final = as.character(good.final),
-                           A50 = good.a50,
-                           A95 = good.a95)
-  
-  Track.info$Initial <- as.POSIXct(Track.info$Initial, tz = tz.study.area)
-  Track.info$Final <- as.POSIXct(Track.info$Final, tz = tz.study.area)
-  Track.info$Time.lapse.min <- as.numeric(difftime(time1 = Track.info$Final, 
-                                                   time2 = Track.info$Initial,
-                                                   units = "mins"))
-  
-  # Save output as a list:
-  dBBMM <- mget(dbbmm.df)
-  dBBMM <- list(dBBMM, Track.info)
-  names(dBBMM) <- c("dBBMM", "Track.info") 
-  
-  return(dBBMM)  
+  # return both the dbbmm and the track/area info
+  return(list(dbbmm = mod_dbbmm, tracks = track.info))  
 }
 
 #' Total dynamic Brownian Bridge Movement Model 
