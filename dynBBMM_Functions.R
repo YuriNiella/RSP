@@ -19,7 +19,17 @@ LonLatToUTM <- function(x, y, zone) {
   return(as.data.frame(res))
 }
 
-  # Select specific transmitters to analyze
+#' Select specific transmitters to analyze
+#' 
+#' If the user specifies transmitters, return only the detections for those tags.
+#' 
+#' @param detections The detections data frame, provided by one of the main actel functions (explore, migrate, residency of spbd)
+#' @param Transmitters A list of transmitters to be analysed.
+#' 
+#' @return the trimmed detections list
+#' 
+#' @keywords internal
+#' 
 bbmm_trimDetections <- function(detections, Transmitters = NULL) {
   if (!is.null(Transmitters)) {
     if (any(link <- is.na(match(Transmitters, names(detections))))) {
@@ -34,7 +44,17 @@ bbmm_trimDetections <- function(detections, Transmitters = NULL) {
   return(detections)
 }
 
-  # Raster of study area as UTM: to be used for the dBBMM
+#' Load Raster for dBBMM
+#' 
+#' A simpler version of SPBDraster, as not as many conversions are needed.
+#' 
+#' @param SPBD.raster the name of the raster file
+#' @param zone the UTM zone of the study area
+#' 
+#' @return the raster object.
+#' 
+#' @keywords internal
+#' 
 bbmm_loadRaster <- function(SPBD.raster, zone) {
   raster.aux <- raster::raster(SPBD.raster)
   raster::crs(raster.aux) <- "+proj=longlat +datum=WGS84" # Base raster in lonlat CRS
@@ -43,6 +63,18 @@ bbmm_loadRaster <- function(SPBD.raster, zone) {
   return(raster.aux)
 }
 
+#' Prepare detections for the dBBMM
+#' 
+#' Joins the detections by group, and performs a series of quality checks on the detection data.
+#' 
+#' @param detections a list of detections per fish
+#' @param tz.study.area the time zone of the study area
+#' @param zone the UTM zone of the study area
+#' 
+#' @return the detections ready for dBBMM fitting
+#' 
+#' @keywords internal
+#' 
 bbmm_groupDetections <- function(detections, tz.study.area, zone) {
   # Split transmitters per group variable
   df.signal <- data.frame(Transmitter = names(detections),
@@ -77,7 +109,15 @@ bbmm_groupDetections <- function(detections, tz.study.area, zone) {
 }
 
 
-# Identify and remove duplicated timestamps: simultaneous detections at multiple receivers!
+#' Identify and remove duplicated timestamps
+#' 
+#' @param input The detections to be checked
+#' @param group The group being analysed, used solely for messaging purposes
+#' 
+#' @return The detections without duplicated timestamps
+#' 
+#' @keywords internal
+#' 
 checkDupTimestamps <- function(input, group) {
   index <- which(duplicated(input$Date.time.local))
   if (length(index) > 0) {
@@ -88,7 +128,14 @@ checkDupTimestamps <- function(input, group) {
   return(input)
 }
 
-    ## Exclude tracks shorter than 30 minutes:
+#' Exclude tracks shorter than 30 minutes:
+#' 
+#' @inheritParams checkDupTimestamps
+#' 
+#' @return The detections for tracks longer than 30 minutes
+#' 
+#' @keywords internal
+#' 
 checkTrackTimes <- function(input, group) {
   tracks <- split(input, input$ID)
   link <- unlist(lapply(tracks, function(x) {
@@ -101,7 +148,14 @@ checkTrackTimes <- function(input, group) {
   return(do.call(rbind.data.frame, output))
 }
 
-    ## Exclude tracks with less than 8 detections
+#' Exclude tracks with less than 8 detections
+#' 
+#' @inheritParams checkDupTimestamps
+#' 
+#' @return The detections for tracks with more than 8 detections
+#' 
+#' @keywords internal
+#' 
 checkTrackPoints <- function(input, group) {
   tracks <- split(input, input$ID)
   link <- unlist(lapply(tracks, nrow)) > 8
@@ -112,7 +166,15 @@ checkTrackPoints <- function(input, group) {
   return(do.call(rbind.data.frame, output))
 }
 
-# Get coordinates in UTM
+#' Convert WGS84 co-ords to UTM
+#' 
+#' @inheritParams checkDupTimestamps
+#' @inheritParams bbmm_groupDetections
+#' 
+#' @return The detections with UTM coordinates
+#' 
+#' @keywords internal
+#' 
 getUTM <- function(input, zone) {
   aux <- LonLatToUTM(input$Longitude, input$Latitude, zone = zone)
   input$X <- aux[, 2]
@@ -120,6 +182,16 @@ getUTM <- function(input, zone) {
   return(input)
 }
 
+#' Calculate the dBBMM for each group
+#' 
+#' @param input The detections to be used as input for the model
+#' @inheritParams bbmm_groupDetections
+#' @param raster The raster object
+#' 
+#' @return A list of dBBMM's per group
+#' 
+#' @keywords internal
+#' 
 bbmm_calculateDBBMM <- function(input, zone, raster) {
   # Create a move object for all animals together:
   loc <- lapply(input, function(i) {
@@ -145,6 +217,16 @@ bbmm_calculateDBBMM <- function(input, zone, raster) {
   return(mod_dbbmm)
 }
 
+#' Calculate water areas per track
+#' 
+#' @param dbbmm the results of the dBBMM calculation
+#' @inheritParams bbmm_calculateDBBMM
+#' @inheritParams SPBDynBBMM
+#' 
+#' @return A list of areas per track, per group
+#' 
+#' @keywords internal
+#' 
 bbmm_getWaterAreas <- function(dbbmm, raster, breaks) {
   raster.dBBMM <- lapply(dbbmm, move::getVolumeUD) # Standardized areas
   names(raster.dBBMM) <- names(dbbmm)
@@ -265,21 +347,6 @@ SPBDynBBMM <- function(detections, tz.study.area, zone, Transmitters = NULL, SPB
   # return both the dbbmm and the track/area info
   return(list(dbbmm = mod_dbbmm, tracks = track.info))  
 }
-
-#' Total dynamic Brownian Bridge Movement Model 
-#' 
-#' Calculates dynamic Brownian Bridge Movement Model (dBBMM) for each track and transmitter. Tracks shorter than 30 minutes
-#' are automatically identified and not included in the analysis.
-#'
-#' @param input List of estimated track data as returned by SPBDrun or SPBDrun.dist. 
-#' @param tz.study.area Timezone of the study area.
-#' @param zone UTM zone of study area.
-#' @param Transmitters Vector of transmitters to be analyzed. By default all transmitters from the SPBD estimation will be analised.
-#' @param SPBD.raster Path to the raster file from the study area. 
-#' 
-#' @return List of calculated dBBMMs and metadata on each track used for the modelling. 
-#' 
-
 
 #' Fine-scale dynamic Brownian Bridge Movement Model 
 #' 
