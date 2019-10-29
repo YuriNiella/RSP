@@ -69,20 +69,22 @@ dBBMM3 <- SPBDynBBMM(output500, tz.study.area = "CET", zone = 32, SPBD.raster = 
 dBBMM4 <- SPBDynBBMM(output1000, tz.study.area = "CET", zone = 32, SPBD.raster = "Limfjord_raster.grd", breaks = c(0.2, 0.5, 0.95), debug = TRUE) 
 
 # Retrieve track metadata:
-df.track1 <- dBBMM1[[2]]
-df.track2 <- dBBMM2[[2]]
-df.track3 <- dBBMM3[[2]]
-df.track4 <- dBBMM4[[2]]
+#df.track1 <- dBBMM1[[2]]
+#df.track2 <- dBBMM2[[2]]
+#df.track3 <- dBBMM3[[2]]
+#df.track4 <- dBBMM4[[2]]
+df.track4 <- getMeta(dBBMM4, group = "Brown_Trout1")
 
-# Compare the dBBMM for different SPBD estimations for a same track: 
-plot.dBBMM(dBBMM1, group = "Brown Trout1", Track = "R64K.4075_Track_8", main = "SPBD",
+
+# Compare the dBBMM for different SPBD estimations for a same track: YN: We need a way to fix the track names (transmitter separated by points)
+plot.dBBMM(dBBMM1, group = "Brown_Trout1", Track = "R64K.4075_Track_8", main = "SPBD",
            SPBD.raster = "Limfjord_raster.grd") 
-plot.dBBMM(dBBMM2, group = "Brown Trout1", Track = "R64K.4075_Track_8", main = "250 m",
+plot.dBBMM(dBBMM2, group = "Brown_Trout1", Track = "R64K.4075_Track_8", main = "250 m",
            SPBD.raster = "Limfjord_raster.grd") 
-plot.dBBMM(dBBMM3, group = "Brown Trout1", Track = "R64K.4075_Track_8", main = "500 m",
+plot.dBBMM(dBBMM3, group = "Brown_Trout1", Track = "R64K.4075_Track_8", main = "500 m",
            SPBD.raster = "Limfjord_raster.grd") 
-plot.dBBMM(dBBMM4, group = "Brown Trout1", Track = "R64K.4075_Track_8", main = "1000 m",
-           SPBD.raster = "Limfjord_raster.grd") 
+plot.dBBMM(dBBMM4, group = "Brown_Trout1", Track = "R64K.4075_Track_8", main = "1000 m",
+           SPBD.raster = "Limfjord_raster.grd", Stations = FALSE) 
 
 
 ## 2. Fine-scale dBBMM:

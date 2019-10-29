@@ -280,11 +280,11 @@ bbmm_getWaterAreas <- function(dbbmm, raster, breaks) {
 #' @param zone UTM zone of the study area.
 #' @param Transmitters Vector of transmitters to be analyzed. By default all transmitters from the SPBD estimation will be analised.
 #' @param SPBD.raster Path to the raster file from the study area. 
-#' @param breaks the contour lines to be extracted.
+#' @param breaks The contours for calculating usage areas in squared meters. By default the 95% and 50% contours are used. 
 #' 
 #' @return List of calculated dBBMMs and metadata on each track used for the modelling. 
 #' 
-SPBDynBBMM <- function(detections, tz.study.area, zone, Transmitters = NULL, SPBD.raster, breaks, debug = FALSE) {
+SPBDynBBMM <- function(detections, tz.study.area, zone, Transmitters = NULL, SPBD.raster, breaks = c(.95, .50), debug = FALSE) {
   if (debug) {
     on.exit(save(list = ls(), file = "bbmm_debug.RData"), add = TRUE)
     actel:::appendTo("Screen", "!!!--- Debug mode has been activated ---!!!")
@@ -346,6 +346,23 @@ SPBDynBBMM <- function(detections, tz.study.area, zone, Transmitters = NULL, SPB
   
   # return both the dbbmm and the track/area info
   return(list(dbbmm = mod_dbbmm, tracks = track.info))  
+}
+
+#' Get metadata from total dBBMM 
+#' 
+#' Extracts movement metadata from the total dynamic Brownian Bridge Movement Model (dBBMM) for a particular group of interest. 
+#'
+#' @param input The total dBBMM as returned by the SPBDynBBMM function. 
+#' @param group Group of interest.
+#' 
+#' @return A data frame with metadata for the group of interest. 
+#' 
+getMeta <- function(input, group) {
+
+  aux <- which(names(input[[2]]) == group)
+  input <- input[[2]][[aux]]
+
+  return(input)
 }
 
 #' Fine-scale dynamic Brownian Bridge Movement Model 
@@ -756,10 +773,10 @@ SPBDynBBMM.fine <- function(input, tz.study.area, zone, timeframe = 6, SPBD.rast
 #' @param input Dynamic Brownian Bridge Movement Model object as returned by SPBDynBBMM.
 #' @param group Group/species of transmitters.
 #' @param Track Transmitter and track names to plot.
-#' @param SPBD.raster Raster file of the study area.
-#' @param levels Numeric vector os use areas to plot. By default the 95%, 75%, 50% and 25% areas will be returned.
+#' @param levels Numeric vector os use areas to plot. By default the 99%, 95%, 75%, 50% and 25% areas will be returned.
 #' @param land.col Color of the land mass. 
 #' @param Station Should receiver stations be added to the graph. Default is TRUE.
+#' @inheritParams SPBDynBBMM
 #' 
 #' @return dynamic Brownian Bridge Movement Model plot.
 #' 
@@ -768,19 +785,20 @@ plot.dBBMM <- function(input, group, Track, SPBD.raster, Stations = TRUE,
                        land.col = "#BABCBF") {
   
   # Get specific track of interest from total dBBMM object
-  aux <- which(names(input[[1]]) == paste0(group, "_", Track))
-  input <- input[[1]][aux]
-  aux <- which(names(input[[1]]) == Track)
-  input <- input[[1]][[aux]]
-  
+  aux <- which(names(input[[1]]) == group)
+  input <- input[[1]][group]
+  input <- move::getVolumeUD(input[[1]]) # Standardized areas
+  aux <- which(names(input) == Track)
+  input <- input[[aux]]
+
   # Convert projection to lonlat projection for plotting:
-  dBBMM.lonlat <- raster::projectRaster(from = input, crs = "+proj=longlat +datum=WGS84")
+  input <- raster::projectRaster(from = input, crs = "+proj=longlat +datum=WGS84")
   
   # Base map raster
   raster.base <- raster::raster(SPBD.raster)
   raster::crs(raster.base) <- "+proj=longlat +datum=WGS84"
   raster.base[which(raster::values(raster.base) != 1)] <- NA
-  raster.base <- raster::resample(raster.base, dBBMM.lonlat)
+  raster.base <- raster::resample(raster.base, input)
   
   # Convert map raster to points
   base.map <- raster::rasterToPoints(raster.base)
@@ -790,12 +808,12 @@ plot.dBBMM <- function(input, group, Track, SPBD.raster, Stations = TRUE,
   # Get desired contours:
   df.contour <- NULL
   for (i in 1:length(levels)) {
-    aux.contour <- dBBMM.lonlat[[1]] <= levels[i]
+    aux.contour <- input[[1]] <= levels[i]
     raster.df <- raster::rasterToPoints(aux.contour)
     raster.df <- data.frame(raster.df)
     names(raster.df) <- c("x", "y", "layer")
     raster.df <- subset(raster.df, layer > 0)
-    raster.df$Contour <- paste0((levels[i]*100),"%")
+    raster.df$Contour <- paste0((levels[i] * 100), "%")
     
     df.contour <- rbind(df.contour, raster.df)
   }
