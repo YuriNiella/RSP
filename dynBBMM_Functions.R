@@ -582,7 +582,7 @@ SPBDynBBMM <- function(detections, tz.study.area, zone, Transmitters = NULL, SPB
     stop("All values in 'breaks' must be unique.", call. = FALSE)
   if (!is.null(timeframe) && !is.numeric(timeframe))
     stop("'timeframe' must be either NULL or numeric", call. = FALSE)
-  if (!is.null(timeframe) && timeframe =< 0.5)
+  if (!is.null(timeframe) && timeframe <= 0.5)
     stop("'timeframe' must be larger than 0.5.", call. = FALSE)
   
   # Load raster

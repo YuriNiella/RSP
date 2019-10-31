@@ -22,8 +22,11 @@ output <- SPBDrun(SPBD.raster = "Limfjord_raster.grd", tz.study.area = "CET",
 #                           distance = 250, time.lapse = 10)
 output500 <- SPBDrun.dist(SPBD.raster = "Limfjord_raster.grd", tz.study.area = "CET",
                           distance = 500, time.lapse = 30)
+
 output1000 <- SPBDrun.dist(SPBD.raster = "Limfjord_raster.grd", tz.study.area = "CET",
                            distance = 1000, time.lapse = 30, er.ad = 20)
+output1000 <- SPBDrun.dist(SPBD.raster = "Limfjord_raster.grd", tz.study.area = "CET",
+                           distance = 500, time.lapse = 30) # YN: with automatic errors and distances of 1000m the errors of estimated positions became too high (50m increment) and crashed dBBMM! Maybe add a message to user when this happens, that they might want to reduce the distance of added positions. 
 
 ## Comparison plots: time x distance 
 
@@ -94,7 +97,11 @@ dBBMM.fine2 <- SPBDynBBMM.fine(output250, tz.study.area = "CET", zone = 32, time
                                SPBD.raster = "Limfjord_raster.grd")
 dBBMM.fine3 <- SPBDynBBMM.fine(output500, tz.study.area = "CET", zone = 32, timeframe = 6,
                                SPBD.raster = "Limfjord_raster.grd")
+
 dBBMM4 <- SPBDynBBMM(output1000, tz.study.area = "CET", zone = 32, SPBD.raster = "Limfjord_raster.grd", breaks = c(0.2, 0.5, 0.95), timeframe = 6, debug = TRUE) 
+dBBMM4 <- SPBDynBBMM(output1000, tz.study.area = "CET", zone = 32, SPBD.raster = "Limfjord_raster.grd", breaks = c(0.2, 0.5, 0.95), debug = TRUE) # YN: Error!
+
+
 
 # Retreive fine-scale data:
 df.fine1 <- dBBMM.fine1[[1]]
