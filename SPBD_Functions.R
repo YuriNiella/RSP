@@ -143,7 +143,7 @@ SPBDraster <- function(raster.hab = "shapefile.grd") { # HF: We need to discuss 
 #' @param time.lapse Time lapse in minutes to be considered for adding estimated track positions.
 #' @param time.lapse.rec Time lapse in minutes to be considered for consecutive detections at the same station. 
 #' @param r.path TransitionLayer object as returned by LTDpath.
-#' @param er.ad Error parameter in meters for consecutive detections at the same station.
+#' @param er.ad incremental error per additional RSP point.
 #' @param path.list A list of previously calculated paths.
 #' 
 #' @return A dataframe with the SPBD estimations for all identified tracks for that animal.
@@ -274,7 +274,7 @@ SPBDrecreate <- function(df.track, tz.study.area, time.lapse, time.lapse.rec, r.
 #' @param distance Maximum distance between SPBD locations.
 #' @param time.lapse Time lapse in minutes to be considered for consecutive detections at the same station. 
 #' @param r.path TransitionLayer object as returned by LTDpath.
-#' @param er.ad Error parameter in meters for consecutive detections at the same station.
+#' @param er.ad Incremental error per additional RSP point.
 #' @param path.list A list of previously calculated paths.
 #' 
 #' @return A dataframe with the SPBD estimations for all identified tracks for that animal.
@@ -427,7 +427,7 @@ new_SPBDrecreate <- function(df.track, tz.study.area, distance, time.lapse, r.pa
 #' @param tz.study.area Timezone of the study area.
 #' @param time.lapse TTime lapse in minutes to be considered for adding positions.
 #' @param time.lapse.rec Time lapse in minutes to be considered for consecutive detections at the same station.
-#' @param er.ad EError parameter in meters for consecutive detections at the same station.
+#' @param er.ad Incremental error per additional RSP point.
 #' 
 #' @return A list with the SPBD estimations of individual tracks per transmitter.
 #' 
@@ -494,7 +494,7 @@ SPBD <- function(df.detec, tag, r.path, tz.study.area, time.lapse, time.lapse.re
 #' @param tz.study.area Timezone of the study area.
 #' @param distance Maximum distance between SPBD locations.
 #' @param time.lapse Time lapse in minutes to be considered for consecutive detections at the same station. 
-#' @param er.ad EError parameter in meters for consecutive detections at the same station.
+#' @param er.ad Incremental error per additional RSP point.
 #' 
 #' @return A list with the SPBD estimations of individual tracks per transmitter.
 #' 
@@ -563,6 +563,7 @@ new_SPBD <- function(df.detec, tag, r.path, tz.study.area, distance, time.lapse,
 #' @param time.lapse.rec Time lapse in minutes to be considered for consecutive detections at the same station. 
 #' @return Returns a list of SPBD tracks (as dataframe) for each transmitter detected. 
 #' 
+#' @export
 #' 
 SPBDrun <- function(SPBD.raster, tz.study.area, time.lapse = 10, time.lapse.rec = 10, 
   start.timestamp = NULL, end.timestamp = NULL, sections = NULL, exclude.tags = NULL, er.ad = 10, debug = FALSE) {
@@ -652,8 +653,14 @@ SPBDrun <- function(SPBD.raster, tz.study.area, time.lapse = 10, time.lapse.rec 
 #' 
 #' @return Returns a list of SPBD tracks (as dataframe) for each transmitter detected. 
 #' 
+#' @export
+#' 
 SPBDrun.dist <- function(SPBD.raster, tz.study.area, distance = 250, time.lapse = 10, 
-  start.timestamp = NULL, end.timestamp = NULL, sections = NULL, exclude.tags = NULL, er.ad = 10, debug = FALSE) {
+  start.timestamp = NULL, end.timestamp = NULL, sections = NULL, exclude.tags = NULL, er.ad = NULL, debug = FALSE) {
+  
+  if (is.null(er.ad)) 
+    er.ad <- distance * 0.05
+
 # Load, structure and check the inputs
   actel:::appendTo(c("Screen", "Report"), "M: Importing data. This process may take a while.")
   bio <- actel::loadBio(file = "biometrics.csv", tz.study.area = tz.study.area)
