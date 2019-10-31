@@ -94,8 +94,7 @@ dBBMM.fine2 <- SPBDynBBMM.fine(output250, tz.study.area = "CET", zone = 32, time
                                SPBD.raster = "Limfjord_raster.grd")
 dBBMM.fine3 <- SPBDynBBMM.fine(output500, tz.study.area = "CET", zone = 32, timeframe = 6,
                                SPBD.raster = "Limfjord_raster.grd")
-dBBMM.fine4 <- SPBDynBBMM.fine(output1000, tz.study.area = "CET", zone = 32, timeframe = 6,
-                               SPBD.raster = "Limfjord_raster.grd")
+dBBMM4 <- SPBDynBBMM(output1000, tz.study.area = "CET", zone = 32, SPBD.raster = "Limfjord_raster.grd", breaks = c(0.2, 0.5, 0.95), timeframe = 6, debug = TRUE) 
 
 # Retreive fine-scale data:
 df.fine1 <- dBBMM.fine1[[1]]

@@ -1,24 +1,3 @@
-#' Converts coordinates to UTM projection
-#' 
-#' Convert Coordinate Reference System (CRS) from lonlat to 
-#' the UTM projection and meter units, as required for calculating the dynamic Brownian Bridge 
-#' Movement Model. 
-#'
-#' @param x Vector of Longitudes in decimal degrees.
-#' @param y Vector of Latitudes in decimal degrees.
-#' @param zone UTM zone of input locations.
-#' 
-#' @return Dataframe with the converted coordinates in UTM.
-#' 
-LonLatToUTM <- function(x, y, zone) {
-  xy <- data.frame(ID = 1:length(x), X = x, Y = y)
-  sp::coordinates(xy) <- c("X", "Y")
-  sp::proj4string(xy) <- sp::CRS("+proj=longlat +datum=WGS84")  ## for example
-  res <- sp::spTransform(xy, sp::CRS(paste0("+proj=utm +zone=", zone, " +datum=WGS84 +units=m +no_defs")))
-  
-  return(as.data.frame(res))
-}
-
 #' Select specific transmitters to analyze
 #' 
 #' If the user specifies transmitters, return only the detections for those tags.
@@ -65,17 +44,17 @@ bbmm_loadRaster <- function(SPBD.raster, zone) {
 
 #' Prepare detections for the dBBMM
 #' 
-#' Joins the detections by group, and performs a series of quality checks on the detection data.
+#' Joins the detections by group.
 #' 
 #' @param detections a list of detections per fish
 #' @param tz.study.area the time zone of the study area
 #' @param zone the UTM zone of the study area
 #' 
-#' @return the detections ready for dBBMM fitting
+#' @return the detections grouped by group
 #' 
 #' @keywords internal
 #' 
-bbmm_groupDetections <- function(detections, tz.study.area, zone) {
+bbmm_groupDetections <- function(detections, tz.study.area, zone, timeframe = NULL) {
   # Split transmitters per group variable
   df.signal <- data.frame(Transmitter = names(detections),
                           Signal = actel:::stripCodeSpaces(names(detections)))
@@ -87,27 +66,128 @@ bbmm_groupDetections <- function(detections, tz.study.area, zone) {
     bio$Group <- gsub(" ", "_", bio$Group)
   }
   df.signal$Group <- bio$Group[match(bio$Signal, df.signal$Signal)]
-  
-  # Join detections by group
+
+  # Get signals per group
   signal.list <- split(df.signal, df.signal$Group)
   group.list <- lapply(signal.list, function(x) {
     output <- do.call(rbind.data.frame, detections[match(x$Transmitter, names(detections))])
     output$ID <- paste0(output$Transmitter, "_", output$Track) 
     return(output)
   })
+  attributes(group.list)$type <- "group"
   
-  aux <- names(group.list) # HF: The lapply was losing the names for some reason, so I give them back at the end
-  group.list <- lapply(names(group.list), function(i) {
-    output <- checkDupTimestamps(input = group.list[[i]], group = i)
-    output <- checkTrackTimes(input = output, group = i)
-    output <- checkTrackPoints(input = output, group = i)
-    output <- getUTM(input = output, zone = zone)
-    return(output)
-  })
-  names(group.list) <- aux
+  # Split data by time slot, if necessary
+  if (!is.null(timeframe)) {
+    aux <- range(do.call(c, lapply(detections, function(x) x$Date.time.local)))
+    aux[1] <- round.POSIXt(x = (aux[1] - 43200), units = "days") # extract 12-h (round previous day)
+    aux[2] <- round.POSIXt(x = (aux[2] + 43200), units = "days") # add 12-h (round next day)
+    group.list <- bbmm_breakByTimeframe(input = group.list, timerange = aux, timeframe = timeframe)
+  }
+
   return(group.list)
 }
 
+#' Split detections every time "timeframe" hours pass.
+#' 
+#' @param input a list of detections per group
+#' @param timerange the time-range over which detections are to be used
+#' @param timeframe the interval of hours in each time slot (in hours)
+#' 
+#' @return the detections split by group and time slot
+#' 
+#' @keywords internal
+#' 
+bbmm_breakByTimeframe <- function(input, timerange, timeframe) {
+  actel:::appendTo(c("Screen", "Report"), "M: Activating separate dBBMM calculations for each time slot.")
+
+  # Separate total timeframe of tracking into temporal windows: starting at midnight
+  timeslots <- seq(from = timerange[1], 
+                   to = timerange[2],
+                   by = 3600 * timeframe) # User-defined intervals (6-h default)
+
+  # Fix daylight savings shifts
+  timeslots[lubridate::dst(timeslots)] <- timeslots[lubridate::dst(timeslots)] - 3600
+
+  output <- lapply(input, function(x) {
+    x$Slot <- NA_integer_
+    recipient <- lapply(1:(length(timeslots) - 1), function(i) {
+      link <- with(x, Date.time.local >= timeslots[i] & Date.time.local < timeslots[i + 1])
+      x$Slot[link] <- i
+      return(x$Slot)
+    })
+    x$Slot <- actel:::combine(recipient)
+    return(x)
+  })
+
+  output <- lapply(output, function(x) split(x, x$Slot))
+  attributes(output)$type <- "timeslot"
+  return(output)
+} 
+
+#' Performs a series of quality checks on the detection data.
+#' 
+#' @param input The detections list
+#' @inheritParams SPBDynBBMM
+#' 
+#' @return The detections which can be used for dbbmm
+#' 
+#' @keywords internal
+#' 
+bbmm_checkGroupQuality <- function(input, zone) {
+  if (attributes(input)$type == "group") {
+    output <- lapply(names(input), function(i) {
+      outp <- checkDupTimestamps(input = input[[i]], group = i)
+      outp <- checkTrackPoints(input = outp, group = i)
+      if (!is.null(outp))
+        outp <- checkTrackTimes(input = outp, group = i)
+      if (!is.null(outp)) {
+        outp <- getUTM(input = outp, zone = zone)
+        return(outp)
+      } else {
+        return(NULL)
+      }
+    })
+    if (all(link <- unlist(lapply(test, is.null)))) {
+      actel:::emergencyBreak()
+      stop("All detection data failed to pass the quality checks for dBBMM implementation. Aborting.\n", call. = FALSE)
+    }
+    names(output) <- names(input)
+    output <- output[!link]
+    attributes(output)$type <- "group"
+    return(output)
+  }
+
+  if (attributes(input)$type == "timeslot") {
+    output <- lapply(names(input), function(g) {
+      recipient <- lapply(names(input[[g]]), function(i) {
+        aux <- checkDupTimestamps(input = input[[g]][[i]], group = paste0(g, " (timeslot ", i, ")"))
+        aux <- checkTrackPoints(input = aux, group = paste0(g, " (timeslot ", i, ")"))
+        if (!is.null(aux))
+          aux <- checkTrackTimes(input = aux, group = paste0(g, " (timeslot ", i, ")"))
+        if (!is.null(aux)) {
+          aux <- getUTM(input = aux, zone = zone)
+          return(aux)
+        } else {
+          return(NULL)
+        }
+      })
+      names(recipient) <- names(input[[g]])
+      return(recipient[!unlist(lapply(recipient, is.null))])
+    })
+    if (all(link <- unlist(lapply(output, length)) == 0)) {
+      actel:::emergencyBreak()
+      stop("All detection data failed to pass the quality checks for dBBMM implementation. Aborting.\n", call. = FALSE)
+    }
+    if (any(link)) {
+      actel:::appendTo(c("Report", "Warning", "Screen"), 
+                       paste("W: ALL timeslots in group", g, "failed to pass the quality checks. Removing group from analysis."))    
+    }
+    names(output) <- names(input)
+    output <- output[!link]
+    attributes(output)$type <- "timeslot"
+    return(output)
+  }
+}
 
 #' Identify and remove duplicated timestamps
 #' 
@@ -141,11 +221,17 @@ checkTrackTimes <- function(input, group) {
   link <- unlist(lapply(tracks, function(x) {
     as.numeric(difftime(x$Date.time.local[[nrow(x)]], x$Date.time.local[[1]], units = "min"))
   })) >= 30
-  output <- tracks[link]
-  if (length(tracks) > length(output))
+  if (all(!link)) {
     actel:::appendTo(c("Report", "Warning", "Screen"), 
-                     paste("W:", sum(link), "track(s) in group", group, "are shorter than 30 minutes and will not be used."))
-  return(do.call(rbind.data.frame, output))
+                     paste("W: ALL tracks in group", group, "are shorter than 30 minutes. Removing group from analysis."))    
+    return(NULL)
+  } else {
+    output <- tracks[link]
+    if (length(tracks) > length(output))
+      actel:::appendTo(c("Report", "Warning", "Screen"), 
+                       paste("W:", sum(!link), "track(s) in group", group, "are shorter than 30 minutes and will not be used."))
+    return(do.call(rbind.data.frame, output))
+  }
 }
 
 #' Exclude tracks with less than 8 detections
@@ -159,11 +245,17 @@ checkTrackTimes <- function(input, group) {
 checkTrackPoints <- function(input, group) {
   tracks <- split(input, input$ID)
   link <- unlist(lapply(tracks, nrow)) > 8
-  output <- tracks[link]
-  if (length(tracks) > length(output))
+  if (all(!link)) {
     actel:::appendTo(c("Report", "Warning", "Screen"), 
-                     paste("W:", length(tracks) - length(output), "track(s) in group", group, "have less than eight detections and will not be used."))
-  return(do.call(rbind.data.frame, output))
+                     paste("W: ALL tracks in group", group, "have less than eight detections. Removing group from analysis."))    
+    return(NULL)
+  } else {
+    output <- tracks[link]
+    if (length(tracks) > length(output))
+      actel:::appendTo(c("Report", "Warning", "Screen"), 
+                       paste("W:", length(tracks) - length(output), "track(s) in group", group, "have less than eight detections and will not be used."))
+    return(do.call(rbind.data.frame, output))
+  }
 }
 
 #' Convert WGS84 co-ords to UTM
@@ -182,6 +274,27 @@ getUTM <- function(input, zone) {
   return(input)
 }
 
+#' Converts coordinates to UTM projection
+#' 
+#' Convert Coordinate Reference System (CRS) from lonlat to 
+#' the UTM projection and meter units, as required for calculating the dynamic Brownian Bridge 
+#' Movement Model. 
+#'
+#' @param x Vector of Longitudes in decimal degrees.
+#' @param y Vector of Latitudes in decimal degrees.
+#' @param zone UTM zone of input locations.
+#' 
+#' @return Dataframe with the converted coordinates in UTM.
+#' 
+LonLatToUTM <- function(x, y, zone) {
+  xy <- data.frame(ID = 1:length(x), X = x, Y = y)
+  sp::coordinates(xy) <- c("X", "Y")
+  sp::proj4string(xy) <- sp::CRS("+proj=longlat +datum=WGS84")  ## for example
+  res <- sp::spTransform(xy, sp::CRS(paste0("+proj=utm +zone=", zone, " +datum=WGS84 +units=m +no_defs")))
+  
+  return(as.data.frame(res))
+}
+
 #' Calculate the dBBMM for each group
 #' 
 #' @param input The detections to be used as input for the model
@@ -193,28 +306,71 @@ getUTM <- function(input, zone) {
 #' @keywords internal
 #' 
 bbmm_calculateDBBMM <- function(input, zone, raster) {
-  # Create a move object for all animals together:
-  loc <- lapply(input, function(i) {
-    move::move(x = i$X, y = i$Y, time = i$Date.time.local,
-               proj = sp::CRS(paste0("+proj=utm +zone=", zone, " +units=m +ellps=WGS84")), 
-               animal = i$ID)
-  })
-
-  # Calculate dynamic Brownian Bridge Movement Model:
-  mod_dbbmm <- lapply(seq_along(loc), function(i) {
-    actel:::appendTo("Screen", paste("M: Calculating dBBMM:", crayon::bold(crayon::green(names(loc)[i]))))
-    time.spent <- system.time(suppressMessages(
-      output <- move::brownian.bridge.dyn(object = loc[[i]],
-                                raster = raster,  
-                                window.size = 7, margin = 3,
-                                location.error = input[[i]]$Error)
-      ))
-    actel:::appendTo("Screen", 
-      paste0("M: Success! (Time spent: ", actel::minuteTime(time.spent["elapsed"], format = "s", seconds = TRUE), ")"))
-    return(output)
+  if (attributes(input)$type == "group") {
+    # Create a move object for all animals together:
+    loc <- lapply(input, function(i) {
+      move::move(x = i$X, y = i$Y, time = i$Date.time.local,
+                 proj = sp::CRS(paste0("+proj=utm +zone=", zone, " +units=m +ellps=WGS84")), 
+                 animal = i$ID)
     })
-  names(mod_dbbmm) <- names(loc)
-  return(mod_dbbmm)
+
+    # Calculate dynamic Brownian Bridge Movement Model:
+    mod_dbbmm <- lapply(seq_along(loc), function(i) {
+      actel:::appendTo("Screen", paste("M: Calculating dBBMM:", crayon::bold(crayon::green(names(loc)[i]))))
+      time.spent <- system.time(suppressMessages(
+        output <- move::brownian.bridge.dyn(object = loc[[i]],
+                                  raster = raster,  
+                                  window.size = 7, margin = 3,
+                                  location.error = input[[i]]$Error)
+        ))
+      actel:::appendTo("Screen", 
+        paste0("M: Success! (Time spent: ", actel::minuteTime(time.spent["elapsed"], format = "s", seconds = TRUE), ")"))
+      return(output)
+      })
+    names(mod_dbbmm) <- names(loc)
+    attributes(mod_dbbmm)$type <- "group"
+    return(mod_dbbmm)
+  }
+
+  if (attributes(input)$type == "timeslot") {
+    # Create a move object for per timeslot:
+    loc <- lapply(input, function(group) {
+      aux <- lapply(group, function(timeslot) {
+        move::move(x = timeslot$X, y = timeslot$Y, time = timeslot$Date.time.local,
+                   proj = sp::CRS(paste0("+proj=utm +zone=", zone, " +units=m +ellps=WGS84")), 
+                   animal = timeslot$ID)
+      })
+    })
+
+    # Calculate dynamic Brownian Bridge Movement Model:
+    mod_dbbmm <- lapply(seq_along(loc), function(g) {
+      actel:::appendTo("Screen", paste("M: Calculating dBBMM:", crayon::bold(crayon::green(names(loc)[g]))))
+      pb <-  txtProgressBar(min = 0, max = length(loc[[g]]),  
+                            initial = 0, style = 3, width = 60)
+      counter <- 0
+      time.spent <- system.time(suppressMessages(
+        aux <- lapply(seq_along(loc[[g]]), function(i) {
+            output <- move::brownian.bridge.dyn(object = loc[[g]][[i]],
+                                      raster = raster,  
+                                      window.size = 7, margin = 3,
+                                      location.error = input[[g]][[i]]$Error)
+            if(length(names(output)) == 1)
+              names(output) <- unique(input[[g]][[i]]$ID)
+            counter <<- counter + 1
+            setTxtProgressBar(pb, counter) # Progress bar    
+          return(output)
+        })
+      ))
+      close(pb)
+      actel:::appendTo("Screen", 
+        paste0("M: Success! (Time spent: ", actel::minuteTime(time.spent["elapsed"], format = "s", seconds = TRUE), ")"))
+      names(aux) <- names(loc[[g]])
+      return(aux)
+      })
+    names(mod_dbbmm) <- names(loc)
+    attributes(mod_dbbmm)$type <- "timeslot"
+    return(mod_dbbmm)
+  }
 }
 
 #' Calculate water areas per track
@@ -228,46 +384,168 @@ bbmm_calculateDBBMM <- function(input, zone, raster) {
 #' @keywords internal
 #' 
 bbmm_getWaterAreas <- function(dbbmm, raster, breaks) {
-  raster.dBBMM <- lapply(dbbmm, move::getVolumeUD) # Standardized areas
-  names(raster.dBBMM) <- names(dbbmm)
-
   # Secondary raster file to crop in-land contours
   raster.base <- raster
   raster.base[which(raster::values(raster.base) == 0)] <- NA # Zero values to NA = mask
   rm(raster)
 
-  # Clip dBBMM contours by land limits
-  water.areas <- lapply(raster.dBBMM, function(the.dbbmm) {
-    output_i <- lapply(names(the.dbbmm), function(i){
-      x <- the.dbbmm[[i]] 
-      raster.extent <- raster::extent(x)
-      raster::extent(raster.base) <- raster::extent(x) # Get both rasters with the same extent
-      raster.base <- raster::resample(raster.base, x)
-      raster.crop <- raster::mask(x = x, mask = raster.base, inverse = TRUE)
-      # Calculate contour areas
-      output_breaks <- lapply(breaks, function(v) {
-        aux <- raster.crop[[1]] <= v
-        output <- sum(raster::values(aux), na.rm = TRUE)
-        return(output)
+  if (attributes(dbbmm)$type == "group") {
+    raster.dBBMM <- lapply(dbbmm, move::getVolumeUD) # Standardized areas
+    names(raster.dBBMM) <- names(dbbmm)
+
+    # Clip dBBMM contours by land limits
+    water.areas <- lapply(raster.dBBMM, function(the.dbbmm) {
+      output_i <- lapply(names(the.dbbmm), function(i){
+        x <- the.dbbmm[[i]] 
+        raster.extent <- raster::extent(x)
+        raster::extent(raster.base) <- raster::extent(x) # Get both rasters with the same extent
+        raster.base <- raster::resample(raster.base, x)
+        raster.crop <- raster::mask(x = x, mask = raster.base, inverse = TRUE)
+        # Calculate contour areas
+        output_breaks <- lapply(breaks, function(v) {
+          aux <- raster.crop[[1]] <= v
+          output <- sum(raster::values(aux), na.rm = TRUE)
+          return(output)
+        })
+        names(output_breaks) <- breaks
+        return(output_breaks) 
       })
-      names(output_breaks) <- breaks
-      return(output_breaks) 
+      names(output_i) <- names(the.dbbmm)
+      return(output_i)
     })
-    names(output_i) <- names(the.dbbmm)
-    return(output_i)
-  })
-  names(water.areas) <- names(dbbmm)
+    names(water.areas) <- names(dbbmm)
 
-  # simplify the output  
-  output <- lapply(water.areas, function(group) {
-    recipient <- do.call(rbind.data.frame, lapply(group, unlist))
-    rownames(recipient) <- names(group)
-    colnames(recipient) <- paste0("area", gsub("^0", "", breaks))
-    return(recipient)
-  })
-  names(output) <- names(water.areas)
+    # simplify the output  
+    output <- lapply(water.areas, function(group) {
+      recipient <- do.call(rbind.data.frame, lapply(group, unlist))
+      colnames(recipient) <- paste0("area", gsub("^0", "", breaks))
+      recipient$ID <- names(group)
+      rownames(recipient) <- 1:nrow(recipient)
+      return(recipient[, c(length(breaks) + 1, 1:length(breaks))])
+    })
+    names(output) <- names(water.areas)
+    return(output)
+  }
 
-  return(output)   
+  if (attributes(dbbmm)$type == "timeslot") {
+    raster.dBBMM <- lapply(dbbmm, function(group) lapply(group, move::getVolumeUD)) # Standardized areas
+
+    # Clip dBBMM contours by land limits
+    pb <-  txtProgressBar(min = 0, max = sum(unlist(lapply(dbbmm, function(x) lapply(x, function(xi) length(names(xi)))))),  
+                          initial = 0, style = 3, width = 60)
+    counter <- 0 
+    water.areas <- lapply(raster.dBBMM, function(group) {
+      output <- lapply(group, function(the.dbbmm) {
+        output_i <- lapply(names(the.dbbmm), function(i){
+          x <- the.dbbmm[[i]] 
+          raster.extent <- raster::extent(x)
+          raster::extent(raster.base) <- raster::extent(x) # Get both rasters with the same extent
+          raster.base <- raster::resample(raster.base, x)
+          raster.crop <- raster::mask(x = x, mask = raster.base, inverse = TRUE)
+          # Calculate contour areas
+          output_breaks <- lapply(breaks, function(v) {
+            aux <- raster.crop[[1]] <= v
+            output <- sum(raster::values(aux), na.rm = TRUE)
+            return(output)
+          })
+          counter <<- counter + 1
+          setTxtProgressBar(pb, counter) # Progress bar    
+          names(output_breaks) <- breaks
+          return(output_breaks) 
+        })
+        counter <<- counter
+        names(output_i) <- names(the.dbbmm)
+        return(output_i)
+      })
+      counter <<- counter
+      names(output) <- names(group)
+      return(output)
+    })
+    names(water.areas) <- names(dbbmm)
+    close(pb)
+    
+    # simplify the output  
+    output <- lapply(water.areas, function(group) {
+      aux <- lapply(group, function(timeslot) {
+        recipient <- do.call(rbind.data.frame, lapply(timeslot, unlist))
+        rownames(recipient) <- names(timeslot)
+        colnames(recipient) <- paste0("area", gsub("^0", "", breaks))
+        return(recipient)
+      })
+      aux <- lapply(seq_along(aux), function(i) {
+        aux[[i]]$ID <- rownames(aux[[i]])
+        aux[[i]]$Slot <- names(aux)[i]
+        return(aux[[i]])
+      })
+      aux <- do.call(rbind.data.frame, aux)
+      rownames(aux) <- 1:nrow(aux)
+      return(aux[, c(length(breaks) + 2, length(breaks) + 1, 1:length(breaks))])
+    })
+    return(output)
+  }
+}
+
+#' Compile a summary for each track (and slot, if timeframes were used)
+#' 
+#' @param input The detections list used for the dbbmm
+#' @param water The water areas computed by bbmm_getWaterAreas
+#' @inheritParams SPBDynBBMM
+#' 
+#' @return a summary list with track information
+#' 
+#' @keywords internal
+#' 
+bbmm_saveTrackInfo <- function(input, water, tz.study.area) {
+  if (attributes(input)$type == "group") {
+    track.info <- lapply(input, function(x) {
+      by.ID <- split(x, x$ID)
+      output <- data.frame(
+        Track = names(by.ID),
+        Start = unlist(lapply(by.ID, function(xi) as.character(xi$Date.time.local[1]))),
+        Stop = unlist(lapply(by.ID, function(xi) as.character(xi$Date.time.local[nrow(xi)]))))
+      return(output)
+    })
+
+    # Save area info
+    track.info <- lapply(seq_along(track.info), function(i) {
+      cbind(track.info[[i]], water[[i]])
+    })
+  }
+
+  if (attributes(input)$type == "timeslot") {
+    track.info <- lapply(input, function(group) {
+      recipient <- lapply(group, function(x) {
+        by.ID <- split(x, x$ID)
+        aux <- data.frame(
+          Slot = rep(unique(x$Slot), length(by.ID)),
+          Track = names(by.ID),
+          Start = unlist(lapply(by.ID, function(xi) as.character(xi$Date.time.local[1]))),
+          Stop = unlist(lapply(by.ID, function(xi) as.character(xi$Date.time.local[nrow(xi)]))))
+        return(aux)
+      })
+      output <- do.call(rbind.data.frame, recipient)
+      rownames(output) <- 1:nrow(output)
+      return(output)
+    })
+
+    # Save area info
+    track.info <- lapply(seq_along(track.info), function(i) {
+      cbind(track.info[[i]], water[[i]][,-c(1, 2)])
+    })
+  }
+
+  # Convert times
+  track.info <- lapply(track.info, function(x) {
+    x$Start <- as.POSIXct(x$Start, tz = tz.study.area)
+    x$Stop <- as.POSIXct(x$Stop, tz = tz.study.area)
+    x$Time.lapse.min <- as.numeric(difftime(time1 = x$Stop, 
+                                            time2 = x$Start,
+                                            units = "mins"))
+    return(x)
+  })
+  
+  names(track.info) <- names(input)
+  return(track.info)
 }
 
 #' Total dynamic Brownian Bridge Movement Model 
@@ -281,10 +559,11 @@ bbmm_getWaterAreas <- function(dbbmm, raster, breaks) {
 #' @param Transmitters Vector of transmitters to be analyzed. By default all transmitters from the SPBD estimation will be analised.
 #' @param SPBD.raster Path to the raster file from the study area. 
 #' @param breaks The contours for calculating usage areas in squared meters. By default the 95% and 50% contours are used. 
+#' @param timeframe Temporal window size in hours. If left NULL, a single dbbmm is calculated for the whole period.
 #' 
 #' @return List of calculated dBBMMs and metadata on each track used for the modelling. 
 #' 
-SPBDynBBMM <- function(detections, tz.study.area, zone, Transmitters = NULL, SPBD.raster, breaks = c(.95, .50), debug = FALSE) {
+SPBDynBBMM <- function(detections, tz.study.area, zone, Transmitters = NULL, SPBD.raster, breaks = c(.95, .50), timeframe = NULL, debug = FALSE) {
   if (debug) {
     on.exit(save(list = ls(), file = "bbmm_debug.RData"), add = TRUE)
     actel:::appendTo("Screen", "!!!--- Debug mode has been activated ---!!!")
@@ -301,14 +580,19 @@ SPBDynBBMM <- function(detections, tz.study.area, zone, Transmitters = NULL, SPB
     stop("'breaks' must be between 0 and 1 (both exclusive).", call. = FALSE)
   if (any(duplicated(breaks)))
     stop("All values in 'breaks' must be unique.", call. = FALSE)
-
+  if (!is.null(timeframe) && !is.numeric(timeframe))
+    stop("'timeframe' must be either NULL or numeric", call. = FALSE)
+  if (!is.null(timeframe) && timeframe =< 0.5)
+    stop("'timeframe' must be larger than 0.5.", call. = FALSE)
+  
   # Load raster
   raster.aux <- bbmm_loadRaster(SPBD.raster = SPBD.raster, zone = zone)
 
   # Prepare detections
   actel:::appendTo("Screen", paste("M: Preparing data to apply dBBMM."))
   detections <- bbmm_trimDetections(detections = detections, Transmitters = Transmitters)
-  group.list <- bbmm_groupDetections(detections = detections, tz.study.area = tz.study.area, zone = zone) 
+  group.list <- bbmm_groupDetections(detections = detections, tz.study.area = tz.study.area, zone = zone, timeframe = timeframe) 
+  group.list <- bbmm_checkGroupQuality(input = group.list, zone = zone)
 
   # Calculate dBBMM
   mod_dbbmm <- bbmm_calculateDBBMM(input = group.list, zone = zone, raster = raster.aux)
@@ -319,31 +603,8 @@ SPBDynBBMM <- function(detections, tz.study.area, zone, Transmitters = NULL, SPB
 
   # Save track info
   actel:::appendTo("Screen", paste("M: Storing final results."))
-  track.info <- lapply(group.list, function(x) {
-    by.ID <- split(x, x$ID)
-    output <- data.frame(
-      Track = names(by.ID),
-      Start = unlist(lapply(by.ID, function(xi) as.character(xi$Date.time.local[1]))),
-      Stop = unlist(lapply(by.ID, function(xi) as.character(xi$Date.time.local[nrow(xi)]))))
-    return(output)
-  })
+  track.info <- bbmm_saveTrackInfo(input = group.list, water = water.areas, tz.study.area = tz.study.area)
 
-  # Save area info
-  track.info <- lapply(seq_along(track.info), function(i) {
-    cbind(track.info[[i]], water.areas[[i]])
-  })
-
-  # Convert times
-  track.info <- lapply(track.info, function(x) {
-    x$Start <- as.POSIXct(x$Start, tz = tz.study.area)
-    x$Stop <- as.POSIXct(x$Stop, tz = tz.study.area)
-    x$Time.lapse.min <- as.numeric(difftime(time1 = x$Stop, 
-                                            time2 = x$Start,
-                                            units = "mins"))
-    return(x)
-  })
-  names(track.info) <- names(group.list)
-  
   # return both the dbbmm and the track/area info
   return(list(dbbmm = mod_dbbmm, tracks = track.info))  
 }
