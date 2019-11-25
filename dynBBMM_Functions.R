@@ -1360,6 +1360,120 @@ plot.dBBMM <- function(input, group, Track, SPBD.raster, Stations = TRUE,
   return(p)
 }
 
+#' Plot dynamic Brownian Bridge Movement Models (dBBMM)
+#'
+#' Plot specific dBBMM contours. By default, the inside contour (level1) is chosen to be the 50% 
+#' and the outer (level2) to be the 95%. 
+#'   
+#' @param input Dynamic Brownian Bridge Movement Model object as returned by SPBDynBBMM.
+#' @param group Group/species of transmitters.
+#' @param Track Transmitter and track names to plot.
+#' @param levels Numeric vector os use areas to plot. By default the 99%, 95%, 75%, 50% and 25% areas will be returned.
+#' @param land.col Color of the land mass. 
+#' @param Station Should receiver stations be added to the graph. Default is TRUE.
+#' @inheritParams SPBDynBBMM
+#' 
+#' @return dynamic Brownian Bridge Movement Model plot.
+#' 
+plotContours <- function(input, group, track = NULL, timeslot = NULL, stations = FALSE,
+                       levels = c(.99, .95, .75, .50, .25), main = NULL,
+                       land.col = "#BABCBF") {
+  # detach some objects from the main input
+  base.raster <- input$base.raster
+  dbbmm <- input$dbbmm
+
+  # input quality
+  if (length(group) != 1)
+    stop("Please select only one group.\n", call. = FALSE)
+
+  if (!is.null(timeslot))
+    timeslot <- as.character(timeslot)
+
+  if (!is.null(timeslot) && length(timeslot) != 1)
+    stop("Please select only one timeslot.\n", call. = FALSE)
+
+  if (attributes(dbbmm)$type == "group" & !is.null(timeslot))
+    stop("A timeslot was selected but the dbbmm is of type 'group'.\n", call. = FALSE)
+
+  if (attributes(dbbmm)$type == "timeslot" & is.null(timeslot))
+    stop("The dbbmm is of type 'timeslot', but no timeslot was selected.\n", call. = FALSE)
+
+  if (is.na(match(group, names(dbbmm))))
+    stop("The selected group is not present in the dbbmm.\n", call. = FALSE)
+
+  if (!is.null(timeslot) && is.na(match(timeslot, names(dbbmm[[group]]))))
+    stop("The selected timeslot was not detected in the selected timeslot.\n", call. = FALSE)
+
+  if (is.null(timeslot)) {
+    if (is.null(track) && length(names(dbbmm[[group]])) > 1)
+      stop(paste0("'track' was not set, but the selected dbbmm has more than one track.\nPlease choose one of the available tracks: '", 
+        paste(names(dbbmm[[group]]), collapse = "', '"), "'\n"), call. = FALSE)
+  } else {
+    if (is.null(track) && length(names(dbbmm[[group]][[timeslot]])) > 1)
+      stop(paste0("'track' was not set, but the selected dbbmm has more than one track.\nPlease choose one of the available tracks: '", 
+        paste(names(dbbmm[[group]][[timeslot]]), collapse = "', '"), "'\n"), call. = FALSE)
+  }
+
+  if (!is.numeric(levels))
+    stop("'levels' must be numeric.\n", call. = FALSE)
+
+  if (any(levels >= 1 | levels <= 0))
+    stop("Please select levels between 0 and 1 (both exclusive).\n", call. = FALSE)
+
+  # choose dbbmm
+  if (is.null(timeslot))
+    dbbmm.raster <- move::getVolumeUD(dbbmm[[group]])
+  else
+    dbbmm.raster <- move::getVolumeUD(dbbmm[[group]][[timeslot]])
+
+  # Get specific track of interest
+  if (!is.null(track))
+    dbbmm.raster <- dbbmm.raster[[track]]
+
+  # Convert projection to lonlat projection for plotting:
+  dbbmm.raster <- raster::projectRaster(from = dbbmm.raster, crs = "+proj=longlat +datum=WGS84")
+  base.raster <- raster::projectRaster(from = base.raster, crs = "+proj=longlat +datum=WGS84")
+  
+  # Convert map raster to points
+  base.map <- raster::rasterToPoints(base.raster)
+  base.map <- data.frame(base.map)
+  colnames(base.map) <- c("x", "y", "MAP")
+  
+  # Get desired contours:
+  aux <- lapply(levels, function(i) {
+    contour <- dbbmm.raster <= i
+    output <- raster::rasterToPoints(contour)
+    output <- data.frame(output)
+    names(output) <- c("x", "y", "layer")
+    output <- subset(output, layer > 0)
+    output$Contour <- paste0((i * 100), "%")
+    return(output)
+  })
+  contours <- do.call(rbind.data.frame, aux)
+  contours$Contour <- as.factor(contours$Contour)
+
+  # get contour colours
+  color.plot <- cmocean::cmocean('matter')(length(levels) + 1)[-1] # Color pallete
+  
+  # Plot
+  p <- ggplot2::ggplot()
+  p <- p + ggplot2::geom_tile(data = contours,
+                              ggplot2::aes(x = x, y = y, fill = Contour))
+  p <- p + ggplot2::scale_fill_manual(values = rev(color.plot))
+  p <- p + ggplot2::geom_raster(data = base.map, ggplot2::aes(x = x, y = y, fill = MAP), 
+                                show.legend = FALSE, fill = land.col) 
+  p <- p + ggplot2::theme_bw() 
+  p <- p + ggplot2::scale_x_continuous(expand = c(0, 0))
+  p <- p + ggplot2::scale_y_continuous(expand = c(0, 0))
+  p <- p + ggplot2::labs(x = "Longitude", y = "Latitude", fill = "Space use", title = main)
+  
+  # Add stations
+  # if (stations) {
+  #   p <- p + ggplot2::geom_point(data = stations, color = "white", fill = "black", shape = 21, size = 1.5,
+  #                                ggplot2::aes(x = Longitude, y = Latitude))  
+  # } 
+  return(p)
+}
 
 #' Plot orverlapping contours 
 #'
