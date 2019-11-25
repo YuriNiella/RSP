@@ -504,6 +504,228 @@ bbmm_getWaterAreas <- function(dbbmm.rasters, base.raster, breaks) {
   return(list(track.info = tracks.list, track.rasters = track.rasters))
 }
 
+bbmm_getOverlaps <- function(dbbmm.rasters, base.raster, breaks) {
+  if (attributes(dbbmm.rasters)$type == "group") {
+    # prepare input rasters
+    raster.crop <- lapply(dbbmm.rasters, function(group, aux = base.raster) {
+      if (class(group) == "RasterStack") # HF1
+        the.raster <- raster::calc(group, fun = mean, na.rm = TRUE) # Merge all transmitters in one raster
+      else
+        the.raster <- group
+      raster::extent(aux) <- raster::extent(the.raster) # Get all rasters with the same extent
+      the.raster <- raster::mask(x = the.raster,
+                                  mask = aux,
+                                  inverse = TRUE)
+      output <- lapply(breaks, function(limit) the.raster <= limit)
+      names(output) <- breaks
+      return(output)
+    })
+
+    # re-structure the list before continuing
+    by.breaks <- lapply(breaks, function(limit) {
+      output <- lapply(raster.crop, function(group) group[[as.character(limit)]])
+    })
+    names(by.breaks) <- breaks
+
+    # start working
+    recipient <- lapply(by.breaks, function(limit) {
+      # calculate areas only once
+      areas <- sapply(limit, function(x) sum(raster::values(x), na.rm = TRUE))
+      names(areas) <- names(limit)
+      # prepare recipients for the overlap data
+      overlap.rasters <- list()
+      overlap.matrix.a <- matrix(nrow = length(limit), ncol = length(limit))
+      rownames(overlap.matrix.a) <- colnames(overlap.matrix.a) <- names(limit)
+      overlap.matrix.p <- overlap.matrix.a
+      # compare each elements (except the last) with all the elements coming after it
+      lapply(1:(length(limit) - 1), function(a) {
+        lapply((a + 1):length(limit), function(b) {
+          # grab the areas calculated before 
+          area.a <- areas[a]
+          area.b <- areas[b]
+          if (area.a > 0 & area.b > 0) {
+            # decide who is bigger
+            if (area.a > area.b) {
+              bigger <- limit[[a]]
+              smaller <- limit[[b]]
+            } else {
+              bigger <- limit[[b]]
+              smaller <- limit[[a]]
+            }
+            # match both and calculate overlap
+            raster::extent(smaller) <- raster::extent(bigger)
+            raster.base <- raster::resample(smaller, bigger)
+            aux <- raster::overlay(x = bigger, y = smaller, fun = min)
+            over.area <- sum(raster::values(aux), na.rm = TRUE)
+            over.percentage <- over.area / min(area.a, area.b)
+            # prepare raster to save as well
+            aux[which(raster::values(aux) > 0)] <- 1 # Overlapping raster as a solid contour
+            over.raster <- aux
+          } else {
+            over.area <- NA
+            over.percentage <- NA
+            over.raster <- NA
+          }
+          # store to environment above
+          overlap.rasters[[length(overlap.rasters) + 1]] <<- over.raster
+          names(overlap.rasters)[[length(overlap.rasters)]] <<- paste0(names(limit)[a], "_and_", names(limit)[b])
+          overlap.matrix.a[names(limit)[a], names(limit)[b]] <<- over.area
+          overlap.matrix.a[names(limit)[b], names(limit)[a]] <<- over.area
+          overlap.matrix.p[names(limit)[a], names(limit)[b]] <<- over.percentage
+          overlap.matrix.p[names(limit)[b], names(limit)[a]] <<- over.percentage
+        })
+        # pass stored information to main function environment before restarting
+        overlap.rasters <<- overlap.rasters
+        overlap.matrix.a <<- overlap.matrix.a
+        overlap.matrix.p <<- overlap.matrix.p
+      })
+      return(list(overlap.areas = overlap.matrix.a, overlap.percentages = overlap.matrix.p, overlap.rasters = overlap.rasters, areas = areas))
+    })
+
+    # simplify the output
+    group.areas <- as.data.frame(sapply(recipient, function(limit) limit$area))
+
+    overlap.rasters <- lapply(recipient, function(limit) limit$overlap.rasters)
+
+    overlap.areas <- lapply(recipient, function(limit) {
+      aux <- limit[1:2]
+      names(aux) <- c("absolute", "percentage")
+      return(aux)
+    })
+  }
+
+  if (attributes(dbbmm.rasters)$type == "timeslot") {
+    # prepare input rasters
+    raster.crop <- lapply(dbbmm.rasters, function(group) {
+      output_i <- lapply(group, function(timeslot, aux = base.raster) {
+        if (class(timeslot) == "RasterStack") # HF1
+          the.raster <- raster::calc(timeslot, fun = mean, na.rm = TRUE) # Merge all transmitters in one raster
+        else
+          the.raster <- timeslot
+        raster::extent(aux) <- raster::extent(the.raster) # Get all rasters with the same extent
+        the.raster <- raster::mask(x = the.raster,
+                                    mask = aux,
+                                    inverse = TRUE)
+        output <- lapply(breaks, function(limit) the.raster <= limit)
+        names(output) <- breaks
+        return(output)
+      })
+    })
+
+    # re-structure the list before continuing
+    by.breaks.by.group <- lapply(breaks, function(limit) {
+      lapply(raster.crop, function(group) {
+        lapply(group, function(timeslot) timeslot[[as.character(limit)]])
+      })
+    })
+    names(by.breaks.by.group) <- breaks
+    # Validate
+    # sum(raster::values(by.breaks.by.group$`0.5`$Brown_Trout1$`25`), na.rm = TRUE)
+    # sum(raster::values(raster.crop$Brown_Trout1$`25`$`0.5`), na.rm = TRUE)
+    # OK
+
+    by.breaks.by.timeslot <- lapply(by.breaks.by.group, function(limit) {
+      all.timeslots <- sort(as.numeric(unique(unlist(lapply(limit, names)))))
+      output <- lapply(all.timeslots, function(timeslot) {
+        lapply(limit, function(group) group[[as.character(timeslot)]])
+      })
+      names(output) <- all.timeslots
+      return(output)
+    })
+    # Validate
+    # sum(raster::values(by.breaks.by.group$`0.5`$Brown_Trout1$`25`), na.rm = TRUE)
+    # sum(raster::values(by.breaks.by.timeslot$`0.5`$`25`$Brown_Trout1), na.rm = TRUE)
+    # OK
+
+    # start working
+    pb <-  txtProgressBar(min = 0, max = sum(sapply(by.breaks.by.timeslot, length)),
+                          initial = 0, style = 3, width = 60)
+    counter <- 0 
+    recipient <- lapply(by.breaks.by.timeslot, function(limit) {
+      output <- lapply(limit, function(timeslot) {
+        # calculate areas only once
+        areas <- sapply(timeslot, function(x) {
+          if (is.null(x)) 
+            return(0)
+          else
+            return(sum(raster::values(x), na.rm = TRUE))
+        })
+        # prepare recipients for the overlap data
+        overlap.rasters <- list()
+        overlap.matrix.a <- matrix(nrow = length(timeslot), ncol = length(timeslot))
+        rownames(overlap.matrix.a) <- colnames(overlap.matrix.a) <- names(timeslot)
+        overlap.matrix.p <- overlap.matrix.a
+        # compare each elements (except the last) with all the elements coming after it
+        lapply(1:(length(timeslot) - 1), function(a) {
+          lapply((a + 1):length(timeslot), function(b) {
+            # grab the areas calculated before 
+            area.a <- areas[a]
+            area.b <- areas[b]
+            if (area.a > 0 & area.b > 0) {
+              # decide who is bigger
+              if (area.a > area.b) {
+                bigger <- timeslot[[a]]
+                smaller <- timeslot[[b]]
+              } else {
+                bigger <- timeslot[[b]]
+                smaller <- timeslot[[a]]
+              }
+              # match both and calculate overlap
+              raster::extent(smaller) <- raster::extent(bigger)
+              raster.base <- raster::resample(smaller, bigger)
+              aux <- raster::overlay(x = bigger, y = smaller, fun = min)
+              over.area <- sum(raster::values(aux), na.rm = TRUE)
+              over.percentage <- over.area / min(area.a, area.b)
+              # prepare raster to save as well
+              aux[which(raster::values(aux) > 0)] <- 1 # Overlapping raster as a solid contour
+              over.raster <- aux
+            } else {
+              over.area <- NA
+              over.percentage <- NA
+              over.raster <- NA
+            }
+            # store to environment above
+            overlap.rasters[[length(overlap.rasters) + 1]] <<- over.raster
+            names(overlap.rasters)[[length(overlap.rasters)]] <<- paste0(names(timeslot)[a], "_and_", names(timeslot)[b])
+            overlap.matrix.a[names(timeslot)[a], names(timeslot)[b]] <<- over.area
+            overlap.matrix.a[names(timeslot)[b], names(timeslot)[a]] <<- over.area
+            overlap.matrix.p[names(timeslot)[a], names(timeslot)[b]] <<- over.percentage
+            overlap.matrix.p[names(timeslot)[b], names(timeslot)[a]] <<- over.percentage
+          })
+          # pass stored information to main function environment before restarting
+          overlap.rasters <<- overlap.rasters
+          overlap.matrix.a <<- overlap.matrix.a
+          overlap.matrix.p <<- overlap.matrix.p
+        })
+        counter <<- counter + 1
+        setTxtProgressBar(pb, counter) # Progress bar    
+        return(list(overlap.areas = overlap.matrix.a, overlap.percentages = overlap.matrix.p, overlap.rasters = overlap.rasters, areas = areas))
+      })
+      counter <<- counter + 1
+      return(output)
+    })
+    close(pb)
+
+    # simplify the output
+    group.areas <- lapply(recipient, function(limit) {
+        as.data.frame(sapply(limit, function(timeslot) timeslot$area))
+      })
+
+    overlap.rasters <- lapply(recipient, function(limit) {
+      lapply(limit, function(timeslot) timeslot$overlap.rasters)
+    })
+
+    overlap.areas <- lapply(recipient, function(limit) {
+      absolutes <- lapply(limit, function(timeslot) timeslot[[1]])
+      percentage <- lapply(limit, function(timeslot) timeslot[[2]])
+      return(list(absolutes = absolutes, percentage = percentage))
+    })
+  }
+
+  return(list(group.areas = group.areas, overlap.areas = overlap.areas, overlap.rasters = overlap.rasters))
+}
+
+
 #' Compile a summary for each track (and slot, if timeframes were used)
 #' 
 #' @param input The detections list used for the dbbmm
