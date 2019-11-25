@@ -35,11 +35,11 @@ bbmm_trimDetections <- function(detections, Transmitters = NULL) {
 #' @keywords internal
 #' 
 bbmm_loadRaster <- function(SPBD.raster, zone) {
-  raster.aux <- raster::raster(SPBD.raster)
-  raster::crs(raster.aux) <- "+proj=longlat +datum=WGS84" # Base raster in lonlat CRS
-  raster.aux <- raster::projectRaster(from = raster.aux,  # Convert to UTM
+  base.raster <- raster::raster(SPBD.raster)
+  raster::crs(base.raster) <- "+proj=longlat +datum=WGS84" # Base raster in lonlat CRS
+  base.raster <- raster::projectRaster(from = base.raster,  # Convert to UTM
                                       crs = paste0("+proj=utm +zone=", zone, " +units=m +ellps=WGS84"))
-  return(raster.aux)
+  return(base.raster)
 }
 
 #' Prepare detections for the dBBMM
