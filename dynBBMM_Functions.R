@@ -398,7 +398,7 @@ bbmm_getWaterAreas <- function(dbbmm.rasters, base.raster, breaks) {
         output_breaks <- lapply(breaks, function(limit) {
           aux <- raster.crop <= limit
           output <- sum(raster::values(aux), na.rm = TRUE)
-          return(output)
+          return(list(raster = aux, area = output))
         })
         names(output_breaks) <- breaks
         return(output_breaks) 
@@ -408,16 +408,29 @@ bbmm_getWaterAreas <- function(dbbmm.rasters, base.raster, breaks) {
     })
     names(water.areas) <- names(dbbmm.rasters)
 
-    # simplify the output  
-    output <- lapply(water.areas, function(group) {
-      recipient <- do.call(rbind.data.frame, lapply(group, unlist))
+  # simplify the output
+    # make summary tables per group
+    tracks.list <- lapply(water.areas, function(group) {
+      aux <- lapply(group, function(track) {
+        aux <- sapply(breaks, function(i) track[[as.character(i)]]$area)
+        names(aux) <- breaks
+        return(aux)
+      })
+      recipient <- do.call(rbind.data.frame, lapply(aux, unlist))
       colnames(recipient) <- paste0("area", gsub("^0", "", breaks))
       recipient$ID <- names(group)
       rownames(recipient) <- 1:nrow(recipient)
       return(recipient[, c(length(breaks) + 1, 1:length(breaks))])
     })
-    names(output) <- names(water.areas)
-    return(output)
+    names(tracks.list) <- names(water.areas)
+    # grab the rasters only in a separate object
+    track.rasters <- lapply(water.areas, function(group) {
+      lapply(group, function(track) {
+        aux <- lapply(breaks, function(i) track[[as.character(i)]]$raster)
+        names(aux) <- breaks
+        return(aux)
+      })
+    })
   }
 
   if (attributes(dbbmm.rasters)$type == "timeslot") {
@@ -437,7 +450,7 @@ bbmm_getWaterAreas <- function(dbbmm.rasters, base.raster, breaks) {
           output_breaks <- lapply(breaks, function(limit) {
             aux <- raster.crop <= limit
             output <- sum(raster::values(aux), na.rm = TRUE)
-            return(output)
+            return(list(raster = aux, area = output))
           })
           counter <<- counter + 1
           setTxtProgressBar(pb, counter) # Progress bar    
@@ -456,9 +469,14 @@ bbmm_getWaterAreas <- function(dbbmm.rasters, base.raster, breaks) {
     close(pb)
     
     # simplify the output  
-    output <- lapply(water.areas, function(group) {
+    tracks.list <- lapply(water.areas, function(group) {
       aux <- lapply(group, function(timeslot) {
-        recipient <- do.call(rbind.data.frame, lapply(timeslot, unlist))
+        aux <- lapply(timeslot, function(track) {
+          aux <- sapply(breaks, function(i) track[[as.character(i)]]$area)
+          names(aux) <- breaks
+          return(aux)
+        })
+        recipient <- do.call(rbind.data.frame, lapply(aux, unlist))
         rownames(recipient) <- names(timeslot)
         colnames(recipient) <- paste0("area", gsub("^0", "", breaks))
         return(recipient)
@@ -472,8 +490,18 @@ bbmm_getWaterAreas <- function(dbbmm.rasters, base.raster, breaks) {
       rownames(aux) <- 1:nrow(aux)
       return(aux[, c(length(breaks) + 2, length(breaks) + 1, 1:length(breaks))])
     })
-    return(output)
+    # grab the rasters only in a separate object
+    track.rasters <- lapply(water.areas, function(group) {
+      aux <- lapply(group, function(timeslot) {
+        lapply(timeslot, function(track) {
+          aux <- lapply(breaks, function(i) track[[as.character(i)]]$raster)
+          names(aux) <- breaks
+          return(aux)
+        })
+      })
+    })
   }
+  return(list(track.info = tracks.list, track.rasters = track.rasters))
 }
 
 #' Compile a summary for each track (and slot, if timeframes were used)
