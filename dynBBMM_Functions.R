@@ -384,22 +384,19 @@ bbmm_calculateDBBMM <- function(input, zone, raster) {
 #' 
 #' @keywords internal
 #' 
-  if (attributes(dbbmm)$type == "group") {
-    raster.dBBMM <- lapply(dbbmm, move::getVolumeUD) # Standardized areas
-    names(raster.dBBMM) <- names(dbbmm)
-
-    # Clip dBBMM contours by land limits
-    water.areas <- lapply(raster.dBBMM, function(the.dbbmm) {
 bbmm_getWaterAreas <- function(dbbmm.rasters, base.raster, breaks) {
+  if (attributes(dbbmm.rasters)$type == "group") {
+  # Clip dBBMM contours by land limits
+    water.areas <- lapply(dbbmm.rasters, function(the.dbbmm) {
       output_i <- lapply(names(the.dbbmm), function(i){
-        x <- the.dbbmm[[i]] 
-        raster.extent <- raster::extent(x)
-        raster::extent(raster.base) <- raster::extent(x) # Get both rasters with the same extent
-        raster.base <- raster::resample(raster.base, x)
-        raster.crop <- raster::mask(x = x, mask = raster.base, inverse = TRUE)
+        x <- the.dbbmm[[i]]
+        aux <- base.raster
+        raster::extent(aux) <- raster::extent(x) # Get both rasters with the same extent
+        aux <- raster::resample(aux, x)
+        raster.crop <- raster::mask(x = x, mask = aux, inverse = TRUE)
         # Calculate contour areas
-        output_breaks <- lapply(breaks, function(v) {
-          aux <- raster.crop[[1]] <= v
+        output_breaks <- lapply(breaks, function(limit) {
+          aux <- raster.crop <= limit
           output <- sum(raster::values(aux), na.rm = TRUE)
           return(output)
         })
@@ -409,7 +406,7 @@ bbmm_getWaterAreas <- function(dbbmm.rasters, base.raster, breaks) {
       names(output_i) <- names(the.dbbmm)
       return(output_i)
     })
-    names(water.areas) <- names(dbbmm)
+    names(water.areas) <- names(dbbmm.rasters)
 
     # simplify the output  
     output <- lapply(water.areas, function(group) {
@@ -423,22 +420,22 @@ bbmm_getWaterAreas <- function(dbbmm.rasters, base.raster, breaks) {
     return(output)
   }
 
-  if (attributes(dbbmm)$type == "timeslot") {
+  if (attributes(dbbmm.rasters)$type == "timeslot") {
     # Clip dBBMM contours by land limits
-    pb <-  txtProgressBar(min = 0, max = sum(unlist(lapply(dbbmm, function(x) lapply(x, function(xi) length(names(xi)))))),  
+    pb <-  txtProgressBar(min = 0, max = sum(unlist(lapply(dbbmm.rasters, function(x) lapply(x, function(xi) length(names(xi)))))),  
                           initial = 0, style = 3, width = 60)
     counter <- 0 
-    water.areas <- lapply(raster.dBBMM, function(group) {
+    water.areas <- lapply(dbbmm.rasters, function(group) {
       output <- lapply(group, function(the.dbbmm) {
         output_i <- lapply(names(the.dbbmm), function(i){
           x <- the.dbbmm[[i]] 
-          raster.extent <- raster::extent(x)
-          raster::extent(raster.base) <- raster::extent(x) # Get both rasters with the same extent
-          raster.base <- raster::resample(raster.base, x)
-          raster.crop <- raster::mask(x = x, mask = raster.base, inverse = TRUE)
+          aux <- base.raster
+          raster::extent(aux) <- raster::extent(x) # Get both rasters with the same extent
+          aux <- raster::resample(aux, x)
+          raster.crop <- raster::mask(x = x, mask = aux, inverse = TRUE)
           # Calculate contour areas
-          output_breaks <- lapply(breaks, function(v) {
-            aux <- raster.crop[[1]] <= v
+          output_breaks <- lapply(breaks, function(limit) {
+            aux <- raster.crop <= limit
             output <- sum(raster::values(aux), na.rm = TRUE)
             return(output)
           })
@@ -455,7 +452,7 @@ bbmm_getWaterAreas <- function(dbbmm.rasters, base.raster, breaks) {
       names(output) <- names(group)
       return(output)
     })
-    names(water.areas) <- names(dbbmm)
+    names(water.areas) <- names(dbbmm.rasters)
     close(pb)
     
     # simplify the output  
