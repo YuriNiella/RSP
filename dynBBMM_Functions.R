@@ -148,7 +148,7 @@ bbmm_checkGroupQuality <- function(input, zone) {
         return(NULL)
       }
     })
-    if (all(link <- unlist(lapply(test, is.null)))) {
+    if (all(link <- unlist(lapply(output, is.null)))) {
       actel:::emergencyBreak()
       stop("All detection data failed to pass the quality checks for dBBMM implementation. Aborting.\n", call. = FALSE)
     }
