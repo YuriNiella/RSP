@@ -384,18 +384,13 @@ bbmm_calculateDBBMM <- function(input, zone, raster) {
 #' 
 #' @keywords internal
 #' 
-bbmm_getWaterAreas <- function(dbbmm, raster, breaks) {
-  # Secondary raster file to crop in-land contours
-  raster.base <- raster
-  raster.base[which(raster::values(raster.base) == 0)] <- NA # Zero values to NA = mask
-  rm(raster)
-
   if (attributes(dbbmm)$type == "group") {
     raster.dBBMM <- lapply(dbbmm, move::getVolumeUD) # Standardized areas
     names(raster.dBBMM) <- names(dbbmm)
 
     # Clip dBBMM contours by land limits
     water.areas <- lapply(raster.dBBMM, function(the.dbbmm) {
+bbmm_getWaterAreas <- function(dbbmm.rasters, base.raster, breaks) {
       output_i <- lapply(names(the.dbbmm), function(i){
         x <- the.dbbmm[[i]] 
         raster.extent <- raster::extent(x)
@@ -429,8 +424,6 @@ bbmm_getWaterAreas <- function(dbbmm, raster, breaks) {
   }
 
   if (attributes(dbbmm)$type == "timeslot") {
-    raster.dBBMM <- lapply(dbbmm, function(group) lapply(group, move::getVolumeUD)) # Standardized areas
-
     # Clip dBBMM contours by land limits
     pb <-  txtProgressBar(min = 0, max = sum(unlist(lapply(dbbmm, function(x) lapply(x, function(xi) length(names(xi)))))),  
                           initial = 0, style = 3, width = 60)
