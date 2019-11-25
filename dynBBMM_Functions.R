@@ -853,6 +853,10 @@ SPBDynBBMM <- function(detections, tz.study.area, zone, Transmitters = NULL, SPB
   actel:::appendTo("Screen", paste("M: Subtracting land areas from output."))
   water.areas <- bbmm_getWaterAreas(dbbmm.rasters = dbbmm.rasters, base.raster = base.raster, breaks = breaks)
 
+  # calculate overlaps
+  actel:::appendTo("Screen", paste("M: Calculating overlaps between groups."))
+  overlaps <- bbmm_getOverlaps(dbbmm.rasters = dbbmm.rasters, base.raster = base.raster, breaks = breaks)
+
   # Save track info
   actel:::appendTo("Screen", paste("M: Storing final results."))
   track.info <- bbmm_saveTrackInfo(input = group.list, water = water.areas[[1]], tz.study.area = tz.study.area)
