@@ -839,6 +839,16 @@ SPBDynBBMM <- function(detections, tz.study.area, zone, Transmitters = NULL, SPB
   # Calculate dBBMM
   mod_dbbmm <- bbmm_calculateDBBMM(input = group.list, zone = zone, raster = base.raster)
 
+  # Calculate dbbmm rasters
+  if (attributes(mod_dbbmm)$type == "group") {
+    dbbmm.rasters <- lapply(mod_dbbmm, move::getVolumeUD)
+    attributes(dbbmm.rasters)$type = "group"
+  }
+  if (attributes(mod_dbbmm)$type == "timeslot") {
+    dbbmm.rasters <- lapply(mod_dbbmm, function(group) lapply(group, move::getVolumeUD))
+    attributes(dbbmm.rasters)$type = "timeslot"
+  }
+
   # Remove land areas
   actel:::appendTo("Screen", paste("M: Subtracting land areas from output."))
   water.areas <- bbmm_getWaterAreas(dbbmm.rasters = dbbmm.rasters, base.raster = base.raster, breaks = breaks)
