@@ -69,14 +69,16 @@ apply(aux, 1, function(m) geosphere::distm(x = m[1:2], y = m[3:4]))
 dBBMM1 <- SPBDynBBMM(output, tz.study.area = "CET", zone = 32, SPBD.raster = "Limfjord_raster.grd") 
 dBBMM2 <- SPBDynBBMM(output250, tz.study.area = "CET", zone = 32, SPBD.raster = "Limfjord_raster.grd") 
 dBBMM3 <- SPBDynBBMM(output500, tz.study.area = "CET", zone = 32, SPBD.raster = "Limfjord_raster.grd") 
-dBBMM4 <- SPBDynBBMM(output1000, tz.study.area = "CET", zone = 32, SPBD.raster = "Limfjord_raster.grd", breaks = c(0.2, 0.5, 0.95), debug = TRUE) 
+dbbmm_all <- SPBDynBBMM(output1000, tz.study.area = "Europe/Copenhagen", zone = 32, SPBD.raster = "Limfjord_raster.grd", breaks = c(0.5, 0.95), debug = TRUE) # HF: working
+dbbmm_time <- SPBDynBBMM(output1000, tz.study.area = "Europe/Copenhagen", zone = 32, SPBD.raster = "Limfjord_raster.grd", timeframe = 24, breaks = c(0.5, 0.95), debug = TRUE) 
 
 # Retrieve track metadata:
 #df.track1 <- dBBMM1[[2]]
 #df.track2 <- dBBMM2[[2]]
 #df.track3 <- dBBMM3[[2]]
 #df.track4 <- dBBMM4[[2]]
-df.track4 <- getMeta(dBBMM4, group = "Brown_Trout1")
+
+df.track4 <- getMeta(dBBMM4, group = "Brown_Trout1") # HF: Not working with the new output, needs to be updated.
 
 
 # Compare the dBBMM for different SPBD estimations for a same track: YN: We need a way to fix the track names (transmitter separated by points)
@@ -89,6 +91,10 @@ plot.dBBMM(dBBMM3, group = "Brown_Trout1", Track = "R64K.4075_Track_8", main = "
 plot.dBBMM(dBBMM4, group = "Brown_Trout1", Track = "R64K.4075_Track_8", main = "1000 m",
            SPBD.raster = "Limfjord_raster.grd", Stations = FALSE) 
 
+
+plotContours(input = dbbmm_all, group = "Brown_Trout1", track = 'R64K.4075_Track_8', main = "Example for group dbbmm")
+dev.new()
+plotContours(input = dbbmm_time, group = "Brown_Trout1", timeslot = "191", main = "Example for timeslot dbbmm") # HF: If the timeslot only has one track, it does not need to be specified
 
 ## 2. Fine-scale dBBMM:
 dBBMM.fine1 <- SPBDynBBMM.fine(output, tz.study.area = "CET", zone = 32, timeframe = 6,
