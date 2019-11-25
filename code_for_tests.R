@@ -72,6 +72,13 @@ dBBMM3 <- SPBDynBBMM(output500, tz.study.area = "CET", zone = 32, SPBD.raster = 
 dbbmm_all <- SPBDynBBMM(output1000, tz.study.area = "Europe/Copenhagen", zone = 32, SPBD.raster = "Limfjord_raster.grd", breaks = c(0.5, 0.95), debug = TRUE) # HF: working
 dbbmm_time <- SPBDynBBMM(output1000, tz.study.area = "Europe/Copenhagen", zone = 32, SPBD.raster = "Limfjord_raster.grd", timeframe = 24, breaks = c(0.5, 0.95), debug = TRUE) 
 
+# verbose test
+test <- SPBDynBBMM(output1000, tz.study.area = "Europe/Copenhagen", zone = 32, SPBD.raster = "Limfjord_raster.grd", timeframe = 24, breaks = c(0.5, 0.95), debug = TRUE, verbose = FALSE) 
+test <- SPBDynBBMM(output1000, tz.study.area = "Europe/Copenhagen", zone = 32, SPBD.raster = "Limfjord_raster.grd", timeframe = 24, breaks = c(0.5, 0.95), debug = TRUE, verbose = TRUE) 
+test <- SPBDynBBMM(output1000, tz.study.area = "Europe/Copenhagen", zone = 32, SPBD.raster = "Limfjord_raster.grd", breaks = c(0.5, 0.95), debug = TRUE, verbose = FALSE)
+test <- SPBDynBBMM(output1000, tz.study.area = "Europe/Copenhagen", zone = 32, SPBD.raster = "Limfjord_raster.grd", breaks = c(0.5, 0.95), debug = TRUE, verbose = TRUE)
+# looking good
+
 # Retrieve track metadata:
 #df.track1 <- dBBMM1[[2]]
 #df.track2 <- dBBMM2[[2]]

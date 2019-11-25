@@ -134,13 +134,13 @@ bbmm_breakByTimeframe <- function(input, timerange, timeframe) {
 #' 
 #' @keywords internal
 #' 
-bbmm_checkGroupQuality <- function(input, zone) {
+bbmm_checkGroupQuality <- function(input, zone, verbose = TRUE) {
   if (attributes(input)$type == "group") {
     output <- lapply(names(input), function(i) {
-      outp <- checkDupTimestamps(input = input[[i]], group = i)
-      outp <- checkTrackPoints(input = outp, group = i)
+      outp <- checkDupTimestamps(input = input[[i]], group = i, verbose = verbose)
+      outp <- checkTrackPoints(input = outp, group = i, verbose = verbose)
       if (!is.null(outp))
-        outp <- checkTrackTimes(input = outp, group = i)
+        outp <- checkTrackTimes(input = outp, group = i, verbose = verbose)
       if (!is.null(outp)) {
         outp <- getUTM(input = outp, zone = zone)
         return(outp)
@@ -161,10 +161,10 @@ bbmm_checkGroupQuality <- function(input, zone) {
   if (attributes(input)$type == "timeslot") {
     output <- lapply(names(input), function(g) {
       recipient <- lapply(names(input[[g]]), function(i) {
-        aux <- checkDupTimestamps(input = input[[g]][[i]], group = paste0(g, " (timeslot ", i, ")"))
-        aux <- checkTrackPoints(input = aux, group = paste0(g, " (timeslot ", i, ")"))
+        aux <- checkDupTimestamps(input = input[[g]][[i]], group = paste0(g, " (timeslot ", i, ")"), verbose = verbose)
+        aux <- checkTrackPoints(input = aux, group = paste0(g, " (timeslot ", i, ")"), verbose = verbose)
         if (!is.null(aux))
-          aux <- checkTrackTimes(input = aux, group = paste0(g, " (timeslot ", i, ")"))
+          aux <- checkTrackTimes(input = aux, group = paste0(g, " (timeslot ", i, ")"), verbose = verbose)
         if (!is.null(aux)) {
           aux <- getUTM(input = aux, zone = zone)
           return(aux)
@@ -199,11 +199,12 @@ bbmm_checkGroupQuality <- function(input, zone) {
 #' 
 #' @keywords internal
 #' 
-checkDupTimestamps <- function(input, group) {
+checkDupTimestamps <- function(input, group, verbose = TRUE) {
   index <- which(duplicated(input$Date.time.local))
   if (length(index) > 0) {
     input <- input[-index, ]
-    actel:::appendTo(c("Report", "Warning", "Screen"), 
+    if (verbose)
+      actel:::appendTo(c("Report", "Warning", "Screen"), 
                      paste0("W: ", length(index), " individual detections were removed in group ", group," due to simultaneous detections at two receivers."))
   }
   return(input)
@@ -217,18 +218,19 @@ checkDupTimestamps <- function(input, group) {
 #' 
 #' @keywords internal
 #' 
-checkTrackTimes <- function(input, group) {
+checkTrackTimes <- function(input, group, verbose = TRUE) {
   tracks <- split(input, input$ID)
   link <- unlist(lapply(tracks, function(x) {
     as.numeric(difftime(x$Date.time.local[[nrow(x)]], x$Date.time.local[[1]], units = "min"))
   })) >= 30
   if (all(!link)) {
-    actel:::appendTo(c("Report", "Warning", "Screen"), 
-                     paste("W: ALL tracks in group", group, "are shorter than 30 minutes. Removing group from analysis."))    
+    if (verbose)
+      actel:::appendTo(c("Report", "Warning", "Screen"), 
+                       paste("W: ALL tracks in group", group, "are shorter than 30 minutes. Removing group from analysis."))    
     return(NULL)
   } else {
     output <- tracks[link]
-    if (length(tracks) > length(output))
+    if (verbose && length(tracks) > length(output))
       actel:::appendTo(c("Report", "Warning", "Screen"), 
                        paste("W:", sum(!link), "track(s) in group", group, "are shorter than 30 minutes and will not be used."))
     return(do.call(rbind.data.frame, output))
@@ -243,16 +245,17 @@ checkTrackTimes <- function(input, group) {
 #' 
 #' @keywords internal
 #' 
-checkTrackPoints <- function(input, group) {
+checkTrackPoints <- function(input, group, verbose = TRUE) {
   tracks <- split(input, input$ID)
   link <- unlist(lapply(tracks, nrow)) > 8
   if (all(!link)) {
-    actel:::appendTo(c("Report", "Warning", "Screen"), 
-                     paste("W: ALL tracks in group", group, "have less than eight detections. Removing group from analysis."))    
+    if (verbose)
+      actel:::appendTo(c("Report", "Warning", "Screen"), 
+                       paste("W: ALL tracks in group", group, "have less than eight detections. Removing group from analysis."))    
     return(NULL)
   } else {
     output <- tracks[link]
-    if (length(tracks) > length(output))
+    if (verbose && length(tracks) > length(output))
       actel:::appendTo(c("Report", "Warning", "Screen"), 
                        paste("W:", length(tracks) - length(output), "track(s) in group", group, "have less than eight detections and will not be used."))
     return(do.call(rbind.data.frame, output))
@@ -801,10 +804,12 @@ bbmm_saveTrackInfo <- function(input, water, tz.study.area) {
 #' @param SPBD.raster Path to the raster file from the study area. 
 #' @param breaks The contours for calculating usage areas in squared meters. By default the 95% and 50% contours are used. 
 #' @param timeframe Temporal window size in hours. If left NULL, a single dbbmm is calculated for the whole period.
+#' @param verbose Logical: If TRUE, detailed check messages are displayed. Otherwise, only a summary is displayed.
 #' 
 #' @return List of calculated dBBMMs and metadata on each track used for the modelling. 
 #' 
-SPBDynBBMM <- function(detections, tz.study.area, zone, Transmitters = NULL, SPBD.raster, breaks = c(.95, .50), timeframe = NULL, debug = FALSE) {
+SPBDynBBMM <- function(detections, tz.study.area, zone, Transmitters = NULL, SPBD.raster, 
+  breaks = c(.95, .50), timeframe = NULL, debug = FALSE, verbose = TRUE) {
   if (debug) {
     on.exit(save(list = ls(), file = "bbmm_debug.RData"), add = TRUE)
     actel:::appendTo("Screen", "!!!--- Debug mode has been activated ---!!!")
@@ -833,7 +838,23 @@ SPBDynBBMM <- function(detections, tz.study.area, zone, Transmitters = NULL, SPB
   actel:::appendTo("Screen", paste("M: Preparing data to apply dBBMM."))
   detections <- bbmm_trimDetections(detections = detections, Transmitters = Transmitters)
   group.list <- bbmm_groupDetections(detections = detections, tz.study.area = tz.study.area, zone = zone, timeframe = timeframe) 
-  group.list <- bbmm_checkGroupQuality(input = group.list, zone = zone)
+
+  if (attributes(group.list)$type == "group")
+    before <- sum(unlist(lapply(group.list, nrow)))
+  if (attributes(group.list)$type == "timeslot")
+    before <- sum(unlist(lapply(group.list, function(group) lapply(group, nrow))))
+
+  group.list <- bbmm_checkGroupQuality(input = group.list, zone = zone, verbose = verbose)
+
+  if (attributes(group.list)$type == "group")
+    after <- sum(unlist(lapply(group.list, nrow)))
+  if (attributes(group.list)$type == "timeslot")
+    after <- sum(unlist(lapply(group.list, function(group) lapply(group, nrow))))
+
+  if (before != after)
+    actel:::appendTo(c("Screen", "Report"), paste("M: In total,", before - after, "detections were excluded as they failed the track quality checks."))
+  rm(before, after)
+
 
   # Calculate dBBMM
   mod_dbbmm <- bbmm_calculateDBBMM(input = group.list, zone = zone, raster = base.raster)
