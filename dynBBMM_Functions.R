@@ -749,7 +749,7 @@ bbmm_saveTrackInfo <- function(input, water, tz.study.area) {
 
     # Save area info
     track.info <- lapply(seq_along(track.info), function(i) {
-      cbind(track.info[[i]], water[[i]])
+      cbind(track.info[[i]], water[[i]][, -1])
     })
   }
 
@@ -771,7 +771,7 @@ bbmm_saveTrackInfo <- function(input, water, tz.study.area) {
 
     # Save area info
     track.info <- lapply(seq_along(track.info), function(i) {
-      cbind(track.info[[i]], water[[i]][,-c(1, 2)])
+      cbind(track.info[[i]], water[[i]][, -c(1, 2)])
     })
   }
 
@@ -782,6 +782,7 @@ bbmm_saveTrackInfo <- function(input, water, tz.study.area) {
     x$Time.lapse.min <- as.numeric(difftime(time1 = x$Stop, 
                                             time2 = x$Start,
                                             units = "mins"))
+    rownames(x) <- 1:nrow(x)
     return(x)
   })
   
