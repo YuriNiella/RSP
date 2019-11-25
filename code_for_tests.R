@@ -95,25 +95,40 @@ plot.dBBMM(dBBMM4, group = "Brown_Trout1", Track = "R64K.4075_Track_8", main = "
 plotContours(input = dbbmm_all, group = "Brown_Trout1", track = 'R64K.4075_Track_8', main = "Example for group dbbmm")
 dev.new()
 plotContours(input = dbbmm_time, group = "Brown_Trout1", timeslot = "191", main = "Example for timeslot dbbmm") # HF: If the timeslot only has one track, it does not need to be specified
+plotContours(input = dbbmm_all, group = "test") # Should return error: Unknown group
+plotContours(input = dbbmm_time, group = "Brown_Trout1", timeslot = "999") # Should return error: Unknown timeslot
+plotContours(input = dbbmm_all, group = "Brown_Trout1") # Should return error: Missing track
 
-## 2. Fine-scale dBBMM:
-dBBMM.fine1 <- SPBDynBBMM.fine(output, tz.study.area = "CET", zone = 32, timeframe = 6,
-                               SPBD.raster = "Limfjord_raster.grd")
-dBBMM.fine2 <- SPBDynBBMM.fine(output250, tz.study.area = "CET", zone = 32, timeframe = 6,
-                               SPBD.raster = "Limfjord_raster.grd")
-dBBMM.fine3 <- SPBDynBBMM.fine(output500, tz.study.area = "CET", zone = 32, timeframe = 6,
-                               SPBD.raster = "Limfjord_raster.grd")
+overlap.plots <- plotOverlap(input = dbbmm_all, store = TRUE) # should return a message: no overlap found
+overlap.plots <- plotOverlap(input = dbbmm_all, level = 0.95, store = TRUE)
+plotOverlap(input = dbbmm_time) # Should return error: no timeslot selected
+plotOverlap(input = dbbmm_all, level = 0.4) # Should return error: invalid limit
+plotOverlap(input = dbbmm_time, timeslot = "25") # should return a message: no overlap found
+plotOverlap(input = dbbmm_time, timeslot = "191") # should return a message: no overlap found
+plotOverlap(input = dbbmm_time, timeslot = "194") # should return a message: no overlap found
+plotOverlap(input = dbbmm_time, timeslot = "77") # should return a message: no overlap found
+plotOverlap(input = dbbmm_time, timeslot = "75") # should return a message: no overlap found
+plotOverlap(input = dbbmm_time, timeslot = "74") # should return a message: no overlap found
 
-dBBMM4 <- SPBDynBBMM(output1000, tz.study.area = "CET", zone = 32, SPBD.raster = "Limfjord_raster.grd", breaks = c(0.2, 0.5, 0.95), timeframe = 6, debug = TRUE) 
-dBBMM4 <- SPBDynBBMM(output1000, tz.study.area = "CET", zone = 32, SPBD.raster = "Limfjord_raster.grd", breaks = c(0.2, 0.5, 0.95), debug = TRUE) # YN: Error!
+
+# ## 2. Fine-scale dBBMM:
+# dBBMM.fine1 <- SPBDynBBMM.fine(output, tz.study.area = "CET", zone = 32, timeframe = 6,
+#                                SPBD.raster = "Limfjord_raster.grd")
+# dBBMM.fine2 <- SPBDynBBMM.fine(output250, tz.study.area = "CET", zone = 32, timeframe = 6,
+#                                SPBD.raster = "Limfjord_raster.grd")
+# dBBMM.fine3 <- SPBDynBBMM.fine(output500, tz.study.area = "CET", zone = 32, timeframe = 6,
+#                                SPBD.raster = "Limfjord_raster.grd")
+
+# dBBMM4 <- SPBDynBBMM(output1000, tz.study.area = "CET", zone = 32, SPBD.raster = "Limfjord_raster.grd", breaks = c(0.2, 0.5, 0.95), timeframe = 6, debug = TRUE) 
+# dBBMM4 <- SPBDynBBMM(output1000, tz.study.area = "CET", zone = 32, SPBD.raster = "Limfjord_raster.grd", breaks = c(0.2, 0.5, 0.95), debug = TRUE) # YN: Error!
 
 
 
-# Retreive fine-scale data:
-df.fine1 <- dBBMM.fine1[[1]]
-df.fine2 <- dBBMM.fine2[[1]]
-df.fine3 <- dBBMM.fine3[[1]]
-df.fine4 <- dBBMM.fine4[[1]]
+# # Retreive fine-scale data:
+# df.fine1 <- dBBMM.fine1[[1]]
+# df.fine2 <- dBBMM.fine2[[1]]
+# df.fine3 <- dBBMM.fine3[[1]]
+# df.fine4 <- dBBMM.fine4[[1]]
 
 
 

@@ -672,7 +672,6 @@ bbmm_getOverlaps <- function(dbbmm.rasters, base.raster, breaks) {
               }
               # match both and calculate overlap
               raster::extent(smaller) <- raster::extent(bigger)
-              raster.base <- raster::resample(smaller, bigger)
               aux <- raster::overlay(x = bigger, y = smaller, fun = min)
               over.area <- sum(raster::values(aux), na.rm = TRUE)
               over.percentage <- over.area / min(area.a, area.b)
@@ -1402,7 +1401,7 @@ plotContours <- function(input, group, track = NULL, timeslot = NULL, stations =
     stop("The selected group is not present in the dbbmm.\n", call. = FALSE)
 
   if (!is.null(timeslot) && is.na(match(timeslot, names(dbbmm[[group]]))))
-    stop("The selected timeslot was not detected in the selected timeslot.\n", call. = FALSE)
+    stop("The selected group was not detected in the selected timeslot.\n", call. = FALSE)
 
   if (is.null(timeslot)) {
     if (is.null(track) && length(names(dbbmm[[group]])) > 1)
@@ -1598,7 +1597,7 @@ plot.overlap <- function(input, group, Track, SPBD.raster, Stations = TRUE,
   p <- p + ggplot2::theme_bw() 
   p <- p + ggplot2::scale_x_continuous(expand = c(0, 0))
   p <- p + ggplot2::scale_y_continuous(expand = c(0, 0))
-  p <- p + ggplot2::labs(x = "Longitude", y = "Latitude", fill = "Overlapp", title = main)
+  p <- p + ggplot2::labs(x = "Longitude", y = "Latitude", fill = "Overlap", title = main)
   
   p
   
@@ -1606,6 +1605,147 @@ plot.overlap <- function(input, group, Track, SPBD.raster, Stations = TRUE,
   
 
 
+#' Plot orverlapping contours 
+#'
+#' Plot specific dBBMM contours. By default, the contour is chosen to be 95%. 
+#'   
+#' @param input Dynamic Brownian Bridge Movement Model object as returned by SPBDynBBMM.
+#' @param level Numeric vector of the use area to plot. By default the .95 areas will be returned.
+#' @param land.col Color of the land mass. 
+#' @param Station Should receiver stations be added to the graph. Default is TRUE.
+#' @param store Logical: If TRUE, a list of plots is returned.
+#' 
+#' @return dynamic Brownian Bridge Movement Model plot.
+#' 
+plotOverlap <- function(input, timeslot = NULL, stations = FALSE,
+                       level = .95, main = NULL,
+                       land.col = "#BABCBF", store = FALSE) {
+  
+  # detach some objects from the main input
+  base.raster <- input$base.raster
 
+  if (!is.null(timeslot))
+    timeslot <- as.character(timeslot)
 
+  if (!is.null(timeslot) && length(timeslot) != 1)
+    stop("Please select only one timeslot.\n", call. = FALSE)
 
+  if (attributes(input$dbbmm)$type == "group" & !is.null(timeslot))
+    stop("A timeslot was selected but the dbbmm is of type 'group'.\n", call. = FALSE)
+
+  if (attributes(input$dbbmm)$type == "timeslot" & is.null(timeslot))
+    stop("The dbbmm is of type 'timeslot', but no timeslot was selected.\n", call. = FALSE)
+
+  if (!is.numeric(level))
+    stop("'levels' must be numeric.\n", call. = FALSE)
+
+  if (length(level) != 1)
+    stop("Please choose only one level.\n", call. = FALSE)
+
+  if (any(level >= 1 | level <= 0))
+    stop("Please select levels between 0 and 1 (both exclusive).\n", call. = FALSE)
+
+  if (is.na(match(level, names(input$overlap.rasters))))
+    stop(paste0("Overlap has not been calculated for level '", level, "'. Available levels: '", paste(names(input$overlap.rasters), collapse = "', '"), "'.\n"), call. = FALSE)
+
+  # Prepare base
+  base.raster <- raster::projectRaster(from = base.raster, crs = "+proj=longlat +datum=WGS84")
+  
+  # Convert map raster to points
+  base.map <- raster::rasterToPoints(base.raster)
+  base.map <- data.frame(base.map)
+  colnames(base.map) <- c("x", "y", "MAP")
+
+  # Prepare groups
+  # Convert projection to lonlat projection for plotting:
+  if (is.null(timeslot)) {
+    dbbmm.raster <- lapply(input$group.rasters, function(x) {
+      if (class(x) != "RasterLayer")
+        aux <- raster::calc(x, fun = mean, na.rm = TRUE)
+      else
+        aux <- x
+      raster::projectRaster(from = aux, crs = "+proj=longlat +datum=WGS84")
+    })
+  } else {
+    aux <- input$group.rasters[!is.na(unlist(lapply(input$group.rasters, function(x) match(timeslot, names(x)))))]
+    dbbmm.raster <- lapply(aux, function(x, t = timeslot) {
+      if (class(x[[t]]) != "RasterLayer")
+        aux <- raster::calc(x[[t]], fun = mean, na.rm = TRUE)
+      else
+        aux <- x[[t]]
+      raster::projectRaster(from = aux, crs = "+proj=longlat +datum=WGS84")
+    })
+  }
+
+  # Get group contours:
+  aux <- lapply(dbbmm.raster, function(x) {
+    the.contour <- x <= level
+    output <- raster::rasterToPoints(the.contour)
+    output <- data.frame(output)
+    names(output) <- c("x", "y", "layer")
+    output <- subset(output, layer > 0)
+    output$Contour <- paste0((level * 100), "%")
+    return(output)
+  })
+  contours <- actel::listToTable(aux)
+  colnames(contours)[5] <- "Group"
+  contours$Contour <- as.factor(contours$Contour)
+  contours$Group <- as.factor(contours$Group)
+
+  # grab overlap list
+  if (is.null(timeslot))
+    overlap.raster <- input$overlap.rasters[[as.character(level)]]
+  else
+    overlap.raster <- input$overlap.rasters[[as.character(level)]][[as.character(timeslot)]]
+
+  # get contour colours
+  color.plot <- c("#56B4E9", "#F0E442", "#009E73") # Blue, Yellow, Green
+
+  # make each group combination plot
+  the.plots <- lapply(names(overlap.raster), function(i) {
+    # grab only relevant groups
+    groups <- unlist(strsplit(i, "_and_"))
+    the.contours <- contours[!is.na(match(contours$Group, groups)), ]
+    # prepare overlaps
+    if (class(overlap.raster[[i]]) == "RasterLayer") {
+      aux <- raster::projectRaster(from = overlap.raster[[i]], crs = "+proj=longlat +datum=WGS84")
+      overlap.contours <- raster::rasterToPoints(aux)
+      overlap.contours <- data.frame(overlap.contours)
+      names(overlap.contours) <- c("x", "y", "layer")
+      overlap.contours <- subset(overlap.contours, layer > 0)
+      if (nrow(overlap.contours) > 0) {
+        plot.overlap <- TRUE
+        overlap.contours$Contour <- paste0((level * 100), "%")
+        overlap.contours$Group <- rep("Overlap", nrow(overlap.contours))
+      } else {
+        message("M: No overlap found between '", groups[1], "' and '", groups[2], "'.")
+        plot.overlap <- FALSE
+      }
+    } else {
+      plot.overlap <- FALSE
+      message("M: No overlap found between '", groups[1], "' and '", groups[2], "'.")
+    }
+    p <- ggplot2::ggplot()
+    p <- p + ggplot2::geom_tile(data = the.contours,
+                                ggplot2::aes(x = x, y = y, fill = Group))
+    if (plot.overlap)
+      p <- p + ggplot2::geom_tile(data = overlap.contours, ggplot2::aes(x = x, y = y, fill = Group))
+    p <- p + ggplot2::scale_fill_manual(values = color.plot)
+    p <- p + ggplot2::geom_raster(data = base.map, ggplot2::aes(x = x, y = y, fill = MAP), 
+                                  show.legend = FALSE, fill = land.col) 
+    p <- p + ggplot2::theme_bw() 
+    p <- p + ggplot2::scale_x_continuous(expand = c(0, 0))
+    p <- p + ggplot2::scale_y_continuous(expand = c(0, 0))
+    p <- p + ggplot2::labs(x = "Longitude", y = "Latitude", fill = "Group", title = main)
+  })
+  names(the.plots) <- names(overlap.raster)
+
+  # plot everything in different windows
+  lapply(the.plots, function(p) {
+    dev.new()
+    print(p)
+  })
+  # return all plots
+  if (store)
+    return(the.plots)
+}
