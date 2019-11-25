@@ -39,6 +39,7 @@ bbmm_loadRaster <- function(SPBD.raster, zone) {
   raster::crs(base.raster) <- "+proj=longlat +datum=WGS84" # Base raster in lonlat CRS
   base.raster <- raster::projectRaster(from = base.raster,  # Convert to UTM
                                       crs = paste0("+proj=utm +zone=", zone, " +units=m +ellps=WGS84"))
+  base.raster[which(raster::values(base.raster) == 0)] <- NA # Zero values to NA = mask
   return(base.raster)
 }
 
