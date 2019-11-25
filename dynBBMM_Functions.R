@@ -862,7 +862,8 @@ SPBDynBBMM <- function(detections, tz.study.area, zone, Transmitters = NULL, SPB
   track.info <- bbmm_saveTrackInfo(input = group.list, water = water.areas[[1]], tz.study.area = tz.study.area)
 
   # return both the dbbmm and the track/area info
-  return(list(dbbmm = mod_dbbmm, tracks = track.info))  
+  return(list(dbbmm = mod_dbbmm, base.raster = base.raster, group.areas = overlaps$group.areas, group.rasters = dbbmm.rasters, track.areas = track.info, 
+    track.rasters = water.areas$track.rasters, overlap.areas = overlaps$overlap.areas, overlap.rasters = overlaps$overlap.rasters))  
 }
 
 #' Get metadata from total dBBMM 
