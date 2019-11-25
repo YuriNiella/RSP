@@ -828,7 +828,7 @@ SPBDynBBMM <- function(detections, tz.study.area, zone, Transmitters = NULL, SPB
     stop("'timeframe' must be larger than 0.5.", call. = FALSE)
   
   # Load raster
-  raster.aux <- bbmm_loadRaster(SPBD.raster = SPBD.raster, zone = zone)
+  base.raster <- bbmm_loadRaster(SPBD.raster = SPBD.raster, zone = zone)
 
   # Prepare detections
   actel:::appendTo("Screen", paste("M: Preparing data to apply dBBMM."))
@@ -837,15 +837,15 @@ SPBDynBBMM <- function(detections, tz.study.area, zone, Transmitters = NULL, SPB
   group.list <- bbmm_checkGroupQuality(input = group.list, zone = zone)
 
   # Calculate dBBMM
-  mod_dbbmm <- bbmm_calculateDBBMM(input = group.list, zone = zone, raster = raster.aux)
+  mod_dbbmm <- bbmm_calculateDBBMM(input = group.list, zone = zone, raster = base.raster)
 
   # Remove land areas
   actel:::appendTo("Screen", paste("M: Subtracting land areas from output."))
-  water.areas <- bbmm_getWaterAreas(dbbmm = mod_dbbmm, raster = raster.aux, breaks = breaks)
+  water.areas <- bbmm_getWaterAreas(dbbmm.rasters = dbbmm.rasters, base.raster = base.raster, breaks = breaks)
 
   # Save track info
   actel:::appendTo("Screen", paste("M: Storing final results."))
-  track.info <- bbmm_saveTrackInfo(input = group.list, water = water.areas, tz.study.area = tz.study.area)
+  track.info <- bbmm_saveTrackInfo(input = group.list, water = water.areas[[1]], tz.study.area = tz.study.area)
 
   # return both the dbbmm and the track/area info
   return(list(dbbmm = mod_dbbmm, tracks = track.info))  
