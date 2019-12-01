@@ -511,7 +511,7 @@ bbmm_getOverlaps <- function(dbbmm.rasters, base.raster, breaks) {
   if (attributes(dbbmm.rasters)$type == "group") {
     # prepare input rasters
     raster.crop <- lapply(dbbmm.rasters, function(group, aux = base.raster) {
-      if (class(group) == "RasterStack") # HF1
+      if (class(group) != "RasterLayer")
         the.raster <- raster::calc(group, fun = mean, na.rm = TRUE) # Merge all transmitters in one raster
       else
         the.raster <- group
@@ -601,7 +601,7 @@ bbmm_getOverlaps <- function(dbbmm.rasters, base.raster, breaks) {
     # prepare input rasters
     raster.crop <- lapply(dbbmm.rasters, function(group) {
       output_i <- lapply(group, function(timeslot, aux = base.raster) {
-        if (class(timeslot) == "RasterStack") # HF1
+        if (class(timeslot) != "RasterLayer")
           the.raster <- raster::calc(timeslot, fun = mean, na.rm = TRUE) # Merge all transmitters in one raster
         else
           the.raster <- timeslot
