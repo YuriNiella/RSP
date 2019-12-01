@@ -1,4 +1,0 @@
-
-An exception occurred, stopping the process!
-
--------------------

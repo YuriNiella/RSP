@@ -1,5 +1,0 @@
-
-An exception occurred, stopping the process!
-
--------------------
-M: Saving report as '2019-09-20.15.18.55.actel.log-STOP.txt'.

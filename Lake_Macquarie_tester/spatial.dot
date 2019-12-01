@@ -1,22 +1,22 @@
-Origin -> Left1 -> Left3 -> Left5
-Origin -> Left2 -> Left3 -> Left6
-Left1 -> Left2
-Left1 -> Left4
-Left2 -> Left4
-Left3 -> Left4
-Left5 -> Left6
-Origin -> North1
-Origin -> North2
-Origin -> North3
-Origin -> North4
-Origin -> North5
-North1 -> North2
-North1 -> North3
-North1 -> North4
-North1 -> North5
-North2 -> North3
-North2 -> North4
-North2 -> North5
-North3 -> North4
-North3 -> North5
-North4 -> North5
+Origin -- Left1 -- Left3 -- Left5
+Origin -- Left2 -- Left3 -- Left6
+Left1 -- Left2
+Left1 -- Left4
+Left2 -- Left4
+Left3 -- Left4
+Left5 -- Left6
+Origin -- North1
+Origin -- North2
+Origin -- North3
+Origin -- North4
+Origin -- North5
+North1 -- North2
+North1 -- North3
+North1 -- North4
+North1 -- North5
+North2 -- North3
+North2 -- North4
+North2 -- North5
+North3 -- North4
+North3 -- North5
+North4 -- North5

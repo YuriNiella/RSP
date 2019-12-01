@@ -20,5 +20,5 @@
 "tor",-33.00305556,151.6027778,"North3",10,"Hydrophone","2015-04-09 08:43:11","2015-04-10 07:01:53","St.19"
 "boltp_1",-32.99277778,151.6188889,"North4",11,"Hydrophone","2015-04-09 06:31:00","2015-04-09 06:31:00","St.20"
 "coalp_3",-33.03027778,151.631111,"North5",12,"Hydrophone","2015-04-08 08:20:04","2015-04-08 08:20:04","St.21"
-"Artificial Reef",NA,NA,"Origin",13,"Release","","","Artificial Reef"
-"Natural Reef",NA,NA,"Origin",14,"Release","","","Natural Reef"
+"Artificial Reef",NA,NA,"Origin",13,"Release","","","ArtificialReef"
+"Natural Reef",NA,NA,"Origin",14,"Release","","","NaturalReef"
