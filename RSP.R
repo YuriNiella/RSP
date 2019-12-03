@@ -510,7 +510,8 @@ plotRSP <- function(input, tag, display = c("Receiver", "RSP", "Both"), type = c
   if (is.na(match(tag, names(detections))))
     stop("The requested tag is not present in the input detections.\n")
 
-  detections <- detections[[tag]]
+  detections <- detections[tag]
+  detections <- detections[[1]]
   display <- match.arg(display)
   type <- match.arg(type)
   df.rec <- subset(detections, Position == "Receiver") # Track dataset with only receiver positions
@@ -524,10 +525,11 @@ plotRSP <- function(input, tag, display = c("Receiver", "RSP", "Both"), type = c
   # Make the points a dataframe for ggplot
   df <- data.frame(base.raster_df)
   colnames(df) <- c("Longitude", "Latitude", "MAP")
-  
+  df$MAP[df$MAP == 0] <- NA
+
   p <- ggplot2::ggplot(data = df, ggplot2::aes(y = Latitude, x = Longitude))
   p <- p + ggplot2::geom_raster(ggplot2::aes(fill = MAP), show.legend = FALSE)
-  p <- p + ggplot2::scale_fill_gradientn(colours = c(NA, "#BABCBF"))
+  p <- p + ggplot2::scale_fill_gradientn(colours = "#BABCBF", na.value = NA)
   p <- p + ggplot2::theme_bw()
   p <- p + ggplot2::theme(legend.position = "bottom")
   p <- p + ggplot2::scale_x_continuous(expand = c(0, 0))

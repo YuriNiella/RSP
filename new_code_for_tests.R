@@ -103,7 +103,8 @@ n
 
 
 # calculate RSP
-rsp.data <- RSP(input = study.data, base.raster = "Lake_Macquarie.grd", distance = 1000, time.lapse = 30, er.ad = 20)
+#rsp.data <- RSP(input = study.data, base.raster = "Lake_Macquarie.grd", distance = 1000, time.lapse = 30, er.ad = 20)
+rsp.data <- RSP(input = study.data, base.raster = "Lake_Macquarie.grd", time.lapse = 30) # Test with default!
 
 ## Comparison plots: time x distance 
   # Total distances travelled
@@ -111,7 +112,8 @@ rsp.data <- RSP(input = study.data, base.raster = "Lake_Macquarie.grd", distance
   # Total number of locations
   plotDetections(input = rsp.data)
   # Plot comparison tracks: Receiver x SPBD 
-  plotRSP(input = rsp.data, tag = "A69-9004-496", display = "Both", type = "lines")
+  plotRSP(input = rsp.data, tag = "A69-9004-496", display = "Both", type = "lines") # YN: tag not present!
+  plotRSP(input = rsp.data, tag = "A69-9004-483", display = "Both", type = "lines") 
 
 ## calculate dBBMM:
 
@@ -123,6 +125,16 @@ overlap.plots <- plotOverlap(input = dbbmm_all, store = TRUE, stations = TRUE)
 # extreme test: only one tag
 dbbmm_extreme <- dynBBMM(input = rsp.data, UTM.zone = 56, breaks = c(0.5, 0.95), debug = TRUE, tags = "A69-9002-10481") # tags is not working
 plotContours(input = dbbmm_extreme, group = "Luderick", track = 'A69.9002.10481_Track_1', main = "Example for group dbbmm")
+
+
+# with a 12-h timeframe
+dbbmm_time <- dynBBMM(input = rsp.data, UTM.zone = 56, breaks = c(0.5, 0.95), timeframe = 12, debug = TRUE)
+
+which(dbbmm_time$timeslots$Bream == TRUE & dbbmm_time$timeslots$Luderick == TRUE) # Overlaps between Bream and Luderick
+plot1 <- plotContours(input = dbbmm_time, track = "A69.9002.10474_Track_1", group = "Bream", timeslot = 486, stations = TRUE)
+plot2 <- plotContours(input = dbbmm_time, track = "A69.9002.10480_Track_1", group = "Bream", timeslot = 486, stations = TRUE)
+plot3 <- plotContours(input = dbbmm_time, group = "Luderick", timeslot = 486, stations = TRUE)
+plotOverlap(input = dbbmm_time, store = TRUE, stations = TRUE, timeslot = 486) # YN: error because there is not overlap between Bream and Tarwhine for this timeslot
 
 
 # time test
