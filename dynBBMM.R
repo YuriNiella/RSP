@@ -1177,11 +1177,13 @@ plotOverlap <- function(input, timeslot = NULL, stations = FALSE,
     names(color.plot) <- c(groups, "Overlap")
     # start plotting
     p <- ggplot2::ggplot()
-    for (i in groups) {
-      the.contour <- contours[[i]]
-      the.contour$Group <- factor(the.contour$Group, levels = c(groups, "Overlap"))
-      p <- p + ggplot2::geom_tile(data = the.contour, ggplot2::aes(x = x, y = y, fill = Group))
-      rm(the.contour)
+    for (j in groups) {
+      if (!is.null(contours[[j]])) {
+        the.contour <- contours[[j]]
+        the.contour$Group <- factor(the.contour$Group, levels = c(groups, "Overlap"))
+        p <- p + ggplot2::geom_tile(data = the.contour, ggplot2::aes(x = x, y = y, fill = Group))
+        rm(the.contour)
+      }
     }
     if (plot.overlap)
       p <- p + ggplot2::geom_tile(data = overlap.contours, ggplot2::aes(x = x, y = y, fill = Group))

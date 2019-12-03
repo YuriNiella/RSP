@@ -101,6 +101,9 @@ y
 y
 n
 
+# alternatively
+study.data <- dataToList("actel_explore_results.RData")
+
 
 # calculate RSP
 #rsp.data <- RSP(input = study.data, base.raster = "Lake_Macquarie.grd", distance = 1000, time.lapse = 30, er.ad = 20)
@@ -123,11 +126,11 @@ overlap.plots <- plotOverlap(input = dbbmm_all, store = TRUE, stations = TRUE)
 
 
 # extreme test: only one tag
-dbbmm_extreme <- dynBBMM(input = rsp.data, UTM.zone = 56, breaks = c(0.5, 0.95), debug = TRUE, tags = "A69-9002-10481") # tags is not working
+dbbmm_extreme <- dynBBMM(input = rsp.data, UTM.zone = 56, breaks = c(0.5, 0.95), debug = TRUE, tags = "A69-9002-10481")
 plotContours(input = dbbmm_extreme, group = "Luderick", track = 'A69.9002.10481_Track_1', main = "Example for group dbbmm")
 
 
-# with a 12-h timeframe
+# time test
 dbbmm_time <- dynBBMM(input = rsp.data, UTM.zone = 56, breaks = c(0.5, 0.95), timeframe = 12, debug = TRUE)
 
 which(dbbmm_time$timeslots$Bream == TRUE & dbbmm_time$timeslots$Luderick == TRUE) # Overlaps between Bream and Luderick
@@ -137,7 +140,12 @@ plot3 <- plotContours(input = dbbmm_time, group = "Luderick", timeslot = 486, st
 plotOverlap(input = dbbmm_time, store = TRUE, stations = TRUE, timeslot = 486) # YN: error because there is not overlap between Bream and Tarwhine for this timeslot
 
 
-# time test
-# dbbmm_time <- dynBBMM(input = rsp.data, UTM.zone = 56, breaks = c(0.5, 0.95), timeframe = 24, debug = TRUE)
-# plotContours(input = dbbmm_time, group = "Brown_Trout1", timeslot = "191", main = "Example for timeslot dbbmm", stations = TRUE) # HF: If the timeslot only has one track, it does not need to be specified
-# plotOverlap(input = dbbmm_time, timeslot = "77", stations = TRUE)
+# Had to run with timeframe = 24 or else the PC runs out of memory
+
+dbbmm_time <- dynBBMM(input = rsp.data, UTM.zone = 56, breaks = c(0.5, 0.95), timeframe = 24, debug = TRUE)
+
+which(dbbmm_time$timeslots$Bream == TRUE & dbbmm_time$timeslots$Luderick == TRUE) # Overlaps between Bream and Luderick
+plot1 <- plotContours(input = dbbmm_time, track = "A69.9002.10474_Track_1", group = "Bream", timeslot = 243, stations = TRUE)
+plot2 <- plotContours(input = dbbmm_time, track = "A69.9002.10480_Track_1", group = "Bream", timeslot = 243, stations = TRUE)
+plot3 <- plotContours(input = dbbmm_time, group = "Luderick", timeslot = 243, stations = TRUE)
+plotOverlap(input = dbbmm_time, store = FALSE, stations = TRUE, timeslot = 243) # HF should be working now
