@@ -7,7 +7,7 @@
 #' @param base.raster Raster file from the study area defining land (1) and water (0) regions. 
 #' @param distance Fixed distances in meters to add intermediate track locations. By default intermediate positions are added every 250 m.
 #' @param time.lapse Temporal window in minutes to add intermediate track locations. By default intermediate positions are added every 10 min.
-#' @param er.ad
+#' @param er.ad By default, 5% of the distance argument is used as the increment rate of the position erros for the estimated locations. Alternatively, can be defined by the user in meters.
 #' 
 #' @return Returns a list of RSP tracks (as dataframe) for each transmitter detected. 
 #' 
@@ -517,7 +517,13 @@ plotRSP <- function(input, tag, display = c("Receiver", "RSP", "Both"), type = c
   df.rec <- subset(detections, Position == "Receiver") # Track dataset with only receiver positions
   
   tracks <- unique(detections$Track) # Individual tracks 
-  color.tracks <- grDevices::palette(rainbow(length(tracks))) # Color palette for plotting tracks!
+
+  if (length(tracks) == 1) {
+    color.tracks <- "black"
+  } else {
+    color.tracks <- grDevices::palette(rainbow(length(tracks))) # Color palette for plotting tracks!
+  }
+  
   
   # Convert raster to points:
   base.raster_df <- raster::rasterToPoints(base.raster)

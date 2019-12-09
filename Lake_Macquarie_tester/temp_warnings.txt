@@ -1,301 +1,285 @@
 W: Could not find a 'Range' column in the spatial file; assuming a range of 500 metres for each receiver.
-W: One of the inter-station RSP segments within Track_01 is too short to fit extra 
-   detections (Total distance: 763m). Adding one single point between detections.
-W: One of the inter-station RSP segments within Track_01 is too short to fit extra 
-   detections (Total distance: 763m). Adding one single point between detections.
-W: One of the inter-station RSP segments within Track_05 is too short to fit extra 
-   detections (Total distance: 567m). Adding one single point between detections.
-W: One of the inter-station RSP segments within Track_05 is too short to fit extra 
-   detections (Total distance: 567m). Adding one single point between detections.
-W: One of the inter-station RSP segments within Track_4 is too short to fit extra 
-   detections (Total distance: 840m). Adding one single point between detections.
-W: Could not find a 'Range' column in the spatial file; assuming a range of 500 metres for each receiver.
-W: 8 track(s) in group Bream have less than eight detections and will not be used.
-W: 5 track(s) in group Luderick have less than eight detections and will not be used.
-W: 1 individual detections were removed in group Tarwhine due to simultaneous detections at two receivers.
-W: 2 track(s) in group Tarwhine have less than eight detections and will not be used.
-W: ALL tracks in group Bream (timeslot 970) have less than eight detections. Removing group from analysis.
-W: 1 track(s) in group Bream (timeslot 972) have less than eight detections and will not be used.
-W: 1 track(s) in group Bream (timeslot 978) have less than eight detections and will not be used.
-W: ALL tracks in group Bream (timeslot 986) have less than eight detections. Removing group from analysis.
-W: ALL tracks in group Bream (timeslot 1045) have less than eight detections. Removing group from analysis.
-W: ALL tracks in group Bream (timeslot 1057) have less than eight detections. Removing group from analysis.
-W: ALL tracks in group Bream (timeslot 1064) have less than eight detections. Removing group from analysis.
-W: ALL tracks in group Bream (timeslot 1065) have less than eight detections. Removing group from analysis.
-W: ALL tracks in group Bream (timeslot 1066) have less than eight detections. Removing group from analysis.
-W: ALL tracks in group Bream (timeslot 1071) have less than eight detections. Removing group from analysis.
-W: ALL tracks in group Bream (timeslot 1085) have less than eight detections. Removing group from analysis.
-W: ALL tracks in group Bream (timeslot 1086) have less than eight detections. Removing group from analysis.
+W: ALL tracks in group Bream (timeslot 485) have less than eight detections. Removing group from analysis.
+W: ALL tracks in group Bream (timeslot 523) have less than eight detections. Removing group from analysis.
+W: ALL tracks in group Bream (timeslot 529) have less than eight detections. Removing group from analysis.
+W: ALL tracks in group Bream (timeslot 533) have less than eight detections. Removing group from analysis.
+W: ALL tracks in group Bream (timeslot 536) have less than eight detections. Removing group from analysis.
+W: ALL tracks in group Bream (timeslot 544) have less than eight detections. Removing group from analysis.
+W: 1 track(s) in group Bream (timeslot 599) have less than eight detections and will not be used.
+W: ALL tracks in group Bream (timeslot 608) have less than eight detections. Removing group from analysis.
+W: ALL tracks in group Bream (timeslot 609) have less than eight detections. Removing group from analysis.
+W: ALL tracks in group Bream (timeslot 610) have less than eight detections. Removing group from analysis.
+W: ALL tracks in group Bream (timeslot 676) have less than eight detections. Removing group from analysis.
+W: ALL tracks in group Bream (timeslot 742) have less than eight detections. Removing group from analysis.
+W: ALL tracks in group Bream (timeslot 747) have less than eight detections. Removing group from analysis.
+W: ALL tracks in group Bream (timeslot 807) have less than eight detections. Removing group from analysis.
+W: ALL tracks in group Bream (timeslot 847) have less than eight detections. Removing group from analysis.
+W: ALL tracks in group Bream (timeslot 861) have less than eight detections. Removing group from analysis.
+W: 2 track(s) in group Bream (timeslot 871) have less than eight detections and will not be used.
+W: 1 track(s) in group Bream (timeslot 874) have less than eight detections and will not be used.
+W: 1 track(s) in group Bream (timeslot 875) have less than eight detections and will not be used.
+W: 1 track(s) in group Bream (timeslot 877) have less than eight detections and will not be used.
+W: 1 track(s) in group Bream (timeslot 879) have less than eight detections and will not be used.
+W: 2 track(s) in group Bream (timeslot 886) have less than eight detections and will not be used.
+W: 1 track(s) in group Bream (timeslot 889) have less than eight detections and will not be used.
+W: 1 track(s) in group Bream (timeslot 890) have less than eight detections and will not be used.
+W: 1 track(s) in group Bream (timeslot 892) have less than eight detections and will not be used.
+W: 1 track(s) in group Bream (timeslot 896) have less than eight detections and will not be used.
+W: 1 track(s) in group Bream (timeslot 897) have less than eight detections and will not be used.
+W: ALL tracks in group Bream (timeslot 903) have less than eight detections. Removing group from analysis.
+W: 1 track(s) in group Bream (timeslot 907) have less than eight detections and will not be used.
+W: 1 track(s) in group Bream (timeslot 908) have less than eight detections and will not be used.
+W: 1 track(s) in group Bream (timeslot 909) have less than eight detections and will not be used.
+W: 1 track(s) in group Bream (timeslot 910) have less than eight detections and will not be used.
+W: 1 track(s) in group Bream (timeslot 932) have less than eight detections and will not be used.
+W: 1 track(s) in group Bream (timeslot 943) have less than eight detections and will not be used.
+W: ALL tracks in group Bream (timeslot 944) have less than eight detections. Removing group from analysis.
+W: 1 track(s) in group Bream (timeslot 950) have less than eight detections and will not be used.
+W: 1 track(s) in group Bream (timeslot 951) have less than eight detections and will not be used.
+W: 1 track(s) in group Bream (timeslot 952) have less than eight detections and will not be used.
+W: 1 track(s) in group Bream (timeslot 980) have less than eight detections and will not be used.
+W: ALL tracks in group Bream (timeslot 988) have less than eight detections. Removing group from analysis.
+W: ALL tracks in group Bream (timeslot 992) have less than eight detections. Removing group from analysis.
+W: ALL tracks in group Bream (timeslot 996) have less than eight detections. Removing group from analysis.
+W: ALL tracks in group Bream (timeslot 998) have less than eight detections. Removing group from analysis.
+W: 1 track(s) in group Bream (timeslot 1003) have less than eight detections and will not be used.
+W: ALL tracks in group Bream (timeslot 1010) have less than eight detections. Removing group from analysis.
+W: ALL tracks in group Bream (timeslot 1014) have less than eight detections. Removing group from analysis.
+W: 1 track(s) in group Bream (timeslot 1067) have less than eight detections and will not be used.
+W: 1 track(s) in group Bream (timeslot 1068) have less than eight detections and will not be used.
+W: ALL tracks in group Bream (timeslot 1072) have less than eight detections. Removing group from analysis.
 W: ALL tracks in group Bream (timeslot 1087) have less than eight detections. Removing group from analysis.
-W: ALL tracks in group Bream (timeslot 1088) have less than eight detections. Removing group from analysis.
-W: ALL tracks in group Bream (timeslot 1089) have less than eight detections. Removing group from analysis.
-W: ALL tracks in group Bream (timeslot 1117) have less than eight detections. Removing group from analysis.
-W: ALL tracks in group Bream (timeslot 1121) have less than eight detections. Removing group from analysis.
-W: 1 track(s) in group Bream (timeslot 1161) have less than eight detections and will not be used.
-W: 1 track(s) in group Bream (timeslot 1162) have less than eight detections and will not be used.
-W: 1 track(s) in group Bream (timeslot 1170) have less than eight detections and will not be used.
-W: ALL tracks in group Bream (timeslot 1175) have less than eight detections. Removing group from analysis.
-W: ALL tracks in group Bream (timeslot 1176) have less than eight detections. Removing group from analysis.
-W: ALL tracks in group Bream (timeslot 1177) have less than eight detections. Removing group from analysis.
-W: ALL tracks in group Bream (timeslot 1178) have less than eight detections. Removing group from analysis.
-W: 1 track(s) in group Bream (timeslot 1179) have less than eight detections and will not be used.
-W: ALL tracks in group Bream (timeslot 1192) have less than eight detections. Removing group from analysis.
-W: ALL tracks in group Bream (timeslot 1196) have less than eight detections. Removing group from analysis.
-W: ALL tracks in group Bream (timeslot 1197) have less than eight detections. Removing group from analysis.
-W: ALL tracks in group Bream (timeslot 1200) have less than eight detections. Removing group from analysis.
-W: ALL tracks in group Bream (timeslot 1214) have less than eight detections. Removing group from analysis.
-W: ALL tracks in group Bream (timeslot 1216) have less than eight detections. Removing group from analysis.
-W: ALL tracks in group Bream (timeslot 1217) have less than eight detections. Removing group from analysis.
-W: ALL tracks in group Bream (timeslot 1218) have less than eight detections. Removing group from analysis.
-W: ALL tracks in group Bream (timeslot 1219) have less than eight detections. Removing group from analysis.
-W: ALL tracks in group Bream (timeslot 1220) have less than eight detections. Removing group from analysis.
-W: ALL tracks in group Bream (timeslot 1221) have less than eight detections. Removing group from analysis.
-W: ALL tracks in group Bream (timeslot 1272) have less than eight detections. Removing group from analysis.
-W: ALL tracks in group Bream (timeslot 1349) have less than eight detections. Removing group from analysis.
-W: ALL tracks in group Bream (timeslot 1350) have less than eight detections. Removing group from analysis.
-W: ALL tracks in group Bream (timeslot 1351) have less than eight detections. Removing group from analysis.
-W: ALL tracks in group Bream (timeslot 1371) have less than eight detections. Removing group from analysis.
-W: ALL tracks in group Bream (timeslot 1372) have less than eight detections. Removing group from analysis.
-W: ALL tracks in group Bream (timeslot 1468) have less than eight detections. Removing group from analysis.
-W: ALL tracks in group Bream (timeslot 1484) have less than eight detections. Removing group from analysis.
-W: ALL tracks in group Bream (timeslot 1494) have less than eight detections. Removing group from analysis.
-W: ALL tracks in group Bream (timeslot 1614) have less than eight detections. Removing group from analysis.
-W: ALL tracks in group Bream (timeslot 1693) have less than eight detections. Removing group from analysis.
-W: 1 track(s) in group Bream (timeslot 1703) have less than eight detections and will not be used.
-W: 1 track(s) in group Bream (timeslot 1709) have less than eight detections and will not be used.
-W: 1 track(s) in group Bream (timeslot 1710) have less than eight detections and will not be used.
-W: ALL tracks in group Bream (timeslot 1716) have less than eight detections. Removing group from analysis.
-W: ALL tracks in group Bream (timeslot 1717) have less than eight detections. Removing group from analysis.
-W: ALL tracks in group Bream (timeslot 1719) have less than eight detections. Removing group from analysis.
-W: ALL tracks in group Bream (timeslot 1721) have less than eight detections. Removing group from analysis.
-W: 2 track(s) in group Bream (timeslot 1742) have less than eight detections and will not be used.
-W: 1 track(s) in group Bream (timeslot 1743) have less than eight detections and will not be used.
-W: 1 track(s) in group Bream (timeslot 1744) have less than eight detections and will not be used.
-W: 2 track(s) in group Bream (timeslot 1745) have less than eight detections and will not be used.
-W: 1 track(s) in group Bream (timeslot 1746) have less than eight detections and will not be used.
-W: 1 track(s) in group Bream (timeslot 1747) have less than eight detections and will not be used.
-W: 1 track(s) in group Bream (timeslot 1748) have less than eight detections and will not be used.
-W: 1 track(s) in group Bream (timeslot 1749) have less than eight detections and will not be used.
-W: 1 track(s) in group Bream (timeslot 1750) have less than eight detections and will not be used.
-W: 1 track(s) in group Bream (timeslot 1752) have less than eight detections and will not be used.
-W: 1 track(s) in group Bream (timeslot 1753) have less than eight detections and will not be used.
-W: 1 track(s) in group Bream (timeslot 1754) have less than eight detections and will not be used.
-W: 1 track(s) in group Bream (timeslot 1755) have less than eight detections and will not be used.
-W: 1 track(s) in group Bream (timeslot 1757) have less than eight detections and will not be used.
-W: 1 track(s) in group Bream (timeslot 1763) have less than eight detections and will not be used.
-W: 1 track(s) in group Bream (timeslot 1764) have less than eight detections and will not be used.
-W: 1 track(s) in group Bream (timeslot 1771) have less than eight detections and will not be used.
-W: 2 track(s) in group Bream (timeslot 1772) have less than eight detections and will not be used.
-W: 1 track(s) in group Bream (timeslot 1773) have less than eight detections and will not be used.
-W: 1 track(s) in group Bream (timeslot 1777) have less than eight detections and will not be used.
-W: 1 track(s) in group Bream (timeslot 1778) have less than eight detections and will not be used.
-W: 1 track(s) in group Bream (timeslot 1779) have less than eight detections and will not be used.
-W: 1 track(s) in group Bream (timeslot 1780) have less than eight detections and will not be used.
-W: 1 track(s) in group Bream (timeslot 1781) have less than eight detections and will not be used.
-W: 1 track(s) in group Bream (timeslot 1782) have less than eight detections and will not be used.
-W: 1 track(s) in group Bream (timeslot 1783) have less than eight detections and will not be used.
-W: 1 track(s) in group Bream (timeslot 1784) have less than eight detections and will not be used.
-W: 1 track(s) in group Bream (timeslot 1792) have less than eight detections and will not be used.
-W: 1 track(s) in group Bream (timeslot 1794) have less than eight detections and will not be used.
-W: 1 track(s) in group Bream (timeslot 1796) have less than eight detections and will not be used.
-W: 1 track(s) in group Bream (timeslot 1802) have less than eight detections and will not be used.
-W: ALL tracks in group Bream (timeslot 1805) have less than eight detections. Removing group from analysis.
-W: 1 track(s) in group Bream (timeslot 1813) have less than eight detections and will not be used.
-W: 1 track(s) in group Bream (timeslot 1814) have less than eight detections and will not be used.
-W: 1 track(s) in group Bream (timeslot 1815) have less than eight detections and will not be used.
-W: 1 track(s) in group Bream (timeslot 1816) have less than eight detections and will not be used.
-W: 1 track(s) in group Bream (timeslot 1817) have less than eight detections and will not be used.
-W: 1 track(s) in group Bream (timeslot 1818) have less than eight detections and will not be used.
-W: 1 track(s) in group Bream (timeslot 1819) have less than eight detections and will not be used.
-W: 1 track(s) in group Bream (timeslot 1820) have less than eight detections and will not be used.
-W: 1 track(s) in group Bream (timeslot 1821) have less than eight detections and will not be used.
-W: 1 track(s) in group Bream (timeslot 1824) have less than eight detections and will not be used.
-W: 1 track(s) in group Bream (timeslot 1825) have less than eight detections and will not be used.
-W: 1 track(s) in group Bream (timeslot 1826) have less than eight detections and will not be used.
-W: 1 track(s) in group Bream (timeslot 1827) have less than eight detections and will not be used.
-W: 1 track(s) in group Bream (timeslot 1829) have less than eight detections and will not be used.
-W: 1 track(s) in group Bream (timeslot 1863) have less than eight detections and will not be used.
-W: 1 track(s) in group Bream (timeslot 1883) have less than eight detections and will not be used.
-W: 1 track(s) in group Bream (timeslot 1884) have less than eight detections and will not be used.
-W: ALL tracks in group Bream (timeslot 1886) have less than eight detections. Removing group from analysis.
-W: ALL tracks in group Bream (timeslot 1887) have less than eight detections. Removing group from analysis.
-W: ALL tracks in group Bream (timeslot 1888) have less than eight detections. Removing group from analysis.
-W: ALL tracks in group Bream (timeslot 1889) have less than eight detections. Removing group from analysis.
-W: 1 track(s) in group Bream (timeslot 1891) have less than eight detections and will not be used.
-W: 1 track(s) in group Bream (timeslot 1894) have less than eight detections and will not be used.
-W: 1 track(s) in group Bream (timeslot 1900) have less than eight detections and will not be used.
-W: 1 track(s) in group Bream (timeslot 1901) have less than eight detections and will not be used.
-W: 1 track(s) in group Bream (timeslot 1902) have less than eight detections and will not be used.
-W: 1 track(s) in group Bream (timeslot 1903) have less than eight detections and will not be used.
-W: 1 track(s) in group Bream (timeslot 1904) have less than eight detections and will not be used.
-W: 1 track(s) in group Bream (timeslot 1960) have less than eight detections and will not be used.
-W: 1 track(s) in group Bream (timeslot 1962) have less than eight detections and will not be used.
-W: ALL tracks in group Bream (timeslot 1975) have less than eight detections. Removing group from analysis.
-W: ALL tracks in group Bream (timeslot 1984) have less than eight detections. Removing group from analysis.
-W: ALL tracks in group Bream (timeslot 1991) have less than eight detections. Removing group from analysis.
-W: ALL tracks in group Bream (timeslot 1995) have less than eight detections. Removing group from analysis.
-W: ALL tracks in group Bream (timeslot 2005) have less than eight detections. Removing group from analysis.
-W: 1 track(s) in group Bream (timeslot 2006) have less than eight detections and will not be used.
-W: ALL tracks in group Bream (timeslot 2019) have less than eight detections. Removing group from analysis.
-W: ALL tracks in group Bream (timeslot 2028) have less than eight detections. Removing group from analysis.
-W: ALL tracks in group Bream (timeslot 2044) have less than eight detections. Removing group from analysis.
-W: ALL tracks in group Bream (timeslot 2072) have less than eight detections. Removing group from analysis.
-W: ALL tracks in group Bream (timeslot 2079) have less than eight detections. Removing group from analysis.
-W: ALL tracks in group Bream (timeslot 2102) have less than eight detections. Removing group from analysis.
-W: 1 track(s) in group Bream (timeslot 2134) have less than eight detections and will not be used.
-W: 1 track(s) in group Bream (timeslot 2135) have less than eight detections and will not be used.
-W: ALL tracks in group Bream (timeslot 2143) have less than eight detections. Removing group from analysis.
-W: ALL tracks in group Bream (timeslot 2151) have less than eight detections. Removing group from analysis.
-W: ALL tracks in group Bream (timeslot 2162) have less than eight detections. Removing group from analysis.
-W: ALL tracks in group Bream (timeslot 2174) have less than eight detections. Removing group from analysis.
-W: ALL tracks in group Bream (timeslot 2194) have less than eight detections. Removing group from analysis.
-W: ALL tracks in group Bream (timeslot 2198) have less than eight detections. Removing group from analysis.
-W: ALL tracks in group Bream (timeslot 2215) have less than eight detections. Removing group from analysis.
-W: ALL tracks in group Bream (timeslot 2222) have less than eight detections. Removing group from analysis.
-W: ALL tracks in group Bream (timeslot 2252) have less than eight detections. Removing group from analysis.
-W: ALL tracks in group Bream (timeslot 2276) have less than eight detections. Removing group from analysis.
-W: ALL tracks in group Bream (timeslot 2292) have less than eight detections. Removing group from analysis.
-W: ALL tracks in group Bream (timeslot 2303) have less than eight detections. Removing group from analysis.
-W: ALL tracks in group Bream (timeslot 2312) have less than eight detections. Removing group from analysis.
-W: ALL tracks in group Bream (timeslot 2334) have less than eight detections. Removing group from analysis.
-W: ALL tracks in group Bream (timeslot 2363) have less than eight detections. Removing group from analysis.
-W: ALL tracks in group Bream (timeslot 2387) have less than eight detections. Removing group from analysis.
-W: ALL tracks in group Bream (timeslot 2407) have less than eight detections. Removing group from analysis.
-W: 2 track(s) in group Luderick (timeslot 3) have less than eight detections and will not be used.
-W: 1 track(s) in group Luderick (timeslot 20) have less than eight detections and will not be used.
-W: 1 track(s) in group Luderick (timeslot 70) have less than eight detections and will not be used.
-W: ALL tracks in group Luderick (timeslot 75) have less than eight detections. Removing group from analysis.
-W: 1 track(s) in group Luderick (timeslot 85) have less than eight detections and will not be used.
-W: ALL tracks in group Luderick (timeslot 104) have less than eight detections. Removing group from analysis.
-W: ALL tracks in group Luderick (timeslot 105) have less than eight detections. Removing group from analysis.
-W: ALL tracks in group Luderick (timeslot 106) have less than eight detections. Removing group from analysis.
-W: ALL tracks in group Luderick (timeslot 107) have less than eight detections. Removing group from analysis.
-W: ALL tracks in group Luderick (timeslot 108) have less than eight detections. Removing group from analysis.
-W: ALL tracks in group Luderick (timeslot 109) have less than eight detections. Removing group from analysis.
-W: ALL tracks in group Luderick (timeslot 110) have less than eight detections. Removing group from analysis.
-W: 1 track(s) in group Luderick (timeslot 222) have less than eight detections and will not be used.
-W: 1 track(s) in group Luderick (timeslot 223) have less than eight detections and will not be used.
-W: 1 track(s) in group Luderick (timeslot 224) have less than eight detections and will not be used.
-W: 1 track(s) in group Luderick (timeslot 225) have less than eight detections and will not be used.
-W: ALL tracks in group Luderick (timeslot 226) have less than eight detections. Removing group from analysis.
-W: ALL tracks in group Luderick (timeslot 238) have less than eight detections. Removing group from analysis.
-W: ALL tracks in group Luderick (timeslot 269) have less than eight detections. Removing group from analysis.
-W: ALL tracks in group Luderick (timeslot 270) have less than eight detections. Removing group from analysis.
-W: ALL tracks in group Luderick (timeslot 988) have less than eight detections. Removing group from analysis.
-W: ALL tracks in group Luderick (timeslot 989) have less than eight detections. Removing group from analysis.
-W: ALL tracks in group Luderick (timeslot 996) have less than eight detections. Removing group from analysis.
-W: ALL tracks in group Luderick (timeslot 1008) have less than eight detections. Removing group from analysis.
-W: ALL tracks in group Luderick (timeslot 1009) have less than eight detections. Removing group from analysis.
-W: ALL tracks in group Luderick (timeslot 1010) have less than eight detections. Removing group from analysis.
-W: ALL tracks in group Luderick (timeslot 1011) have less than eight detections. Removing group from analysis.
-W: ALL tracks in group Luderick (timeslot 1014) have less than eight detections. Removing group from analysis.
-W: ALL tracks in group Luderick (timeslot 1015) have less than eight detections. Removing group from analysis.
-W: ALL tracks in group Luderick (timeslot 1021) have less than eight detections. Removing group from analysis.
-W: ALL tracks in group Luderick (timeslot 1050) have less than eight detections. Removing group from analysis.
-W: ALL tracks in group Luderick (timeslot 1051) have less than eight detections. Removing group from analysis.
-W: ALL tracks in group Luderick (timeslot 1052) have less than eight detections. Removing group from analysis.
-W: ALL tracks in group Luderick (timeslot 1053) have less than eight detections. Removing group from analysis.
-W: ALL tracks in group Luderick (timeslot 1054) have less than eight detections. Removing group from analysis.
-W: ALL tracks in group Luderick (timeslot 1055) have less than eight detections. Removing group from analysis.
-W: ALL tracks in group Luderick (timeslot 1056) have less than eight detections. Removing group from analysis.
-W: ALL tracks in group Luderick (timeslot 1069) have less than eight detections. Removing group from analysis.
-W: ALL tracks in group Luderick (timeslot 1082) have less than eight detections. Removing group from analysis.
-W: ALL tracks in group Luderick (timeslot 1089) have less than eight detections. Removing group from analysis.
-W: ALL tracks in group Luderick (timeslot 1090) have less than eight detections. Removing group from analysis.
-W: ALL tracks in group Luderick (timeslot 1091) have less than eight detections. Removing group from analysis.
-W: ALL tracks in group Luderick (timeslot 1094) have less than eight detections. Removing group from analysis.
-W: 1 track(s) in group Tarwhine (timeslot 1618) have less than eight detections and will not be used.
-W: 1 track(s) in group Tarwhine (timeslot 1628) have less than eight detections and will not be used.
-W: 1 track(s) in group Tarwhine (timeslot 1629) have less than eight detections and will not be used.
-W: 1 track(s) in group Tarwhine (timeslot 1630) have less than eight detections and will not be used.
-W: 1 track(s) in group Tarwhine (timeslot 1631) have less than eight detections and will not be used.
-W: 1 track(s) in group Tarwhine (timeslot 1639) have less than eight detections and will not be used.
-W: 1 individual detections were removed in group Tarwhine (timeslot 1646) due to simultaneous detections at two receivers.
-W: ALL tracks in group Tarwhine (timeslot 1648) have less than eight detections. Removing group from analysis.
-W: ALL tracks in group Tarwhine (timeslot 1649) have less than eight detections. Removing group from analysis.
-W: ALL tracks in group Tarwhine (timeslot 1651) have less than eight detections. Removing group from analysis.
-W: ALL tracks in group Tarwhine (timeslot 1652) have less than eight detections. Removing group from analysis.
-W: 1 track(s) in group Tarwhine (timeslot 1657) have less than eight detections and will not be used.
-W: 1 track(s) in group Tarwhine (timeslot 1658) have less than eight detections and will not be used.
-W: 1 track(s) in group Tarwhine (timeslot 1659) have less than eight detections and will not be used.
-W: 1 track(s) in group Tarwhine (timeslot 1660) have less than eight detections and will not be used.
-W: 1 track(s) in group Tarwhine (timeslot 1661) have less than eight detections and will not be used.
-W: 1 track(s) in group Tarwhine (timeslot 1662) have less than eight detections and will not be used.
-W: 1 track(s) in group Tarwhine (timeslot 1663) have less than eight detections and will not be used.
-W: 1 track(s) in group Tarwhine (timeslot 1664) have less than eight detections and will not be used.
-W: 1 track(s) in group Tarwhine (timeslot 1668) have less than eight detections and will not be used.
-W: 1 track(s) in group Tarwhine (timeslot 1669) have less than eight detections and will not be used.
-W: 1 track(s) in group Tarwhine (timeslot 1672) have less than eight detections and will not be used.
-W: 1 track(s) in group Tarwhine (timeslot 1673) have less than eight detections and will not be used.
-W: ALL tracks in group Tarwhine (timeslot 1680) have less than eight detections. Removing group from analysis.
-W: ALL tracks in group Tarwhine (timeslot 1681) have less than eight detections. Removing group from analysis.
-W: 1 track(s) in group Tarwhine (timeslot 1682) have less than eight detections and will not be used.
-W: 1 track(s) in group Tarwhine (timeslot 1683) have less than eight detections and will not be used.
-W: 1 track(s) in group Tarwhine (timeslot 1685) have less than eight detections and will not be used.
-W: ALL tracks in group Tarwhine (timeslot 1686) have less than eight detections. Removing group from analysis.
-W: ALL tracks in group Tarwhine (timeslot 1687) have less than eight detections. Removing group from analysis.
-W: ALL tracks in group Tarwhine (timeslot 1688) have less than eight detections. Removing group from analysis.
-W: ALL tracks in group Tarwhine (timeslot 1689) have less than eight detections. Removing group from analysis.
-W: 1 track(s) in group Tarwhine (timeslot 1690) have less than eight detections and will not be used.
-W: 1 track(s) in group Tarwhine (timeslot 1691) have less than eight detections and will not be used.
-W: 1 track(s) in group Tarwhine (timeslot 1696) have less than eight detections and will not be used.
-W: 1 track(s) in group Tarwhine (timeslot 1697) have less than eight detections and will not be used.
-W: 1 track(s) in group Tarwhine (timeslot 1698) have less than eight detections and will not be used.
-W: ALL tracks in group Tarwhine (timeslot 1728) have less than eight detections. Removing group from analysis.
-W: ALL tracks in group Tarwhine (timeslot 1733) have less than eight detections. Removing group from analysis.
-W: ALL tracks in group Tarwhine (timeslot 1734) have less than eight detections. Removing group from analysis.
-W: ALL tracks in group Tarwhine (timeslot 1735) have less than eight detections. Removing group from analysis.
-W: ALL tracks in group Tarwhine (timeslot 1736) have less than eight detections. Removing group from analysis.
-W: ALL tracks in group Tarwhine (timeslot 1737) have less than eight detections. Removing group from analysis.
-W: ALL tracks in group Tarwhine (timeslot 1738) have less than eight detections. Removing group from analysis.
-W: ALL tracks in group Tarwhine (timeslot 1739) have less than eight detections. Removing group from analysis.
-W: ALL tracks in group Tarwhine (timeslot 1740) have less than eight detections. Removing group from analysis.
-W: ALL tracks in group Tarwhine (timeslot 1741) have less than eight detections. Removing group from analysis.
-W: ALL tracks in group Tarwhine (timeslot 1742) have less than eight detections. Removing group from analysis.
-W: ALL tracks in group Tarwhine (timeslot 1743) have less than eight detections. Removing group from analysis.
-W: ALL tracks in group Tarwhine (timeslot 1744) have less than eight detections. Removing group from analysis.
-W: ALL tracks in group Tarwhine (timeslot 1745) have less than eight detections. Removing group from analysis.
-W: ALL tracks in group Tarwhine (timeslot 1746) have less than eight detections. Removing group from analysis.
-W: ALL tracks in group Tarwhine (timeslot 1753) have less than eight detections. Removing group from analysis.
-W: ALL tracks in group Tarwhine (timeslot 1754) have less than eight detections. Removing group from analysis.
-W: ALL tracks in group Tarwhine (timeslot 1755) have less than eight detections. Removing group from analysis.
-W: ALL tracks in group Tarwhine (timeslot 1756) have less than eight detections. Removing group from analysis.
-W: ALL tracks in group Tarwhine (timeslot 1757) have less than eight detections. Removing group from analysis.
-W: ALL tracks in group Tarwhine (timeslot 1759) have less than eight detections. Removing group from analysis.
-W: ALL tracks in group Tarwhine (timeslot 1760) have less than eight detections. Removing group from analysis.
-W: ALL tracks in group Tarwhine (timeslot 1762) have less than eight detections. Removing group from analysis.
-W: ALL tracks in group Tarwhine (timeslot 1763) have less than eight detections. Removing group from analysis.
-W: ALL tracks in group Tarwhine (timeslot 1764) have less than eight detections. Removing group from analysis.
-W: ALL tracks in group Tarwhine (timeslot 1765) have less than eight detections. Removing group from analysis.
-W: ALL tracks in group Tarwhine (timeslot 1766) have less than eight detections. Removing group from analysis.
-W: ALL tracks in group Tarwhine (timeslot 1776) have less than eight detections. Removing group from analysis.
-W: 1 track(s) in group Tarwhine (timeslot 1778) have less than eight detections and will not be used.
-W: 1 track(s) in group Tarwhine (timeslot 1779) have less than eight detections and will not be used.
-W: ALL tracks in group Tarwhine (timeslot 1780) have less than eight detections. Removing group from analysis.
-W: ALL tracks in group Tarwhine (timeslot 1781) have less than eight detections. Removing group from analysis.
-W: 1 track(s) in group Tarwhine (timeslot 1793) have less than eight detections and will not be used.
-W: ALL tracks in group Tarwhine (timeslot 1795) have less than eight detections. Removing group from analysis.
-W: ALL tracks in group Tarwhine (timeslot 1798) have less than eight detections. Removing group from analysis.
-W: ALL tracks in group Tarwhine (timeslot 1799) have less than eight detections. Removing group from analysis.
-W: ALL tracks in group Tarwhine (timeslot 1800) have less than eight detections. Removing group from analysis.
-W: ALL tracks in group Tarwhine (timeslot 1830) have less than eight detections. Removing group from analysis.
-W: ALL tracks in group Tarwhine (timeslot 1831) have less than eight detections. Removing group from analysis.
-W: ALL tracks in group Tarwhine (timeslot 1832) have less than eight detections. Removing group from analysis.
-W: ALL tracks in group Tarwhine (timeslot 1833) have less than eight detections. Removing group from analysis.
-W: ALL tracks in group Tarwhine (timeslot 1834) have less than eight detections. Removing group from analysis.
-W: ALL tracks in group Tarwhine (timeslot 1835) have less than eight detections. Removing group from analysis.
-W: ALL tracks in group Tarwhine (timeslot 1836) have less than eight detections. Removing group from analysis.
-W: ALL tracks in group Tarwhine (timeslot 1837) have less than eight detections. Removing group from analysis.
-W: ALL tracks in group Tarwhine (timeslot 1839) have less than eight detections. Removing group from analysis.
-W: ALL tracks in group Tarwhine (timeslot 1848) have less than eight detections. Removing group from analysis.
-W: ALL tracks in group Tarwhine (timeslot 1849) have less than eight detections. Removing group from analysis.
-W: ALL tracks in group Tarwhine (timeslot 1850) have less than eight detections. Removing group from analysis.
-W: ALL tracks in group Tarwhine (timeslot 1851) have less than eight detections. Removing group from analysis.
-W: ALL tracks in group Tarwhine (timeslot 1852) have less than eight detections. Removing group from analysis.
-W: ALL tracks in group Tarwhine (timeslot 1915) have less than eight detections. Removing group from analysis.
-W: ALL tracks in group Tarwhine (timeslot 1917) have less than eight detections. Removing group from analysis.
-W: ALL tracks in group Tarwhine (timeslot 2326) have less than eight detections. Removing group from analysis.
-W: ALL tracks in group Tarwhine (timeslot 2342) have less than eight detections. Removing group from analysis.
+W: ALL tracks in group Bream (timeslot 1099) have less than eight detections. Removing group from analysis.
+W: ALL tracks in group Bream (timeslot 1108) have less than eight detections. Removing group from analysis.
+W: ALL tracks in group Bream (timeslot 1111) have less than eight detections. Removing group from analysis.
+W: ALL tracks in group Bream (timeslot 1167) have less than eight detections. Removing group from analysis.
+W: ALL tracks in group Bream (timeslot 1182) have less than eight detections. Removing group from analysis.
+W: ALL tracks in group Bream (timeslot 1194) have less than eight detections. Removing group from analysis.
+W: ALL tracks in group Bream (timeslot 1204) have less than eight detections. Removing group from analysis.
+W: 1 track(s) in group Luderick (timeslot 2) have less than eight detections and will not be used.
+W: 1 track(s) in group Luderick (timeslot 10) have less than eight detections and will not be used.
+W: ALL tracks in group Luderick (timeslot 38) have less than eight detections. Removing group from analysis.
+W: ALL tracks in group Luderick (timeslot 52) have less than eight detections. Removing group from analysis.
+W: 1 track(s) in group Luderick (timeslot 53) have less than eight detections and will not be used.
+W: ALL tracks in group Luderick (timeslot 55) have less than eight detections. Removing group from analysis.
+W: 1 track(s) in group Luderick (timeslot 111) have less than eight detections and will not be used.
+W: 1 track(s) in group Luderick (timeslot 112) have less than eight detections and will not be used.
+W: 1 track(s) in group Luderick (timeslot 113) have less than eight detections and will not be used.
+W: ALL tracks in group Luderick (timeslot 119) have less than eight detections. Removing group from analysis.
+W: 1 track(s) in group Luderick (timeslot 135) have less than eight detections and will not be used.
+W: ALL tracks in group Luderick (timeslot 505) have less than eight detections. Removing group from analysis.
+W: ALL tracks in group Luderick (timeslot 526) have less than eight detections. Removing group from analysis.
+W: ALL tracks in group Luderick (timeslot 527) have less than eight detections. Removing group from analysis.
+W: ALL tracks in group Luderick (timeslot 528) have less than eight detections. Removing group from analysis.
+W: ALL tracks in group Luderick (timeslot 541) have less than eight detections. Removing group from analysis.
+W: ALL tracks in group Luderick (timeslot 545) have less than eight detections. Removing group from analysis.
+W: 1 track(s) in group Tarwhine (timeslot 809) have less than eight detections and will not be used.
+W: 1 track(s) in group Tarwhine (timeslot 815) have less than eight detections and will not be used.
+W: 1 track(s) in group Tarwhine (timeslot 816) have less than eight detections and will not be used.
+W: 1 individual detections were removed in group Tarwhine (timeslot 823) due to simultaneous detections at two receivers.
+W: ALL tracks in group Tarwhine (timeslot 825) have less than eight detections. Removing group from analysis.
+W: ALL tracks in group Tarwhine (timeslot 826) have less than eight detections. Removing group from analysis.
+W: 1 track(s) in group Tarwhine (timeslot 829) have less than eight detections and will not be used.
+W: 1 track(s) in group Tarwhine (timeslot 830) have less than eight detections and will not be used.
+W: 1 track(s) in group Tarwhine (timeslot 841) have less than eight detections and will not be used.
+W: 1 track(s) in group Tarwhine (timeslot 843) have less than eight detections and will not be used.
+W: ALL tracks in group Tarwhine (timeslot 844) have less than eight detections. Removing group from analysis.
+W: 1 track(s) in group Tarwhine (timeslot 845) have less than eight detections and will not be used.
+W: 1 track(s) in group Tarwhine (timeslot 849) have less than eight detections and will not be used.
+W: ALL tracks in group Tarwhine (timeslot 867) have less than eight detections. Removing group from analysis.
+W: ALL tracks in group Tarwhine (timeslot 868) have less than eight detections. Removing group from analysis.
+W: ALL tracks in group Tarwhine (timeslot 869) have less than eight detections. Removing group from analysis.
+W: ALL tracks in group Tarwhine (timeslot 870) have less than eight detections. Removing group from analysis.
+W: ALL tracks in group Tarwhine (timeslot 871) have less than eight detections. Removing group from analysis.
+W: ALL tracks in group Tarwhine (timeslot 873) have less than eight detections. Removing group from analysis.
+W: ALL tracks in group Tarwhine (timeslot 877) have less than eight detections. Removing group from analysis.
+W: 1 track(s) in group Tarwhine (timeslot 878) have less than eight detections and will not be used.
+W: ALL tracks in group Tarwhine (timeslot 879) have less than eight detections. Removing group from analysis.
+W: ALL tracks in group Tarwhine (timeslot 880) have less than eight detections. Removing group from analysis.
+W: ALL tracks in group Tarwhine (timeslot 881) have less than eight detections. Removing group from analysis.
+W: ALL tracks in group Tarwhine (timeslot 882) have less than eight detections. Removing group from analysis.
+W: ALL tracks in group Tarwhine (timeslot 883) have less than eight detections. Removing group from analysis.
+W: ALL tracks in group Tarwhine (timeslot 888) have less than eight detections. Removing group from analysis.
+W: 1 track(s) in group Tarwhine (timeslot 889) have less than eight detections and will not be used.
+W: 1 track(s) in group Tarwhine (timeslot 890) have less than eight detections and will not be used.
+W: 1 track(s) in group Tarwhine (timeslot 897) have less than eight detections and will not be used.
+W: ALL tracks in group Tarwhine (timeslot 898) have less than eight detections. Removing group from analysis.
+W: ALL tracks in group Tarwhine (timeslot 899) have less than eight detections. Removing group from analysis.
+W: ALL tracks in group Tarwhine (timeslot 900) have less than eight detections. Removing group from analysis.
+W: ALL tracks in group Tarwhine (timeslot 915) have less than eight detections. Removing group from analysis.
+W: ALL tracks in group Tarwhine (timeslot 916) have less than eight detections. Removing group from analysis.
+W: ALL tracks in group Tarwhine (timeslot 917) have less than eight detections. Removing group from analysis.
+W: ALL tracks in group Tarwhine (timeslot 918) have less than eight detections. Removing group from analysis.
+W: ALL tracks in group Tarwhine (timeslot 920) have less than eight detections. Removing group from analysis.
+W: ALL tracks in group Tarwhine (timeslot 924) have less than eight detections. Removing group from analysis.
+W: ALL tracks in group Tarwhine (timeslot 925) have less than eight detections. Removing group from analysis.
+W: ALL tracks in group Tarwhine (timeslot 926) have less than eight detections. Removing group from analysis.
+W: 1 track(s) in group Bream (timeslot 243) have less than eight detections and will not be used.
+W: ALL tracks in group Bream (timeslot 262) have less than eight detections. Removing group from analysis.
+W: ALL tracks in group Bream (timeslot 265) have less than eight detections. Removing group from analysis.
+W: 1 track(s) in group Bream (timeslot 300) have less than eight detections and will not be used.
+W: 1 track(s) in group Bream (timeslot 304) have less than eight detections and will not be used.
+W: ALL tracks in group Bream (timeslot 371) have less than eight detections. Removing group from analysis.
+W: ALL tracks in group Bream (timeslot 404) have less than eight detections. Removing group from analysis.
+W: ALL tracks in group Bream (timeslot 424) have less than eight detections. Removing group from analysis.
+W: ALL tracks in group Bream (timeslot 431) have less than eight detections. Removing group from analysis.
+W: 1 track(s) in group Bream (timeslot 440) have less than eight detections and will not be used.
+W: 1 track(s) in group Bream (timeslot 443) have less than eight detections and will not be used.
+W: 1 track(s) in group Bream (timeslot 445) have less than eight detections and will not be used.
+W: 1 track(s) in group Bream (timeslot 448) have less than eight detections and will not be used.
+W: 1 track(s) in group Bream (timeslot 452) have less than eight detections and will not be used.
+W: 1 track(s) in group Bream (timeslot 472) have less than eight detections and will not be used.
+W: 1 track(s) in group Bream (timeslot 475) have less than eight detections and will not be used.
+W: 1 track(s) in group Bream (timeslot 490) have less than eight detections and will not be used.
+W: ALL tracks in group Bream (timeslot 496) have less than eight detections. Removing group from analysis.
+W: ALL tracks in group Bream (timeslot 498) have less than eight detections. Removing group from analysis.
+W: ALL tracks in group Bream (timeslot 507) have less than eight detections. Removing group from analysis.
+W: 1 track(s) in group Bream (timeslot 534) have less than eight detections and will not be used.
+W: ALL tracks in group Bream (timeslot 591) have less than eight detections. Removing group from analysis.
+W: ALL tracks in group Bream (timeslot 602) have less than eight detections. Removing group from analysis.
+W: 1 track(s) in group Luderick (timeslot 1) have less than eight detections and will not be used.
+W: 1 track(s) in group Luderick (timeslot 5) have less than eight detections and will not be used.
+W: ALL tracks in group Luderick (timeslot 26) have less than eight detections. Removing group from analysis.
+W: 1 track(s) in group Luderick (timeslot 27) have less than eight detections and will not be used.
+W: ALL tracks in group Luderick (timeslot 28) have less than eight detections. Removing group from analysis.
+W: 1 track(s) in group Luderick (timeslot 56) have less than eight detections and will not be used.
+W: 1 track(s) in group Luderick (timeslot 57) have less than eight detections and will not be used.
+W: ALL tracks in group Luderick (timeslot 60) have less than eight detections. Removing group from analysis.
+W: 1 track(s) in group Luderick (timeslot 68) have less than eight detections and will not be used.
+W: ALL tracks in group Luderick (timeslot 264) have less than eight detections. Removing group from analysis.
+W: ALL tracks in group Luderick (timeslot 271) have less than eight detections. Removing group from analysis.
+W: 1 track(s) in group Tarwhine (timeslot 408) have less than eight detections and will not be used.
+W: 1 individual detections were removed in group Tarwhine (timeslot 412) due to simultaneous detections at two receivers.
+W: ALL tracks in group Tarwhine (timeslot 413) have less than eight detections. Removing group from analysis.
+W: 1 track(s) in group Tarwhine (timeslot 415) have less than eight detections and will not be used.
+W: 1 track(s) in group Tarwhine (timeslot 422) have less than eight detections and will not be used.
+W: 1 track(s) in group Tarwhine (timeslot 425) have less than eight detections and will not be used.
+W: 1 track(s) in group Tarwhine (timeslot 434) have less than eight detections and will not be used.
+W: ALL tracks in group Tarwhine (timeslot 435) have less than eight detections. Removing group from analysis.
+W: ALL tracks in group Tarwhine (timeslot 440) have less than eight detections. Removing group from analysis.
+W: ALL tracks in group Tarwhine (timeslot 441) have less than eight detections. Removing group from analysis.
+W: ALL tracks in group Tarwhine (timeslot 442) have less than eight detections. Removing group from analysis.
+W: ALL tracks in group Tarwhine (timeslot 444) have less than eight detections. Removing group from analysis.
+W: 1 track(s) in group Tarwhine (timeslot 445) have less than eight detections and will not be used.
+W: 1 track(s) in group Tarwhine (timeslot 449) have less than eight detections and will not be used.
+W: ALL tracks in group Tarwhine (timeslot 450) have less than eight detections. Removing group from analysis.
+W: ALL tracks in group Tarwhine (timeslot 458) have less than eight detections. Removing group from analysis.
+W: ALL tracks in group Tarwhine (timeslot 462) have less than eight detections. Removing group from analysis.
+W: ALL tracks in group Bream (timeslot 485) have less than eight detections. Removing group from analysis.
+W: ALL tracks in group Bream (timeslot 523) have less than eight detections. Removing group from analysis.
+W: ALL tracks in group Bream (timeslot 529) have less than eight detections. Removing group from analysis.
+W: ALL tracks in group Bream (timeslot 533) have less than eight detections. Removing group from analysis.
+W: ALL tracks in group Bream (timeslot 536) have less than eight detections. Removing group from analysis.
+W: ALL tracks in group Bream (timeslot 544) have less than eight detections. Removing group from analysis.
+W: 1 track(s) in group Bream (timeslot 599) have less than eight detections and will not be used.
+W: ALL tracks in group Bream (timeslot 608) have less than eight detections. Removing group from analysis.
+W: ALL tracks in group Bream (timeslot 609) have less than eight detections. Removing group from analysis.
+W: ALL tracks in group Bream (timeslot 610) have less than eight detections. Removing group from analysis.
+W: ALL tracks in group Bream (timeslot 676) have less than eight detections. Removing group from analysis.
+W: ALL tracks in group Bream (timeslot 742) have less than eight detections. Removing group from analysis.
+W: ALL tracks in group Bream (timeslot 747) have less than eight detections. Removing group from analysis.
+W: ALL tracks in group Bream (timeslot 807) have less than eight detections. Removing group from analysis.
+W: ALL tracks in group Bream (timeslot 847) have less than eight detections. Removing group from analysis.
+W: ALL tracks in group Bream (timeslot 861) have less than eight detections. Removing group from analysis.
+W: 2 track(s) in group Bream (timeslot 871) have less than eight detections and will not be used.
+W: 1 track(s) in group Bream (timeslot 874) have less than eight detections and will not be used.
+W: 1 track(s) in group Bream (timeslot 875) have less than eight detections and will not be used.
+W: 1 track(s) in group Bream (timeslot 877) have less than eight detections and will not be used.
+W: 1 track(s) in group Bream (timeslot 879) have less than eight detections and will not be used.
+W: 2 track(s) in group Bream (timeslot 886) have less than eight detections and will not be used.
+W: 1 track(s) in group Bream (timeslot 889) have less than eight detections and will not be used.
+W: 1 track(s) in group Bream (timeslot 890) have less than eight detections and will not be used.
+W: 1 track(s) in group Bream (timeslot 892) have less than eight detections and will not be used.
+W: 1 track(s) in group Bream (timeslot 896) have less than eight detections and will not be used.
+W: 1 track(s) in group Bream (timeslot 897) have less than eight detections and will not be used.
+W: ALL tracks in group Bream (timeslot 903) have less than eight detections. Removing group from analysis.
+W: 1 track(s) in group Bream (timeslot 907) have less than eight detections and will not be used.
+W: 1 track(s) in group Bream (timeslot 908) have less than eight detections and will not be used.
+W: 1 track(s) in group Bream (timeslot 909) have less than eight detections and will not be used.
+W: 1 track(s) in group Bream (timeslot 910) have less than eight detections and will not be used.
+W: 1 track(s) in group Bream (timeslot 932) have less than eight detections and will not be used.
+W: 1 track(s) in group Bream (timeslot 943) have less than eight detections and will not be used.
+W: ALL tracks in group Bream (timeslot 944) have less than eight detections. Removing group from analysis.
+W: 1 track(s) in group Bream (timeslot 950) have less than eight detections and will not be used.
+W: 1 track(s) in group Bream (timeslot 951) have less than eight detections and will not be used.
+W: 1 track(s) in group Bream (timeslot 952) have less than eight detections and will not be used.
+W: 1 track(s) in group Bream (timeslot 980) have less than eight detections and will not be used.
+W: ALL tracks in group Bream (timeslot 988) have less than eight detections. Removing group from analysis.
+W: ALL tracks in group Bream (timeslot 992) have less than eight detections. Removing group from analysis.
+W: ALL tracks in group Bream (timeslot 996) have less than eight detections. Removing group from analysis.
+W: ALL tracks in group Bream (timeslot 998) have less than eight detections. Removing group from analysis.
+W: 1 track(s) in group Bream (timeslot 1003) have less than eight detections and will not be used.
+W: ALL tracks in group Bream (timeslot 1010) have less than eight detections. Removing group from analysis.
+W: ALL tracks in group Bream (timeslot 1014) have less than eight detections. Removing group from analysis.
+W: 1 track(s) in group Bream (timeslot 1067) have less than eight detections and will not be used.
+W: 1 track(s) in group Bream (timeslot 1068) have less than eight detections and will not be used.
+W: ALL tracks in group Bream (timeslot 1072) have less than eight detections. Removing group from analysis.
+W: ALL tracks in group Bream (timeslot 1087) have less than eight detections. Removing group from analysis.
+W: ALL tracks in group Bream (timeslot 1099) have less than eight detections. Removing group from analysis.
+W: ALL tracks in group Bream (timeslot 1108) have less than eight detections. Removing group from analysis.
+W: ALL tracks in group Bream (timeslot 1111) have less than eight detections. Removing group from analysis.
+W: ALL tracks in group Bream (timeslot 1167) have less than eight detections. Removing group from analysis.
+W: ALL tracks in group Bream (timeslot 1182) have less than eight detections. Removing group from analysis.
+W: ALL tracks in group Bream (timeslot 1194) have less than eight detections. Removing group from analysis.
+W: ALL tracks in group Bream (timeslot 1204) have less than eight detections. Removing group from analysis.
+W: 1 track(s) in group Luderick (timeslot 2) have less than eight detections and will not be used.
+W: 1 track(s) in group Luderick (timeslot 10) have less than eight detections and will not be used.
+W: ALL tracks in group Luderick (timeslot 38) have less than eight detections. Removing group from analysis.
+W: ALL tracks in group Luderick (timeslot 52) have less than eight detections. Removing group from analysis.
+W: 1 track(s) in group Luderick (timeslot 53) have less than eight detections and will not be used.
+W: ALL tracks in group Luderick (timeslot 55) have less than eight detections. Removing group from analysis.
+W: 1 track(s) in group Luderick (timeslot 111) have less than eight detections and will not be used.
+W: 1 track(s) in group Luderick (timeslot 112) have less than eight detections and will not be used.
+W: 1 track(s) in group Luderick (timeslot 113) have less than eight detections and will not be used.
+W: ALL tracks in group Luderick (timeslot 119) have less than eight detections. Removing group from analysis.
+W: 1 track(s) in group Luderick (timeslot 135) have less than eight detections and will not be used.
+W: ALL tracks in group Luderick (timeslot 505) have less than eight detections. Removing group from analysis.
+W: ALL tracks in group Luderick (timeslot 526) have less than eight detections. Removing group from analysis.
+W: ALL tracks in group Luderick (timeslot 527) have less than eight detections. Removing group from analysis.
+W: ALL tracks in group Luderick (timeslot 528) have less than eight detections. Removing group from analysis.
+W: ALL tracks in group Luderick (timeslot 541) have less than eight detections. Removing group from analysis.
+W: ALL tracks in group Luderick (timeslot 545) have less than eight detections. Removing group from analysis.
+W: 1 track(s) in group Tarwhine (timeslot 809) have less than eight detections and will not be used.
+W: 1 track(s) in group Tarwhine (timeslot 815) have less than eight detections and will not be used.
+W: 1 track(s) in group Tarwhine (timeslot 816) have less than eight detections and will not be used.
+W: 1 individual detections were removed in group Tarwhine (timeslot 823) due to simultaneous detections at two receivers.
+W: ALL tracks in group Tarwhine (timeslot 825) have less than eight detections. Removing group from analysis.
+W: ALL tracks in group Tarwhine (timeslot 826) have less than eight detections. Removing group from analysis.
+W: 1 track(s) in group Tarwhine (timeslot 829) have less than eight detections and will not be used.
+W: 1 track(s) in group Tarwhine (timeslot 830) have less than eight detections and will not be used.
+W: 1 track(s) in group Tarwhine (timeslot 841) have less than eight detections and will not be used.
+W: 1 track(s) in group Tarwhine (timeslot 843) have less than eight detections and will not be used.
+W: ALL tracks in group Tarwhine (timeslot 844) have less than eight detections. Removing group from analysis.
+W: 1 track(s) in group Tarwhine (timeslot 845) have less than eight detections and will not be used.
+W: 1 track(s) in group Tarwhine (timeslot 849) have less than eight detections and will not be used.
+W: ALL tracks in group Tarwhine (timeslot 867) have less than eight detections. Removing group from analysis.
+W: ALL tracks in group Tarwhine (timeslot 868) have less than eight detections. Removing group from analysis.
+W: ALL tracks in group Tarwhine (timeslot 869) have less than eight detections. Removing group from analysis.
+W: ALL tracks in group Tarwhine (timeslot 870) have less than eight detections. Removing group from analysis.
+W: ALL tracks in group Tarwhine (timeslot 871) have less than eight detections. Removing group from analysis.
+W: ALL tracks in group Tarwhine (timeslot 873) have less than eight detections. Removing group from analysis.
+W: ALL tracks in group Tarwhine (timeslot 877) have less than eight detections. Removing group from analysis.
+W: 1 track(s) in group Tarwhine (timeslot 878) have less than eight detections and will not be used.
+W: ALL tracks in group Tarwhine (timeslot 879) have less than eight detections. Removing group from analysis.
+W: ALL tracks in group Tarwhine (timeslot 880) have less than eight detections. Removing group from analysis.
+W: ALL tracks in group Tarwhine (timeslot 881) have less than eight detections. Removing group from analysis.
+W: ALL tracks in group Tarwhine (timeslot 882) have less than eight detections. Removing group from analysis.
+W: ALL tracks in group Tarwhine (timeslot 883) have less than eight detections. Removing group from analysis.
+W: ALL tracks in group Tarwhine (timeslot 888) have less than eight detections. Removing group from analysis.
+W: 1 track(s) in group Tarwhine (timeslot 889) have less than eight detections and will not be used.
+W: 1 track(s) in group Tarwhine (timeslot 890) have less than eight detections and will not be used.
+W: 1 track(s) in group Tarwhine (timeslot 897) have less than eight detections and will not be used.
+W: ALL tracks in group Tarwhine (timeslot 898) have less than eight detections. Removing group from analysis.
+W: ALL tracks in group Tarwhine (timeslot 899) have less than eight detections. Removing group from analysis.
+W: ALL tracks in group Tarwhine (timeslot 900) have less than eight detections. Removing group from analysis.
+W: ALL tracks in group Tarwhine (timeslot 915) have less than eight detections. Removing group from analysis.
+W: ALL tracks in group Tarwhine (timeslot 916) have less than eight detections. Removing group from analysis.
+W: ALL tracks in group Tarwhine (timeslot 917) have less than eight detections. Removing group from analysis.
+W: ALL tracks in group Tarwhine (timeslot 918) have less than eight detections. Removing group from analysis.
+W: ALL tracks in group Tarwhine (timeslot 920) have less than eight detections. Removing group from analysis.
+W: ALL tracks in group Tarwhine (timeslot 924) have less than eight detections. Removing group from analysis.
+W: ALL tracks in group Tarwhine (timeslot 925) have less than eight detections. Removing group from analysis.
+W: ALL tracks in group Tarwhine (timeslot 926) have less than eight detections. Removing group from analysis.
 W: ALL tracks in group Bream (timeslot 485) have less than eight detections. Removing group from analysis.
 W: ALL tracks in group Bream (timeslot 523) have less than eight detections. Removing group from analysis.
 W: ALL tracks in group Bream (timeslot 529) have less than eight detections. Removing group from analysis.

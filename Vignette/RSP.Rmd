@@ -1,0 +1,355 @@
+---
+title: "Refining the Shortest Paths (RSP)"
+author: "Yuri Niella & Hugo Flávio"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+	echo = TRUE)
+```
+
+## 1. Overview
+
+The Refining the Shortest Paths (RSP) toolkit is a method for analyzing the fine-scale movements of aquatic animals tracked with passive acoustic telemetry in estuarine environments, that accounts for the surrounding land masses. The animal movements between detections are recreated to have occurred exclusively in water and the utilization distribution areas are limited by the land contours, providing realistic estimations of space use. The method can be divided into two main steps:
+
+(1) Estimating the shortest in water paths between acoustic detections
+(2) Calculating utilization distribution areas using dynamic Brownian Bridge Movement Models
+
+Depending on the research questions being addressed the utilization distribution areas can be calculated for the entire monitoring periods, or in fine-scale according to fixed temporal intervals (in hours). Tracked animals are assigned to specific biological groups (different species, different sexes from a same species, etc.) prior to analysis, and the RSP calculates the ammounts of inter-group overlap in space and time between all groups monitored. This approach allows spatial ecologists to use the outputs from such fine-scale space use models (areas of use, or between-group overlap frequencies) as input for further statistical analysis.
+
+The RSP package can be downloaded using the following comand line:
+```
+install.packages("devtools")
+library("devtools")
+install_github("YuriNiella/RSP")
+```
+
+
+## 2. Preparing the data 
+
+### 2.1. Preliminary analysis of acoustic data
+
+Analysing acoustic telemetry data requires a series of initial filtering to exclude misleading data, such as the presence of false detections or any transmitters getting detected before deployment dates. To overcome this issue and to use more accurate data for analysis, the RSP toolkit operates in close relationship with the **actel package** (Standardised analysis of acoustic telemetry data from fish moving through receiver arrays). Before getting started with RSP, you will have to download actel and filter your acoustic data. Please click [here](https://github.com/hugomflavio/actel) for more information and to download actel.
+
+You will need the following input files:
+
+(1) Biometrics file: metadata on tracked animals including transmitter numbers, tagging date, time, and location, and biological information including size, weight and group,
+(2) Spatial file: information about the acoustic stations and release sites, including station names, geographical locations, array information, start and stop date and time,
+(3) Deployments file: acoustic receivers deployment and recovery including receiver numbers, station names, and start (deployment) and stop (recovery) date and time,
+(4) Detections file: one or multiple files placed in a "detections" folder inside the working directory, containing the acoustic detections for the study period. 
+
+More details on the format of input files can be found [here](actel_link_to_input_formats). After downloading actel and placing the input files into the working directory, you have to use the ```explore()``` function to filter your acoustic data for analysis (click [here](actel_link_to_explore) for more information about the ```eplore()``` function):
+```
+library(actel)
+study.data <- explore(tz.study.area = "Australia/Sydney")
+```
+Please note that the local timezone of your study area needs to be defined using the argument ```tz.study.area```. 
+
+
+### 2.2. Creating and exporting a raster file from the study area in QGIS
+
+After filtering your acoustic data, you will need a **raster file** from your study area defining the water and land limits. This file will be used for estimating the shortest paths in water between consecutive acoustic detections, using a least-cost analysis of constrained random walks. The values of the raster cells must comprise zeros (water) or ones (land). Depending on the size of your study area, a resolution of 0.0001 is suggested for more accurate estimations (especially for sites with very narrow channels). Please see the following steps for generating and exporting a raster file from you study site in the [QGIS](https://qgis.org/en/site/forusers/download.html) software: 
+
+(1) Load a good-resolution shapefile of your study region into QGIS:
+![](QGIS_1.png){#id .class width=720 height=450px}
+
+(2) Zoom into your study site and create an overlapping polygon that encompasses the entire area,
+![](QGIS_2.png){#id .class width=720 height=450px}
+
+(3) Clip your study site from the shapefile using "Vector > Geoprocessing Tools > Clip" setting the shapefile as the input layer and the overlap polygon as the overlay layer:
+![](QGIS_3.png){#id .class width=720 height=450px}
+
+(4) Create a raster layer from the Clipped shapefile using the "Rasterize" tool from the toolbox setting the Output Values to "data / no-data" and Cellsize to 0.0001 for a better resolution:
+![](QGIS_4.png){#id .class width=720 height=450px}
+
+(5) Right-click on the raster layer and select "Export > Save As...". In the new window select the "Golden Software Binary Grid (.grd)" from the dropdown format menu. In the extent menu, select the "Calculate from Layer" option and then click on the "Clipped" layer:
+![](QGIS_5a.png){#id .class width=720 height=450px} ![](QGIS_5b.png){#id .class width=720 height=450px}
+
+(6) You can now import the raster from your study area into R and plot it to check wether the resolution (Cellsize) chosen is good enought:
+```
+install.packages(raster) # To install the raster package
+library(raster)
+LakeMacquarie <- raster("Lake Macquarie.grd") # Import the raster file exported from QGIS
+plot(LakeMacquarie) # Plot raster from the study area
+```
+![If the river channels look distorted go back to step 4 and choose a lower Cellsize. **Please be aware*** that increasing the raster resolution too much will require higher computational costs and may cause R to crash.](Raster.png){#id .class width=60% height=60%}
+
+Now that your acoustic detections have been filtered and that you have a raster file with good resolution from your study area (exported into your working directory), you are all set to get started with RSP. 
+
+
+## 3. Estimation of shortest in-water paths
+
+The ```RSP()``` function is used to recreate the shortest paths between pairs of acoustic detections. A transition layer object is calculated using the **raster file** to estimate these paths exclusively in the water. The raster is automatically imported during the analysis through the argument ```base.raster = "name_of_your_file.grd"```. Because this step can take some time depending on the size of your study area and the size of the raster cells, the transition layer will be saved for future re-analysis in case the detection data changes. When running the analysis again the following message is shown:
+```
+M: Reusing transition layer calculated on 2019-11-30 13:48:19.
+   If you want to calculate a new transition layer, delete the file 'rsp.transition.layer.RData' from your working directory.
+```
+
+The detection ranges of each listening station are also taken into account in the ```RSP()```. These will be used as the location errors for the dBBMM when calculating UD areas. A 'Range' column can be included in the **spatial file** for specifying the detection ranges (in meters) for each acoustic station if these are known. If the 'Range' column is not found a default detection range of 500 m is automatically considered for each receiver with the warning:
+```
+W: Could not find a 'Range' column in the spatial file; assuming a range of 500 metres for each receiver.
+```
+While animals move between a pair of consecutive acoustic detections there is some uncertainty behind the possible movement patterns performed, which increases proportionally to the time taken. Consecutive detections longer than 24 hours are thus broken by the ```RSP()``` into separate 'tracks': the first one is assigned as the last position from the current track, and the second marks the start of a new one. This avoids the estimations of unrealistic behaviours when the animals do not get detected in the array for long periods of time. Detections that occur after **more than 24-h** from the previous one and before the next detection (e.g. a single detection on a particular day) are automatically excluded from analysis. The ```RSP()``` will return the percentage of raw detections that could be successfully used for refining the shortest paths when the analysis is finished:
+```
+M: Percentage of detections valid for RSP: 99.8%
+```
+
+Pairs of detections can only be of one of two types:
+
+(1) Consecutive detection on the same receiver,
+(2) Consecutive detections on different receivers.
+
+Estimated positions in water are added according to a fixed ```distance``` argument in meters (250 m by default) for consecutive detections on different receivers. A ```time.lapse``` parameter defines a time threshold in minutes (default is 10 min) to consider the animal as staying within the vicinity of the acoustic station. In other words, consecutive detections on a same receiver that occur after periods of time shorter than the ```time.lapse``` will not be interpolated. Again the uncertainty behind the possible movements performed are accounted for when intermediate positions are estimated.
+
+While moving away from the first detection, the position errors gradually increase for each estimated position at a 5% rate of the detection range (default range of 500 m = 25 m errors) for that receiver. When the animal reaches half of the elapsed time between the first and the second detection, the errors of estimated positions now gradually decrease as it approaches the second receiver where it got detected. This principle is used for both pairs of detections on different receivers, and for consecutive detections at the same station when the time difference is longer than ```time.lapse```.
+
+![A: consecutive detections on the save receiver; B: consecutive detections on different receivers.](Example_detection.png){#id .class width=60% height=60%}
+
+
+### 3.1. Running the RSP function
+
+Please see the following examples from the ```RSP()``` output:
+
+(1) For consecutive detections on the same receiver:
+
+|           Timestamp| Receiver|Transmitter| Error| Longitude| Latitude| Position|   Track|
+|:-------------------|--------:|-----------:|-----:|---------:|--------:|--------:|-------:|
+| 2018-03-07 02:05:47|   115409|   R64K-4075|   500|  9.380188|  56.5716| Receiver| Track_3|
+| 2018-03-07 02:30:37|       NA|   R64K-4075|   525|  9.380188|  56.5716|      RSP| Track_3|
+| 2018-03-07 02:55:27|       NA|   R64K-4075|   550|  9.380188|  56.5716|      RSP| Track_3|
+| 2018-03-07 03:20:18|       NA|   R64K-4075|   550|  9.380188|  56.5716|      RSP| Track_3|
+| 2018-03-07 03:45:08|       NA|   R64K-4075|   525|  9.380188|  56.5716|      RSP| Track_3|
+| 2018-03-07 04:09:59|   115409|   R64K-4075|   500|  9.380188|  56.5716| Receiver| Track_3|
+
+The **Position** column in this dataset identifies the two consecutive acoustic detections (```Receiver```) from this animal. We can notice that they occurred on the same **Receiver** (```115409```): the first on ```2018-03-07 02:05:47``` and the second on ```2018-03-07 04:09:59``` (approximately 2-h from each other). Because this time difference is longer than the default ```time.lapse = 10```, the ```RSP()``` estimated the intermediate positions (```RSP```) by repeating the receiver **Longitude** and **Latitude** and changing the **Error** parameter. 
+
+
+(2) Consecutive detections on different receivers:
+
+|           Timestamp| Receiver| Transmitter| Error| Longitude| Latitude| Position|   Track|
+|:-------------------|--------:|-----------:|-----:|---------:|--------:|--------:|-------:|
+| 2018-04-27 05:27:10|   100474|   R64K-4125|   500|  9.921725| 57.05595| Receiver| Track_5|
+| 2018-04-27 05:35:17|       NA|   R64K-4125|   525|  9.928500| 57.05450|      RSP| Track_5|
+| 2018-04-27 05:43:24|       NA|   R64K-4125|   550|  9.935500| 57.05350|      RSP| Track_5|
+| 2018-04-27 05:51:32|       NA|   R64K-4125|   575|  9.943500| 57.05450|      RSP| Track_5|
+| 2018-04-27 05:59:39|       NA|   R64K-4125|   600|  9.949500| 57.05650|      RSP| Track_5|
+| 2018-04-27 06:07:47|       NA|   R64K-4125|   625|  9.955500| 57.05850|      RSP| Track_5|
+| 2018-04-27 06:15:54|       NA|   R64K-4125|   650|  9.960500| 57.06150|      RSP| Track_5|
+| 2018-04-27 06:24:01|       NA|   R64K-4125|   625|  9.964500| 57.06550|      RSP| Track_5|
+| 2018-04-27 06:32:09|       NA|   R64K-4125|   600|  9.968500| 57.06850|      RSP| Track_5|
+| 2018-04-27 06:40:16|       NA|   R64K-4125|   575|  9.975500| 57.07050|      RSP| Track_5|
+| 2018-04-27 06:48:24|       NA|   R64K-4125|   550|  9.981500| 57.07250|      RSP| Track_5|
+| 2018-04-27 06:56:31|       NA|   R64K-4125|   525|  9.986500| 57.07450|      RSP| Track_5|
+| 2018-04-27 07:04:39|   107527|   R64K-4125|   500|  9.992500| 57.07650| Receiver| Track_5|
+
+Here the animal was detected first at the **Receiver** ```100474``` on ```2018-04-27 05:27:10```, and then at the **Receiver** ```107527``` on ```2018-04-27 07:04:39```. The ```RSP()``` now calculated the shortest in-water path of the animal, and we can see how the **Error** of added locations increase from ```500``` at the first detection to ```650``` on ```2018-04-27 06:15:54```, and then back to ```500``` as the animal approaches the second receiver. 
+
+
+### 3.2. Visualizing RSP outputs
+
+We can use ```plotDistances()``` to compare the total distances travelled by each animal calculated using only the receiver locations and or also including the RSP estimations:
+
+![](plotDistances.png){#id .class width=70% height=70%} 
+
+
+The ```plotDetections()``` shows the total number of locations for positions of type Receiver and RSP for each tracked animal:
+
+![](plotDetections.png){#id .class width=70% height=70%} 
+
+
+You can also plot all tracks from a particular animal using ```plotRSP()```:
+```
+# Plot tracks only with receiver locations:
+plotRSP(input = rsp.data, tag = "R64K-4075", display = "Receiver", type = "lines") 
+```
+![](plotRSP_receiver.png){#id .class width=80% height=80%} 
+
+```
+# Plot tracks with RSP estimations:
+plotRSP(input = rsp.data, tag = "R64K-4075", display = "RSP", type = "lines")
+```
+![](plotRSP_rsp.png){#id .class width=80% height=80%} 
+
+You can also set ```display == "Both"``` to plot both track options on a single plot. 
+
+![Differences between the same track (R64K-4075_Track_7) with only **Receiver** positions and with the **RSP**](animationRSP.gif){#id .class width=130% height=130%} 
+
+
+## 4. Calculating utilization distribution areas and space-use overlaps
+
+After estimating the shortest paths exclusively inside the water, we can now use the output from ```RSP()``` for calculating UD areas with the ```dynBBMM()``` function. Here you will need to know the [UTM zone](http://www.dmap.co.uk/utmworld.htm) of your study site and specify it using the argument ```UTM.zone```. This analysis is automatically performed for all transmitters detected, but alternatively you can determine which animals to calculate UD areas for using ```tags```. As mentioned before, UD areas can be calculated with either of the following temporal resolutions:
+
+
+### 4.1. Total dynamic Brownian Bridge Movement Model (dBBMM)
+
+This option calculates a series of dBBMM for each animal track from all the groups monitored. The ```breaks``` argument defines for which contours the areas of use should be calculated, which by default are the 50% and 95%. 
+
+Track quality checks are performed to ensure that only good tracks which would cause the dBBMM to converge are included in the analysis. This is an example of the returned messages from ```dynBBMM()```:
+```
+> dbbmm_all <- dynBBMM(input = rsp.data, UTM.zone = 56, breaks = c(0.5, 0.95), debug = TRUE)
+
+M: Preparing data to apply dBBMM.
+M: No specific transmitters selected. All the data will be used for analysis.
+W: 8 track(s) in group Bream have less than eight detections and will not be used.
+W: 5 track(s) in group Luderick have less than eight detections and will not be used.
+W: 1 individual detections were removed in group Tarwhine due to simultaneous detections at two receivers.
+W: 2 track(s) in group Tarwhine have less than eight detections and will not be used.
+M: In total, 57 detections were excluded as they failed the track quality checks.
+```
+
+After calculating UDs the land areas are excluded so that these would represent only in-water areas of use. The overall ammounts of overlap between each group monitored are also calculated. 
+```
+M: Subtracting land areas from output.
+M: Calculating overlaps between groups.
+M: Storing final results.
+```
+
+The results of the dBBMM are saved in the ```$track.areas``` object as a list of dataframes for each group analysed:
+
+|                   Track|               Start|                Stop| Area.5| Area.95| Time.lapse.min|
+|:-----------------------|-------------------:|-------------------:|------:|-------:|--------------:|
+| A69-9002-10473_Track_02| 2014-05-20 22:11:44|	2014-05-21 02:49:05|    372|    1343|      277.35000|
+| A69-9002-10473_Track_03| 2014-05-25 13:32:44|	2014-05-27 12:01:54|   1421|    4663|     2789.16667|
+| A69-9002-10473_Track_04| 2014-06-19 04:11:22|	2014-06-19 06:45:30|    184|     847|      154.13333|
+| A69-9002-10473_Track_05| 2014-06-21 02:20:59|	2014-06-21 06:51:53|    199|     928|      270.90000|
+| A69-9002-10473_Track_06| 2014-06-23 17:13:36|	2014-06-23 18:43:32|    179|     827|       89.93333|
+| A69-9002-10473_Track_07| 2014-06-28 05:29:34|	2014-07-02 06:02:47|   1227|    8204|     5793.21667|
+| A69-9002-10473_Track_08| 2014-07-12 18:40:30|	2014-07-16 18:23:41|    288|    2432|     5743.18333|
+| A69-9002-10473_Track_09| 2014-08-03 19:13:11|	2014-08-05 12:01:35|    426|    2075|     2448.40000|
+| A69-9002-10473_Track_10| 2014-09-03 15:28:51|	2014-09-03 18:58:51|    190|     870|      210.00000|
+| A69-9002-10473_Track_12| 2014-09-10 11:08:38|	2014-09-11 15:45:03|    227|    1092|     1716.41667|
+
+Each **Track** is named after the transmitter and the corresponding track name and both **Start** and **Stop** timestamps are stored. Please note that in this example both Track_01 and Track_11 are missing. This is because those tracks failed the track quality checks. 
+
+
+You can use ```plotContours()``` to visualize any of the dBBMM calculated by specifying the ```group``` and ```track``` you want to plot:
+```
+plotContours(input = dbbmm_all, group = "Bream", track = 'A69-9002-10473_Track_07', main = "A69-9002-10473_Track_07")
+```
+![The ```levels``` argument can be used to specify which contours to plot.](plotContours1.png){#id .class width=75% height=75%} 
+
+```
+plotContours(input = dbbmm_all, group = "Bream", track = 'A69-9002-10473_Track_08', main = "A69-9002-10473_Track_08", stations = TRUE)
+```
+![If ```stations = TRUE``` the locations of receiver stations are added to the plot.](plotContours2.png){#id .class width=75% height=75%} 
+
+
+### 4.2. Total space-use overlap 
+
+Now that we calculated the areas of space-use within our study area for each group monitored, we can investigate the ammount of overall overlap between the different species stored in the ```$overlap.areas``` object:
+
+```
+$`0.5`
+$`0.5`$absolute
+```
+|         |    Bream| Luderick| Tarwhine|
+|:--------|--------:|--------:|--------:|
+|    Bream|       NA|       NA|       10|
+| Luderick|		  NA|       NA|       NA|
+| Tarwhine|		  10|       NA|       NA|
+```
+$`0.5`$percentage
+```
+|         |    Bream| Luderick| Tarwhine|
+|:--------|--------:|--------:|--------:|
+|    Bream|       NA|       NA|0.5263158|
+| Luderick|		  NA|       NA|       NA|
+| Tarwhine|0.5263158|       NA|       NA|
+```
+$`0.95`
+$`0.95`$absolute
+```
+|         |    Bream| Luderick| Tarwhine|
+|:--------|--------:|--------:|--------:|
+|    Bream|       NA|     2556|     1962|
+| Luderick|		2556|       NA|     1205|
+| Tarwhine|     1962|     1205|       NA|
+```
+$`0.95`$percentage
+```
+|         |    Bream| Luderick| Tarwhine|
+|:--------|--------:|--------:|--------:|
+|    Bream|       NA|0.6336143|0.6254383|
+| Luderick|0.6336143|       NA|0.3841250|
+| Tarwhine|0.6254383|0.3841250|       NA|
+
+
+Please note the overlaps are calculated for the contours defined by ```breaks``` in ```dynBBMM()```, and returned both in **absolute** values (squared meters) and **percentage** matrices. For example, we can see in the last table that **Bream** and **Luderick** were the groups with higher overall overlap of 63.36% at the 95% level, whereas **Tarwhine** and **Luderick** had an overlap of only 38.41% at the 95% contour. To see exactly where space use overlaps occurred you can use ```plotOverlap()```:
+
+```
+plotOverlap(input = dbbmm_all, stations = FALSE, level = .95, store = TRUE)
+```
+![](plotOverlap.png){#id .class width=130% height=130%} 
+
+
+### 4.3. Fine-scale dynamic Brownian Bridge Movement Model (dBBMM)
+
+Alternatively, dBBMMs can be calculated according to a moving temporal window. This allows investigating how the space-use overlap between the different groups varied during the tracking period. It is useful for assessing the influence of environmental paramenters upon space-use of different groups tracked within the study area. The same ```dynBBMM()``` function is used, but here the argument ```timeframe``` has to be defined in hours as the temporal window. The total tracking period will be devided into ```timeslots``` of same duration, and dBBMMs calculated for each group monitored. Overlapping areas are now calculated for each ```timeslot``` and its corresponding metadata stored in the ```$timeslots``` object:
+
+```
+dbbmm_time <- dynBBMM(input = rsp.data, UTM.zone = 56, breaks = c(0.5, 0.95), debug = TRUE, timeframe = 12) # 12-h timeslots
+head(dbbmm_time$timeslots)
+```
+| slot|               start|                stop| Bream| Luderick| Tarwhine|
+|:----|-------------------:|-------------------:|-----:|--------:|--------:|
+|    1| 2013-09-02 00:00:00| 2013-09-02 12:00:00| FALSE|    FALSE|    FALSE|
+|    2| 2013-09-02 12:00:00| 2013-09-03 00:00:00| FALSE|     TRUE|    FALSE|
+|    3| 2013-09-03 00:00:00| 2013-09-03 12:00:00| FALSE|     TRUE|     TRUE|
+|    4| 2013-09-03 12:00:00| 2013-09-04 00:00:00| FALSE|    FALSE|     TRUE|
+|    5| 2013-09-04 00:00:00| 2013-09-04 12:00:00|  TRUE|    FALSE|     TRUE|
+|    6| 2013-09-04 12:00:00| 2013-09-05 00:00:00|  TRUE|    FALSE|     TRUE|
+
+In the example above we can notice that in the first ```timeslot``` none of the groups were detected, whereas **Luderick** group got detected in **slot 2** and both Luderick and Tarwhine were detected on the first 12-h of 2013-09-03 (**slot 3**). The ```$track.areas``` object for each tracked group will now have a first column named **Slot**, which identifies the ```timeslot``` for each of the dBBMM calculated:
+
+| Slot|                  Track|               Start|                Stop| Area.5| Area.95| Time.lapse.min|
+|:----|----------------------:|-------------------:|-------------------:|------:|-------:|--------------:|
+|  486| A69-9002-10474_Track_1| 2014-05-02 12:11:54| 2014-05-02 23:54:41|    249|     962|       702.7833|
+|  486| A69-9002-10480_Track_1| 2014-05-02 12:21:36| 2014-05-02 23:37:18|    279|    1215|       675.7000|
+|  487| A69-9002-10474_Track_1| 2014-05-03 00:12:19| 2014-05-03 11:42:37|    238|     897|       690.3000|
+|  487| A69-9002-10480_Track_1| 2014-05-03 01:18:26| 2014-05-03 11:56:30|   1170|    4516|       638.0667|
+|  488| A69-9002-10474_Track_1| 2014-05-03 12:11:19| 2014-05-03 23:56:57|    274|    1051|       705.6333|
+|  488| A69-9002-10480_Track_1| 2014-05-03 12:26:10| 2014-05-03 23:48:24|    345|    1396|       682.2333|
+
+Here we can see that two animals were detected for this particular group between **Slot 486** and **Slot 488**: the transmitters **A69-9002-10474** and **A69-9002-10480**. The **Time.lapse.min** will now be very similar as its maximum elapsed time is limited by the ```timeframe``` argument, and it depends on the times of first and last locations for each animal. 
+
+The following comand line can help you assess if any other group got detected during this same ```timeslot```:
+```
+> dbbmm_time$timeslots[which(dbbmm_time$timeslots$slot == 486), ]
+    slot               start                stop Bream Luderick Tarwhine
+486  486 2014-05-02 12:00:00 2014-05-03 00:00:00  TRUE     TRUE    FALSE
+```
+
+Yes, both **Bream** and **Luderick** were detected between ```2014-05-02 12:00:00``` and ```2014-05-03 00:00:00```. We can inspect wether the two groups overlapped by:
+```
+> dbbmm_time$overlap.areas$`0.95`$percentage$`486`
+             Bream  Luderick Tarwhine
+Bream           NA 0.8247734       NA
+Luderick 0.8247734        NA       NA
+Tarwhine        NA        NA       NA
+```
+
+This shows that the two groups had an overlap of 82.47% at the 95% dBBMM contour during this particular ```timeslot```. We can now see where exaclty the overlap occurred by plotting the space-use models using:
+
+```
+# plotContours() for plotting the individual dBBMM:
+
+plotContours(input = dbbmm_time, track = "A69-9002-10474_Track_1", group = "Bream", timeslot = 486, stations = TRUE, main = "A69-9002-10474 (Bream - slot 486)")
+
+plotContours(input = dbbmm_time, track = "A69-9002-10480_Track_1", group = "Bream", timeslot = 486, stations = TRUE, main = "A69-9002-10480 (Bream - slot 486)")
+
+plotContours(input = dbbmm_time, track = "A69-9002-10481_Track_1", group = "Luderick", timeslot = 486, stations = TRUE, main = "A69-9002-10481 (Luderick - slot 486)")
+```
+![](plotContours3.png){#id .class width=130% height=130%} 
+
+```
+# plotOverlap() to investigate the overlap areas:
+
+plotOverlap(input = dbbmm_time, store = TRUE, stations = FALSE, timeslot = 486) 
+```
+![](plotOverlap2.png){#id .class width=130% height=130%} 
+
+
+![Approximately 1-month of fine-scale (12-h) space use of Bream and Luderick at the 95% level](Gif.overlap_12h.gif){#id .class width=55% height=55%} 
+
