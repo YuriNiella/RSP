@@ -30,7 +30,10 @@ RSP <- function(input, base.raster, distance = 250, time.lapse = 10, er.ad = NUL
   # Unpack study data
   detections <- input$valid.detections  
   spatial <- input$spatial
-  tz.study.area <- input$rsp.info$tz.study.area
+  if (is.null(input$rsp.info$tz))
+    tz.study.area <- input$rsp.info$tz.study.area
+  else
+    tz.study.area <- input$rsp.info$tz
 
   # RSP related changes
   detections <- prepareDetections(detections = detections, spatial = spatial)
