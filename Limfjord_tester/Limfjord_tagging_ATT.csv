@@ -1,0 +1,6 @@
+tag_id,transmitter_id,scientific_name,common_name,tag_project_name,release_id,release_latitude,release_longitude,ReleaseDate,tag_expected_life_time_days,tag_status,sex,measurement
+Browntrout1,A69-1303-4075,Salmo trutta,Brown Trout,Limfjord,A69-1303-4075,56.591811,9.422879,2/5/2018,3660,deployed,,
+Browntrout2,A69-1303-4080,Salmo trutta,Brown Trout,Limfjord,A69-1303-4080,56.598852,9.424939,2/6/2018,3660,deployed,,
+Browntrout3,A69-1303-4125,Salmo trutta,Brown Trout,Limfjord,A69-1303-4125,56.68308,9.581902,2/20/2018,3660,deployed,,
+Browntrout4,A69-1303-4128,Salmo trutta,Brown Trout,Limfjord,A69-1303-4128,56.683669,9.591858,2/21/2018,3660,deployed,,
+Browntrout5,A69-1303-4138,Salmo trutta,Brown Trout,Limfjord,A69-1303-4138,56.690575,9.513581,2/22/2018,3660,deployed,,

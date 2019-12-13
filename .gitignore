@@ -1,0 +1,13 @@
+Limfjord_tester/Report/*
+Limfjord_tester/debug.RData
+Limfjord_tester/*actel.log*
+Limfjord_tester/actel*
+Limfjord_tester/temp*
+Limfjord_tester/*debug.RData
+Lake_Macquarie_tester/Report/*
+Lake_Macquarie_tester/*actel.log*
+Lake_Macquarie_tester/actel*
+Lake_Macquarie_tester/temp*
+Lake_Macquarie_tester/*debug.RData
+Lake_Macquarie_tester/temp_warnings.txt
+Lake_Macquarie_tester/temp_log.txt

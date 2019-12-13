@@ -1,0 +1,10 @@
+station_name,receiver_name,installation_name,project_name,deploymentdatetime_timestamp,recoverydatetime_timestamp,station_latitude,station_longitude,status
+Simested,VR2W-125449,Limfjord,Limfjord,1/1/2018,1/1/2019,56.571595,9.380188,recovered
+Sundstrup1,VR2W-131090,Limfjord,Limfjord,1/1/2018,1/1/2019,56.605311,9.292661,recovered
+Sundstrup2,VR2W-131092,Limfjord,Limfjord,1/1/2018,1/1/2019,56.608186,9.291788,recovered
+Hvalpsund,408,Limfjord,Limfjord,1/1/2018,1/1/2019,56.70344,9.186914,recovered
+Aggersund,VR2W-125886,Limfjord,Limfjord,1/1/2018,1/1/2019,57.000027,9.292732,recovered
+15 Aalborg,VR2W-125447,Limfjord,Limfjord,1/1/2018,1/1/2019,57.054076,9.91539,recovered
+16 Aalborg,VR2W-108766,Limfjord,Limfjord,1/1/2018,1/1/2019,57.055955,9.921725,recovered
+Hals1,VR2W-125452,Limfjord,Limfjord,1/1/2018,1/1/2019,56.989474,10.310159,recovered
+Hals2,VR2W-108768,Limfjord,Limfjord,1/1/2018,1/1/2019,56.985826,10.31077,recovered
