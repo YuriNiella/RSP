@@ -7,7 +7,13 @@
 #' 
 #' @return A barplot of total distances travelled as a function of location type (Loc.type). 
 #' 
+#' @export
+#' 
 plotDistances <- function(input) {
+  Animal.tracked <- NULL
+  Dist.travel <- NULL
+  Loc.type <- NULL
+
   detections <- input$detections
   
   df.diag <- lapply(seq_along(detections), function(i) {
@@ -66,10 +72,14 @@ plotDistances <- function(input) {
 #' 
 #' @return A barplot of total number of locations as a function of location type (Loc.type). 
 #' 
+#' @export
+#' 
 plotDetections <- function(input) {
   Animal.tracked <- NULL
   Total.days <- NULL
   Finescale.freq <- NULL
+  Loc.type <- NULL
+  Total.locs <- NULL
   RSP.locs <- NULL
   Rec.locs <- NULL
   
@@ -104,17 +114,24 @@ plotDetections <- function(input) {
 #' Compare animal tracks using receiver locations and RSP tracks.
 #'
 #' @param input RSP dataset as returned by RSP.
-#' @param animal Select a particular animal to plot.
-#' @param base.raster Raster file of the study area.
-#' @param type Type of tracking plot to be generated: Receiver, RSP or Both. 
+#' @param tag Select a particular animal to plot.
+#' @param display Tracks to be displayed. One of Receiver, RSP or Both.
+#' @param type Type of plot. One of lines or points
 #' 
 #' @return Tracking plot for the interest animal.
 #' 
+#' @export
+#' 
 plotRSP <- function(input, tag, display = c("Receiver", "RSP", "Both"), type = c("lines", "points")) {
+  Latitude <- NULL
+  Longitude <- NULL
+  MAP <- NULL
+  Track <- NULL
+
   if (!file.exists(input$base.raster))
     stop("Could not find file '", input$base.raster,"' in current directory. Please move your R session to where this file is located.\n")
 
-  base.raster <- raster:::raster(input$base.raster, full.names = TRUE)
+  base.raster <- raster::raster(input$base.raster, full.names = TRUE)
   detections <- input$detections
 
   if (is.na(match(tag, names(detections))))
@@ -131,7 +148,7 @@ plotRSP <- function(input, tag, display = c("Receiver", "RSP", "Both"), type = c
   if (length(tracks) == 1) {
     color.tracks <- "black"
   } else {
-    color.tracks <- grDevices::palette(rainbow(length(tracks))) # Color palette for plotting tracks!
+    color.tracks <- grDevices::palette(grDevices::rainbow(length(tracks))) # Color palette for plotting tracks!
   }
   
   
@@ -177,22 +194,33 @@ plotRSP <- function(input, tag, display = c("Receiver", "RSP", "Both"), type = c
 
 #' Plot dynamic Brownian Bridge Movement Models (dBBMM)
 #'
-#' Plot specific dBBMM contours. By default, the inside contour (level1) is chosen to be the 50% 
-#' and the outer (level2) to be the 95%. 
+#' Plot specific dBBMM contours. By default, the inside contour (level1) is chosen to be the 50\% 
+#' and the outer (level2) to be the 95\%. 
 #'   
 #' @param input Dynamic Brownian Bridge Movement Model object as returned by dynBBMM.
 #' @param group Group/species of transmitters.
-#' @param Track Transmitter and track names to plot.
-#' @param levels Numeric vector os use areas to plot. By default the 99%, 95%, 75%, 50% and 25% areas will be returned.
+#' @param track Transmitter and track names to plot.
+#' @param timeslot The timeslot to be plotted.
+#' @param stations Should receiver stations be added to the graph. Default is TRUE.
+#' @param levels Numeric vector os use areas to plot. By default the 99\%, 95\%, 75\%, 50\% and 25\% areas will be returned.
+#' @param main The title of the plot
 #' @param land.col Color of the land mass. 
-#' @param Station Should receiver stations be added to the graph. Default is TRUE.
-#' @inheritParams dynBBMM
 #' 
 #' @return dynamic Brownian Bridge Movement Model plot.
+#' 
+#' @export
 #' 
 plotContours <- function(input, group, track = NULL, timeslot = NULL, stations = FALSE,
                        levels = c(.99, .95, .75, .50, .25), main = NULL,
                        land.col = "#BABCBF") {
+  Latitude <- NULL
+  Longitude <- NULL
+  MAP <- NULL
+  Contour <- NULL
+  x <- NULL
+  y <- NULL
+  layer <- NULL
+
   # detach some objects from the main input
   base.raster <- input$base.raster
   dbbmm <- input$dbbmm
@@ -293,22 +321,30 @@ plotContours <- function(input, group, track = NULL, timeslot = NULL, stations =
 
 #' Plot orverlapping contours 
 #'
-#' Plot specific dBBMM contours. By default, the contour is chosen to be 95%. 
+#' Plot specific dBBMM contours. By default, the contour is chosen to be 95\%. 
 #'   
 #' @param input Dynamic Brownian Bridge Movement Model object as returned by dynBBMM.
 #' @param level Numeric vector of the use area to plot. By default the .95 areas will be returned.
 #' @param main Character vector of the plot title. By default, the temporal window is returned in the title. 
-#' @param Station Should receiver stations be added to the graph. Default is TRUE.
-#' @param store Logical: If TRUE, a list of plots is returned.
-#' @param land.col Color of the land mass. 
 #' @param color.plot Character vector of contour colours in the following order: 1) group 1, 2) group 2, and 3) overlap. 
+#' @param store Logical: If TRUE, a list of plots is returned.
+#' @inheritParams plotContours
 #' 
 #' @return dynamic Brownian Bridge Movement Model plot.
+#' 
+#' @export
 #' 
 plotOverlap <- function(input, timeslot = NULL, stations = FALSE,
                        level = .95, main = NULL, color.plot = NULL,
                        land.col = "#BABCBF", store = FALSE) {
-  
+  Latitude <- NULL
+  Longitude <- NULL
+  MAP <- NULL
+  Group <- NULL
+  x <- NULL
+  y <- NULL
+  layer <- NULL
+
   # detach some objects from the main input
   base.raster <- input$base.raster
 
@@ -465,10 +501,27 @@ plotOverlap <- function(input, timeslot = NULL, stations = FALSE,
 
 
 
-### ONLY TO PLOT GIF:
+#' Plot orverlapping contours in a gif
+#'
+#' Plot specific dBBMM contours. By default, the contour is chosen to be 95\%. 
+#'   
+#' @inheritParams plotOverlap
+#' @inheritParams plotContours
+#' 
+#' @return dynamic Brownian Bridge Movement Model plot.
+#' 
+#' @export
+#' 
 plotGIF <- function(input, timeslot = NULL, stations = FALSE,
                     level = .95, main = NULL, color.plot = NULL,
                     land.col = "#BABCBF", store = FALSE) {
+  Latitude <- NULL
+  Longitude <- NULL
+  MAP <- NULL
+  Group <- NULL
+  x <- NULL
+  y <- NULL
+  layer <- NULL
   
   # detach some objects from the main input
   base.raster <- input$base.raster

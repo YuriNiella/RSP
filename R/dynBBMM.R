@@ -3,14 +3,13 @@
 #' Calculates dynamic Brownian Bridge Movement Model (dBBMM) for each track and transmitter. Tracks shorter than 30 minutes
 #' are automatically identified and not included in the analysis.
 #'
-#' @param detections List of estimated track data as returned by SPBDrun or SPBDrun.dist. 
-#' @param tz.study.area TimeUTM.zone of the study area.
+#' @param input The output of an RSP function
 #' @param UTM.zone UTM UTM.zone of the study area.
 #' @param tags Vector of transmitters to be analyzed. By default all transmitters from the SPBD estimation will be analised.
-#' @param base.raster Path to the raster file from the study area. 
-#' @param breaks The contours for calculating usage areas in squared meters. By default the 95% and 50% contours are used. 
+#' @param breaks The contours for calculating usage areas in squared meters. By default the 95\% and 50\% contours are used. 
 #' @param timeframe Temporal window size in hours. If left NULL, a single dbbmm is calculated for the whole period.
 #' @param verbose Logical: If TRUE, detailed check messages are displayed. Otherwise, only a summary is displayed.
+#' @param debug Logical: If TRUE, the function progress is saved to an RData file.
 #' 
 #' @return List of calculated dBBMMs and metadata on each track used for the modelling. 
 #' 
@@ -189,7 +188,7 @@ loadRaster <- function(base.raster, UTM.zone) {
 groupDetections <- function(detections, tz.study.area, bio, UTM.zone, timeframe = NULL) {
   # Split transmitters per group variable
   df.signal <- data.frame(Transmitter = names(detections),
-                          Signal = actel:::stripCodeSpaces(names(detections)))
+                          Signal = stripCodeSpaces(names(detections)))
   
   # HF: remove spaces from groups
   if (any(grepl(" ", bio$Group))) {
@@ -246,7 +245,7 @@ breakByTimeframe <- function(input, timerange, timeframe) {
       x$Slot[link] <- i
       return(x$Slot)
     })
-    x$Slot <- actel:::combine(recipient)
+    x$Slot <- combine(recipient)
     return(x)
   })
 
@@ -306,8 +305,6 @@ checkGroupQuality <- function(input, UTM.zone, verbose = TRUE) {
     })
     if (all(link <- unlist(lapply(output, length)) == 0))
       stop("All detection data failed to pass the quality checks for dBBMM implementation. Aborting.\n", call. = FALSE)
-    if (any(link))
-      warning(paste("ALL timeslots in group", g, "failed to pass the quality checks. Removing group from analysis."), immediate. = TRUE, call. = FALSE)
     names(output) <- names(input)
     output <- output[!link]
     attributes(output)$type <- "timeslot"

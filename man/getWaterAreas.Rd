@@ -7,9 +7,7 @@
 getWaterAreas(dbbmm.rasters, base.raster, breaks)
 }
 \arguments{
-\item{base.raster}{Path to the raster file from the study area.}
-
-\item{breaks}{The contours for calculating usage areas in squared meters. By default the 95% and 50% contours are used.}
+\item{breaks}{The contours for calculating usage areas in squared meters. By default the 95\% and 50\% contours are used.}
 
 \item{dbbmm}{the results of the dBBMM calculation}
 }

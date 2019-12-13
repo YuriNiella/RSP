@@ -1,3 +1,10 @@
+#' @import stats
+#' @import utils
+#' @import graphics
+#' @import data.table
+#' 
+NULL
+
 #' Shortest Path Between Detection (RSP) analysis by fixed distance intervals
 #' 
 #' Estimates the RSP for a series of animals tracked with acoustic transmitters. Intermediate
@@ -7,7 +14,8 @@
 #' @param base.raster Raster file from the study area defining land (1) and water (0) regions. 
 #' @param distance Fixed distances in meters to add intermediate track locations. By default intermediate positions are added every 250 m.
 #' @param time.lapse Temporal window in minutes to add intermediate track locations. By default intermediate positions are added every 10 min.
-#' @param er.ad By default, 5% of the distance argument is used as the increment rate of the position erros for the estimated locations. Alternatively, can be defined by the user in meters.
+#' @param er.ad By default, 5\% of the distance argument is used as the increment rate of the position erros for the estimated locations. Alternatively, can be defined by the user in meters.
+#' @param debug Logical: If TRUE, the function progress is saved to an RData file.
 #' 
 #' @return Returns a list of RSP tracks (as dataframe) for each transmitter detected. 
 #' 
@@ -60,7 +68,7 @@ RSP <- function(input, base.raster, distance = 250, time.lapse = 10, er.ad = NUL
 #' species names and indexes for each tracked animal. Also coverts the UTC date and time column to the 
 #' local time zone of the study area.  
 #'
-#' @param tz.study.area Timezone of the study area. 
+#' @param detections A list of detections provived by an actel function.
 #' @param spatial A list of spatial objects in the study area
 #' 
 #' @return A standardized dataframe to be used for RSP calculation. 
@@ -90,7 +98,7 @@ prepareDetections <- function(detections, spatial) {
 #' 
 #' Calculates temporal differences in days between consecutive detection dates.
 #'
-#' @param data Detection dataset imported using the RSPete function.
+#' @param input Detection dataset imported using the RSPete function.
 #' 
 #' @return A dataframe with temporal differences in days between consecutive detection dates.
 #' 
@@ -112,7 +120,7 @@ timeInterval <- function(input) {
 #'
 #' @param detections # HF: missing variable
 #' @param input Detection dates and temporal lags in days as returned by timeInterval.
-#' @param time Temporal lag in days to be considered for the fine-scale tracking. Default is to consider 1-day intervals.
+#' @param maximum.time Temporal lag in days to be considered for the fine-scale tracking. Default is to consider 1-day intervals.
 #' 
 #' @return A dataframe with identified and named individual tracks for RSP estimation.
 #' 
@@ -127,7 +135,7 @@ trackNames <- function(detections, input, maximum.time = 1) {
   index <- which(input$Time_day > 1) # Identify individual tracks
   if (index[length(index)] < (nrow(input) + 1))
     index <- c(index, nrow(input) + 1)
-  track.index <- stringr:::str_pad(string = 1:length(index), width = nchar(length(index)), pad = "0")
+  track.index <- stringr::str_pad(string = 1:length(index), width = nchar(length(index)), pad = "0")
   track.names <- paste0("Track_", track.index)
   input$Track <- NA_character_
   
@@ -189,8 +197,10 @@ RPStransition <- function(raster.hab = "shapefile.grd") { # HF: We need to discu
 #' 
 #' @return A dataframe with the RSP estimations for all identified tracks for that animal.
 #' 
+#' 
 calcRSP <- function(df.track, tz.study.area, distance, time.lapse, transition, er.ad, path.list) {
-  
+  .N <- NULL
+
   aux.RSP <- as.data.frame(df.track[-(1:.N)]) # Save RSP
   
   pb <- txtProgressBar(min = 0, max = nrow(df.track),
@@ -217,7 +227,7 @@ calcRSP <- function(df.track, tz.study.area, distance, time.lapse, transition, e
         AtoB.df <- path.list[[path.name]]
       } else {
         AtoB <- gdistance::shortestPath(transition, A, B, output = "SpatialLines")
-        AtoB.df <- as(as(AtoB, "SpatialPointsDataFrame"), "data.frame")[, c(4, 5)] 
+        AtoB.df <- methods::as(methods::as(AtoB, "SpatialPointsDataFrame"), "data.frame")[, c(4, 5)] 
         # Prepare to calculate distance between coordinate pairs
         start <- AtoB.df[-nrow(AtoB.df), ]
         stop <- AtoB.df[-1, ]
@@ -228,7 +238,7 @@ calcRSP <- function(df.track, tz.study.area, distance, time.lapse, transition, e
         AtoB.df$cumSum <- cumsum(AtoB.df$Distance)
         AtoB.dist <- sum(AtoB.df$Distance)
         # Prepare to find points to keep
-        n.points <- actel:::roundDown(AtoB.dist / distance, to = 1)
+        n.points <- actel::roundDown(AtoB.dist / distance, to = 1)
         if (n.points == 0) {
           message("")
           warning("One of the inter-station RSP segments within ", df.track$Track[1], 
@@ -275,7 +285,7 @@ calcRSP <- function(df.track, tz.study.area, distance, time.lapse, transition, e
       if (nrow(mat.aux) <= 2) {
         mat.aux$Error <- base + er.ad 
       } else {
-        med.point <- actel:::roundUp(nrow(mat.aux) / 2, to = 1)          
+        med.point <- actel::roundUp(nrow(mat.aux) / 2, to = 1)          
         incremented.base <- base
         # Increasing error
         for (pos2 in 1:med.point) { 
@@ -334,9 +344,7 @@ calcRSP <- function(df.track, tz.study.area, distance, time.lapse, transition, e
 #' @param detections Detection data for that individual as imported using RSPete.
 #' @param transition TransitionLayer object as returned by LTDpath.
 #' @param tz.study.area Timezone of the study area.
-#' @param distance Maximum distance between RSP locations.
-#' @param time.lapse Time lapse in minutes to be considered for consecutive detections at the same station. 
-#' @param er.ad Incremental error per additional RSP point.
+#' @inheritParams RSP
 #' 
 #' @return A list with the RSP estimations of individual tracks per transmitter.
 #' 

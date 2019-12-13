@@ -22,7 +22,9 @@ RSP(
 
 \item{time.lapse}{Temporal window in minutes to add intermediate track locations. By default intermediate positions are added every 10 min.}
 
-\item{er.ad}{By default, 5% of the distance argument is used as the increment rate of the position erros for the estimated locations. Alternatively, can be defined by the user in meters.}
+\item{er.ad}{By default, 5\% of the distance argument is used as the increment rate of the position erros for the estimated locations. Alternatively, can be defined by the user in meters.}
+
+\item{debug}{Logical: If TRUE, the function progress is saved to an RData file.}
 }
 \value{
 Returns a list of RSP tracks (as dataframe) for each transmitter detected.

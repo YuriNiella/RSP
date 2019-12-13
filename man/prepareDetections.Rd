@@ -7,9 +7,9 @@
 prepareDetections(detections, spatial)
 }
 \arguments{
-\item{spatial}{A list of spatial objects in the study area}
+\item{detections}{A list of detections provived by an actel function.}
 
-\item{tz.study.area}{Timezone of the study area.}
+\item{spatial}{A list of spatial objects in the study area}
 }
 \value{
 A standardized dataframe to be used for RSP calculation.

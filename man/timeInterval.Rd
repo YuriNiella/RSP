@@ -7,7 +7,7 @@
 timeInterval(input)
 }
 \arguments{
-\item{data}{Detection dataset imported using the RSPete function.}
+\item{input}{Detection dataset imported using the RSPete function.}
 }
 \value{
 A dataframe with temporal differences in days between consecutive detection dates.

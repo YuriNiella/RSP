@@ -20,18 +20,22 @@ plotContours(
 
 \item{group}{Group/species of transmitters.}
 
-\item{levels}{Numeric vector os use areas to plot. By default the 99%, 95%, 75%, 50% and 25% areas will be returned.}
+\item{track}{Transmitter and track names to plot.}
+
+\item{timeslot}{The timeslot to be plotted.}
+
+\item{stations}{Should receiver stations be added to the graph. Default is TRUE.}
+
+\item{levels}{Numeric vector os use areas to plot. By default the 99\%, 95\%, 75\%, 50\% and 25\% areas will be returned.}
+
+\item{main}{The title of the plot}
 
 \item{land.col}{Color of the land mass.}
-
-\item{Track}{Transmitter and track names to plot.}
-
-\item{Station}{Should receiver stations be added to the graph. Default is TRUE.}
 }
 \value{
 dynamic Brownian Bridge Movement Model plot.
 }
 \description{
-Plot specific dBBMM contours. By default, the inside contour (level1) is chosen to be the 50% 
-and the outer (level2) to be the 95%.
+Plot specific dBBMM contours. By default, the inside contour (level1) is chosen to be the 50\% 
+and the outer (level2) to be the 95\%.
 }

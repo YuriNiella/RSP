@@ -21,11 +21,13 @@ includeRSP(
 
 \item{tz.study.area}{Timezone of the study area.}
 
-\item{distance}{Maximum distance between RSP locations.}
+\item{distance}{Fixed distances in meters to add intermediate track locations. By default intermediate positions are added every 250 m.}
 
-\item{time.lapse}{Time lapse in minutes to be considered for consecutive detections at the same station.}
+\item{time.lapse}{Temporal window in minutes to add intermediate track locations. By default intermediate positions are added every 10 min.}
 
-\item{er.ad}{Incremental error per additional RSP point.}
+\item{er.ad}{By default, 5\% of the distance argument is used as the increment rate of the position erros for the estimated locations. Alternatively, can be defined by the user in meters.}
+
+\item{debug}{Logical: If TRUE, the function progress is saved to an RData file.}
 }
 \value{
 A list with the RSP estimations of individual tracks per transmitter.

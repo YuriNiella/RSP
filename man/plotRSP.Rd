@@ -14,11 +14,11 @@ plotRSP(
 \arguments{
 \item{input}{RSP dataset as returned by RSP.}
 
-\item{type}{Type of tracking plot to be generated: Receiver, RSP or Both.}
+\item{tag}{Select a particular animal to plot.}
 
-\item{animal}{Select a particular animal to plot.}
+\item{display}{Tracks to be displayed. One of Receiver, RSP or Both.}
 
-\item{base.raster}{Raster file of the study area.}
+\item{type}{Type of plot. One of lines or points}
 }
 \value{
 Tracking plot for the interest animal.

@@ -10,8 +10,6 @@ saveTrackInfo(input, water, tz.study.area)
 \item{input}{The detections list used for the dbbmm}
 
 \item{water}{The water areas computed by getWaterAreas}
-
-\item{tz.study.area}{TimeUTM.zone of the study area.}
 }
 \value{
 a summary list with track information

@@ -11,7 +11,7 @@ trackNames(detections, input, maximum.time = 1)
 
 \item{input}{Detection dates and temporal lags in days as returned by timeInterval.}
 
-\item{time}{Temporal lag in days to be considered for the fine-scale tracking. Default is to consider 1-day intervals.}
+\item{maximum.time}{Temporal lag in days to be considered for the fine-scale tracking. Default is to consider 1-day intervals.}
 }
 \value{
 A dataframe with identified and named individual tracks for RSP estimation.

@@ -15,21 +15,19 @@ dynBBMM(
 )
 }
 \arguments{
+\item{input}{The output of an RSP function}
+
 \item{UTM.zone}{UTM UTM.zone of the study area.}
 
 \item{tags}{Vector of transmitters to be analyzed. By default all transmitters from the SPBD estimation will be analised.}
 
-\item{breaks}{The contours for calculating usage areas in squared meters. By default the 95% and 50% contours are used.}
+\item{breaks}{The contours for calculating usage areas in squared meters. By default the 95\% and 50\% contours are used.}
 
 \item{timeframe}{Temporal window size in hours. If left NULL, a single dbbmm is calculated for the whole period.}
 
+\item{debug}{Logical: If TRUE, the function progress is saved to an RData file.}
+
 \item{verbose}{Logical: If TRUE, detailed check messages are displayed. Otherwise, only a summary is displayed.}
-
-\item{detections}{List of estimated track data as returned by SPBDrun or SPBDrun.dist.}
-
-\item{tz.study.area}{TimeUTM.zone of the study area.}
-
-\item{base.raster}{Path to the raster file from the study area.}
 }
 \value{
 List of calculated dBBMMs and metadata on each track used for the modelling.
