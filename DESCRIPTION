@@ -1,13 +1,11 @@
 Package: RSP
-Title: What the Package Does (One Line, Title Case)
+Title: Refined Shortest Paths
 Version: 0.0.0.9000
-Authors@R: 
-    person(given = "First",
-           family = "Last",
-           role = c("aut", "cre"),
-           email = "first.last@example.com",
-           comment = c(ORCID = "YOUR-ORCID-ID"))
-Description: What the package does (one paragraph).
+Authors@R: c(
+    person("Yuri", "Niella", role = c("aut", "cre"), email = "yuri.niella@hdr.mq.edu.au"),
+    person("Hugo", "Flávio", role = c("aut"), email = "hdmfla@aqua.dtu.dk")
+    )
+Description: ...
 License: GPL-3 + file LICENSE
 Encoding: UTF-8
 LazyData: true
