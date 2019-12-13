@@ -5,7 +5,7 @@
 #' 
 NULL
 
-#' Shortest Path Between Detection (RSP) analysis by fixed distance intervals
+#' Refined Shortest Path (RSP) between detections
 #' 
 #' Estimates the RSP for a series of animals tracked with acoustic transmitters. Intermediate
 #' locations are estimated according to fixed distance and temporal intervals.
@@ -13,7 +13,7 @@ NULL
 #' @param input The output of one of actel's main functions (explore, migration or residency)
 #' @param base.raster Raster file from the study area defining land (1) and water (0) regions. 
 #' @param distance Fixed distances in meters to add intermediate track locations. By default intermediate positions are added every 250 m.
-#' @param time.lapse Temporal window in minutes to add intermediate track locations. By default intermediate positions are added every 10 min.
+#' @param time.lapse Temporal limit for the RSP in minutes. Consecutive detections shorter than the time.lapse will not have interpolated positions. 
 #' @param er.ad By default, 5\% of the distance argument is used as the increment rate of the position erros for the estimated locations. Alternatively, can be defined by the user in meters.
 #' @param debug Logical: If TRUE, the function progress is saved to an RData file.
 #' 

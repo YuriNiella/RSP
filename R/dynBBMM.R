@@ -1,13 +1,13 @@
-#' Total dynamic Brownian Bridge Movement Model 
+#' Total dynamic Brownian Bridge Movement Model
 #' 
 #' Calculates dynamic Brownian Bridge Movement Model (dBBMM) for each track and transmitter. Tracks shorter than 30 minutes
 #' are automatically identified and not included in the analysis.
 #'
-#' @param input The output of an RSP function
-#' @param UTM.zone UTM UTM.zone of the study area.
+#' @param input The output of an RSP function.
+#' @param UTM.zone UTM zone of the study area.
 #' @param tags Vector of transmitters to be analyzed. By default all transmitters from the SPBD estimation will be analised.
 #' @param breaks The contours for calculating usage areas in squared meters. By default the 95\% and 50\% contours are used. 
-#' @param timeframe Temporal window size in hours. If left NULL, a single dbbmm is calculated for the whole period.
+#' @param timeframe Temporal window size for fine-scale dBBMM in hours. If left NULL, a single dBBMM is calculated for the whole period.
 #' @param verbose Logical: If TRUE, detailed check messages are displayed. Otherwise, only a summary is displayed.
 #' @param debug Logical: If TRUE, the function progress is saved to an RData file.
 #' 
