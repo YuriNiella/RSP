@@ -16,7 +16,7 @@
 RSP <- function(input, base.raster, distance = 250, time.lapse = 10, er.ad = NULL, debug = FALSE) {
   if (debug) {
     on.exit(save(list = ls(), file = "RSP_debug.RData"), add = TRUE)
-    actel:::appendTo("Screen", "!!!--- Debug mode has been activated ---!!!")
+    message("!!!--- Debug mode has been activated ---!!!")
   } 
 
   if (is.null(input$rsp.info))
@@ -25,7 +25,7 @@ RSP <- function(input, base.raster, distance = 250, time.lapse = 10, er.ad = NUL
   if (is.null(er.ad)) 
     er.ad <- distance * 0.05
 
-  actel:::appendTo("Screen", paste0("M: Calculating RSP for the '", input$rsp.info$analysis.type, "' data compiled on ", input$rsp.info$analysis.time))
+  message("M: Calculating RSP for the '", input$rsp.info$analysis.type, "' data compiled on ", input$rsp.info$analysis.time)
 
   # Unpack study data
   detections <- input$valid.detections  
@@ -67,7 +67,7 @@ RSP <- function(input, base.raster, distance = 250, time.lapse = 10, er.ad = NUL
 #' 
 prepareDetections <- function(detections, spatial) {
   if (!any(colnames(spatial$stations) == "Range")) 
-    actel:::appendTo(c("Screen", "Warning"), "W: Could not find a 'Range' column in the spatial file; assuming a range of 500 metres for each receiver.")
+    warning("Could not find a 'Range' column in the spatial file; assuming a range of 500 metres for each receiver.", immediate. = TRUE, call. = FALSE)
 
   output <- lapply(detections, function(x){
     x$Date <- as.Date(x$Timestamp)
@@ -154,19 +154,19 @@ RPStransition <- function(raster.hab = "shapefile.grd") { # HF: We need to discu
 
   if (file.exists("rsp.transition.layer.RData")) {
     load("rsp.transition.layer.RData")
-    actel:::appendTo("Screen", paste0("M: Reusing transition layer calculated on ", transition.layer$timestamp,".\n   If you want to calculate a new transition layer, delete the file 'rsp.transition.layer.RData' from your working directory."))
+    message("M: Reusing transition layer calculated on ", transition.layer$timestamp,".\n   If you want to calculate a new transition layer, delete the file 'rsp.transition.layer.RData' from your working directory.")
     transition.layer <- transition.layer[[1]]
   } else {
     raster.hab <- raster::raster(raster.hab, full.names = TRUE)
     # Transition objects for estimating shortest distance paths:
-    actel:::appendTo("Screen", "M: Creating a new transition layer.")
+    message("M: Creating a new transition layer.")
     hd <- gdistance::transition(raster.hab, transitionFunction = function(x) {x[2] - x[1]}, directions = 8, symm = TRUE) 
     slope <- gdistance::geoCorrection(hd, scl = FALSE)
     adj <- raster::adjacent(raster.hab, cells = 1:raster::ncell(raster.hab), 
                             pairs = TRUE, directions = 8)
     speed <- slope
     speed[adj] <- exp(-3.5 * abs(slope[adj] + 0.05))
-    actel:::appendTo("Screen", "M: Storing transition layer as 'rsp.transition.layer.RData'.")
+    message("M: Storing transition layer as 'rsp.transition.layer.RData'.")
     transition.layer <- gdistance::geoCorrection(speed, scl = FALSE)
     transition.layer <- list(transition.layer, timestamp = Sys.time())
     save(transition.layer, file = "rsp.transition.layer.RData")
@@ -193,7 +193,7 @@ calcRSP <- function(df.track, tz.study.area, distance, time.lapse, transition, e
   
   aux.RSP <- as.data.frame(df.track[-(1:.N)]) # Save RSP
   
-  pb <- utils::txtProgressBar(min = 0, max = nrow(df.track),  # HF: utils is part of the default packages of R, so we should not need to specify the namespace
+  pb <- txtProgressBar(min = 0, max = nrow(df.track),
                               initial = 0, style = 3, width = 60)
   
   station.shifts <- c(FALSE, df.track$Standard.Name[-1] != df.track$Standard.Name[-nrow(df.track)])
@@ -230,11 +230,10 @@ calcRSP <- function(df.track, tz.study.area, distance, time.lapse, transition, e
         # Prepare to find points to keep
         n.points <- actel:::roundDown(AtoB.dist / distance, to = 1)
         if (n.points == 0) {
-          cat("\n")
-          actel:::appendTo(c("Screen", "Report", "Warning"), 
-                           paste0("W: One of the inter-station RSP segments within ", df.track$Track[1], 
-                                  " is too short to fit extra \n   detections (Total distance: ", round(AtoB.dist, 0), 
-                                  "m). Adding one single point between detections."))
+          message("")
+          warning("One of the inter-station RSP segments within ", df.track$Track[1], 
+                  " is too short to fit extra \n   detections (Total distance: ", round(AtoB.dist, 0), 
+                  "m). Adding one single point between detections.", immediate. = TRUE, call. = FALSE)
           n.points <- 1
           markers <- AtoB.dist / 2
         } else {
@@ -342,23 +341,20 @@ calcRSP <- function(df.track, tz.study.area, distance, time.lapse, transition, e
 #' @return A list with the RSP estimations of individual tracks per transmitter.
 #' 
 includeRSP <- function(detections, transition, tz.study.area, distance, time.lapse, er.ad, debug = FALSE) {
-  if (debug) {
+  if (debug)
     on.exit(save(list = ls(), file = "includeRSP_debug.RData"), add = TRUE)
-    actel:::appendTo("Screen", "!!!--- Debug mode has been activated ---!!!")
-  }
   
   path.list <- list() # Empty list to save already calculated paths
 
   # Recreate RSP individually
   output <- lapply(seq_along(detections), function(i) {
-    actel:::appendTo("Screen", crayon::bold(crayon::green((paste("Analyzing:", names(detections)[i])))))
+    message(crayon::bold(crayon::green((paste("Analyzing:", names(detections)[i])))))
     dates.aux <- timeInterval(detections[[i]]) # Identify time differences between detections (in days)
     dates.aux <- trackNames(detections[[i]], dates.aux) # Fine-scale tracking
     tracks <- split(dates.aux, dates.aux$Track)
     
     tag.aux <- lapply(seq_along(tracks), function(j) {
-      actel:::appendTo("Screen",
-                       paste0("Estimating ", names(detections)[i], " RSP: ", names(tracks)[j]))
+      message("Estimating ", names(detections)[i], " RSP: ", names(tracks)[j])
       
       df.track <- detections[[i]][detections[[i]]$Date %in% tracks[[j]]$Date, ]
       df.track$Position <- "Receiver"
@@ -372,7 +368,7 @@ includeRSP <- function(detections, transition, tz.study.area, distance, time.lap
       # return rest to lapply list
       return(function.recipient$output)
     })
-    tag.recipient <- actel::listToTable(tag.aux, source = FALSE)
+    tag.recipient <- as.data.frame(data.table::rbindlist(tag.aux))
     # pass path.list to main envir.
     path.list <<- path.list
 
@@ -435,9 +431,9 @@ plotDistances <- function(input) {
       # print(output, topn = nrow(output)); flush.console()
       return(output)
     })
-    return(actel::listToTable(aux))
+    return(as.data.frame(data.table::rbindlist(aux)))
   })
-  plotdata <- actel::listToTable(df.diag)
+  plotdata <- as.data.frame(data.table::rbindlist(df.diag))
   
   p <- ggplot2::ggplot(data = plotdata, ggplot2::aes(x = Animal.tracked, y = Dist.travel, fill = Loc.type))
   p <- p + ggplot2::geom_bar(stat = "identity", position = ggplot2::position_dodge())
@@ -446,7 +442,6 @@ plotDistances <- function(input) {
   p <- p + ggplot2::theme_bw()
   p <- p + ggplot2::coord_flip(ylim = c(0, max(plotdata$Dist.travel) * 1.05), expand = FALSE)
   p
-  # return(p)
 }
 
 

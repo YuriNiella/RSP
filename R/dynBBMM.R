@@ -19,7 +19,7 @@ dynBBMM <- function(input, UTM.zone, tags = NULL, breaks = c(.95, .50),
 
   if (debug) {
     on.exit(save(list = ls(), file = "dynBBMM_debug.RData"), add = TRUE)
-    actel:::appendTo("Screen", "!!!--- Debug mode has been activated ---!!!")
+    message("!!!--- Debug mode has been activated ---!!!")
   }
 
   # check input quality
@@ -48,7 +48,7 @@ dynBBMM <- function(input, UTM.zone, tags = NULL, breaks = c(.95, .50),
   base.raster <- loadRaster(base.raster = base.raster, UTM.zone = UTM.zone)
 
   # Prepare detections
-  actel:::appendTo("Screen", paste("M: Preparing data to apply dBBMM."))
+  message("M: Preparing data to apply dBBMM.")
   detections <- trimDetections(detections = detections, tags = tags)
   group.list <- groupDetections(detections = detections, tz.study.area = tz.study.area, bio = bio, UTM.zone = UTM.zone, timeframe = timeframe) 
 
@@ -65,7 +65,7 @@ dynBBMM <- function(input, UTM.zone, tags = NULL, breaks = c(.95, .50),
     after <- sum(unlist(lapply(group.list, function(group) lapply(group, nrow))))
 
   if (before != after)
-    actel:::appendTo(c("Screen", "Report"), paste("M: In total,", before - after, "detections were excluded as they failed the track quality checks."))
+    message(paste("M: In total,", before - after, "detections were excluded as they failed the track quality checks.")
   rm(before, after)
 
   # Calculate dBBMM
@@ -82,20 +82,20 @@ dynBBMM <- function(input, UTM.zone, tags = NULL, breaks = c(.95, .50),
   }
 
   # Remove land areas
-  actel:::appendTo("Screen", "M: Subtracting land areas from output.")
+  message("M: Subtracting land areas from output.")
   water.areas <- getWaterAreas(dbbmm.rasters = dbbmm.rasters, base.raster = base.raster, breaks = breaks)
 
   # calculate overlaps
   if (length(group.list) == 1) {
-    actel:::appendTo("Screen", "M: Only one group found, skipping overlap calculations.")
+    message("M: Only one group found, skipping overlap calculations.")
     overlaps <- NULL
   } else {
-    actel:::appendTo("Screen", "M: Calculating overlaps between groups.")
+    message("M: Calculating overlaps between groups.")
     overlaps <- getOverlaps(dbbmm.rasters = dbbmm.rasters, base.raster = base.raster, breaks = breaks)
   }
 
   # Save track info
-  actel:::appendTo("Screen", "M: Storing final results.")
+  message("M: Storing final results.")
   track.info <- saveTrackInfo(input = group.list, water = water.areas[[1]], tz.study.area = tz.study.area)
 
   if (attributes(mod_dbbmm)$type == "group")
@@ -143,13 +143,11 @@ dynBBMM <- function(input, UTM.zone, tags = NULL, breaks = c(.95, .50),
 trimDetections <- function(detections, tags = NULL) {
   if (!is.null(tags)) {
     if (any(link <- is.na(match(tags, names(detections))))) {
-      actel:::emergencyBreak()
       stop("tags", paste(tags[link], collapse = ", "), "are not part of the input data.", call. = FALSE)
     }
     detections <- detections[tags]
   } else {
-    actel:::appendTo(c("Screen", "Report"), 
-                     "M: No specific transmitters selected. All the data will be used for analysis.")
+    message("M: No specific transmitters selected. All the data will be used for analysis.")
   }
   return(detections)
 }
@@ -193,7 +191,7 @@ groupDetections <- function(detections, tz.study.area, bio, UTM.zone, timeframe 
   
   # HF: remove spaces from groups
   if (any(grepl(" ", bio$Group))) {
-    actel:::appendTo(c("Screen", "Warning", "Report"), "W: Substituting spaces in group names to avoid function failure.")
+    warning("Substituting spaces in group names to avoid function failure.", immediate. = TRUE, call. = FALSE)
     bio$Group <- gsub(" ", "_", bio$Group)
   }
   df.signal$Group <- bio$Group[match(df.signal$Signal, bio$Signal)]
@@ -229,7 +227,7 @@ groupDetections <- function(detections, tz.study.area, bio, UTM.zone, timeframe 
 #' @keywords internal
 #' 
 breakByTimeframe <- function(input, timerange, timeframe) {
-  actel:::appendTo(c("Screen", "Report"), "M: Activating separate dBBMM calculations for each time slot.")
+  message("M: Activating separate dBBMM calculations for each time slot.")
 
   # Separate total timeframe of tracking into temporal windows: starting at midnight
   timeslots <- seq(from = timerange[1], 
@@ -279,7 +277,6 @@ checkGroupQuality <- function(input, UTM.zone, verbose = TRUE) {
       }
     })
     if (all(link <- unlist(lapply(output, is.null)))) {
-      actel:::emergencyBreak()
       stop("All detection data failed to pass the quality checks for dBBMM implementation. Aborting.\n", call. = FALSE)
     }
     names(output) <- names(input)
@@ -305,14 +302,10 @@ checkGroupQuality <- function(input, UTM.zone, verbose = TRUE) {
       names(recipient) <- names(input[[g]])
       return(recipient[!unlist(lapply(recipient, is.null))])
     })
-    if (all(link <- unlist(lapply(output, length)) == 0)) {
-      actel:::emergencyBreak()
+    if (all(link <- unlist(lapply(output, length)) == 0))
       stop("All detection data failed to pass the quality checks for dBBMM implementation. Aborting.\n", call. = FALSE)
-    }
-    if (any(link)) {
-      actel:::appendTo(c("Report", "Warning", "Screen"), 
-                       paste("W: ALL timeslots in group", g, "failed to pass the quality checks. Removing group from analysis."))    
-    }
+    if (any(link))
+      warning(paste("ALL timeslots in group", g, "failed to pass the quality checks. Removing group from analysis."), immediate. = TRUE, call. = FALSE)
     names(output) <- names(input)
     output <- output[!link]
     attributes(output)$type <- "timeslot"
@@ -334,8 +327,7 @@ checkDupTimestamps <- function(input, group, verbose = TRUE) {
   if (length(index) > 0) {
     input <- input[-index, ]
     if (verbose)
-      actel:::appendTo(c("Report", "Warning", "Screen"), 
-                     paste0("W: ", length(index), " individual detections were removed in group ", group," due to simultaneous detections at two receivers."))
+      warning(length(index), " individual detections were removed in group ", group," due to simultaneous detections at two receivers.", immediate. = TRUE, call. = FALSE)
   }
   return(input)
 }
@@ -355,14 +347,12 @@ checkTrackTimes <- function(input, group, verbose = TRUE) {
   })) >= 30
   if (all(!link)) {
     if (verbose)
-      actel:::appendTo(c("Report", "Warning", "Screen"), 
-                       paste("W: ALL tracks in group", group, "are shorter than 30 minutes. Removing group from analysis."))    
+      warning("ALL tracks in group ", group, " are shorter than 30 minutes. Removing group from analysis.", immediate. = TRUE, call. = FALSE)    
     return(NULL)
   } else {
     output <- tracks[link]
     if (verbose && length(tracks) > length(output))
-      actel:::appendTo(c("Report", "Warning", "Screen"), 
-                       paste("W:", sum(!link), "track(s) in group", group, "are shorter than 30 minutes and will not be used."))
+      warning(sum(!link), "track(s) in group", group, "are shorter than 30 minutes and will not be used.", immediate. = TRUE, call. = FALSE)
     return(do.call(rbind.data.frame, output))
   }
 }
@@ -380,14 +370,12 @@ checkTrackPoints <- function(input, group, verbose = TRUE) {
   link <- unlist(lapply(tracks, nrow)) > 8
   if (all(!link)) {
     if (verbose)
-      actel:::appendTo(c("Report", "Warning", "Screen"), 
-                       paste("W: ALL tracks in group", group, "have less than eight detections. Removing group from analysis."))    
+      warning("ALL tracks in group", group, "have less than eight detections. Removing group from analysis.", immediate. = TRUE, call. = FALSE)    
     return(NULL)
   } else {
     output <- tracks[link]
     if (verbose && length(tracks) > length(output))
-      actel:::appendTo(c("Report", "Warning", "Screen"), 
-                       paste("W:", length(tracks) - length(output), "track(s) in group", group, "have less than eight detections and will not be used."))
+      warning(length(tracks) - length(output), "track(s) in group", group, "have less than eight detections and will not be used.", immediate. = TRUE, call. = FALSE)
     return(do.call(rbind.data.frame, output))
   }
 }
@@ -450,15 +438,14 @@ calculateDBBMM <- function(input, UTM.zone, raster) {
 
     # Calculate dynamic Brownian Bridge Movement Model:
     mod_dbbmm <- lapply(seq_along(loc), function(i) {
-      actel:::appendTo("Screen", paste("M: Calculating dBBMM:", crayon::bold(crayon::green(names(loc)[i]))))
+      message("M: Calculating dBBMM:", crayon::bold(crayon::green(names(loc)[i])))
       time.spent <- system.time(suppressMessages(
         output <- move::brownian.bridge.dyn(object = loc[[i]],
                                   raster = raster,  
                                   window.size = 7, margin = 3,
                                   location.error = input[[i]]$Error)
         ))
-      actel:::appendTo("Screen", 
-        paste0("M: Success! (Time spent: ", actel::minuteTime(time.spent["elapsed"], format = "s", seconds = TRUE), ")"))
+      message("M: Success! (Time spent: ", actel::minuteTime(time.spent["elapsed"], format = "s", seconds = TRUE), ")")
       return(output)
       })
     names(mod_dbbmm) <- names(loc)
@@ -478,7 +465,7 @@ calculateDBBMM <- function(input, UTM.zone, raster) {
 
     # Calculate dynamic Brownian Bridge Movement Model:
     mod_dbbmm <- lapply(seq_along(loc), function(g) {
-      actel:::appendTo("Screen", paste("M: Calculating dBBMM:", crayon::bold(crayon::green(names(loc)[g]))))
+      message("M: Calculating dBBMM:", crayon::bold(crayon::green(names(loc)[g])))
       pb <-  txtProgressBar(min = 0, max = length(loc[[g]]),  
                             initial = 0, style = 3, width = 60)
       counter <- 0
@@ -496,8 +483,7 @@ calculateDBBMM <- function(input, UTM.zone, raster) {
         })
       ))
       close(pb)
-      actel:::appendTo("Screen", 
-        paste0("M: Success! (Time spent: ", actel::minuteTime(time.spent["elapsed"], format = "s", seconds = TRUE), ")"))
+      message("M: Success! (Time spent: ", actel::minuteTime(time.spent["elapsed"], format = "s", seconds = TRUE), ")")
       names(aux) <- names(loc[[g]])
       return(aux)
       })
