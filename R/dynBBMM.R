@@ -14,6 +14,8 @@
 #' 
 #' @return List of calculated dBBMMs and metadata on each track used for the modelling. 
 #' 
+#' @export
+#' 
 dynBBMM <- function(input, UTM.zone, tags = NULL, breaks = c(.95, .50), 
   timeframe = NULL, debug = FALSE, verbose = TRUE) {
 
@@ -65,7 +67,7 @@ dynBBMM <- function(input, UTM.zone, tags = NULL, breaks = c(.95, .50),
     after <- sum(unlist(lapply(group.list, function(group) lapply(group, nrow))))
 
   if (before != after)
-    message(paste("M: In total,", before - after, "detections were excluded as they failed the track quality checks.")
+    message("M: In total,", before - after, "detections were excluded as they failed the track quality checks.")
   rm(before, after)
 
   # Calculate dBBMM
@@ -256,7 +258,7 @@ breakByTimeframe <- function(input, timerange, timeframe) {
 #' Performs a series of quality checks on the detection data.
 #' 
 #' @param input The detections list
-#' @inheritParams SPBDynBBMM
+#' @inheritParams dynBBMM
 #' 
 #' @return The detections which can be used for dbbmm
 #' 
@@ -497,7 +499,7 @@ calculateDBBMM <- function(input, UTM.zone, raster) {
 #' 
 #' @param dbbmm the results of the dBBMM calculation
 #' @inheritParams calculateDBBMM
-#' @inheritParams SPBDynBBMM
+#' @inheritParams dynBBMM
 #' 
 #' @return A list of areas per track, per group
 #' 
@@ -848,7 +850,7 @@ getOverlaps <- function(dbbmm.rasters, base.raster, breaks) {
 #' 
 #' @param input The detections list used for the dbbmm
 #' @param water The water areas computed by getWaterAreas
-#' @inheritParams SPBDynBBMM
+#' @inheritParams dynBBMM
 #' 
 #' @return a summary list with track information
 #' 
@@ -912,7 +914,7 @@ saveTrackInfo <- function(input, water, tz.study.area) {
 #' 
 #' Extracts movement metadata from the total dynamic Brownian Bridge Movement Model (dBBMM) for a particular group of interest. 
 #'
-#' @param input The total dBBMM as returned by the SPBDynBBMM function. 
+#' @param input The total dBBMM as returned by the dynBBMM function. 
 #' @param group Group of interest.
 #' 
 #' @return A data frame with metadata for the group of interest. 

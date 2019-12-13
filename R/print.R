@@ -180,13 +180,13 @@ plotRSP <- function(input, tag, display = c("Receiver", "RSP", "Both"), type = c
 #' Plot specific dBBMM contours. By default, the inside contour (level1) is chosen to be the 50% 
 #' and the outer (level2) to be the 95%. 
 #'   
-#' @param input Dynamic Brownian Bridge Movement Model object as returned by SPBDynBBMM.
+#' @param input Dynamic Brownian Bridge Movement Model object as returned by dynBBMM.
 #' @param group Group/species of transmitters.
 #' @param Track Transmitter and track names to plot.
 #' @param levels Numeric vector os use areas to plot. By default the 99%, 95%, 75%, 50% and 25% areas will be returned.
 #' @param land.col Color of the land mass. 
 #' @param Station Should receiver stations be added to the graph. Default is TRUE.
-#' @inheritParams SPBDynBBMM
+#' @inheritParams dynBBMM
 #' 
 #' @return dynamic Brownian Bridge Movement Model plot.
 #' 
@@ -295,7 +295,7 @@ plotContours <- function(input, group, track = NULL, timeslot = NULL, stations =
 #'
 #' Plot specific dBBMM contours. By default, the contour is chosen to be 95%. 
 #'   
-#' @param input Dynamic Brownian Bridge Movement Model object as returned by SPBDynBBMM.
+#' @param input Dynamic Brownian Bridge Movement Model object as returned by dynBBMM.
 #' @param level Numeric vector of the use area to plot. By default the .95 areas will be returned.
 #' @param main Character vector of the plot title. By default, the temporal window is returned in the title. 
 #' @param Station Should receiver stations be added to the graph. Default is TRUE.
