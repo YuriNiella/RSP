@@ -2,16 +2,10 @@
 % Please edit documentation in R/RSP.R
 \name{RSP}
 \alias{RSP}
-\title{Shortest Path Between Detection (RSP) analysis by fixed distance intervals}
+\title{Refined Shortest Path (RSP) between detections}
 \usage{
-RSP(
-  input,
-  base.raster,
-  distance = 250,
-  time.lapse = 10,
-  er.ad = NULL,
-  debug = FALSE
-)
+RSP(input, base.raster, distance = 250, time.lapse = 10,
+  er.ad = NULL, debug = FALSE)
 }
 \arguments{
 \item{input}{The output of one of actel's main functions (explore, migration or residency)}
@@ -20,7 +14,7 @@ RSP(
 
 \item{distance}{Fixed distances in meters to add intermediate track locations. By default intermediate positions are added every 250 m.}
 
-\item{time.lapse}{Temporal window in minutes to add intermediate track locations. By default intermediate positions are added every 10 min.}
+\item{time.lapse}{Temporal limit for the RSP in minutes. Consecutive detections shorter than the time.lapse will not have interpolated positions.}
 
 \item{er.ad}{By default, 5\% of the distance argument is used as the increment rate of the position erros for the estimated locations. Alternatively, can be defined by the user in meters.}
 

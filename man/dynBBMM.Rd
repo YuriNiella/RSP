@@ -4,26 +4,19 @@
 \alias{dynBBMM}
 \title{Total dynamic Brownian Bridge Movement Model}
 \usage{
-dynBBMM(
-  input,
-  UTM.zone,
-  tags = NULL,
-  breaks = c(0.95, 0.5),
-  timeframe = NULL,
-  debug = FALSE,
-  verbose = TRUE
-)
+dynBBMM(input, UTM.zone, tags = NULL, breaks = c(0.95, 0.5),
+  timeframe = NULL, debug = FALSE, verbose = TRUE)
 }
 \arguments{
-\item{input}{The output of an RSP function}
+\item{input}{The output of an RSP function.}
 
-\item{UTM.zone}{UTM UTM.zone of the study area.}
+\item{UTM.zone}{UTM zone of the study area.}
 
 \item{tags}{Vector of transmitters to be analyzed. By default all transmitters from the SPBD estimation will be analised.}
 
 \item{breaks}{The contours for calculating usage areas in squared meters. By default the 95\% and 50\% contours are used.}
 
-\item{timeframe}{Temporal window size in hours. If left NULL, a single dbbmm is calculated for the whole period.}
+\item{timeframe}{Temporal window size for fine-scale dBBMM in hours. If left NULL, a single dBBMM is calculated for the whole period.}
 
 \item{debug}{Logical: If TRUE, the function progress is saved to an RData file.}
 

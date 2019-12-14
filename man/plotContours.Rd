@@ -4,16 +4,9 @@
 \alias{plotContours}
 \title{Plot dynamic Brownian Bridge Movement Models (dBBMM)}
 \usage{
-plotContours(
-  input,
-  group,
-  track = NULL,
-  timeslot = NULL,
-  stations = FALSE,
-  levels = c(0.99, 0.95, 0.75, 0.5, 0.25),
-  main = NULL,
-  land.col = "#BABCBF"
-)
+plotContours(input, group, track = NULL, timeslot = NULL,
+  stations = FALSE, levels = c(0.99, 0.95, 0.75, 0.5, 0.25),
+  main = NULL, land.col = "#BABCBF")
 }
 \arguments{
 \item{input}{Dynamic Brownian Bridge Movement Model object as returned by dynBBMM.}
