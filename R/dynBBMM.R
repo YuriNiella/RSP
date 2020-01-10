@@ -510,7 +510,6 @@ getWaterAreas <- function(dbbmm.rasters, base.raster, breaks) {
         x <- the.dbbmm[[i]]
         aux <- base.raster
         raster::extent(aux) <- raster::extent(x) # Get both rasters with the same extent
-        aux <- raster::resample(aux, x)
         raster.crop <- raster::mask(x = x, mask = aux, inverse = TRUE)
         # Calculate contour areas
         output_breaks <- lapply(breaks, function(limit) {
@@ -562,7 +561,6 @@ getWaterAreas <- function(dbbmm.rasters, base.raster, breaks) {
           x <- the.dbbmm[[i]] 
           aux <- base.raster
           raster::extent(aux) <- raster::extent(x) # Get both rasters with the same extent
-          aux <- raster::resample(aux, x)
           raster.crop <- raster::mask(x = x, mask = aux, inverse = TRUE)
           # Calculate contour areas
           output_breaks <- lapply(breaks, function(limit) {
