@@ -66,7 +66,7 @@ dynBBMM <- function(input, UTM.zone, tags = NULL, breaks = c(.95, .50),
     after <- sum(unlist(lapply(group.list, function(group) lapply(group, nrow))))
 
   if (before != after)
-    message("M: In total,", before - after, "detections were excluded as they failed the track quality checks.")
+    message("M: In total, ", before - after, " detections were excluded as they failed the track quality checks.")
   rm(before, after)
 
   # Calculate dBBMM
@@ -351,7 +351,7 @@ checkTrackTimes <- function(input, group, verbose = TRUE) {
   } else {
     output <- tracks[link]
     if (verbose && length(tracks) > length(output))
-      warning(sum(!link), "track(s) in group", group, "are shorter than 30 minutes and will not be used.", immediate. = TRUE, call. = FALSE)
+      warning(sum(!link), "track(s) in group ", group, " are shorter than 30 minutes and will not be used.", immediate. = TRUE, call. = FALSE)
     return(do.call(rbind.data.frame, output))
   }
 }
@@ -369,12 +369,12 @@ checkTrackPoints <- function(input, group, verbose = TRUE) {
   link <- unlist(lapply(tracks, nrow)) > 8
   if (all(!link)) {
     if (verbose)
-      warning("ALL tracks in group", group, "have less than eight detections. Removing group from analysis.", immediate. = TRUE, call. = FALSE)    
+      warning("ALL tracks in group ", group, " have less than eight detections. Removing group from analysis.", immediate. = TRUE, call. = FALSE)    
     return(NULL)
   } else {
     output <- tracks[link]
     if (verbose && length(tracks) > length(output))
-      warning(length(tracks) - length(output), "track(s) in group", group, "have less than eight detections and will not be used.", immediate. = TRUE, call. = FALSE)
+      warning(length(tracks) - length(output), "track(s) in group ", group, " have less than eight detections and will not be used.", immediate. = TRUE, call. = FALSE)
     return(do.call(rbind.data.frame, output))
   }
 }
