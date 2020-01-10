@@ -444,7 +444,7 @@ calculateDBBMM <- function(input, UTM.zone, raster) {
                                   window.size = 7, margin = 3,
                                   location.error = input[[i]]$Error)
         ))
-      message("M: Success! (Time spent: ", actel::minuteTime(time.spent["elapsed"], format = "s", seconds = TRUE), ")")
+      message("M: Success! (Time spent: ", minuteTime(time.spent["elapsed"], format = "s", seconds = TRUE), ")")
       return(output)
       })
     names(mod_dbbmm) <- names(loc)
@@ -482,7 +482,7 @@ calculateDBBMM <- function(input, UTM.zone, raster) {
         })
       ))
       close(pb)
-      message("M: Success! (Time spent: ", actel::minuteTime(time.spent["elapsed"], format = "s", seconds = TRUE), ")")
+      message("M: Success! (Time spent: ", minuteTime(time.spent["elapsed"], format = "s", seconds = TRUE), ")")
       names(aux) <- names(loc[[g]])
       return(aux)
       })

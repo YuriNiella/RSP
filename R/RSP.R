@@ -238,7 +238,7 @@ calcRSP <- function(df.track, tz.study.area, distance, time.lapse, transition, e
         AtoB.df$cumSum <- cumsum(AtoB.df$Distance)
         AtoB.dist <- sum(AtoB.df$Distance)
         # Prepare to find points to keep
-        n.points <- actel::roundDown(AtoB.dist / distance, to = 1)
+        n.points <- roundDown(AtoB.dist / distance, to = 1)
         if (n.points == 0) {
           message("")
           warning("One of the inter-station RSP segments within ", df.track$Track[1], 
@@ -285,7 +285,7 @@ calcRSP <- function(df.track, tz.study.area, distance, time.lapse, transition, e
       if (nrow(mat.aux) <= 2) {
         mat.aux$Error <- base + er.ad 
       } else {
-        med.point <- actel::roundUp(nrow(mat.aux) / 2, to = 1)          
+        med.point <- roundUp(nrow(mat.aux) / 2, to = 1)          
         incremented.base <- base
         # Increasing error
         for (pos2 in 1:med.point) { 
