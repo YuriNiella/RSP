@@ -623,20 +623,23 @@ getWaterAreas <- function(dbbmm.rasters, base.raster, breaks) {
 getOverlaps <- function(dbbmm.rasters, base.raster, breaks) {
   if (attributes(dbbmm.rasters)$type == "group") {
     # prepare input rasters
-    raster.crop <- lapply(dbbmm.rasters, function(group, aux = base.raster) {
-      if (class(group) != "RasterLayer")
-        the.raster <- raster::calc(group, fun = mean, na.rm = TRUE) # Merge all transmitters in one raster
-      else
-        the.raster <- group
-      raster::extent(aux) <- raster::extent(the.raster) # Get all rasters with the same extent
-      the.raster <- raster::mask(x = the.raster,
-                                  mask = aux,
-                                  inverse = TRUE)
-      output <- lapply(breaks, function(limit) the.raster <= limit)
+    raster.crop <- lapply(dbbmm.rasters, function(group) {
+      output <- lapply(breaks, function(limit, aux.base = base.raster) {
+        aux.raster <- group <= limit
+        if (class(group) != "RasterLayer") {
+          the.raster <- raster::calc(aux.raster, fun = max, na.rm = TRUE) # Merge all transmitters in one raster
+        } else {
+          the.raster <- aux.raster
+        }
+        raster::extent(aux.base) <- raster::extent(the.raster) # Get all rasters with the same extent
+        the.raster <- raster::mask(x = the.raster,
+                                    mask = aux.base,
+                                    inverse = TRUE)
+        return(the.raster)
+      })
       names(output) <- breaks
       return(output)
     })
-
     # re-structure the list before continuing
     by.breaks <- lapply(breaks, function(limit) {
       output <- lapply(raster.crop, function(group) group[[as.character(limit)]])
@@ -713,16 +716,18 @@ getOverlaps <- function(dbbmm.rasters, base.raster, breaks) {
   if (attributes(dbbmm.rasters)$type == "timeslot") {
     # prepare input rasters
     raster.crop <- lapply(dbbmm.rasters, function(group) {
-      output_i <- lapply(group, function(timeslot, aux = base.raster) {
-        if (class(timeslot) != "RasterLayer")
-          the.raster <- raster::calc(timeslot, fun = mean, na.rm = TRUE) # Merge all transmitters in one raster
-        else
-          the.raster <- timeslot
-        raster::extent(aux) <- raster::extent(the.raster) # Get all rasters with the same extent
-        the.raster <- raster::mask(x = the.raster,
-                                    mask = aux,
-                                    inverse = TRUE)
-        output <- lapply(breaks, function(limit) the.raster <= limit)
+      output_i <- lapply(group, function(timeslot) {
+        output <- lapply(breaks, function(limit, aux.base = base.raster) { 
+          aux.raster <- timeslot <= limit
+          if (class(timeslot) != "RasterLayer")
+            the.raster <- raster::calc(aux.raster, fun = max, na.rm = TRUE) # Merge all transmitters in one raster
+          else
+            the.raster <- aux.raster
+          raster::extent(aux.base) <- raster::extent(the.raster) # Get all rasters with the same extent
+          the.raster <- raster::mask(x = the.raster,
+                                      mask = aux.base,
+                                      inverse = TRUE)
+        })
         names(output) <- breaks
         return(output)
       })
