@@ -16,6 +16,6 @@ A single vector where all data has been combined.
 Intended to combine vectors where, for each position, only one of the vectors contains data (i.e. the remaining are NA's).
 }
 \details{
-Copied from actel
+Copied from \link[actel]{actel}
 }
 \keyword{internal}

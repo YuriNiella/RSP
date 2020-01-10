@@ -4,8 +4,12 @@
 \alias{plotRSP}
 \title{Plot comparison tracks}
 \usage{
-plotRSP(input, tag, display = c("Receiver", "RSP", "Both"),
-  type = c("lines", "points"))
+plotRSP(
+  input,
+  tag,
+  display = c("Receiver", "RSP", "Both"),
+  type = c("lines", "points")
+)
 }
 \arguments{
 \item{input}{RSP dataset as returned by RSP.}

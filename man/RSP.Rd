@@ -4,8 +4,14 @@
 \alias{RSP}
 \title{Refined Shortest Path (RSP) between detections}
 \usage{
-RSP(input, base.raster, distance = 250, time.lapse = 10,
-  er.ad = NULL, debug = FALSE)
+RSP(
+  input,
+  base.raster,
+  distance = 250,
+  time.lapse = 10,
+  er.ad = NULL,
+  debug = FALSE
+)
 }
 \arguments{
 \item{input}{The output of one of actel's main functions (explore, migration or residency)}

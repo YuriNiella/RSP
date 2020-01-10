@@ -4,8 +4,15 @@
 \alias{calcRSP}
 \title{Recreating RSP for a particular tracked animal}
 \usage{
-calcRSP(df.track, tz.study.area, distance, time.lapse, transition, er.ad,
-  path.list)
+calcRSP(
+  df.track,
+  tz.study.area,
+  distance,
+  time.lapse,
+  transition,
+  er.ad,
+  path.list
+)
 }
 \arguments{
 \item{df.track}{Detection data for that individual as imported using RSPete.}
