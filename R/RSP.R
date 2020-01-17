@@ -80,14 +80,14 @@ prepareDetections <- function(detections, spatial) {
   output <- lapply(detections, function(x){
     x$Date <- as.Date(x$Timestamp)
     if (any(colnames(spatial$stations) == "Range")) {
-      link <- match(x$Standard.Name, spatial$stations$Standard.Name)
+      link <- match(x$Standard.name, spatial$stations$Standard.name)
       x$Error <- spatial$stations$Range[link]
     } else {
       x$Error <- 500
     }
     x$Time.lapse.min <- c(0, as.numeric(difftime(x$Timestamp[-1], x$Timestamp[-nrow(x)], units = "mins")))
-    x$Longitude <- spatial$stations$Longitude[match(x$Standard.Name, spatial$stations$Standard.Name)]
-    x$Latitude <- spatial$stations$Latitude[match(x$Standard.Name, spatial$stations$Standard.Name)]
+    x$Longitude <- spatial$stations$Longitude[match(x$Standard.name, spatial$stations$Standard.name)]
+    x$Latitude <- spatial$stations$Latitude[match(x$Standard.name, spatial$stations$Standard.name)]
     return(x)
   })
   
@@ -206,7 +206,7 @@ calcRSP <- function(df.track, tz.study.area, distance, time.lapse, transition, e
   pb <- txtProgressBar(min = 0, max = nrow(df.track),
                               initial = 0, style = 3, width = 60)
   
-  station.shifts <- c(FALSE, df.track$Standard.Name[-1] != df.track$Standard.Name[-nrow(df.track)])
+  station.shifts <- c(FALSE, df.track$Standard.name[-1] != df.track$Standard.name[-nrow(df.track)])
   time.shifts <- df.track$Time.lapse.min > time.lapse
   different.station.shift <- station.shifts & time.shifts
   same.station.shift <- !station.shifts & time.shifts
@@ -385,7 +385,7 @@ includeRSP <- function(detections, transition, tz.study.area, distance, time.lap
     tag.recipient$Track <- as.factor(tag.recipient$Track)
     tag.recipient$Receiver <- as.factor(tag.recipient$Receiver)
     tag.recipient$Transmitter <- as.factor(tag.recipient$Transmitter)
-    tag.recipient$Standard.Name <- as.factor(tag.recipient$Standard.Name)
+    tag.recipient$Standard.name <- as.factor(tag.recipient$Standard.name)
     tag.recipient <- tag.recipient[order(tag.recipient$Timestamp), ]
     return(tag.recipient)
   })
