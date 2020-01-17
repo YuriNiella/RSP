@@ -351,7 +351,7 @@ checkTrackTimes <- function(input, group, verbose = TRUE) {
   } else {
     output <- tracks[link]
     if (verbose && length(tracks) > length(output))
-      warning(sum(!link), "track(s) in group ", group, " are shorter than 30 minutes and will not be used.", immediate. = TRUE, call. = FALSE)
+      warning(sum(!link), " track(s) in group ", group, " are shorter than 30 minutes and will not be used.", immediate. = TRUE, call. = FALSE)
     return(do.call(rbind.data.frame, output))
   }
 }
@@ -374,7 +374,7 @@ checkTrackPoints <- function(input, group, verbose = TRUE) {
   } else {
     output <- tracks[link]
     if (verbose && length(tracks) > length(output))
-      warning(length(tracks) - length(output), "track(s) in group ", group, " have less than eight detections and will not be used.", immediate. = TRUE, call. = FALSE)
+      warning(length(tracks) - length(output), " track(s) in group ", group, " have less than eight detections and will not be used.", immediate. = TRUE, call. = FALSE)
     return(do.call(rbind.data.frame, output))
   }
 }
