@@ -386,7 +386,7 @@ plotOverlap <- function(input, timeslot = NULL, stations = FALSE,
     dbbmm.raster <- lapply(input$group.rasters, function(x) {
       aux.raster <- x <= level
       if (class(x) != "RasterLayer")
-        the.raster <- raster::calc(aux.raster, fun = sum, na.rm = TRUE)
+        the.raster <- raster::calc(aux.raster, fun = max, na.rm = TRUE)
       else
         the.raster <- aux.raster
       raster::projectRaster(from = the.raster, crs = "+proj=longlat +datum=WGS84")
@@ -396,7 +396,7 @@ plotOverlap <- function(input, timeslot = NULL, stations = FALSE,
     dbbmm.raster <- lapply(aux, function(x, t = timeslot) {
       aux.raster <- x[[t]] <= limit
       if (class(x[[t]]) != "RasterLayer")
-        the.raster <- raster::calc(aux.raster, fun = mean, na.rm = TRUE)
+        the.raster <- raster::calc(aux.raster, fun = max, na.rm = TRUE)
       else
         the.raster <- aux.raster
       raster::projectRaster(from = the.raster, crs = "+proj=longlat +datum=WGS84")
@@ -405,6 +405,7 @@ plotOverlap <- function(input, timeslot = NULL, stations = FALSE,
 
   # Get group contours:
   contours <- lapply(seq_along(dbbmm.raster), function(i) {
+    the.contour <- dbbmm.raster[[i]]
     raster::extent(the.contour) <- raster::extent(base.raster)
     output <- raster::rasterToPoints(the.contour)
     output <- data.frame(output)
