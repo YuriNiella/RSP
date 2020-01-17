@@ -651,6 +651,9 @@ getOverlaps <- function(dbbmm.rasters, base.raster, breaks) {
     names(by.breaks) <- breaks
 
     # start working
+    pb <-  txtProgressBar(min = 0, max = sum(sapply(by.breaks, length)),
+                          initial = 0, style = 3, width = 60)
+    counter <- 0
     recipient <- lapply(by.breaks, function(limit) {
       # calculate areas only once
       areas <- sapply(limit, function(x) sum(raster::values(x), na.rm = TRUE))
@@ -702,8 +705,11 @@ getOverlaps <- function(dbbmm.rasters, base.raster, breaks) {
         overlap.matrix.a <<- overlap.matrix.a
         overlap.matrix.p <<- overlap.matrix.p
       })
+      counter <<- counter + 1
+      setTxtProgressBar(pb, counter) # Progress bar    
       return(list(overlap.areas = overlap.matrix.a, overlap.percentages = overlap.matrix.p, overlap.rasters = overlap.rasters, areas = areas))
     })
+    close(pb)
 
     # simplify the output
     group.areas <- as.data.frame(sapply(recipient, function(limit) limit$area))
