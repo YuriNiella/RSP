@@ -651,7 +651,7 @@ getOverlaps <- function(dbbmm.rasters, base.raster, breaks) {
     names(by.breaks) <- breaks
 
     # start working
-    pb <-  txtProgressBar(min = 0, max = sum(sapply(by.breaks, length)),
+    pb <-  txtProgressBar(min = 0, max = sum(sapply(by.breaks, length)) - length(by.breaks),
                           initial = 0, style = 3, width = 60)
     counter <- 0
     recipient <- lapply(by.breaks, function(limit) {
