@@ -384,26 +384,27 @@ plotOverlap <- function(input, timeslot = NULL, stations = FALSE,
   # Convert projection to lonlat projection for plotting:
   if (is.null(timeslot)) {
     dbbmm.raster <- lapply(input$group.rasters, function(x) {
+      aux.raster <- x <= level
       if (class(x) != "RasterLayer")
-        aux <- raster::calc(x, fun = mean, na.rm = TRUE)
+        the.raster <- raster::calc(aux.raster, fun = sum, na.rm = TRUE)
       else
-        aux <- x
-      raster::projectRaster(from = aux, crs = "+proj=longlat +datum=WGS84")
+        the.raster <- aux.raster
+      raster::projectRaster(from = the.raster, crs = "+proj=longlat +datum=WGS84")
     })
   } else {
     aux <- input$group.rasters[!is.na(unlist(lapply(input$group.rasters, function(x) match(timeslot, names(x)))))]
     dbbmm.raster <- lapply(aux, function(x, t = timeslot) {
+      aux.raster <- x[[t]] <= limit
       if (class(x[[t]]) != "RasterLayer")
-        aux <- raster::calc(x[[t]], fun = mean, na.rm = TRUE)
+        the.raster <- raster::calc(aux.raster, fun = mean, na.rm = TRUE)
       else
-        aux <- x[[t]]
-      raster::projectRaster(from = aux, crs = "+proj=longlat +datum=WGS84")
+        the.raster <- aux.raster
+      raster::projectRaster(from = the.raster, crs = "+proj=longlat +datum=WGS84")
     })
   }
 
   # Get group contours:
   contours <- lapply(seq_along(dbbmm.raster), function(i) {
-    the.contour <- dbbmm.raster[[i]] <= level
     raster::extent(the.contour) <- raster::extent(base.raster)
     output <- raster::rasterToPoints(the.contour)
     output <- data.frame(output)
