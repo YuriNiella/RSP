@@ -623,8 +623,11 @@ getWaterAreas <- function(dbbmm.rasters, base.raster, breaks) {
 getOverlaps <- function(dbbmm.rasters, base.raster, breaks) {
   if (attributes(dbbmm.rasters)$type == "group") {
     # prepare input rasters
+    # counter <- 1
     raster.crop <- lapply(dbbmm.rasters, function(group) {
+      # cat(counter, "\n")
       output <- lapply(breaks, function(limit, aux.base = base.raster) {
+        # cat(limit, '\n')
         aux.raster <- group <= limit
         if (class(group) != "RasterLayer") {
           the.raster <- raster::calc(aux.raster, fun = max, na.rm = TRUE) # Merge all transmitters in one raster
@@ -638,6 +641,7 @@ getOverlaps <- function(dbbmm.rasters, base.raster, breaks) {
         return(the.raster)
       })
       names(output) <- breaks
+      # counter <<- counter + 1
       return(output)
     })
     # re-structure the list before continuing
@@ -657,7 +661,7 @@ getOverlaps <- function(dbbmm.rasters, base.raster, breaks) {
       rownames(overlap.matrix.a) <- colnames(overlap.matrix.a) <- names(limit)
       overlap.matrix.p <- overlap.matrix.a
       # compare each elements (except the last) with all the elements coming after it
-      lapply(1:(length(limit) - 1), function(a) {
+      capture <- lapply(1:(length(limit) - 1), function(a) {
         lapply((a + 1):length(limit), function(b) {
           # grab the areas calculated before 
           area.a <- areas[a]
