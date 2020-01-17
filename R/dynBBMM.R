@@ -680,7 +680,6 @@ getOverlaps <- function(dbbmm.rasters, base.raster, breaks) {
             }
             # match both and calculate overlap
             raster::extent(smaller) <- raster::extent(bigger)
-            raster.base <- raster::resample(smaller, bigger)
             aux <- raster::overlay(x = bigger, y = smaller, fun = min)
             over.area <- sum(raster::values(aux), na.rm = TRUE)
             over.percentage <- over.area / min(area.a, area.b)
@@ -704,9 +703,10 @@ getOverlaps <- function(dbbmm.rasters, base.raster, breaks) {
         overlap.rasters <<- overlap.rasters
         overlap.matrix.a <<- overlap.matrix.a
         overlap.matrix.p <<- overlap.matrix.p
+        counter <<- counter + 1
+        setTxtProgressBar(pb, counter) # Progress bar    
       })
-      counter <<- counter + 1
-      setTxtProgressBar(pb, counter) # Progress bar    
+      counter <<- counter
       return(list(overlap.areas = overlap.matrix.a, overlap.percentages = overlap.matrix.p, overlap.rasters = overlap.rasters, areas = areas))
     })
     close(pb)
