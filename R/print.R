@@ -60,10 +60,6 @@ plotDist <- function(input) {
   p <- p + ggplot2::theme_bw()
   p <- p + ggplot2::coord_flip(ylim = c(0, max(plotdata$Dist.travel) * 1.05), expand = FALSE)
   p
-
-  if(table) {
-    print(plotdata)
-  }
 }
 
 
