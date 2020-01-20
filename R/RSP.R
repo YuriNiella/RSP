@@ -21,7 +21,7 @@ NULL
 #' 
 #' @export
 #' 
-RSP <- function(input, base.raster, distance = 250, time.lapse = 10, er.ad = NULL, debug = FALSE) {
+runRSP <- function(input, base.raster, distance = 250, time.lapse = 10, er.ad = NULL, debug = FALSE) {
   if (debug) {
     on.exit(save(list = ls(), file = "RSP_debug.RData"), add = TRUE)
     message("!!!--- Debug mode has been activated ---!!!")

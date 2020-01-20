@@ -4,16 +4,9 @@
 \alias{plotGIF}
 \title{Plot orverlapping contours in a gif}
 \usage{
-plotGIF(
-  input,
-  timeslot = NULL,
-  stations = FALSE,
-  level = 0.95,
-  main = NULL,
-  color.plot = NULL,
-  land.col = "#BABCBF",
-  store = FALSE
-)
+plotGIF(input, timeslot = NULL, stations = FALSE, level = 0.95,
+  main = NULL, color.plot = NULL, land.col = "#BABCBF",
+  store = FALSE)
 }
 \arguments{
 \item{input}{Dynamic Brownian Bridge Movement Model object as returned by dynBBMM.}

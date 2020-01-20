@@ -4,15 +4,8 @@
 \alias{includeRSP}
 \title{Recreating RSP for all tracked animals}
 \usage{
-includeRSP(
-  detections,
-  transition,
-  tz.study.area,
-  distance,
-  time.lapse,
-  er.ad,
-  debug = FALSE
-)
+includeRSP(detections, transition, tz.study.area, distance, time.lapse,
+  er.ad, debug = FALSE)
 }
 \arguments{
 \item{detections}{Detection data for that individual as imported using RSPete.}
@@ -20,14 +13,6 @@ includeRSP(
 \item{transition}{TransitionLayer object as returned by LTDpath.}
 
 \item{tz.study.area}{Timezone of the study area.}
-
-\item{distance}{Fixed distances in meters to add intermediate track locations. By default intermediate positions are added every 250 m.}
-
-\item{time.lapse}{Temporal limit for the RSP in minutes. Consecutive detections shorter than the time.lapse will not have interpolated positions.}
-
-\item{er.ad}{By default, 5\% of the distance argument is used as the increment rate of the position erros for the estimated locations. Alternatively, can be defined by the user in meters.}
-
-\item{debug}{Logical: If TRUE, the function progress is saved to an RData file.}
 }
 \value{
 A list with the RSP estimations of individual tracks per transmitter.

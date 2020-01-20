@@ -1,4 +1,4 @@
-#' Analyze RSP x Receiver total distances travelled 
+#' Visualize RSP x Receiver total distances travelled 
 #' 
 #' Compare the outputs of total distances travelled (in kilometers) for each tracked animal, 
 #' using only receiver locations and adding the RSP positions.
@@ -9,7 +9,7 @@
 #' 
 #' @export
 #' 
-plotDistances <- function(input) {
+plotDist <- function(input) {
   Animal.tracked <- NULL
   Dist.travel <- NULL
   Loc.type <- NULL
@@ -60,10 +60,73 @@ plotDistances <- function(input) {
   p <- p + ggplot2::theme_bw()
   p <- p + ggplot2::coord_flip(ylim = c(0, max(plotdata$Dist.travel) * 1.05), expand = FALSE)
   p
+
+  if(table) {
+    print(plotdata)
+  }
 }
 
 
-#' Analyze RSP x Receiver total number of individual locations
+#' Extract RSP x Receiver total distances travelled
+#' 
+#' Calculate the total distances travelled (in kilometers) for each tracked animal, 
+#' using only receiver locations and adding the RSP positions.
+#'
+#' @param input RSP dataset as returned by RSP.
+#' 
+#' @return A dataframe of total distances travelled as a function of location type (Loc.type). 
+#' 
+#' @export
+#' 
+rspDist <- function(input) {
+  Animal.tracked <- NULL
+  Dist.travel <- NULL
+  Loc.type <- NULL
+
+  detections <- input$detections
+  
+  df.diag <- lapply(seq_along(detections), function(i) {
+    df.aux <- split(detections[[i]], detections[[i]]$Track)
+    track <- names(df.aux) # Analyze tracks individually
+    aux <- lapply(seq_along(df.aux), function(j) {
+      df.rec <- subset(df.aux[[j]], Position == "Receiver")
+      # Receiver distances only
+      aux.coords <- data.frame(
+        x1 = df.rec$Longitude[-nrow(df.rec)],
+        y1 = df.rec$Latitude[-nrow(df.rec)],
+        x2 = df.rec$Longitude[-1],
+        y2 = df.rec$Latitude[-1])
+      rec.tot <- apply(aux.coords, 1, function(p) geosphere::distm(x = c(p[1], p[2]), y = c(p[3], p[4])))
+      rec.tot <- sum(rec.tot) / 1000 # in Km
+      
+      # Receiver + RSP distances
+      aux.coords <- data.frame(
+        x1 = df.aux[[j]]$Longitude[-nrow(df.aux[[j]])],
+        y1 = df.aux[[j]]$Latitude[-nrow(df.aux[[j]])],
+        x2 = df.aux[[j]]$Longitude[-1],
+        y2 = df.aux[[j]]$Latitude[-1])
+      RSP.tot <- apply(aux.coords, 1, function(p) geosphere::distm(x = c(p[1], p[2]), y = c(p[3], p[4])))
+      RSP.tot <- sum(RSP.tot) / 1000 # in Km
+      
+      # Save output:
+      output <- data.frame(
+        Animal.tracked = rep(names(detections)[i], 2),
+        Track = rep(names(df.aux)[j], 2),
+        Day.n = rep(length(unique(df.aux[[j]]$Date)), 2),
+        Loc.type = c("Receiver", "RSP"),
+        Dist.travel = c(rec.tot, RSP.tot))
+      # print(output, topn = nrow(output)); flush.console()
+      return(output)
+    })
+    return(as.data.frame(data.table::rbindlist(aux)))
+  })
+  plotdata <- as.data.frame(data.table::rbindlist(df.diag))
+  plotdata <- subset(plotdata, Dist.travel > 0) # Include only good tracks 
+  return(plotdata)
+}
+
+
+#' Visualize RSP x Receiver total number of individual locations
 #' 
 #' Compare the outputs of total number of individual location data for each tracked animal, 
 #' using only receiver locations and adding the RSP positions.
@@ -74,7 +137,7 @@ plotDistances <- function(input) {
 #' 
 #' @export
 #' 
-plotDetections <- function(input) {
+plotDetec <- function(input) {
   Animal.tracked <- NULL
   Total.days <- NULL
   Finescale.freq <- NULL
@@ -106,6 +169,46 @@ plotDetections <- function(input) {
   p <- p + ggplot2::theme_bw()
   p <- p + ggplot2::coord_cartesian(ylim = c(0, max(df.diag$Total.locs) * 1.05), expand = FALSE)
   p
+}
+
+
+#' Extract RSP x Receiver total number of individual locations
+#' 
+#' Calculate total number of individual location data for each tracked animal, 
+#' using only receiver locations and adding the RSP positions.
+#'
+#' @param input RSP dataset as returned by RSP.
+#' 
+#' @return A dataframe of total number of locations as a function of location type (Loc.type). 
+#' 
+#' @export
+#' 
+rspDetec <- function(input) {
+  Animal.tracked <- NULL
+  Total.days <- NULL
+  Finescale.freq <- NULL
+  Loc.type <- NULL
+  Total.locs <- NULL
+  RSP.locs <- NULL
+  Rec.locs <- NULL
+  
+  detections <- input$detections
+
+  for(i in 1:length(detections)){
+    df.tot <- subset(detections[[i]], Position == "Receiver")    
+    Animal.tracked <- c(Animal.tracked, names(detections)[i])
+    Total.days <- c(Total.days, length(unique(df.tot$Date)))
+    Finescale.freq <- c(Finescale.freq, (length(unique(detections[[i]]$Date)) * 100) / length(unique(df.tot$Date)))
+    RSP.locs <- c(RSP.locs, length(detections[[i]]$Position[detections[[i]]$Position == "RSP"]))
+    Rec.locs <- c(Rec.locs, length(detections[[i]]$Position[detections[[i]]$Position == "Receiver"]))
+  }
+  
+  df.diag <- data.frame(
+    Animal.tracked = rep(names(detections), 2), 
+    Total.locs = c(Rec.locs, RSP.locs), 
+    Loc.type = c(rep("Receiver", length(detections)), rep("RSP", length(detections))))
+  
+  return(df.diag)
 }
 
 
