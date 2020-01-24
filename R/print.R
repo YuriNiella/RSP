@@ -493,7 +493,7 @@ plotOverlap <- function(input, timeslot = NULL, stations = FALSE,
   } else {
     aux <- input$group.rasters[!is.na(unlist(lapply(input$group.rasters, function(x) match(timeslot, names(x)))))]
     dbbmm.raster <- lapply(aux, function(x, t = timeslot) {
-      aux.raster <- x[[t]] <= limit
+      aux.raster <- x[[t]] <= level
       if (class(x[[t]]) != "RasterLayer")
         the.raster <- raster::calc(aux.raster, fun = max, na.rm = TRUE)
       else
