@@ -128,3 +128,16 @@ combine <- function(input) {
 stripCodeSpaces <- function(input) {
   unlist(lapply(input, function(x) tail(unlist(strsplit(x, "-")), 1)))
 }
+
+#' Remove a previously created transition layer
+#' 
+#' @export
+#'
+rmTransition <- function() {
+  if (file.exists('rsp.transition.layer.RData')) {
+    file.remove('rsp.transition.layer.RData')
+    message("M: Transition layer removed")
+  } else {
+    message("M: No transition layer found in current working directory.")
+  }
+}

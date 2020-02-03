@@ -4,8 +4,7 @@
 \alias{groupDetections}
 \title{Prepare detections for the dBBMM}
 \usage{
-groupDetections(detections, tz.study.area, bio, UTM.zone,
-  timeframe = NULL)
+groupDetections(detections, tz.study.area, bio, UTM.zone, timeframe = NULL)
 }
 \arguments{
 \item{detections}{a list of detections per fish}

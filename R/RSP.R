@@ -75,7 +75,7 @@ runRSP <- function(input, base.raster, distance = 250, time.lapse = 10, er.ad = 
 #' 
 prepareDetections <- function(detections, spatial) {
   if (!any(colnames(spatial$stations) == "Range")) 
-    warning("Could not find a 'Range' column in the spatial file; assuming a range of 500 metres for each receiver.", immediate. = TRUE, call. = FALSE)
+    warning("Could not find a 'Range' column in the spatial data; assuming a range of 500 metres for each receiver.", immediate. = TRUE, call. = FALSE)
 
   output <- lapply(detections, function(x){
     x$Date <- as.Date(x$Timestamp)
@@ -162,7 +162,7 @@ RPStransition <- function(raster.hab = "shapefile.grd") { # HF: We need to discu
 
   if (file.exists("rsp.transition.layer.RData")) {
     load("rsp.transition.layer.RData")
-    message("M: Reusing transition layer calculated on ", transition.layer$timestamp,".\n   If you want to calculate a new transition layer, delete the file 'rsp.transition.layer.RData' from your working directory.")
+    message("M: Reusing transition layer calculated on ", transition.layer$timestamp,".\n   If you want to calculate a new transition layer, run rmTransition() before re-starting the analysis.")
     transition.layer <- transition.layer[[1]]
   } else {
     raster.hab <- raster::raster(raster.hab, full.names = TRUE)

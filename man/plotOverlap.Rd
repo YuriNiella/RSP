@@ -4,9 +4,16 @@
 \alias{plotOverlap}
 \title{Plot orverlapping contours}
 \usage{
-plotOverlap(input, timeslot = NULL, stations = FALSE, level = 0.95,
-  main = NULL, color.plot = NULL, land.col = "#BABCBF",
-  store = FALSE)
+plotOverlap(
+  input,
+  timeslot = NULL,
+  stations = FALSE,
+  level = 0.95,
+  main = NULL,
+  color.plot = NULL,
+  land.col = "#BABCBF",
+  store = FALSE
+)
 }
 \arguments{
 \item{input}{Dynamic Brownian Bridge Movement Model object as returned by dynBBMM.}
