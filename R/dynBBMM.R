@@ -188,14 +188,15 @@ loadRaster <- function(base.raster, UTM.zone) {
 groupDetections <- function(detections, tz.study.area, bio, UTM.zone, timeframe = NULL) {
   # Split transmitters per group variable
   df.signal <- data.frame(Transmitter = names(detections),
-                          Signal = stripCodeSpaces(names(detections)))
+                          Signal = stripCodeSpaces(names(detections)),
+                          stringsAsFactors = FALSE)
   
   # HF: remove spaces from groups
   if (any(grepl(" ", bio$Group))) {
     warning("Substituting spaces in group names to avoid function failure.", immediate. = TRUE, call. = FALSE)
     bio$Group <- gsub(" ", "_", bio$Group)
   }
-  df.signal$Group <- bio$Group[match(df.signal$Signal, bio$Signal)]
+  df.signal$Group <- as.character(bio$Group[match(df.signal$Signal, bio$Signal)])
 
   # Get signals per group
   signal.list <- split(df.signal, df.signal$Group)
