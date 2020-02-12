@@ -4,15 +4,8 @@
 \alias{includeRSP}
 \title{Recreating RSP for all tracked animals}
 \usage{
-includeRSP(
-  detections,
-  transition,
-  tz.study.area,
-  distance,
-  time.lapse,
-  er.ad,
-  debug = FALSE
-)
+includeRSP(detections, transition, tz.study.area, distance, time.lapse,
+  er.ad, debug = FALSE)
 }
 \arguments{
 \item{detections}{Detection data for that individual as imported using RSPete.}

@@ -4,15 +4,8 @@
 \alias{dynBBMM}
 \title{Total dynamic Brownian Bridge Movement Model}
 \usage{
-dynBBMM(
-  input,
-  UTM.zone,
-  tags = NULL,
-  breaks = c(0.95, 0.5),
-  timeframe = NULL,
-  debug = FALSE,
-  verbose = TRUE
-)
+dynBBMM(input, UTM.zone, tags = NULL, breaks = c(0.95, 0.5),
+  timeframe = NULL, debug = FALSE, verbose = TRUE)
 }
 \arguments{
 \item{input}{The output of an RSP function.}

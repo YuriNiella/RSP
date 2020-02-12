@@ -122,6 +122,76 @@ rspDist <- function(input) {
 }
 
 
+#' Density plot of elapsed times between consecutive acoustic detections
+#' 
+#' Generates a density plot for inspecting the distribution of elapsed times (in hours) between all consecutive
+#' acustic detections. By default the plot is created including all monitored groups and transmitters. Alternatively,
+#' can be set to be performed at group level using the type argument. 
+#'
+#' @param input RSP dataset as returned by RSP.
+#' @param type Character vector (Total, Group) defining the level to which calculate density distributions. 
+#' 
+#' @return Density plots of hours elapsed between consecutive acoustic detections. 
+#' 
+#' @export
+#' 
+densDetec <- function(input, type = "Total") {
+  #input <- rsp.data
+  if (type == "Total") {
+    input <- do.call(rbind.data.frame, input$detections)
+    input <- subset(input, Position == "Receiver")
+    input$Track.name <- paste(input$Transmitter, input$Track, sep = "_")
+    input$Time.lapse.hour <- NA
+
+    for (i in 2:nrow(input)) {
+      if (input$Track.name[i] == input$Track.name[i - 1]) {
+       input$Time.lapse.hour[i] <- as.numeric(difftime(input$Timestamp[i], input$Timestamp[i - 1], units = "hours"))
+      }
+    }
+
+    p <- ggplot2::ggplot() + ggplot2::theme_classic()
+    p <- p + ggplot2::geom_density(data = input, ggplot2::aes(x = Time.lapse.hour), color = NA, fill = cmocean::cmocean('matter')(3)[2], na.rm = TRUE)
+    p <- p + ggplot2::labs(x = "Time (hours)", y = "Frequency", 
+      title = paste0("Total: mean = ", format(round(mean(input$Time.lapse.hour, na.rm = TRUE), 2), nsmall = 2), 
+      " | max = ", format(round(max(input$Time.lapse.hour, na.rm = TRUE), 2), nsmall = 2)))
+    p <- p + ggplot2::geom_vline(ggplot2::aes(xintercept = mean(input$Time.lapse.hour, na.rm = TRUE)), 
+      color = cmocean::cmocean('matter')(3)[3], linetype="dashed", size=1)
+    
+    return(p)
+  }
+
+  if (type == "Group") {
+    input <- input$detections
+    group.names <- names(input)
+    list.plot <- list()
+    for (i in 1:length(group.names)) {
+      aux <- input[[which(names(input) == group.names[i])]]
+      aux <- subset(aux, Position == "Receiver")
+      aux$Track.name <- paste(aux$Transmitter, aux$Track, sep = "_")
+      aux$Time.lapse.hour <- NA
+
+      for (ii in 2:nrow(aux)) {
+        if (aux$Track.name[ii] == aux$Track.name[ii - 1]) {
+        aux$Time.lapse.hour[ii] <- as.numeric(difftime(aux$Timestamp[ii], aux$Timestamp[ii - 1], units = "hours"))
+        }
+      }
+
+      p <- ggplot2::ggplot() + ggplot2::theme_classic()
+      p <- p + ggplot2::geom_density(data = aux, ggplot2::aes(x = Time.lapse.hour), color = NA, fill = cmocean::cmocean('matter')(3)[2], na.rm = TRUE)
+      p <- p + ggplot2::labs(x = "Time (hours)", y = "Frequency", 
+        title = paste0(group.names[i], ": ", "mean = ", format(round(mean(aux$Time.lapse.hour, na.rm = TRUE), 2), nsmall = 2), 
+        " | max = ", format(round(max(aux$Time.lapse.hour, na.rm = TRUE), 2), nsmall = 2)))
+      p <- p + ggplot2::geom_vline(ggplot2::aes(xintercept = mean(aux$Time.lapse.hour, na.rm = TRUE)), 
+        color = cmocean::cmocean('matter')(3)[3], linetype="dashed", size=1)
+
+      list.plot[[i]] <- p       
+   }
+   names(list.plot) <- group.names
+   return(list.plot)
+  }
+}
+
+
 #' Visualize RSP x Receiver total number of individual locations
 #' 
 #' Compare the outputs of total number of individual location data for each tracked animal, 

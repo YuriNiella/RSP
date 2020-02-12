@@ -273,47 +273,51 @@ plotContours(input = group.dbbmm.results, group = "Bream", track = 'A69-9002-104
 
 ### 4.2. Total space-use overlap 
 
-(REVIEW STOPPED HERE!)
-
-Now that we calculated the areas of space-use within our study area for each group monitored, we can investigate the ammount of overall overlap between the different species stored in the ```$overlap.areas``` object:
+Now that we calculated the areas of space-use within our study area for each group monitored, we can investigate the ammount of overall overlap between them stored in the ```$overlap.areas``` object:
 
 ```
 group.dbbmm.results$overlap.areas$`0.5`
 group.dbbmm.results$overlap.areas$`0.5`$absolute
 ```
-|         |    Bream| Luderick| Tarwhine|
-|:--------|--------:|--------:|--------:|
-|    Bream|       NA|       NA|       10|
-| Luderick|	 	  NA|       NA|       NA|
-| Tarwhine|	  	  10|       NA|       NA|
+|          | R64K-4075| R64K-4125| R64K-4128| R64K-4128|
+|:---------|---------:|---------:|---------:|---------:|
+| R64K-4075|        NA|      7274|      5456|     11145|
+| R64K-4125|   	  7274|        NA|      4378|      5624|
+| R64K-4128|	  5456|      4378|        NA|	   4128|
+| R64K-4138|     11145|      5624|      4128|        NA|
 ```
 group.dbbmm.results$overlap.areas$`0.5`$percentage
 ```
-|         |    Bream| Luderick| Tarwhine|
-|:--------|--------:|--------:|--------:|
-|    Bream|       NA|       NA|0.5263158|
-| Luderick|	      NA|       NA|       NA|
-| Tarwhine|0.5263158|       NA|       NA|
+|          | R64K-4075| R64K-4125| R64K-4128| R64K-4128|
+|:---------|---------:|---------:|---------:|---------:|
+| R64K-4075|        NA|    0.9292|    0.8468|    0.8426|
+| R64K-4125|    0.9292|        NA|    0.6794|    0.7184|
+| R64K-4128|	0.8468|    0.6794|        NA|	 0.6406|
+| R64K-4138|    0.8426|    0.7184|    0.6406|        NA|
 ```
 group.dbbmm.results$overlap.areas$`0.95`
 group.dbbmm.results$overlap.areas$`0.95`$absolute
 ```
-|         |    Bream| Luderick| Tarwhine|
-|:--------|--------:|--------:|--------:|
-|    Bream|       NA|     2556|     1962|
-| Luderick|		2556|       NA|     1205|
-| Tarwhine|     1962|     1205|       NA|
+|          | R64K-4075| R64K-4125| R64K-4128| R64K-4128|
+|:---------|---------:|---------:|---------:|---------:|
+| R64K-4075|        NA|     36853|     16567|     39758|
+| R64K-4125|     36853|        NA|     16592|     36599|
+| R64K-4128|	 16567|     16592|        NA|	  18192|
+| R64K-4138|     39758|     36599|     18192|        NA|
 ```
 group.dbbmm.results$overlap.areas$`0.95`$percentage
 ```
-|         |    Bream| Luderick| Tarwhine|
-|:--------|--------:|--------:|--------:|
-|    Bream|       NA|0.6336143|0.6254383|
-| Luderick|0.6336143|       NA|0.3841250|
-| Tarwhine|0.6254383|0.3841250|       NA|
+|          | R64K-4075| R64K-4125| R64K-4128| R64K-4128|
+|:---------|---------:|---------:|---------:|---------:|
+| R64K-4075|        NA|    0.9425|    0.8986|    0.9728|
+| R64K-4125|    0.9425|        NA|    0.8999|    0.9360|
+| R64K-4128|	0.8986|    0.8999|        NA|	 0.9867|
+| R64K-4138|    0.9728|    0.9360|    0.9867|        NA|
 
 
-Please note the overlaps are calculated for the contours defined by ```breaks``` in ```dynBBMM()```, and returned both in **absolute** values (squared meters) and **percentage** matrices. For example, we can see in the last table that **Bream** and **Luderick** were the groups with higher overall overlap of 63.36% at the 95% level, whereas **Tarwhine** and **Luderick** only had a 38.41% overlap at the 95% contour. To see exactly where space use overlaps occurred you can use ```plotOverlap()```:
+Please note the overlaps are calculated for the contours defined by ```breaks``` in ```dynBBMM()```, and returned both in ```$absolute``` values (**squared meters**) and ```$percentage``` matrices. For example, we can see in the last table that **R64K-4075** and **R64K-4125** were the groups with higher overall overlap of 92.92% at the 95% level, whereas **R64K-4075** and **R64K-4128** had a smaller overlap of 89.86% at the 95% contour. To see exactly where space use overlaps occurred you can use ```plotOverlap()```:
+
+(REVIEW STOPPED HERE)
 
 ```
 plotOverlap(input = group.dbbmm.results, stations = FALSE, level = .95, store = TRUE)
