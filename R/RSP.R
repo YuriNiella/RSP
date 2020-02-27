@@ -15,13 +15,14 @@ NULL
 #' @param distance Fixed distances in meters to add intermediate track locations. By default intermediate positions are added every 250 m.
 #' @param time.lapse Temporal limit for the RSP in minutes. Consecutive detections shorter than the time.lapse will not have interpolated positions. 
 #' @param er.ad By default, 5\% of the distance argument is used as the increment rate of the position erros for the estimated locations. Alternatively, can be defined by the user in meters.
+#' @param maximum.time Temporal lag in hours to be considered for the fine-scale tracking. Default is to consider 1-day intervals.
 #' @param debug Logical: If TRUE, the function progress is saved to an RData file.
 #' 
 #' @return Returns a list of RSP tracks (as dataframe) for each transmitter detected. 
 #' 
 #' @export
 #' 
-runRSP <- function(input, base.raster, distance = 250, time.lapse = 10, er.ad = NULL, debug = FALSE) {
+runRSP <- function(input, base.raster, distance = 250, time.lapse = 10, er.ad = NULL, maximum.time = 24, debug = FALSE) {
   if (debug) {
     on.exit(save(list = ls(), file = "RSP_debug.RData"), add = TRUE)
     message("!!!--- Debug mode has been activated ---!!!")
@@ -49,12 +50,13 @@ runRSP <- function(input, base.raster, distance = 250, time.lapse = 10, er.ad = 
   # create a transition layer
   transition.layer <- RPStransition(raster.hab = base.raster)
 
+  RSP.time <- system.time(recipient <- includeRSP(detections = detections, transition = transition.layer, maximum.time = maximum.time,
+                                           tz.study.area = tz.study.area, distance = distance, time.lapse = time.lapse, er.ad = er.ad, debug = debug))
+  rsp.detections <- recipient$output
+  tracks <- recipient$tracks
+
   if (debug)
-    print(system.time(rsp.detections <- includeRSP(detections = detections, transition = transition.layer, 
-                                           tz.study.area = tz.study.area, distance = distance, time.lapse = time.lapse, er.ad = er.ad, debug = debug)))
-  else
-    rsp.detections <- includeRSP(detections = detections, transition = transition.layer, 
-                         tz.study.area = tz.study.area, distance = distance, time.lapse = time.lapse, er.ad = er.ad, debug = debug)
+    print(RSP.time)
 
   message("M: Percentage of detections valid for RSP: ",
     round(sum(unlist(lapply(rsp.detections, function(x) sum(x$Position == "Receiver")))) / sum(unlist(lapply(detections, nrow))) * 100, 1), "%")
@@ -88,6 +90,7 @@ prepareDetections <- function(detections, spatial) {
     x$Time.lapse.min <- c(0, as.numeric(difftime(x$Timestamp[-1], x$Timestamp[-nrow(x)], units = "mins")))
     x$Longitude <- spatial$stations$Longitude[match(x$Standard.name, spatial$stations$Standard.name)]
     x$Latitude <- spatial$stations$Latitude[match(x$Standard.name, spatial$stations$Standard.name)]
+    x$Position <- "Receiver"
     return(x)
   })
   
@@ -201,7 +204,7 @@ calcRSP <- function(df.track, tz.study.area, distance, time.lapse, transition, e
   time.shifts <- df.track$Time.lapse.min > time.lapse
   different.station.shift <- station.shifts & time.shifts
   same.station.shift <- !station.shifts & time.shifts
-  # Add intermediate positions to the RSP track: 
+  # Add intermediate positions to the RSP track:
   for (i in 2:nrow(df.track)) {
     setTxtProgressBar(pb, i) # Progress bar
     
@@ -324,7 +327,7 @@ calcRSP <- function(df.track, tz.study.area, distance, time.lapse, transition, e
     }
   }
   close(pb)
-  return(list(output = rbind(aux.RSP,df.track), path.list = path.list))
+  return(list(output = rbind(aux.RSP, df.track), path.list = path.list))
 }
 
 
@@ -335,33 +338,32 @@ calcRSP <- function(df.track, tz.study.area, distance, time.lapse, transition, e
 #' @param detections Detection data for that individual as imported using RSPete.
 #' @param transition TransitionLayer object as returned by LTDpath.
 #' @param tz.study.area Timezone of the study area.
-#' @inheritParams RSP
+#' @inheritParams runRSP
 #' 
 #' @return A list with the RSP estimations of individual tracks per transmitter.
 #' 
-includeRSP <- function(detections, transition, tz.study.area, distance, time.lapse, er.ad, debug = FALSE) {
+includeRSP <- function(detections, transition, tz.study.area, distance, time.lapse, er.ad, maximum.time, debug = FALSE) {
   if (debug)
     on.exit(save(list = ls(), file = "includeRSP_debug.RData"), add = TRUE)
   
   path.list <- list() # Empty list to save already calculated paths
 
   # Recreate RSP individually
-  output <- lapply(seq_along(detections), function(i) {
+  aux <- lapply(seq_along(detections), function(i) {
     message(crayon::bold(crayon::green((paste("Analyzing:", names(detections)[i])))))
-    dates.aux <- timeInterval(detections[[i]]) # Identify time differences between detections (in days)
-    dates.aux <- trackNames(detections[[i]], dates.aux) # Fine-scale tracking
-    tracks <- split(dates.aux, dates.aux$Track)
     flush.console()
+    # dates.aux <- timeInterval(detections[[i]]) # Identify time differences between detections (in days)
+    recipient <- nameTracks(detections = detections[[i]], maximum.time = maximum.time) # Fine-scale tracking
+    detections[[i]] <<- recipient$detections
+    tracks <- recipient$tracks
     
-    tag.aux <- lapply(seq_along(tracks), function(j) {
-      df.track <- detections[[i]][detections[[i]]$Date %in% tracks[[j]]$Date, ]
-      df.track$Position <- "Receiver"
-      df.track$Track <- as.character(names(tracks)[j]) 
-      
+    track.aux <- split(detections[[i]], detections[[i]]$Track)
+
+    tag.aux <- lapply(which(tracks$Valid), function(j) {
       message("Estimating ", names(detections)[i], " RSP: ", names(track.aux)[j])
       flush.console()
       # Recreate RSP
-      function.recipient <- calcRSP(df.track = df.track, tz.study.area = tz.study.area, distance = distance, 
+      function.recipient <- calcRSP(df.track = track.aux[[j]], tz.study.area = tz.study.area, distance = distance, 
                                     time.lapse = time.lapse, transition = transition, er.ad = er.ad, path.list = path.list)
       # return path.list directly to environment above
       path.list <<- function.recipient$path.list
@@ -379,8 +381,11 @@ includeRSP <- function(detections, transition, tz.study.area, distance, time.lap
     tag.recipient$Transmitter <- as.factor(tag.recipient$Transmitter)
     tag.recipient$Standard.name <- as.factor(tag.recipient$Standard.name)
     tag.recipient <- tag.recipient[order(tag.recipient$Timestamp), ]
-    return(tag.recipient)
+    return(list(detections = tag.recipient, tracks = tracks))
   })
+  output <- lapply(aux, function(x) x$detections)
+  tracks <- lapply(aux, function(x) x$tracks)
   names(output) <- names(detections)
-  return(output)
+  names(tracks) <- names(detections)
+  return(list(output = output, tracks = tracks))
 }
