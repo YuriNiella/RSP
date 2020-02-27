@@ -360,14 +360,15 @@ includeRSP <- function(detections, transition, tz.study.area, distance, time.lap
     dates.aux <- timeInterval(detections[[i]]) # Identify time differences between detections (in days)
     dates.aux <- trackNames(detections[[i]], dates.aux) # Fine-scale tracking
     tracks <- split(dates.aux, dates.aux$Track)
+    flush.console()
     
     tag.aux <- lapply(seq_along(tracks), function(j) {
-      message("Estimating ", names(detections)[i], " RSP: ", names(tracks)[j])
-      
       df.track <- detections[[i]][detections[[i]]$Date %in% tracks[[j]]$Date, ]
       df.track$Position <- "Receiver"
       df.track$Track <- as.character(names(tracks)[j]) 
       
+      message("Estimating ", names(detections)[i], " RSP: ", names(track.aux)[j])
+      flush.console()
       # Recreate RSP
       function.recipient <- calcRSP(df.track = df.track, tz.study.area = tz.study.area, distance = distance, 
                                     time.lapse = time.lapse, transition = transition, er.ad = er.ad, path.list = path.list)

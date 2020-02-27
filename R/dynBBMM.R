@@ -438,14 +438,14 @@ calculateDBBMM <- function(input, UTM.zone, raster) {
 
     # Calculate dynamic Brownian Bridge Movement Model:
     mod_dbbmm <- lapply(seq_along(loc), function(i) {
-      message("M: Calculating dBBMM:", crayon::bold(crayon::green(names(loc)[i])))
+      message("M: Calculating dBBMM: ", crayon::bold(crayon::green(names(loc)[i])))
+      flush.console()
       time.spent <- system.time(suppressMessages(
         output <- move::brownian.bridge.dyn(object = loc[[i]],
                                   raster = raster,  
                                   window.size = 7, margin = 3,
                                   location.error = input[[i]]$Error)
         ))
-      flush.console()
       message("M: Success! (Time spent: ", minuteTime(time.spent["elapsed"], format = "s", seconds = TRUE), ")")
       flush.console()
       return(output)
