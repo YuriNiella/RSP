@@ -61,7 +61,7 @@ runRSP <- function(input, base.raster, distance = 250, time.lapse = 10, er.ad = 
   message("M: Percentage of detections valid for RSP: ",
     round(sum(unlist(lapply(rsp.detections, function(x) sum(x$Position == "Receiver")))) / sum(unlist(lapply(detections, nrow))) * 100, 1), "%")
 
-  return(list(detections = rsp.detections, spatial = spatial, bio = input$rsp.info$bio, tz.study.area = tz.study.area, base.raster = base.raster))
+  return(list(detections = rsp.detections, tracks = tracks, spatial = spatial, bio = input$rsp.info$bio, tz.study.area = tz.study.area, base.raster = base.raster))
 }
 
 #' Import detection data as sorted format
