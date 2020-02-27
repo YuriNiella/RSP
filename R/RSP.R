@@ -94,56 +94,47 @@ prepareDetections <- function(detections, spatial) {
   return(output)
 }
 
-#' Calculate temporal differences between consecutive detections
-#' 
-#' Calculates temporal differences in days between consecutive detection dates.
-#'
-#' @param input Detection dataset imported using the RSPete function.
-#' 
-#' @return A dataframe with temporal differences in days between consecutive detection dates.
-#' 
-timeInterval <- function(input) { 
-  dates <- unique(input$Date) 
-  output <- data.table::data.table(
-    Date = dates,
-    Time_day = c(Inf, as.numeric(difftime(dates[-1], dates[-length(dates)], units = "days")))
-  )
-  
-  return(output)
-}
-
-
 #' Identify potential fine-scale data for analysis
 #' 
 #' Identifies fine-scale data among total detection dataset to be used for RSP estimation. Tracks are 
 #' then named based on the interval between consecutive detection dates.
 #'
-#' @param detections # HF: missing variable
-#' @param input Detection dates and temporal lags in days as returned by timeInterval.
-#' @param maximum.time Temporal lag in days to be considered for the fine-scale tracking. Default is to consider 1-day intervals.
+#' @param detections Detections data frame
+#' @param maximum.time Temporal lag in hours to be considered for the fine-scale tracking. Default is to consider 1-day intervals.
 #' 
 #' @return A dataframe with identified and named individual tracks for RSP estimation.
 #' 
-trackNames <- function(detections, input, maximum.time = 1) {
-  # Identify detection dates with significant data for fine-scale data: single detection!
-  dates <- NULL
-  detections.per.day <- split(detections, detections$Date)
-  input$n <- table(detections$Date)
-  input <- input[!(input$n == 1 & (input$Time_day > maximum.time)), ]
-  
-  # Naming starts
-  index <- which(input$Time_day > 1) # Identify individual tracks
-  if (index[length(index)] < (nrow(input) + 1))
-    index <- c(index, nrow(input) + 1)
-  track.index <- stringr::str_pad(string = 1:length(index), width = nchar(length(index)), pad = "0")
-  track.names <- paste0("Track_", track.index)
-  input$Track <- NA_character_
-  
-  for (i in 1:(length(index) - 1)) {
-    index.track <- c(index[i], index[i + 1] - 1)
-    input$Track[index.track[1] : index.track[2]] <- track.names[i]
+nameTracks <- function(detections, maximum.time = 24) {
+  # Assign tracks to detections
+  breaks <- which(detections$Time.lapse.min > maximum.time * 60)
+  starts <- c(1, breaks)
+  stops  <- c(breaks, nrow(detections) + 1)
+  n <- (stops - starts)
+  track.index <- paste0("Track_", unlist(lapply(1:length(n), function(i) {
+    stringr::str_pad(string = rep(i, n[i]), width = nchar(length(n)), pad = "0")
+  })))
+  detections$Track <- track.index
+
+  # Create tracks summary
+  aux <- split(detections, detections$Track)
+  track.aux <- lapply(aux, function(x) {
+    data.frame(Track = NA_character_,
+      original.n = nrow(x),
+      First.time = x$Timestamp[1],
+      Last.time = x$Timestamp[nrow(x)],
+      Timespan = difftime(x$Timestamp[nrow(x)], x$Timestamp[1], units = "hours"),
+      Valid = nrow(x) > 1
+      )
+  })
+  tracks <- data.table::rbindlist(track.aux)
+  tracks$Track <- names(aux)
+
+  if (any(!tracks$Valid)) {
+    invalid.tracks <- tracks$Track[which(!tracks$Valid)]
+    detections$Valid[grepl(paste(invalid.tracks, collapse = "|"), detections$Track)] <- FALSE
   }
-  return(input)
+
+  return(list(detections = detections, tracks = tracks))
 }
 
 
