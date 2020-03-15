@@ -73,14 +73,14 @@ lines) and the RSP:
 
 Plots a specified dBBMM utilization distribution:
 
-<img src="vignettes/plotContours_readme.png" width="650"  />
+<img src="vignettes/plotContours_readme.png" width="630"  />
 
 **plotOverlap()**
 
 To investigate where in the study area the overlaps between **different
 biological groups** occurred:
 
-<img src="vignettes/plotOverlap_readme.png" width="690"  />
+<img src="vignettes/plotOverlap_readme.png" width="500"  />
 
 ## Installation
 
