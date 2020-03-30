@@ -4,9 +4,16 @@
 \alias{plotContours}
 \title{Plot dynamic Brownian Bridge Movement Models (dBBMM)}
 \usage{
-plotContours(input, group, track = NULL, timeslot = NULL,
-  stations = FALSE, levels = c(0.99, 0.95, 0.75, 0.5, 0.25),
-  main = NULL, land.col = "#BABCBF")
+plotContours(
+  input,
+  group,
+  track = NULL,
+  timeslot = NULL,
+  stations = FALSE,
+  levels = c(0.99, 0.95, 0.75, 0.5, 0.25),
+  title = NULL,
+  land.col = "#BABCBF"
+)
 }
 \arguments{
 \item{input}{Dynamic Brownian Bridge Movement Model object as returned by dynBBMM.}
@@ -21,9 +28,9 @@ plotContours(input, group, track = NULL, timeslot = NULL,
 
 \item{levels}{Numeric vector os use areas to plot. By default the 99\%, 95\%, 75\%, 50\% and 25\% areas will be returned.}
 
-\item{main}{The title of the plot}
-
 \item{land.col}{Color of the land mass.}
+
+\item{main}{The title of the plot}
 }
 \value{
 dynamic Brownian Bridge Movement Model plot.

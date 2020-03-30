@@ -67,20 +67,20 @@ Can be used to visualize the **runRSP() output** to inspect for
 differences in tracks using either only receiver locations (Straight
 lines) and the RSP:
 
-![](vignettes/plotRSP_readme.png)
+<img src="vignettes/plotRSP_readme.png" width="850"  />
 
 **plotContours()**
 
 Plots a specified dBBMM utilization distribution:
 
-<img src="vignettes/plotContours_readme.png" width="630"  />
+<img src="vignettes/plotContours_readme.png" width="1400"  />
 
 **plotOverlap()**
 
 To investigate where in the study area the overlaps between **different
 biological groups** occurred:
 
-<img src="vignettes/plotOverlap_readme.png" width="500"  />
+<img src="vignettes/plotOverlap_readme.png" width="400"  />
 
 ## Installation
 
@@ -95,7 +95,7 @@ library("devtools")
 
 Now you can install RSP using:
 
-    install_github("YuriNiella/RSP")
+    install_github("YuriNiella/RSP", build_vignettes = TRUE)
 
 All the information you need on how to perform the RSP analysis can be
 found in the package vignettes:

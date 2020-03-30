@@ -20,7 +20,7 @@ knitr::opts_chunk$set(
 
 Analysing acoustic telemetry data requires initial filtering to exclude misleading data (e.g. false detections, detections prior to release). To overcome this issue and ensure reliable results, the RSP toolkit operates in close relationship with the **actel R package**, which filters and invalidates flawed detections. Before getting started with RSP, you will have to download actel and filter your acoustic data. Please click [here](https://github.com/hugomflavio/actel) for more information and to download actel.
 
-To start using RSP, you can run the simplest actel analysis with the function `explore`. You can find more about how organize your data and run this preliminary analysis in actel's manual pages (run ?actel after loading the library).
+To start using RSP, you can run the simplest actel analysis with the function `explore`. You can find more about how to organize your data and run this preliminary analysis in actel's manual pages (run `?actel` after loading the library).
 
 It is important that you save the output of the actel function, so you can later on use it to calculate the RSP. e.g.:
 
@@ -37,7 +37,7 @@ After filtering your acoustic data, you will need a **raster file** from your st
 
 ![](QGIS_1.png){#id .class width=680}
 
-(2) Zoom into your study site and create an overlapping polygon that encompasses the entire area,
+(2) Zoom into your study site and create an overlapping polygon that encompasses the entire area:
 
 ![](QGIS_2.png){#id .class width=680}
 
@@ -60,52 +60,52 @@ LakeMacquarie <- raster("Lake_Macquarie.grd") # Import the raster file exported 
 plot(LakeMacquarie) # Plot raster from the study area
 ```
 
-![If the river channels look distorted go back to step 4 and choose a lower Cellsize. **Please be aware*** that increasing the raster resolution too much will require higher computational costs and may cause R to crash.](Raster.png){#id .class width=60% height=60%}
+![If the river channels look distorted go back to step 4 and choose a lower Cellsize. **Please be aware** that **increasing the raster resolution (low Cellsize value) too much** will require higher computational costs and **may cause R to crash** depending on the memory of your computer.](Raster.png){#id .class width=60% height=60%}
 
 Now that your acoustic detections have been filtered and that you have a raster file with good resolution from your study area (exported into your working directory), you are all set to get started with RSP. 
 
 
 ## 2. Estimation of shortest in-water paths
 
-The `runRSP()` function is used to recreate the shortest paths between pairs of acoustic detections. The detection data, station coordinates and the group of each fish is passed on to RSP automatically by actel through the argument `input`. You must also include the name of the .grid file you created above in the argument `base.raster`. e.g.:
+The `runRSP()` function is used to recreate the shortest paths between pairs of acoustic detections. The detection data, station coordinates and the group of each fish is passed on to RSP automatically by actel through the argument `input`. You must also include the name of the .grd file you created above in the argument `base.raster`. e.g.:
 
 ```
 library(RSP)
 rsp.results <- runRSP(input = filtered_data, base.raster = "Lake_Macquarie.grd")
 ```
 
-A transition layer object is calculated using the **raster file** to estimate these paths exclusively in the water. The raster is automatically imported during the analysis through the argument `base.raster = "name_of_your_file.grd"`. Because this step can take some time depending on the size of your study area and the size of the raster cells, the transition layer will be saved for future re-analysis in case the detection data changes. When running the analysis again the following message is shown:
+A **transition layer** object is calculated using the **raster file** to estimate these paths **exclusively in the water**. The raster is imported through the argument `base.raster = "name_of_your_file.grd"`, and the Coordinate Reference System (CRS) set automatically. Because this step can take quite some time depending on the size of your study area and the resolution of your raster, the transition layer will be saved for future re-analysis in case the detection data changes. When running the analysis again the following message is shown:
 
 ```
 M: Reusing transition layer calculated on 2019-11-30 13:48:19.
    If you want to calculate a new transition layer, run rmTransition() before re-starting the analysis.
 ```
 
-The detection ranges of each listening station are also taken into account in the `runRSP()`. These will be used as the location errors for the dBBMM when calculating UD areas. A 'Range' column can be included in the **spatial.csv file** for specifying the detection ranges (in meters) for each acoustic station if these are known. If the 'Range' column is not found, a default detection range of 500 m is automatically considered for each receiver with the warning:
+The **detection ranges** of each listening station are also taken into account in the `runRSP()`. These will be used as the location errors for the dBBMM when calculating UD areas. A **Range column** can be included in the **spatial.csv file** for specifying the detection ranges (in meters) for each acoustic station if these are known. If the 'Range' column is not found, a default detection range of 500 m is automatically considered for each receiver with the warning:
 
 ```
 Warning: Could not find a 'Range' column in the spatial data; assuming a range of 500 metres for each receiver.
 ```
 
-Note:
+**Note:**
 	- The 'Range' column must already be present in the spatial.csv file when you run the `explore()` function for it to be incorporated in the analysis.
 
-While animals move between a pair of consecutive acoustic detections there is some uncertainty regarding the trajectory taken, which increases proportionally to the time taken to from one place to another. Consecutive detections longer than 24 hours apart are thus broken by the `runRSP()` into separate 'tracks'. This avoids the estimation of unrealistic behaviour when the animals do not get detected in any array for exceedingly long periods of time. Detections that occur totally isolated (e.g. **more than 24-h** before or after any other detection) are automatically excluded from analysis. The `runRSP()` will return the percentage of raw detections that can be used for refining the shortest paths when the analysis is finished:
+While animals move between a pair of consecutive acoustic detections there is some uncertainty regarding the trajectory taken, which increases proportionally to the time taken to go from one place to another. **Consecutive detections longer than 24 hours** apart are thus broken by the `runRSP()` into separate 'tracks'. This avoids the estimation of unrealistic behaviour when the animals do not get detected in any array for exceedingly long periods of time. Detections that occur totally isolated (e.g. more than 24-h before or after any other detection) are automatically excluded from analysis. The `runRSP()` will return the percentage of raw detections that can be used for refining the shortest paths when the analysis is finished:
 ```
 M: Percentage of detections valid for RSP: 99.8%
 ```
 
-Pairs of detections can occur either at the same receiver or at different receivers. For consecutive detections on different receivers, estimated positions are added according to a fixed `distance` argument in meters (250 m by default). On the other hand, if a fish is detected consecutively at the same station (with a time interval greater than the stipulated at the `time.lapse` argument), then estimated positions are added at that receiver location, over intervals of approximately [`time.lapse`] minutes. E.g. if a fish is detected at a station twice with a 22 minute interval, and `time.lapse` is set to 10, two estimated detections will be included.
+Pairs of detections can occur either at the **same receiver** or at **different receivers**. For consecutive detections on different receivers, estimated positions are added according to a fixed `distance` argument in meters (250 m by default). On the other hand, if an animal is detected consecutively at the same station (with a time interval greater than the stipulated at the `time.lapse` argument), then estimated positions are added at that receiver location, over intervals of approximately `time.lapse` minutes. E.g. if a fish is detected at a station twice with a 22 minute interval, and `time.lapse` is set to 10, two estimated positions will be included.
 
-While moving away from the first detection, the **position errors** gradually increase for each estimated position at a 5% rate of the `distance`. When the animal reaches half of the elapsed time/distance between the first and the second detection, the errors of estimated positions now gradually decrease as it approaches the second receiver where it got detected. This principle is used for both pairs of detections on different receivers, and for consecutive detections at the same station when the time difference is longer than `time.lapse`.
+While moving away from the first detection, the **position errors** gradually increase for each estimated position at a 5% rate of the `distance`. When the animal reaches half of the elapsed time/distance between the first and the second detection, the errors of estimated positions now gradually decrease as it approaches the second receiver where it got detected. This principle is used for both pairs of detections on different receivers, and for consecutive detections at the same station when the time difference is longer than `time.lapse`:
 
-![A: consecutive detections on the save receiver; B: consecutive detections on different receivers.](Example_detection.png){#id .class width=60% height=60%}
-
-
-![Please note how the **distances between consecutive RSP positions** vary around the `distance` argument (250 m by default) as they depend on the estuary shape and the shortest distances between receivers. It is also possible to observe how the **errors of the estimated positions** gradually increase/decrease as the animals move between receivers.](RSP_index.png){#id .class width=95% height=95%}
+![**A:** consecutive detections on the save receiver; **B:** consecutive detections on different receivers.](Example_detection.png){#id .class width=60% height=60%}
 
 
-The dynamic Brownian Bridge Movement Model accounts for the speed at which animals move between consecutive detections to expand/contract the UD areas. Consequently, depending on your array configuration, estuary shape and species being tracked, you may find useful to adjust the `distance` and `time.lapse` arguments for recreating the most plausible movement patterns of the monitored animals. 
+![Please note how the **distances between consecutive RSP positions** (points) vary around the `distance` argument (250 m by default) as they depend on the estuary shape and the shortest distances between receivers. It is also possible to observe how the **errors of the estimated positions** (lines) gradually increase/decrease as the animals move between receivers.](RSP_index.png){#id .class width=95% height=95%}
+
+
+The **dynamic Brownian Bridge Movement Model** accounts for the **speed** at which animals move between consecutive detections to **expand/contract the UD areas**. Consequently, depending on your array configuration, estuary shape and species being tracked, you may find useful to adjust the `distance` and `time.lapse` arguments for recreating the most plausible movement patterns of the monitored animals. 
 
 
 ### 2.1. Exploring the RSP results
@@ -244,7 +244,7 @@ You can use `plotContours()` to visualize any of the dBBMM calculated by specify
 
 ```
 plotContours(input = dbbmm.results, group = "R64K-4138", track = "R64K-4138_Track_10")
-plotContours(input = dbbmm.results, group = "R64K-4125", track = "R64K-4125_Track_4")
+plotContours(input = dbbmm.results, group = "R64K-4125", track = "R64K-4125_Track_3")
 ```
 ![The `levels` argument can be used to specify which contours to plot. By default, the **25%**, **50%**, **75%**, **95%** and **99%** contours are returned.](plotContours1.png){#id .class width=70% height=70%} 
 

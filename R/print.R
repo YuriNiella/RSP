@@ -380,7 +380,7 @@ plotRSP <- function(input, tag, display = c("Receiver", "RSP", "Both"), type = c
 #' @export
 #' 
 plotContours <- function(input, group, track = NULL, timeslot = NULL, stations = FALSE,
-                       levels = c(.99, .95, .75, .50, .25), main = NULL,
+                       levels = c(.99, .95, .75, .50, .25), title = NULL,
                        land.col = "#BABCBF") {
   Latitude <- NULL
   Longitude <- NULL
@@ -390,10 +390,14 @@ plotContours <- function(input, group, track = NULL, timeslot = NULL, stations =
   y <- NULL
   layer <- NULL
 
+  if (is.null(title))
+    title <- track
+  
   # detach some objects from the main input
   base.raster <- input$base.raster
   dbbmm <- input$dbbmm
-  track <- gsub("-", ".", track) # Replace "-" for "." so that the track can be found!
+  if (!is.null(track))
+    track <- gsub("-", ".", track) # Replace "-" for "." so that the track can be found!
 
   # input quality
   if (length(group) != 1)
@@ -439,9 +443,11 @@ plotContours <- function(input, group, track = NULL, timeslot = NULL, stations =
   else
     dbbmm.raster <- move::getVolumeUD(dbbmm[[group]][[timeslot]])
 
-  # Get specific track of interest
+  # Get specific track of interest (when multiple tracks)
   if (!is.null(track))
     dbbmm.raster <- dbbmm.raster[[track]]
+  else
+    dbbmm.raster <- dbbmm.raster
 
   # Convert projection to lonlat projection for plotting:
   dbbmm.raster <- raster::projectRaster(from = dbbmm.raster, crs = "+proj=longlat +datum=WGS84")
@@ -478,7 +484,7 @@ plotContours <- function(input, group, track = NULL, timeslot = NULL, stations =
   p <- p + ggplot2::theme_bw() 
   p <- p + ggplot2::scale_x_continuous(expand = c(0, 0))
   p <- p + ggplot2::scale_y_continuous(expand = c(0, 0))
-  p <- p + ggplot2::labs(x = "Longitude", y = "Latitude", fill = "Space use", title = main)
+  p <- p + ggplot2::labs(x = "Longitude", y = "Latitude", fill = "Space use", title = title)
   
   # Add stations
   if (stations) {
@@ -487,6 +493,7 @@ plotContours <- function(input, group, track = NULL, timeslot = NULL, stations =
   } 
   return(p)
 }
+
 
 #' Plot orverlapping contours 
 #'
@@ -669,7 +676,6 @@ plotOverlap <- function(input, timeslot = NULL, stations = FALSE,
   if (store)
     return(the.plots)
 }
-
 
 
 #' Plot orverlapping contours in a gif

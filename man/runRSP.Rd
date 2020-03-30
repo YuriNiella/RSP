@@ -4,8 +4,15 @@
 \alias{runRSP}
 \title{Refined Shortest Path (RSP) between detections}
 \usage{
-runRSP(input, base.raster, distance = 250, time.lapse = 10,
-  er.ad = NULL, debug = FALSE)
+runRSP(
+  input,
+  base.raster,
+  distance = 250,
+  time.lapse = 10,
+  er.ad = NULL,
+  maximum.time = 24,
+  debug = FALSE
+)
 }
 \arguments{
 \item{input}{The output of one of actel's main functions (explore, migration or residency)}
@@ -17,6 +24,8 @@ runRSP(input, base.raster, distance = 250, time.lapse = 10,
 \item{time.lapse}{Temporal limit for the RSP in minutes. Consecutive detections shorter than the time.lapse will not have interpolated positions.}
 
 \item{er.ad}{By default, 5\% of the distance argument is used as the increment rate of the position erros for the estimated locations. Alternatively, can be defined by the user in meters.}
+
+\item{maximum.time}{Temporal lag in hours to be considered for the fine-scale tracking. Default is to consider 1-day intervals.}
 
 \item{debug}{Logical: If TRUE, the function progress is saved to an RData file.}
 }
