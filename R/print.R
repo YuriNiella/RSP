@@ -233,7 +233,7 @@ plotDetec <- function(input) {
   p <- p + ggplot2::labs(x = "Animal tracked", y = "Total number of locations", fill = "")
   p <- p + ggplot2::scale_fill_brewer(palette = "Paired")
   p <- p + ggplot2::theme_bw()
-  p <- p + ggplot2::coord_cartesian(ylim = c(0, max(df.diag$Total.locs) * 1.05), expand = FALSE)
+  p <- p + ggplot2::coord_flip(ylim = c(0, max(df.diag$Total.locs) * 1.05), expand = FALSE)
   p
 }
 
