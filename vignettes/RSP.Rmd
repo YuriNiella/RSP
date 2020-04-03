@@ -1,10 +1,10 @@
 ---
-title: "Refining the Shortest Paths (RSP)"
+title: "Refined Shortest Paths (RSP)"
 author: "Yuri Niella & Hugo Flávio"
 date: "`r Sys.Date()`"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{Refining the Shortest Paths (RSP)}
+  %\VignetteIndexEntry{Refined Shortest Paths (RSP)}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -81,7 +81,7 @@ M: Reusing transition layer calculated on 2019-11-30 13:48:19.
    If you want to calculate a new transition layer, run rmTransition() before re-starting the analysis.
 ```
 
-The **detection ranges** of each listening station are also taken into account in the `runRSP()`. These will be used as the location errors for the dBBMM when calculating UD areas. A **Range column** can be included in the **spatial.csv file** for specifying the detection ranges (in meters) for each acoustic station if these are known. If the 'Range' column is not found, a default detection range of 500 m is automatically considered for each receiver with the warning:
+The **detection ranges** of each listening station are also taken into account in the `runRSP()`. These will be used as the location errors for the dBBMM when calculating UD areas. A **Range column** can be included in the **spatial.csv file** for specifying the detection ranges (in metres) for each acoustic station if these are known. If the 'Range' column is not found, a default detection range of 500 m is automatically considered for each receiver with the warning:
 
 ```
 Warning: Could not find a 'Range' column in the spatial data; assuming a range of 500 metres for each receiver.
@@ -95,9 +95,9 @@ While animals move between a pair of consecutive acoustic detections there is so
 M: Percentage of detections valid for RSP: 99.8%
 ```
 
-Pairs of detections can occur either at the **same receiver** or at **different receivers**. For consecutive detections on different receivers, estimated positions are added according to a fixed `distance` argument in meters (250 m by default). On the other hand, if an animal is detected consecutively at the same station (with a time interval greater than the stipulated at the `time.lapse` argument), then estimated positions are added at that receiver location, over intervals of approximately `time.lapse` minutes. E.g. if a fish is detected at a station twice with a 22 minute interval, and `time.lapse` is set to 10, two estimated positions will be included.
+Pairs of detections can occur either at the **same receiver** or at **different receivers**. For consecutive detections on different receivers, estimated positions are added at intervals of approximately a given `distance` argument in metres (250 m by default). Note that the added positions will be centred relative to the total distance, e.g., if the distance between two receivers is 600 m, then two RSP positions will be added; one at 200 m and one at 400 m. On the other hand, if an animal is detected consecutively at the same station (with a time interval greater than the stipulated at the `time.lapse` argument), then estimated positions are added at that receiver location, over intervals of approximately `time.lapse` minutes. E.g. if a fish is detected at a station twice with a 22 minute interval, and `time.lapse` is set to 10, two estimated positions will be included.
 
-While moving away from the first detection, the **position errors** gradually increase for each estimated position at a 5% rate of the `distance`. When the animal reaches half of the elapsed time/distance between the first and the second detection, the errors of estimated positions now gradually decrease as it approaches the second receiver where it got detected. This principle is used for both pairs of detections on different receivers, and for consecutive detections at the same station when the time difference is longer than `time.lapse`:
+While moving away from the first detection, the **position errors** gradually increase for each estimated position at a 5% rate of the `distance`. When the animal reaches half of the elapsed time/distance between the first and the second detection, the errors of estimated positions now gradually decrease as it approaches the second receiver where it got detected. This principle is used for both pairs of detections on different receivers, and for consecutive detections at the same station:
 
 ![**A:** consecutive detections on the save receiver; **B:** consecutive detections on different receivers.](Example_detection.png){#id .class width=60% height=60%}
 
@@ -130,7 +130,7 @@ Here are some examples of the `runRSP()` output:
 |Track_12|         2| 2018-08-22 16:04:24| 2018-08-22 16:05:44|  0.02 hours|  TRUE|
 |Track_13|         1| 2018-08-23 19:21:20| 2018-08-23 19:21:20|  0.00 hours| FALSE|
 
-Only the **valid tracks** are used by **RSP** to recreate the shortest in-water paths of tracked animals. The tracking data can be retrieved from the list `$detections` in which data is saved individually for each trasmitter.
+Only the **valid tracks** are used by **RSP** to recreate the shortest in-water paths of tracked animals. The tracking data can be retrieved from the list `$detections` in which data is saved individually for each transmitter.
 
 (2) For consecutive detections on the same receiver:
 
@@ -141,7 +141,7 @@ Only the **valid tracks** are used by **RSP** to recreate the shortest in-water 
 | 2018-03-07 01:02:26|       NA|   R64K-4075| 512.5|  9.380188|  56.5716|      RSP| Track_3|
 | 2018-03-07 01:11:45|   125449|   R64K-4075|   550|  9.380188|  56.5716| Receiver| Track_3|
 
-The **Position** column in this dataset identifies the two consecutive acoustic detections (`Receiver`) from this animal. We can notice that they occurred on the same **Receiver** (`125449`): the first on `2018-03-07 00:43:49` and the second on `2018-03-07 01:11:45` (approximately 30 minutes from each other). Because this time difference is longer than the default `time.lapse` (10 minutes), the `runRSP()` estimated the intermediate positions (RSP) by repeating the receiver **Longitude** and **Latitude** and changing the **Error** parameter at a rate of 5% from the default `distance` argument (250 meters = 12.5 meters). 
+The **Position** column in this dataset identifies the two consecutive acoustic detections (`Receiver`) from this animal. We can notice that they occurred on the same **Receiver** (`125449`): the first on `2018-03-07 00:43:49` and the second on `2018-03-07 01:11:45` (slightly less than 30 minutes from each other). Because this time difference is longer than the default `time.lapse` (10 minutes), the `runRSP()` estimated the intermediate positions (RSP) by repeating the receiver **Longitude** and **Latitude** and changing the **Error** parameter at a rate of 5% from the default `distance` argument (250 metres = 12.5 metres). Notice how the elapsed time was distributed evenly between the position intervals.
 
 (3) For consecutive detections on different receivers:
 
@@ -161,12 +161,12 @@ The **Position** column in this dataset identifies the two consecutive acoustic 
 | 2018-04-27 06:56:31|       NA|   R64K-4125| 512.5|  9.986500| 57.07450|      RSP| Track_5|
 | 2018-04-27 07:04:39|   107527|   R64K-4125|   500|  9.992500| 57.07650| Receiver| Track_5|
 
-Here the animal was detected first at the **Receiver** `100474` on `2018-04-27 05:27:10`, and then at the **Receiver** `107527` on `2018-04-27 07:04:39`. The `runRSP()` now calculated the shortest in-water path between receivers, and we can see how the **Error** of added locations increased up to half-way, (575 meters on `2018-04-27 06:15:54`), and then decreased back to 500 as the track approached the second receiver.
+Here the animal was detected first at the **Receiver** `100474` on `2018-04-27 05:27:10`, and then at the **Receiver** `107527` on `2018-04-27 07:04:39`. The `runRSP()` now calculated the shortest in-water path between receivers, and we can see how the **Error** of added locations increased up to half-way, (575 metres on `2018-04-27 06:15:54`), and then decreased back to 500 as the track approached the second receiver.
 
 
 ### 2.2. Visualizing RSP outputs
 
-We can use `plotDist()` to compare the total distances travelled by each animal calculated using only the receiver locations and or also including the RSP estimations:
+We can use `plotDist()` to compare the total distances travelled by each animal calculated using only the receiver locations and also including the RSP estimations:
 
 <center>
 ![](plotDist.png){#id .class width=60% height=60%} 
@@ -218,6 +218,8 @@ Warning: 6 track(s) in group R64K-4138 have less than eight detections and will 
 M: In total, 93 detections were excluded as they failed the track quality checks.
 ```
 
+You can suppress the individual warning messages by setting `verbose` to FALSE. You will still receive the final message indicating how many detections were excluded.
+
 After calculating UDs, the **land areas** are excluded so that the final results represent only **in-water areas of use**. The overall overlap between each group monitored is also calculated. 
 
 ```
@@ -238,7 +240,8 @@ The results of the dBBMM are saved in the `$track.areas` object, as a list of da
 | R64K-4125_Track_8| 2018-08-30 17:26:41| 2018-08-31 15:43:46|     80|     418|     1337.08333|
 
 
-Each `Track` is named after the transmitter and the corresponding track name and both `Start` and `Stop` timestamps are stored. The **areas of use** (by default `Area.5` = 50% and `Area.95` = 95%) are saved in squared meters, together with the respective elapsed times in minutes (Time.lapse.min). Note that in this example for the animal **R64K-4125** the tracks 1 and 7 failed the quality checks and thus not included in the analysis.
+Each `Track` is named after the transmitter and the corresponding track name and both `Start` and `Stop` timestamps are stored. The **areas of use** (by default `Area.5` = 50% and `Area.95` = 95%) are saved in squared metres, together with the respective elapsed times in minutes (Time.lapse.min). Note that in this example for the animal **R64K-4125** the tracks 1 and 7 failed the quality checks and thus were not included in the analysis. 
+HF: In the warnings above it is stated that only one track for 4125 was removed. Should we just change it from 1 to 2 for coherence?
 
 You can use `plotContours()` to visualize any of the dBBMM calculated by specifying the `group` and `track` you want to plot:
 
@@ -251,7 +254,7 @@ plotContours(input = dbbmm.results, group = "R64K-4125", track = "R64K-4125_Trac
 
 ### 3.2. Total space-use overlap 
 
-Now that we calculated the areas of space-use within our study area for each group monitored, we can investigate the ammount of overall overlap between them stored in the `$overlap.areas` object:
+Now that we calculated the areas of space-use within our study area for each group monitored, we can investigate the amount of overall overlap between them by inspecting the `$overlap.areas` object:
 
 ```
 dbbmm.results$overlap.areas$`0.5`$absolute
@@ -260,7 +263,7 @@ dbbmm.results$overlap.areas$`0.5`$absolute
 |:---------|---------:|---------:|---------:|---------:|
 | R64K-4075|        NA|      1716|      1792|      3606|
 | R64K-4125|   	  1716|        NA|      1769|      3551|
-| R64K-4128|	  1792|      1769|        NA|      2635|
+| R64K-4128|	    1792|      1769|        NA|      2635|
 | R64K-4138|      3606|      3551|      2635|        NA|
 
 ```
@@ -293,7 +296,7 @@ dbbmm.results$overlap.areas$`0.95`$percentage
 | R64K-4128| 0.7133693| 0.7457355|        NA| 0.9970841|
 | R64K-4138| 0.9857884| 0.9064672| 0.9970841|        NA|
 
-Please note the overlaps are calculated for the contours defined by `breaks` in `dynBBMM()`, and returned both in **absolute values** (squared meters) and **percentage** matrices. For example, we can see in the last table that **R64K-4128** and **R64K-4138** were the groups with higher overall overlap of 99.71% at the 95% level, whereas **R64K-4075** and **R64K-4128** had a smaller overlap of 71.34% at the 95% contour. To see exactly where space use overlaps occurred you can use `plotOverlap()`:
+Please note the overlaps are calculated for the contours defined by `breaks` in `dynBBMM()`, and returned both in **absolute values** (squared metres) and **percentage** matrices. For example, we can see in the last table that **R64K-4128** and **R64K-4138** were the groups with higher overall overlap of 99.71% at the 95% level, whereas **R64K-4075** and **R64K-4128** had a smaller overlap of 71.34% at the 95% contour. To see exactly where space use overlaps occurred you can use `plotOverlap()`:
 
 ```
 plotOverlap(input = dbbmm.results, stations = FALSE, level = .95, store = TRUE)
@@ -325,10 +328,9 @@ time.dbbmm.results$timeslots[400:410, ]
 |  409| 2014-10-15 00:00:00| 2014-10-16 00:00:00| FALSE|    FALSE|     TRUE|
 |  410| 2014-10-16 00:00:00| 2014-10-17 00:00:00| FALSE|    FALSE|     TRUE|
 
-In the example above (daily timeslots set using `timeframe = 24`) we can notice that in the four first `timeslot` none of the three groups monitored were detected, whereas both **Bream** and **Tarwhine** groups got detected in **slot 404** and
-from **slot 405** to **slot 410** only **Tarwhine** were detected. 
+In the example above (daily timeslots set using `timeframe = 24`) we can notice that in timeslots 400 to 403 none of the three groups monitored were detected, whereas both **Bream** and **Tarwhine** groups got detected in **slot 404** and from **slot 405** to **slot 410** only **Tarwhine** were detected. 
 
-The `$track.areas` object for each tracked group will now have a first column named **Slot**, which now identifies the `timeslot` for each of the dBBMM calculated:
+The `$track.areas` object for each tracked group will now have a first column named **Slot**, which identifies the `timeslot` for each of the dBBMM calculated:
 
 ```
 time.dbbmm.results$track.areas$Bream[24:30, ]
@@ -344,7 +346,7 @@ time.dbbmm.results$track.areas$Bream[24:30, ]
 | 426|A69-9004-485_Track_04|2014-11-01 00:00:59|2014-11-01 23:58:59|  1158|   5344|    1438.00000|
 | 427|A69-9004-485_Track_04|2014-11-02 00:08:18|2014-11-02 23:53:08|   624|   2515|    1424.83333|
 
-Here we can see that the Bream **A69-9004-485** was detected consecutivelly between `2014-10-17 12:41:35` and `2014-10-19 06:45:37` (Track_02) and again between `2014-10-31 10:24:47` and `2014-11-02 23:53:08` (Track_04). 
+Here we can see that the Bream **A69-9004-485** was detected consecutively between `2014-10-17 12:41:35` and `2014-10-19 06:45:37` (Track_02) and again between `2014-10-31 10:24:47` and `2014-11-02 23:53:08` (Track_04). 
 
 The following command line can help you assess if any other group got detected during a particular `timeslot`:
 
