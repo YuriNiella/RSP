@@ -28,9 +28,9 @@ plotContours(
 
 \item{levels}{Numeric vector os use areas to plot. By default the 99\%, 95\%, 75\%, 50\% and 25\% areas will be returned.}
 
-\item{land.col}{Color of the land mass.}
+\item{title}{The title of the plot}
 
-\item{main}{The title of the plot}
+\item{land.col}{Color of the land mass.}
 }
 \value{
 dynamic Brownian Bridge Movement Model plot.

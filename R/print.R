@@ -136,6 +136,7 @@ rspDist <- function(input) {
 #' @export
 #' 
 densDetec <- function(input, type = "Total") {
+  Time.lapse.hour <- NULL
   #input <- rsp.data
   if (type == "Total") {
     input <- do.call(rbind.data.frame, input$detections)
@@ -372,7 +373,7 @@ plotRSP <- function(input, tag, display = c("Receiver", "RSP", "Both"), type = c
 #' @param timeslot The timeslot to be plotted.
 #' @param stations Should receiver stations be added to the graph. Default is TRUE.
 #' @param levels Numeric vector os use areas to plot. By default the 99\%, 95\%, 75\%, 50\% and 25\% areas will be returned.
-#' @param main The title of the plot
+#' @param title The title of the plot
 #' @param land.col Color of the land mass. 
 #' 
 #' @return dynamic Brownian Bridge Movement Model plot.
