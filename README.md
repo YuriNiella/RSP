@@ -23,7 +23,7 @@ distribution areas can be calculated for the entire monitoring periods,
 or in fine-scale according to fixed temporal intervals in hours
 (timeframes). Tracked animals are assigned to specific biological groups
 (different species, different sexes from a same species, etc.) prior to
-analysis, and the RSP calculates the ammounts of inter-group overlap in
+analysis, and the RSP calculates the amounts of inter-group overlap in
 space and time between all groups monitored. This approach allows
 spatial ecologists to use the outputs from such fine scale space use
 models (areas of use, or between-group overlap frequencies) as input for
@@ -41,17 +41,17 @@ combined**:
 
 **runRSP()**
 
-You can use runRSP() to estimate the shortest in water paths. Each
+You can use runRSP() to estimate the shortest in-water paths. Each
 animal monitored is analysed individually and all detections are
 assigned to separate **tracks**: a sequence of detections with
 **intervals shorter than 24 hours**. When the animal is not detected for
-a period of time **longer than a day** a **new track** is created.
+a period of time **longer than a day**, a **new track** is created.
 
 **dynBBMM()**
 
-After the shortest in water paths are estimated the **runRSP() output**
+After the shortest in-water paths are estimated, the **runRSP() output**
 can be used for calculating utilization distribution areas using
-**dynamic Brownian Bridge Movement Models** (dBBMM). This same function
+**dynamic Brownian Bridge Movement Models** (dBBMM) through the **dynBBMM()** function. This same function
 can be either used for assessing the overall space use of tracked
 animals or in fine scale (by setting the **timeframe** argument in
 hours). While the former calculates the dBBMM at **track level**, which
@@ -63,9 +63,9 @@ period.
 
 **plotRSP()**
 
-Can be used to visualize the **runRSP() output** to inspect for
+This function can be used to visualize the **runRSP() output** to inspect for
 differences in tracks using either only receiver locations (Straight
-lines) and the RSP:
+lines) or including the RSP positions:
 
 <img src="vignettes/plotRSP_readme.png" width="850"  />
 
@@ -77,7 +77,7 @@ Plots a specified dBBMM utilization distribution:
 
 **plotOverlap()**
 
-To investigate where in the study area the overlaps between **different
+This function shows where in the study area the overlaps between **different
 biological groups** occurred:
 
 <img src="vignettes/plotOverlap_readme.png" width="400"  />
@@ -86,16 +86,16 @@ biological groups** occurred:
 
 Current version: **0.1.0**
 
-You will need the **devtools** package **to install RSP**:
+You will need the **remotes** package **to install RSP**:
 
 ``` 
-install.packages("devtools")
-library("devtools")     
+install.packages("remotes")
+library("remotes")     
 ```
 
 Now you can install RSP using:
 
-    install_github("YuriNiella/RSP", build_vignettes = TRUE)
+    remotes::install_github("YuriNiella/RSP", build_opts = c("--no-resave-data", "--no-manual"), build_vignettes = TRUE)
 
 All the information you need on how to perform the RSP analysis can be
 found in the package vignettes:
