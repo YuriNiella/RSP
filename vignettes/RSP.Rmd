@@ -211,7 +211,7 @@ M: No specific transmitters selected. All the data will be used for analysis.
 Warning: 7 track(s) in group R64K-4075 have less than eight detections and will not be used.
 Warning: 1 track(s) in group R64K-4075 are shorter than 30 minutes and will not be used.
 Warning: 2 individual detections were removed in group R64K-4125 due to simultaneous detections at two receivers.
-Warning: 1 track(s) in group R64K-4125 have less than eight detections and will not be used.
+Warning: 2 track(s) in group R64K-4125 have less than eight detections and will not be used.
 Warning: 1 track(s) in group R64K-4128 have less than eight detections and will not be used.
 Warning: 2 track(s) in group R64K-4128 are shorter than 30 minutes and will not be used.
 Warning: 6 track(s) in group R64K-4138 have less than eight detections and will not be used.
@@ -241,7 +241,6 @@ The results of the dBBMM are saved in the `$track.areas` object, as a list of da
 
 
 Each `Track` is named after the transmitter and the corresponding track name and both `Start` and `Stop` timestamps are stored. The **areas of use** (by default `Area.5` = 50% and `Area.95` = 95%) are saved in squared metres, together with the respective elapsed times in minutes (Time.lapse.min). Note that in this example for the animal **R64K-4125** the tracks 1 and 7 failed the quality checks and thus were not included in the analysis. 
-HF: In the warnings above it is stated that only one track for 4125 was removed. Should we just change it from 1 to 2 for coherence?
 
 You can use `plotContours()` to visualize any of the dBBMM calculated by specifying the `group` and `track` you want to plot:
 
