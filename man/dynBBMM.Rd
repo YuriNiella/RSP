@@ -15,11 +15,11 @@ dynBBMM(
 )
 }
 \arguments{
-\item{input}{The output of an RSP function.}
+\item{input}{The output of runRSP.}
 
 \item{UTM.zone}{UTM zone of the study area.}
 
-\item{tags}{Vector of transmitters to be analyzed. By default all transmitters from the SPBD estimation will be analised.}
+\item{tags}{Vector of transmitters to be analyzed. By default all transmitters from runRSP will be analised.}
 
 \item{breaks}{The contours for calculating usage areas in squared meters. By default the 95\% and 50\% contours are used.}
 

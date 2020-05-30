@@ -34,5 +34,9 @@ Returns a list of RSP tracks (as dataframe) for each transmitter detected.
 }
 \description{
 Estimates the RSP for a series of animals tracked with acoustic transmitters. Intermediate
-locations are estimated according to fixed distance and temporal intervals.
+locations between consecutive acoustic detections (either on the same or different receivers) are estimated 
+according to fixed distance (see distance for details) and temporal (see time.lapse for details) intervals. The error of estimated locations increase proportionally as 
+the animal moves away from the first detection, and decreases as it approaches the second detection (see er.ad for details). If 
+the animal is not detected for a long time (default is a daily absence), the detections are broken into a 
+new track (see maximum.time for details).
 }

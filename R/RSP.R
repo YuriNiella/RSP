@@ -8,7 +8,11 @@ NULL
 #' Refined Shortest Path (RSP) between detections
 #' 
 #' Estimates the RSP for a series of animals tracked with acoustic transmitters. Intermediate
-#' locations are estimated according to fixed distance and temporal intervals.
+#' locations between consecutive acoustic detections (either on the same or different receivers) are estimated 
+#' according to fixed distance (see distance for details) and temporal (see time.lapse for details) intervals. The error of estimated locations increase proportionally as 
+#' the animal moves away from the first detection, and decreases as it approaches the second detection (see er.ad for details). If 
+#' the animal is not detected for a long time (default is a daily absence), the detections are broken into a 
+#' new track (see maximum.time for details). 
 #'
 #' @param input The output of one of actel's main functions (explore, migration or residency)
 #' @param base.raster Raster file from the study area defining land (1) and water (0) regions. 
@@ -27,6 +31,20 @@ runRSP <- function(input, base.raster, distance = 250, time.lapse = 10, er.ad = 
     on.exit(save(list = ls(), file = "RSP_debug.RData"), add = TRUE)
     message("!!!--- Debug mode has been activated ---!!!")
   } 
+
+  # check stations fall within the base raster provided
+  ext1 <- raster::extent(sp::SpatialPoints(input$spatial$stations[, c(3, 2)]))
+  ext2 <- raster::extent(raster::raster(base.raster, full.names = TRUE))
+  ext.check <- ext1 < ext2 
+  if (ext.check == FALSE) {
+    stop("The stations don't fit within the raster provided. Please see ?checkRSPraster() for details.\n")
+  }
+
+  # check if all spatial locations are in-water in the base raster provided
+  spatial.check <- checkSpatial(input$spatial, base.raster)
+  if (max(spatial.check) == 1) {
+    stop(paste0("The location of receiver(s) '", input$spatial$stations$Station.name[which(spatial.check != 0)], "' is in land. Please see ?checkRSPraster() for details.\n"))
+  }
 
   if (is.null(input$rsp.info))
     stop("'input' could not be recognized as an actel analysis result.\n")
@@ -48,7 +66,7 @@ runRSP <- function(input, base.raster, distance = 250, time.lapse = 10, er.ad = 
   detections <- prepareDetections(detections = detections, spatial = spatial)
 
   # create a transition layer
-  transition.layer <- RPStransition(raster.hab = base.raster)
+  transition.layer <- RSPtransition(raster.hab = base.raster)
 
   RSP.time <- system.time(recipient <- includeRSP(detections = detections, transition = transition.layer, maximum.time = maximum.time,
                                            tz.study.area = tz.study.area, distance = distance, time.lapse = time.lapse, er.ad = er.ad, debug = debug))
@@ -63,6 +81,24 @@ runRSP <- function(input, base.raster, distance = 250, time.lapse = 10, er.ad = 
 
   return(list(detections = rsp.detections, tracks = tracks, spatial = spatial, bio = input$rsp.info$bio, tz.study.area = tz.study.area, base.raster = base.raster))
 }
+
+
+#' Check all receiver stations are in the water
+#' 
+#' Verify that receivers are in-water within the base raster provided
+#'
+#' @param spatial The spatial file from actel analysis.
+#' @param base.raster Raster file from the study area defining land (1) and water (0) regions. 
+#' 
+#' @return A standardized dataframe to be used for RSP calculation. 
+#' 
+checkSpatial <- function(spatial, base.raster) {
+  spatial <- study.data$spatial
+  raster.file <- raster::raster(base.raster)
+  aux <- raster::extract(x = raster.file, y = sp::SpatialPoints(spatial$stations[ , c(3, 2)]))
+  return(aux)
+}
+
 
 #' Import detection data as sorted format
 #' 
@@ -96,6 +132,7 @@ prepareDetections <- function(detections, spatial) {
   
   return(output)
 }
+
 
 #' Identify potential fine-scale data for analysis
 #' 
@@ -151,7 +188,7 @@ nameTracks <- function(detections, maximum.time = 24) {
 #' 
 #' @import rgdal
 #' 
-RPStransition <- function(raster.hab = "shapefile.grd") { # HF: We need to discuss this again
+RSPtransition <- function(raster.hab = "shapefile.grd") { # HF: We need to discuss this again
   transition.layer <- NULL
 
   if (file.exists("rsp.transition.layer.RData")) {
@@ -176,6 +213,7 @@ RPStransition <- function(raster.hab = "shapefile.grd") { # HF: We need to discu
   }
   return(transition.layer)
 }
+
 
 #' Recreating RSP for a particular tracked animal
 #' 

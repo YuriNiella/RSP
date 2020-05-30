@@ -1,19 +1,92 @@
-#' Visualize RSP x Receiver total distances travelled 
+#' Check input data quality for the RSP analysis
 #' 
-#' Compare the outputs of total distances travelled (in kilometers) for each tracked animal, 
-#' using only receiver locations and adding the RSP positions.
+#' If you are reading this it's because RSP failed to detect all of your receivers within the base raster provided, 
+#' or any of your receiver location was found to be in land. This function allows you to visually identify the station(s) 
+#' with problem. Please either extend your raster to include all stations or fix receiver locations to be in-water.
 #'
-#' @param input RSP dataset as returned by RSP.
+#' @param input The output of one of actel's main functions (explore, migration or residency)
+#' @param base.raster Raster file from the study area defining land (1) and water (0) regions. 
 #' 
-#' @return A barplot of total distances travelled as a function of location type (Loc.type). 
+#' @return A plot of your base raster extent and the receiver locations.
 #' 
 #' @export
 #' 
-plotDist <- function(input) {
-  Animal.tracked <- NULL
-  Dist.travel <- NULL
-  Loc.type <- NULL
+checkRSPraster <- function(input, base.raster) {
+  aux <- raster::raster(base.raster, full.names = TRUE)
 
+  # Convert raster to points:
+  base.raster_df <- raster::rasterToPoints(aux)
+  
+  # Make the points a dataframe for ggplot
+  df <- data.frame(base.raster_df)
+  colnames(df) <- c("Longitude", "Latitude", "MAP")
+  df$MAP[df$MAP == 0] <- NA
+
+  p <- ggplot2::ggplot(data = df, ggplot2::aes(y = Latitude, x = Longitude))
+  p <- p + ggplot2::geom_raster(ggplot2::aes(fill = MAP), show.legend = FALSE)
+  p <- p + ggplot2::scale_fill_gradientn(colours = "#BABCBF", na.value = NA)
+  p <- p + ggplot2::theme_bw()
+  p <- p + ggplot2::theme(legend.position = "bottom")
+  p <- p + ggplot2::scale_x_continuous(expand = c(0, 0))
+  p <- p + ggplot2::scale_y_continuous(expand = c(0, 0)) 
+  p <- p + ggplot2::geom_point(data = input$spatial$stations, aes(x = Longitude, y = Latitude))
+  
+  return(p)
+}
+
+
+#' Check location quality for the RSP output
+#' 
+#' This function can be used to verify whether all RSP estimated positions were placed within the water along the 
+#' study area.
+#'
+#' @param input The output of runRSP.
+#' 
+#' @return A plot showing the RSP locations by tracked group.
+#' 
+#' @export
+#' 
+checkRSPlocation <- function(input) {
+
+  base.raster <- raster::raster(input$base.raster, full.names = TRUE)
+  detections <- do.call(rbind.data.frame, input$detections)
+  
+  # Convert raster to points:
+  base.raster_df <- raster::rasterToPoints(base.raster)
+  
+  # Make the points a dataframe for ggplot
+  df <- data.frame(base.raster_df)
+  colnames(df) <- c("Longitude", "Latitude", "MAP")
+  df$MAP[df$MAP == 0] <- NA
+
+  p <- ggplot2::ggplot(data = df, ggplot2::aes(y = Latitude, x = Longitude))
+  p <- p + ggplot2::geom_raster(ggplot2::aes(fill = MAP), show.legend = FALSE)
+  p <- p + ggplot2::scale_fill_gradientn(colours = "#BABCBF", na.value = NA)
+  p <- p + ggplot2::theme_bw()
+  p <- p + ggplot2::theme(legend.position = "bottom")
+  p <- p + ggplot2::scale_x_continuous(expand = c(0, 0))
+  p <- p + ggplot2::scale_y_continuous(expand = c(0, 0)) 
+  p <- p + ggplot2::geom_point(data = detections, aes(x = Longitude, y = Latitude, colour = Transmitter), alpha = 0.5, size = 0.3)
+  p <- p + ggplot2::theme(legend.position = "bottom")
+  p <- p + labs(colour = "Animal tracked")
+ 
+  return(p)
+}
+
+
+#' RSP total distances travelled 
+#' 
+#' Compare the outputs of total distances travelled (in kilometers) for the tracked animals, using only the 
+#' receiver locations and adding the RSP positions. Data on the total distances travelled are stored in the 
+#' 'distances' objtect.
+#'
+#' @param input RSP dataset as returned by RSP.
+#' 
+#' @return A barplot of total distances travelled as a function of location type (Loc.type) and the distances travelled during each RSP track.  
+#' 
+#' @export
+#' 
+distanceRSP <- function(input) {
   detections <- input$detections
   
   df.diag <- lapply(seq_along(detections), function(i) {
@@ -21,6 +94,7 @@ plotDist <- function(input) {
     track <- names(df.aux) # Analyze tracks individually
     aux <- lapply(seq_along(df.aux), function(j) {
       df.rec <- subset(df.aux[[j]], Position == "Receiver")
+
       # Receiver distances only
       aux.coords <- data.frame(
         x1 = df.rec$Longitude[-nrow(df.rec)],
@@ -46,79 +120,42 @@ plotDist <- function(input) {
         Day.n = rep(length(unique(df.aux[[j]]$Date)), 2),
         Loc.type = c("Receiver", "RSP"),
         Dist.travel = c(rec.tot, RSP.tot))
-      # print(output, topn = nrow(output)); flush.console()
       return(output)
     })
     return(as.data.frame(data.table::rbindlist(aux)))
   })
   plotdata <- as.data.frame(data.table::rbindlist(df.diag))
-  
-  p <- ggplot2::ggplot(data = plotdata, ggplot2::aes(x = Animal.tracked, y = Dist.travel, fill = Loc.type))
+  plot.save <- dist.calc(input = plotdata)
+
+  p <- ggplot2::ggplot(data = plot.save, ggplot2::aes(x = Animal.tracked, y = Dist.travel, fill = Loc.type))
   p <- p + ggplot2::geom_bar(stat = "identity", position = ggplot2::position_dodge())
   p <- p + ggplot2::labs(x = "Animal tracked", y = "Total distance travelled (km)", fill = "")
   p <- p + ggplot2::scale_fill_brewer(palette = "Paired")
   p <- p + ggplot2::theme_bw()
-  p <- p + ggplot2::coord_flip(ylim = c(0, max(plotdata$Dist.travel) * 1.05), expand = FALSE)
+  p <- p + ggplot2::coord_flip(ylim = c(0, max(plot.save$Dist.travel) * 1.05), expand = FALSE)
   p
+
+  return(list(Data = plotdata, Plot = p))
 }
 
 
-#' Extract RSP x Receiver total distances travelled
+#' Calculates the total distances travelled 
 #' 
-#' Calculate the total distances travelled (in kilometers) for each tracked animal, 
-#' using only receiver locations and adding the RSP positions.
+#' Calculate the total distances travelled during each RSP track identified.
 #'
 #' @param input RSP dataset as returned by RSP.
 #' 
-#' @return A dataframe of total distances travelled as a function of location type (Loc.type). 
+#' @return A dataframe of the total distances travelled using RSP and Receiver tracks.
 #' 
-#' @export
-#' 
-rspDist <- function(input) {
-  Animal.tracked <- NULL
-  Dist.travel <- NULL
-  Loc.type <- NULL
-
-  detections <- input$detections
-  
-  df.diag <- lapply(seq_along(detections), function(i) {
-    df.aux <- split(detections[[i]], detections[[i]]$Track)
-    track <- names(df.aux) # Analyze tracks individually
-    aux <- lapply(seq_along(df.aux), function(j) {
-      df.rec <- subset(df.aux[[j]], Position == "Receiver")
-      # Receiver distances only
-      aux.coords <- data.frame(
-        x1 = df.rec$Longitude[-nrow(df.rec)],
-        y1 = df.rec$Latitude[-nrow(df.rec)],
-        x2 = df.rec$Longitude[-1],
-        y2 = df.rec$Latitude[-1])
-      rec.tot <- apply(aux.coords, 1, function(p) geosphere::distm(x = c(p[1], p[2]), y = c(p[3], p[4])))
-      rec.tot <- sum(rec.tot) / 1000 # in Km
-      
-      # Receiver + RSP distances
-      aux.coords <- data.frame(
-        x1 = df.aux[[j]]$Longitude[-nrow(df.aux[[j]])],
-        y1 = df.aux[[j]]$Latitude[-nrow(df.aux[[j]])],
-        x2 = df.aux[[j]]$Longitude[-1],
-        y2 = df.aux[[j]]$Latitude[-1])
-      RSP.tot <- apply(aux.coords, 1, function(p) geosphere::distm(x = c(p[1], p[2]), y = c(p[3], p[4])))
-      RSP.tot <- sum(RSP.tot) / 1000 # in Km
-      
-      # Save output:
-      output <- data.frame(
-        Animal.tracked = rep(names(detections)[i], 2),
-        Track = rep(names(df.aux)[j], 2),
-        Day.n = rep(length(unique(df.aux[[j]]$Date)), 2),
-        Loc.type = c("Receiver", "RSP"),
-        Dist.travel = c(rec.tot, RSP.tot))
-      # print(output, topn = nrow(output)); flush.console()
-      return(output)
-    })
-    return(as.data.frame(data.table::rbindlist(aux)))
-  })
-  plotdata <- as.data.frame(data.table::rbindlist(df.diag))
-  plotdata <- subset(plotdata, Dist.travel > 0) # Include only good tracks 
-  return(plotdata)
+dist.calc <- function(input) {
+  animal <- unique(input$Animal.tracked)
+  dist.save <- NULL
+  for (i in 1:length(animal)) {
+    aux1 <- sum(input$Dist.travel[input$Loc.type == "RSP" & input$Animal.tracked == animal[i]])
+    aux2 <- sum(input$Dist.travel[input$Loc.type == "Receiver" & input$Animal.tracked == animal[i]])
+    dist.save <- c(dist.save, aux1, aux2)
+  }
+  return(data.frame(Animal.tracked = sort(rep(animal, 2)), Loc.type = c("RSP", "Receiver"), Dist.travel = dist.save))
 }
 
 

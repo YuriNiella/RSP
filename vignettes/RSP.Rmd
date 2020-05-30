@@ -139,7 +139,7 @@ Only the **valid tracks** are used by **RSP** to recreate the shortest in-water 
 | 2018-03-07 00:43:49|   125449|   R64K-4075|   500|  9.380188|  56.5716| Receiver| Track_3|
 | 2018-03-07 00:53:07|       NA|   R64K-4075| 512.5|  9.380188|  56.5716|      RSP| Track_3|
 | 2018-03-07 01:02:26|       NA|   R64K-4075| 512.5|  9.380188|  56.5716|      RSP| Track_3|
-| 2018-03-07 01:11:45|   125449|   R64K-4075|   550|  9.380188|  56.5716| Receiver| Track_3|
+| 2018-03-07 01:11:45|   125449|   R64K-4075|   500|  9.380188|  56.5716| Receiver| Track_3|
 
 The **Position** column in this dataset identifies the two consecutive acoustic detections (`Receiver`) from this animal. We can notice that they occurred on the same **Receiver** (`125449`): the first on `2018-03-07 00:43:49` and the second on `2018-03-07 01:11:45` (slightly less than 30 minutes from each other). Because this time difference is longer than the default `time.lapse` (10 minutes), the `runRSP()` estimated the intermediate positions (RSP) by repeating the receiver **Longitude** and **Latitude** and changing the **Error** parameter at a rate of 5% from the default `distance` argument (250 metres = 12.5 metres). Notice how the elapsed time was distributed evenly between the position intervals.
 
