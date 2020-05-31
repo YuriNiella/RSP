@@ -4,10 +4,12 @@
 \alias{distanceRSP}
 \title{RSP total distances travelled}
 \usage{
-distanceRSP(input)
+distanceRSP(input, Group = FALSE)
 }
 \arguments{
 \item{input}{RSP dataset as returned by RSP.}
+
+\item{Group}{If TRUE, plots are returned individually for each tracked group.}
 }
 \value{
 A barplot of total distances travelled as a function of location type (Loc.type) and the distances travelled during each RSP track.

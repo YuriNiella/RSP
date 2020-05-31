@@ -81,12 +81,13 @@ checkRSPlocation <- function(input) {
 #' 'distances' objtect.
 #'
 #' @param input RSP dataset as returned by RSP.
+#' @param Group If TRUE, plots are returned individually for each tracked group.
 #' 
 #' @return A barplot of total distances travelled as a function of location type (Loc.type) and the distances travelled during each RSP track.  
 #' 
 #' @export
 #' 
-distanceRSP <- function(input) {
+distanceRSP <- function(input, Group = FALSE) {
   detections <- input$detections
   
   df.diag <- lapply(seq_along(detections), function(i) {
@@ -127,15 +128,48 @@ distanceRSP <- function(input) {
   plotdata <- as.data.frame(data.table::rbindlist(df.diag))
   plot.save <- dist.calc(input = plotdata)
 
-  p <- ggplot2::ggplot(data = plot.save, ggplot2::aes(x = Animal.tracked, y = Dist.travel, fill = Loc.type))
-  p <- p + ggplot2::geom_bar(stat = "identity", position = ggplot2::position_dodge())
-  p <- p + ggplot2::labs(x = "Animal tracked", y = "Total distance travelled (km)", fill = "")
-  p <- p + ggplot2::scale_fill_brewer(palette = "Paired")
-  p <- p + ggplot2::theme_bw()
-  p <- p + ggplot2::coord_flip(ylim = c(0, max(plot.save$Dist.travel) * 1.05), expand = FALSE)
-  p
+  # Add corresponding groups:
+  bio.aux <- data.frame(Group = as.character(input$bio$Group), Transmitter = input$bio$Transmitter)
+  plotdata$Group <- NA
+  for (i in 1:nrow(plotdata)) {
+    plotdata$Group[i] <- as.character(bio.aux$Group[bio.aux$Transmitter == plotdata$Animal.tracked[i]] )
+  }
+  plotdata <- plotdata[order(plotdata$Group), ]
 
-  return(list(Data = plotdata, Plot = p))
+  plot.save$Group <- NA
+  for (i in 1:nrow(plot.save)) {
+    plot.save$Group[i] <- as.character(bio.aux$Group[bio.aux$Transmitter == plot.save$Animal.tracked[i]])
+  }
+  plot.save <- plot.save[order(plot.save$Group), ]
+
+  if (Group == FALSE) {
+    p <- ggplot2::ggplot(data = plot.save, ggplot2::aes(x = Animal.tracked, y = Dist.travel, fill = Loc.type))
+    p <- p + ggplot2::geom_bar(stat = "identity", position = ggplot2::position_dodge())
+    p <- p + ggplot2::labs(x = "Animal tracked", y = "Total distance travelled (km)", fill = "")
+    p <- p + ggplot2::scale_fill_brewer(palette = "Paired")
+    p <- p + ggplot2::theme_bw()
+    p <- p + ggplot2::coord_flip(ylim = c(0, max(plot.save$Dist.travel) * 1.05), expand = FALSE)
+
+    return(list(Data = plotdata, Plot = p))
+  }
+
+  if (Group == TRUE) {
+    groups <- sort(unique(plot.save$Group))
+
+    Plot <- lapply(seq_along(groups), function(i) {
+      aux <- subset(plot.save, Group == groups[i])
+      p <- ggplot2::ggplot(data = aux, ggplot2::aes(x = Animal.tracked, y = Dist.travel, fill = Loc.type))
+      p <- p + ggplot2::geom_bar(stat = "identity", position = ggplot2::position_dodge())
+      p <- p + ggplot2::labs(x = "Animal tracked", y = "Total distance travelled (km)", fill = "")
+      p <- p + ggplot2::scale_fill_brewer(palette = "Paired")
+      p <- p + ggplot2::theme_bw()
+      p <- p + ggplot2::coord_flip(ylim = c(0, max(aux$Dist.travel) * 1.05), expand = FALSE)
+      p <- p + ggplot2::labs(title = groups[i])
+    })
+    names(Plot) <- groups
+
+    return(list(Data = plotdata, Plot = Plot))
+  }
 }
 
 
@@ -143,7 +177,7 @@ distanceRSP <- function(input) {
 #' 
 #' Calculate the total distances travelled during each RSP track identified.
 #'
-#' @param input RSP dataset as returned by RSP.
+#' @param input Dataframe of distances travelled per track.
 #' 
 #' @return A dataframe of the total distances travelled using RSP and Receiver tracks.
 #' 
@@ -166,27 +200,26 @@ dist.calc <- function(input) {
 #' can be set to be performed at group level using the type argument. 
 #'
 #' @param input RSP dataset as returned by RSP.
-#' @param type Character vector (Total, Group) defining the level to which calculate density distributions. 
+#' @param Group Character vector defining the group to which calculate density distributions. By default, density is calculated for all animals and groups tracked.
 #' 
 #' @return Density plots of hours elapsed between consecutive acoustic detections. 
 #' 
 #' @export
 #' 
-densDetec <- function(input, type = "Total") {
+densityRSP <- function(input, Group = "Total") {
   Time.lapse.hour <- NULL
   #input <- rsp.data
-  if (type == "Total") {
+
+  if (Group == "Total") {
     input <- do.call(rbind.data.frame, input$detections)
     input <- subset(input, Position == "Receiver")
     input$Track.name <- paste(input$Transmitter, input$Track, sep = "_")
     input$Time.lapse.hour <- NA
-
     for (i in 2:nrow(input)) {
       if (input$Track.name[i] == input$Track.name[i - 1]) {
        input$Time.lapse.hour[i] <- as.numeric(difftime(input$Timestamp[i], input$Timestamp[i - 1], units = "hours"))
       }
     }
-
     p <- ggplot2::ggplot() + ggplot2::theme_classic()
     p <- p + ggplot2::geom_density(data = input, ggplot2::aes(x = Time.lapse.hour), color = NA, fill = cmocean::cmocean('matter')(3)[2], na.rm = TRUE)
     p <- p + ggplot2::labs(x = "Time (hours)", y = "Frequency", 
@@ -194,38 +227,35 @@ densDetec <- function(input, type = "Total") {
       " | max = ", format(round(max(input$Time.lapse.hour, na.rm = TRUE), 2), nsmall = 2)))
     p <- p + ggplot2::geom_vline(ggplot2::aes(xintercept = mean(input$Time.lapse.hour, na.rm = TRUE)), 
       color = cmocean::cmocean('matter')(3)[3], linetype="dashed", size=1)
-    
+
     return(p)
   }
 
-  if (type == "Group") {
+  if (Group != "Total") {
+    bio.aux <- data.frame(Group = as.character(input$bio$Group), Transmitter = input$bio$Transmitter)
+    bio.aux <- bio.aux[bio.aux$Group == Group, ]
+
     input <- input$detections
-    group.names <- names(input)
-    list.plot <- list()
-    for (i in 1:length(group.names)) {
-      aux <- input[[which(names(input) == group.names[i])]]
-      aux <- subset(aux, Position == "Receiver")
-      aux$Track.name <- paste(aux$Transmitter, aux$Track, sep = "_")
-      aux$Time.lapse.hour <- NA
+    input <- input[which(names(input) %in% bio.aux$Transmitter)]
 
-      for (ii in 2:nrow(aux)) {
-        if (aux$Track.name[ii] == aux$Track.name[ii - 1]) {
-        aux$Time.lapse.hour[ii] <- as.numeric(difftime(aux$Timestamp[ii], aux$Timestamp[ii - 1], units = "hours"))
-        }
+    input <- do.call(rbind.data.frame, input)
+    input <- subset(input, Position == "Receiver")
+    input$Track.name <- paste(input$Transmitter, input$Track, sep = "_")
+    input$Time.lapse.hour <- NA
+    for (i in 2:nrow(input)) {
+      if (input$Track.name[i] == input$Track.name[i - 1]) {
+       input$Time.lapse.hour[i] <- as.numeric(difftime(input$Timestamp[i], input$Timestamp[i - 1], units = "hours"))
       }
+    }
+    p <- ggplot2::ggplot() + ggplot2::theme_classic()
+    p <- p + ggplot2::geom_density(data = input, ggplot2::aes(x = Time.lapse.hour), color = NA, fill = cmocean::cmocean('matter')(3)[2], na.rm = TRUE)
+    p <- p + ggplot2::labs(x = "Time (hours)", y = "Frequency", 
+      title = paste0(Group, ": mean = ", format(round(mean(input$Time.lapse.hour, na.rm = TRUE), 2), nsmall = 2), 
+      " | max = ", format(round(max(input$Time.lapse.hour, na.rm = TRUE), 2), nsmall = 2)))
+    p <- p + ggplot2::geom_vline(ggplot2::aes(xintercept = mean(input$Time.lapse.hour, na.rm = TRUE)), 
+      color = cmocean::cmocean('matter')(3)[3], linetype="dashed", size=1)
 
-      p <- ggplot2::ggplot() + ggplot2::theme_classic()
-      p <- p + ggplot2::geom_density(data = aux, ggplot2::aes(x = Time.lapse.hour), color = NA, fill = cmocean::cmocean('matter')(3)[2], na.rm = TRUE)
-      p <- p + ggplot2::labs(x = "Time (hours)", y = "Frequency", 
-        title = paste0(group.names[i], ": ", "mean = ", format(round(mean(aux$Time.lapse.hour, na.rm = TRUE), 2), nsmall = 2), 
-        " | max = ", format(round(max(aux$Time.lapse.hour, na.rm = TRUE), 2), nsmall = 2)))
-      p <- p + ggplot2::geom_vline(ggplot2::aes(xintercept = mean(aux$Time.lapse.hour, na.rm = TRUE)), 
-        color = cmocean::cmocean('matter')(3)[3], linetype="dashed", size=1)
-
-      list.plot[[i]] <- p       
-   }
-   names(list.plot) <- group.names
-   return(list.plot)
+    return(p)
   }
 }
 

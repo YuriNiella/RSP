@@ -7,7 +7,7 @@
 dist.calc(input)
 }
 \arguments{
-\item{input}{RSP dataset as returned by RSP.}
+\item{input}{Dataframe of distances travelled per track.}
 }
 \value{
 A dataframe of the total distances travelled using RSP and Receiver tracks.

@@ -2,7 +2,7 @@
 
 export(checkRSPlocation)
 export(checkRSPraster)
-export(densDetec)
+export(densityRSP)
 export(distanceRSP)
 export(dynBBMM)
 export(plotContours)
