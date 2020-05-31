@@ -71,8 +71,23 @@ The `runRSP()` function is used to recreate the shortest paths between pairs of 
 
 ```
 library(RSP)
-rsp.results <- runRSP(input = filtered_data, base.raster = "Lake_Macquarie.grd")
+rsp.results <- runRSP(input = filtered_data, base.raster = "Limfjord_raster.grd")
 ```
+
+Before the analysis start, `runRSP()` verifies the locations of all receivers within the provided base raster. If any receiver is found to be **in land** you will get the following error:
+
+```
+Error in runRSP(input = filtered_data, base.raster = "Limfjord_raster.grd") : 
+  The location of receiver(s) 'Test1' is in land. Please see ?checkRSPraster() for details.
+```
+
+In this example, `runRSP()` found that the receiver **Test1** is placed in land. We can verify the quality of the base raster provided using `checkRSPraster()`:
+
+```
+checkRSPraster(study.data, base.raster = "Limfjord_raster.grd")
+```
+![We can see exactly where **Test1** is placed in land. To fix this error, you can either change the location in the **spatial** input file, or fix the base raster to include the stations **inside the water**.](checkRSP.png){#id .class width=400}
+
 
 A **transition layer** object is calculated using the **raster file** to estimate these paths **exclusively in the water**. The raster is imported through the argument `base.raster = "name_of_your_file.grd"`, and the Coordinate Reference System (CRS) set automatically. Because this step can take quite some time depending on the size of your study area and the resolution of your raster, the transition layer will be saved for future re-analysis in case the detection data changes. When running the analysis again the following message is shown:
 
@@ -163,20 +178,41 @@ The **Position** column in this dataset identifies the two consecutive acoustic 
 
 Here the animal was detected first at the **Receiver** `100474` on `2018-04-27 05:27:10`, and then at the **Receiver** `107527` on `2018-04-27 07:04:39`. The `runRSP()` now calculated the shortest in-water path between receivers, and we can see how the **Error** of added locations increased up to half-way, (575 metres on `2018-04-27 06:15:54`), and then decreased back to 500 as the track approached the second receiver.
 
+RSP also has a `densityRSP()` function, which allows you to investigate the ellapsed time between consecutive detections:
+
+![You can set a **Group** argument to generate a density plot for a particular group of interest. By default all monitored groups are used.](densityRSP.png){#id .class width=650} 
+
 
 ### 2.2. Visualizing RSP outputs
 
-We can use `plotDist()` to compare the total distances travelled by each animal calculated using only the receiver locations and also including the RSP estimations:
+We can use `checkRSPlocation()` to perform a quality check in the `runRSP()` output, which returns a condensed plot for all tracked animals and allows you to observe whether any strange movements were estimated (e.g. animals crossing through land masses):
 
-<center>
-![](plotDist.png){#id .class width=60% height=60%} 
-</center>
+![If you see any **strange behaviours** in this plot it is likely because your **base raster** is not good enought. Changing it's resolution could help obtaining more accurate results. Plese remember to exclude the previous transition layer from your working directory before running `runRSP()` again, or you can use `rmTransition()` to do so automatically.](checkLocations.png){#id .class width=550} 
 
-The `plotDetec()` shows the total number of receiver and estimated positions for each tracked animal:
+We can use `distanceRSP()` to compare the total distances travelled by each animal calculated using only the receiver locations and also including the RSP estimations:
 
-<center>
-![](plotDetec.png){#id .class width=60% height=60%} 
-</center>
+![If you set `Group = TRUE` plots are returned individually for each group monitored.](distanceRSP.png){#id .class width=450} 
+
+The same function also returns the distances travelled (in km) during each track:
+
+|Animal.tracked|   Track | Day.n| Loc.type| Dist.travel|     Group|
+|:-------------|--------:|-----:|--------:|-----------:|---------:|
+|     R64K-4075| Track_09|     3| Receiver|  66.8767892| R64K-4075|
+|     R64K-4075| Track_09|     3|      RSP|  72.6625359| R64K-4075|
+|     R64K-4125| Track_02|     3| Receiver|  13.6807627| R64K-4125|
+|     R64K-4125| Track_02|     3|      RSP|  16.7979609| R64K-4125|
+|     R64K-4125| Track_03|     4| Receiver| 182.8824870| R64K-4125|
+|     R64K-4125| Track_03|     4|      RSP| 206.1557192| R64K-4125|
+|     R64K-4125| Track_04|     2| Receiver|  25.4706122| R64K-4125|
+|     R64K-4125| Track_04|     2|      RSP|  30.0769265| R64K-4125|
+|     R64K-4125| Track_06|     1| Receiver|   2.9213768| R64K-4125|
+|     R64K-4125| Track_06|     1|      RSP|   2.9406700| R64K-4125|
+|     R64K-4128| Track_06|     2| Receiver|  29.8713633| R64K-4128|
+|     R64K-4128| Track_06|     2|      RSP|  33.9870067| R64K-4128|
+|     R64K-4128| Track_07|     2| Receiver|  31.8249768| R64K-4128|
+|     R64K-4128| Track_07|     2|      RSP|  33.9870067| R64K-4128|
+|     R64K-4128| Track_09|     1| Receiver|  32.1082706| R64K-4128|
+|     R64K-4128| Track_09|     1|      RSP|  37.6892695| R64K-4128|
 
 You can also plot the tracks from a particular animal using `plotRSP()`:
 

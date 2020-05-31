@@ -29,7 +29,7 @@ checkRSPraster <- function(input, base.raster) {
   p <- p + ggplot2::theme(legend.position = "bottom")
   p <- p + ggplot2::scale_x_continuous(expand = c(0, 0))
   p <- p + ggplot2::scale_y_continuous(expand = c(0, 0)) 
-  p <- p + ggplot2::geom_point(data = input$spatial$stations, aes(x = Longitude, y = Latitude))
+  p <- p + ggplot2::geom_point(data = input$spatial$stations, aes(x = Longitude, y = Latitude), size = 0.5)
   
   return(p)
 }
@@ -129,7 +129,9 @@ distanceRSP <- function(input, Group = FALSE) {
   plot.save <- dist.calc(input = plotdata)
 
   # Add corresponding groups:
-  bio.aux <- data.frame(Group = as.character(input$bio$Group), Transmitter = input$bio$Transmitter)
+  bio.aux <- data.frame(Group = input$bio$Group, Transmitter = input$bio$Transmitter)
+  bio.aux$Group <- as.character(bio.aux$Group)
+  bio.aux$Transmitter <- as.character(bio.aux$Transmitter)
   plotdata$Group <- NA
   for (i in 1:nrow(plotdata)) {
     plotdata$Group[i] <- as.character(bio.aux$Group[bio.aux$Transmitter == plotdata$Animal.tracked[i]] )
