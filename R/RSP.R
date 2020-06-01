@@ -181,9 +181,9 @@ dist.calc <- function(input) {
 #' @return A vector containing the raster values for each station location. 
 #' 
 checkSpatial <- function(input, base.raster) {
-  input <- input$spatial
+  aux.spatial <- input$spatial
   raster.file <- raster::raster(base.raster)
-  aux <- raster::extract(x = raster.file, y = sp::SpatialPoints(data.frame(y = input$stations$Longitude, x = input$stations$Latitude)))
+  aux <- raster::extract(x = raster.file, y = sp::SpatialPoints(data.frame(y = aux.spatial$stations$Longitude, x = aux.spatial$stations$Latitude)))
   return(aux)
 }
 
@@ -198,9 +198,9 @@ checkSpatial <- function(input, base.raster) {
 #' @return A TRUE/FALSE value for validating in-water locations.
 #' 
 checkSpatialWater <- function(input, base.raster) {
-  input <- input$spatial
+  aux.spatial <- input$spatial
   raster.file <- raster::raster(base.raster)
-  aux <- raster::extract(x = raster.file, y = sp::SpatialPoints(data.frame(y = input$stations$Longitude, x = input$stations$Latitude)))
+  aux <- raster::extract(x = raster.file, y = sp::SpatialPoints(data.frame(y = aux.spatial$stations$Longitude, x = aux.spatial$stations$Latitude)))
   
   if (max(aux) == 1) {
     aux <- TRUE
