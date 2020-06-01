@@ -4,15 +4,15 @@
 \alias{checkSpatial}
 \title{Check all receiver stations are in the water}
 \usage{
-checkSpatial(spatial, base.raster)
+checkSpatial(input, base.raster)
 }
 \arguments{
-\item{spatial}{The spatial file from actel analysis.}
+\item{input}{The spatial file from actel analysis.}
 
 \item{base.raster}{Raster file from the study area defining land (1) and water (0) regions.}
 }
 \value{
-A standardized dataframe to be used for RSP calculation.
+A vector containing the raster values for each station location.
 }
 \description{
 Verify that receivers are in-water within the base raster provided

@@ -11,7 +11,7 @@
 #' 
 #' @export
 #' 
-checkRSPraster <- function(input, base.raster) {
+plotRaster <- function(input, base.raster) {
   aux <- raster::raster(base.raster, full.names = TRUE)
 
   # Convert raster to points:
@@ -22,6 +22,14 @@ checkRSPraster <- function(input, base.raster) {
   colnames(df) <- c("Longitude", "Latitude", "MAP")
   df$MAP[df$MAP == 0] <- NA
 
+  # Find stations in land:
+  aux.spatial <- input$spatial
+  data.stations <- data.frame(Check = checkSpatial(input, base.raster), 
+    Longitude = aux.spatial$stations$Longitude,
+    Latitude = aux.spatial$stations$Latitude)
+  data.stations$Check[data.stations$Check == 0] <- "Water"
+  data.stations$Check[data.stations$Check == 1] <- "Land"
+
   p <- ggplot2::ggplot(data = df, ggplot2::aes(y = Latitude, x = Longitude))
   p <- p + ggplot2::geom_raster(ggplot2::aes(fill = MAP), show.legend = FALSE)
   p <- p + ggplot2::scale_fill_gradientn(colours = "#BABCBF", na.value = NA)
@@ -29,7 +37,8 @@ checkRSPraster <- function(input, base.raster) {
   p <- p + ggplot2::theme(legend.position = "bottom")
   p <- p + ggplot2::scale_x_continuous(expand = c(0, 0))
   p <- p + ggplot2::scale_y_continuous(expand = c(0, 0)) 
-  p <- p + ggplot2::geom_point(data = input$spatial$stations, aes(x = Longitude, y = Latitude), size = 0.5)
+  p <- p + ggplot2::geom_point(data = data.stations, aes(x = Longitude, y = Latitude, color = Check), size = 0.5)
+  p <- p + ggplot2::labs(color = "")
   
   return(p)
 }
@@ -46,7 +55,7 @@ checkRSPraster <- function(input, base.raster) {
 #' 
 #' @export
 #' 
-checkRSPlocation <- function(input) {
+checkLocations <- function(input) {
 
   base.raster <- raster::raster(input$base.raster, full.names = TRUE)
   detections <- do.call(rbind.data.frame, input$detections)
@@ -74,7 +83,7 @@ checkRSPlocation <- function(input) {
 }
 
 
-#' RSP total distances travelled 
+#' Plot total distances travelled 
 #' 
 #' Compare the outputs of total distances travelled (in kilometers) for the tracked animals, using only the 
 #' receiver locations and adding the RSP positions. Data on the total distances travelled are stored in the 
@@ -87,57 +96,14 @@ checkRSPlocation <- function(input) {
 #' 
 #' @export
 #' 
-distanceRSP <- function(input, Group = FALSE) {
-  detections <- input$detections
+plotDistance <- function(input, Group = FALSE) {
   
-  df.diag <- lapply(seq_along(detections), function(i) {
-    df.aux <- split(detections[[i]], detections[[i]]$Track)
-    track <- names(df.aux) # Analyze tracks individually
-    aux <- lapply(seq_along(df.aux), function(j) {
-      df.rec <- subset(df.aux[[j]], Position == "Receiver")
-
-      # Receiver distances only
-      aux.coords <- data.frame(
-        x1 = df.rec$Longitude[-nrow(df.rec)],
-        y1 = df.rec$Latitude[-nrow(df.rec)],
-        x2 = df.rec$Longitude[-1],
-        y2 = df.rec$Latitude[-1])
-      rec.tot <- apply(aux.coords, 1, function(p) geosphere::distm(x = c(p[1], p[2]), y = c(p[3], p[4])))
-      rec.tot <- sum(rec.tot) / 1000 # in Km
-      
-      # Receiver + RSP distances
-      aux.coords <- data.frame(
-        x1 = df.aux[[j]]$Longitude[-nrow(df.aux[[j]])],
-        y1 = df.aux[[j]]$Latitude[-nrow(df.aux[[j]])],
-        x2 = df.aux[[j]]$Longitude[-1],
-        y2 = df.aux[[j]]$Latitude[-1])
-      RSP.tot <- apply(aux.coords, 1, function(p) geosphere::distm(x = c(p[1], p[2]), y = c(p[3], p[4])))
-      RSP.tot <- sum(RSP.tot) / 1000 # in Km
-      
-      # Save output:
-      output <- data.frame(
-        Animal.tracked = rep(names(detections)[i], 2),
-        Track = rep(names(df.aux)[j], 2),
-        Day.n = rep(length(unique(df.aux[[j]]$Date)), 2),
-        Loc.type = c("Receiver", "RSP"),
-        Dist.travel = c(rec.tot, RSP.tot))
-      return(output)
-    })
-    return(as.data.frame(data.table::rbindlist(aux)))
-  })
-  plotdata <- as.data.frame(data.table::rbindlist(df.diag))
-  plot.save <- dist.calc(input = plotdata)
+  plot.save <- dist.calc(input = getDistance(input))
 
   # Add corresponding groups:
   bio.aux <- data.frame(Group = input$bio$Group, Transmitter = input$bio$Transmitter)
   bio.aux$Group <- as.character(bio.aux$Group)
   bio.aux$Transmitter <- as.character(bio.aux$Transmitter)
-  plotdata$Group <- NA
-  for (i in 1:nrow(plotdata)) {
-    plotdata$Group[i] <- as.character(bio.aux$Group[bio.aux$Transmitter == plotdata$Animal.tracked[i]] )
-  }
-  plotdata <- plotdata[order(plotdata$Group), ]
-
   plot.save$Group <- NA
   for (i in 1:nrow(plot.save)) {
     plot.save$Group[i] <- as.character(bio.aux$Group[bio.aux$Transmitter == plot.save$Animal.tracked[i]])
@@ -152,7 +118,7 @@ distanceRSP <- function(input, Group = FALSE) {
     p <- p + ggplot2::theme_bw()
     p <- p + ggplot2::coord_flip(ylim = c(0, max(plot.save$Dist.travel) * 1.05), expand = FALSE)
 
-    return(list(Data = plotdata, Plot = p))
+    return(p)
   }
 
   if (Group == TRUE) {
@@ -170,28 +136,8 @@ distanceRSP <- function(input, Group = FALSE) {
     })
     names(Plot) <- groups
 
-    return(list(Data = plotdata, Plot = Plot))
+    return(Plot)
   }
-}
-
-
-#' Calculates the total distances travelled 
-#' 
-#' Calculate the total distances travelled during each RSP track identified.
-#'
-#' @param input Dataframe of distances travelled per track.
-#' 
-#' @return A dataframe of the total distances travelled using RSP and Receiver tracks.
-#' 
-dist.calc <- function(input) {
-  animal <- unique(input$Animal.tracked)
-  dist.save <- NULL
-  for (i in 1:length(animal)) {
-    aux1 <- sum(input$Dist.travel[input$Loc.type == "RSP" & input$Animal.tracked == animal[i]])
-    aux2 <- sum(input$Dist.travel[input$Loc.type == "Receiver" & input$Animal.tracked == animal[i]])
-    dist.save <- c(dist.save, aux1, aux2)
-  }
-  return(data.frame(Animal.tracked = sort(rep(animal, 2)), Loc.type = c("RSP", "Receiver"), Dist.travel = dist.save))
 }
 
 
@@ -211,6 +157,8 @@ dist.calc <- function(input) {
 densityRSP <- function(input, Group = "Total") {
   Time.lapse.hour <- NULL
   #input <- rsp.data
+
+  # Quality check group name!! Add!!
 
   if (Group == "Total") {
     input <- do.call(rbind.data.frame, input$detections)

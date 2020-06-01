@@ -78,15 +78,15 @@ Before the analysis start, `runRSP()` verifies the locations of all receivers wi
 
 ```
 Error in runRSP(input = filtered_data, base.raster = "Limfjord_raster.grd") : 
-  The location of receiver(s) 'Test1' is in land. Please see ?checkRSPraster() for details.
+  The location of receiver(s) 'Test1' is in land. Please see ?plotRaster() for details.
 ```
 
-In this example, `runRSP()` found that the receiver **Test1** is placed in land. We can verify the quality of the base raster provided using `checkRSPraster()`:
+In this example, `runRSP()` found that the receiver **Test1** is placed in land. We can verify the quality of the base raster provided using `plotRaster()`:
 
 ```
-checkRSPraster(study.data, base.raster = "Limfjord_raster.grd")
+plotRaster(study.data, base.raster = "Limfjord_raster.grd")
 ```
-![We can see exactly where **Test1** is placed in land. To fix this error, you can either change the location in the **spatial** input file, or fix the base raster to include the stations **inside the water**.](checkRSP.png){#id .class width=400}
+![We can see exactly where **Test1** is placed in land. To fix this error, you can either change the location in the **spatial** input file, or fix the base raster to include the stations **inside the water**.](plotRaster.png){#id .class width=550}
 
 
 A **transition layer** object is calculated using the **raster file** to estimate these paths **exclusively in the water**. The raster is imported through the argument `base.raster = "name_of_your_file.grd"`, and the Coordinate Reference System (CRS) set automatically. Because this step can take quite some time depending on the size of your study area and the resolution of your raster, the transition layer will be saved for future re-analysis in case the detection data changes. When running the analysis again the following message is shown:
@@ -185,15 +185,15 @@ RSP also has a `densityRSP()` function, which allows you to investigate the ella
 
 ### 2.2. Visualizing RSP outputs
 
-We can use `checkRSPlocation()` to perform a quality check in the `runRSP()` output, which returns a condensed plot for all tracked animals and allows you to observe whether any strange movements were estimated (e.g. animals crossing through land masses):
+We can use `checkLocations()` to perform a quality check in the `runRSP()` output, which returns a condensed plot for all tracked animals and allows you to observe whether any strange movements were estimated (e.g. animals crossing through land masses):
 
 ![If you see any **strange behaviours** in this plot it is likely because your **base raster** is not good enought. Changing it's resolution could help obtaining more accurate results. Plese remember to exclude the previous transition layer from your working directory before running `runRSP()` again, or you can use `rmTransition()` to do so automatically.](checkLocations.png){#id .class width=550} 
 
-We can use `distanceRSP()` to compare the total distances travelled by each animal calculated using only the receiver locations and also including the RSP estimations:
+We can use `plotDistance()` to compare the total distances travelled by each animal calculated using only the receiver locations and also including the RSP estimations:
 
 ![If you set `Group = TRUE` plots are returned individually for each group monitored.](distanceRSP.png){#id .class width=450} 
 
-The same function also returns the distances travelled (in km) during each track:
+The `getDistance()` function returns the distances travelled (in km) during each track:
 
 |Animal.tracked|   Track | Day.n| Loc.type| Dist.travel|     Group|
 |:-------------|--------:|-----:|--------:|-----------:|---------:|

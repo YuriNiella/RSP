@@ -33,17 +33,16 @@ runRSP <- function(input, base.raster, distance = 250, time.lapse = 10, er.ad = 
   } 
 
   # check stations fall within the base raster provided
-  ext1 <- raster::extent(sp::SpatialPoints(input$spatial$stations[, c(3, 2)]))
+  ext1 <- raster::extent(sp::SpatialPoints(data.frame(y = input$spatial$stations$Longitude, x = input$spatial$stations$Latitude)))
   ext2 <- raster::extent(raster::raster(base.raster, full.names = TRUE))
   ext.check <- ext1 < ext2 
   if (ext.check == FALSE) {
-    stop("The stations don't fit within the raster provided. Please see ?checkRSPraster() for details.\n")
+    stop("The stations don't fit within the raster provided. Please see ?plotRaster() for details.\n")
   }
 
   # check if all spatial locations are in-water in the base raster provided
-  spatial.check <- checkSpatial(input$spatial, base.raster)
-  if (max(spatial.check) == 1) {
-    stop(paste0("The location of receiver(s) '", input$spatial$stations$Station.name[which(spatial.check != 0)], "' is in land. Please see ?checkRSPraster() for details.\n"))
+  if (checkSpatialWater(input$spatial, base.raster)) {
+    stop(paste0("The location of station(s) '", input$spatial$stations$Station.name[which(spatial.check != 0)], "' is in land. Please see ?plotRaster() for details.\n"))
   }
 
   if (is.null(input$rsp.info))
@@ -83,21 +82,132 @@ runRSP <- function(input, base.raster, distance = 250, time.lapse = 10, er.ad = 
 }
 
 
+#' Get total distances travelled 
+#' 
+#' Obtain the total distances travelled (in kilometers) for the tracked animals, using only the 
+#' receiver locations and also adding the RSP positions. 
+#'
+#' @param input RSP dataset as returned by RSP.
+#' 
+#' @return A dataframe containing the total distances travelled during each RSP track.  
+#' 
+#' @export
+#' 
+getDistance <- function(input) {
+  detections <- input$detections
+
+  df.diag <- lapply(seq_along(detections), function(i) {
+  df.aux <- split(detections[[i]], detections[[i]]$Track)
+  track <- names(df.aux) # Analyze tracks individually
+  aux <- lapply(seq_along(df.aux), function(j) {
+  df.rec <- subset(df.aux[[j]], Position == "Receiver")
+
+  # Receiver distances only
+  aux.coords <- data.frame(
+  x1 = df.rec$Longitude[-nrow(df.rec)],
+  y1 = df.rec$Latitude[-nrow(df.rec)],
+  x2 = df.rec$Longitude[-1],
+  y2 = df.rec$Latitude[-1])
+  rec.tot <- apply(aux.coords, 1, function(p) geosphere::distm(x = c(p[1], p[2]), y = c(p[3], p[4])))
+  rec.tot <- sum(rec.tot) / 1000 # in Km
+      
+  # Receiver + RSP distances
+  aux.coords <- data.frame(
+  x1 = df.aux[[j]]$Longitude[-nrow(df.aux[[j]])],
+  y1 = df.aux[[j]]$Latitude[-nrow(df.aux[[j]])],
+  x2 = df.aux[[j]]$Longitude[-1],
+  y2 = df.aux[[j]]$Latitude[-1])
+  RSP.tot <- apply(aux.coords, 1, function(p) geosphere::distm(x = c(p[1], p[2]), y = c(p[3], p[4])))
+  RSP.tot <- sum(RSP.tot) / 1000 # in Km
+      
+  # Save output:
+  output <- data.frame(
+    Animal.tracked = rep(names(detections)[i], 2),
+    Track = rep(names(df.aux)[j], 2),
+    Day.n = rep(length(unique(df.aux[[j]]$Date)), 2),
+    Loc.type = c("Receiver", "RSP"),
+    Dist.travel = c(rec.tot, RSP.tot)
+    )
+
+  return(output)
+    })
+    return(as.data.frame(data.table::rbindlist(aux)))
+  })
+  
+  plotdata <- as.data.frame(data.table::rbindlist(df.diag))
+
+  # Add corresponding groups:
+  bio.aux <- data.frame(Group = input$bio$Group, Transmitter = input$bio$Transmitter)
+  bio.aux$Group <- as.character(bio.aux$Group)
+  bio.aux$Transmitter <- as.character(bio.aux$Transmitter)
+  plotdata$Group <- NA
+  for (i in 1:nrow(plotdata)) {
+    plotdata$Group[i] <- as.character(bio.aux$Group[bio.aux$Transmitter == plotdata$Animal.tracked[i]] )
+  }
+  plotdata <- plotdata[order(plotdata$Group), ]
+
+
+  return(plotdata)
+}
+
+
+#' Calculates the total distances travelled 
+#' 
+#' Calculate the total distances travelled during each RSP track identified.
+#'
+#' @param input Dataframe of distances travelled per track.
+#' 
+#' @return A dataframe of the total distances travelled using RSP and Receiver tracks.
+#' 
+dist.calc <- function(input) {
+  animal <- unique(input$Animal.tracked)
+  dist.save <- NULL
+  for (i in 1:length(animal)) {
+    aux1 <- sum(input$Dist.travel[input$Loc.type == "RSP" & input$Animal.tracked == animal[i]])
+    aux2 <- sum(input$Dist.travel[input$Loc.type == "Receiver" & input$Animal.tracked == animal[i]])
+    dist.save <- c(dist.save, aux1, aux2)
+  }
+  return(data.frame(Animal.tracked = sort(rep(animal, 2)), Loc.type = c("RSP", "Receiver"), Dist.travel = dist.save))
+}
+
+
 #' Check all receiver stations are in the water
 #' 
 #' Verify that receivers are in-water within the base raster provided
 #'
-#' @param spatial The spatial file from actel analysis.
+#' @param input The spatial file from actel analysis.
 #' @param base.raster Raster file from the study area defining land (1) and water (0) regions. 
 #' 
-#' @return A standardized dataframe to be used for RSP calculation. 
+#' @return A vector containing the raster values for each station location. 
 #' 
-checkSpatial <- function(spatial, base.raster) {
-  spatial <- study.data$spatial
+checkSpatial <- function(input, base.raster) {
+  input <- input$spatial
   raster.file <- raster::raster(base.raster)
-  aux <- raster::extract(x = raster.file, y = sp::SpatialPoints(spatial$stations[ , c(3, 2)]))
+  aux <- raster::extract(x = raster.file, y = sp::SpatialPoints(data.frame(y = input$stations$Longitude, x = input$stations$Latitude)))
   return(aux)
 }
+
+
+#' Check all receiver stations are in the water
+#' 
+#' Verify that receivers are in-water within the base raster provided
+#'
+#' @param input The spatial file from actel analysis.
+#' @param base.raster Raster file from the study area defining land (1) and water (0) regions. 
+#' 
+#' @return A TRUE/FALSE value for validating in-water locations.
+#' 
+checkSpatialWater <- function(input, base.raster) {
+  input <- input$spatial
+  raster.file <- raster::raster(base.raster)
+  aux <- raster::extract(x = raster.file, y = sp::SpatialPoints(data.frame(y = input$stations$Longitude, x = input$stations$Latitude)))
+  
+  if (max(aux) == 1) {
+    aux <- TRUE
+  }
+  return(aux)
+}
+
 
 
 #' Import detection data as sorted format
@@ -248,7 +358,7 @@ calcRSP <- function(df.track, tz.study.area, distance, time.lapse, transition, e
     
     if (same.station.shift[i]) {      
       # Number of intermediate positions to add:
-      intermidiate.points <- as.integer(df.track$Time.lapse.min[i] / time.lapse)
+      intermediate.points <- as.integer(df.track$Time.lapse.min[i] / time.lapse)
     } 
     
     if (different.station.shift[i]) {
@@ -288,20 +398,20 @@ calcRSP <- function(df.track, tz.study.area, distance, time.lapse, transition, e
         path.list[[length(path.list) + 1]] <- AtoB.df
         names(path.list)[length(path.list)] <- path.name
       }
-      intermidiate.points <- nrow(AtoB.df)
+      intermediate.points <- nrow(AtoB.df)
     }
     
-    if (exists("intermidiate.points")) {
+    if (exists("intermediate.points")) {
       # Auxiliar dataset to save intermediate positions:
       mat.aux <- as.data.frame(df.track[-(1:.N)])
       
       # Add intermediate timeframe
-      time.step <- df.track$Time.lapse.min[i] * 60 / (intermidiate.points + 1)
+      time.step <- df.track$Time.lapse.min[i] * 60 / (intermediate.points + 1)
       
       baseline <- df.track$Timestamp[i - 1] # Base timeframe
       incremented.baseline <- baseline
       
-      for (pos2 in 1:intermidiate.points) {
+      for (pos2 in 1:intermediate.points) {
         incremented.baseline <- incremented.baseline + time.step
         mat.aux[pos2, "Timestamp"] <- incremented.baseline
       }
@@ -361,7 +471,7 @@ calcRSP <- function(df.track, tz.study.area, distance, time.lapse, transition, e
       mat.aux$Position <- "RSP"
       
       aux.RSP <- rbind(aux.RSP, mat.aux) # Save RSP
-      rm(intermidiate.points)
+      rm(intermediate.points)
     }
   }
   close(pb)
