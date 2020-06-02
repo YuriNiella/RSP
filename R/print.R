@@ -55,10 +55,37 @@ plotRaster <- function(input, base.raster) {
 #' 
 #' @export
 #' 
-checkLocations <- function(input) {
+checkLocations <- function(input, base.raster, type = c("points", "lines"), group, tag) {
 
-  base.raster <- raster::raster(input$base.raster, full.names = TRUE)
-  detections <- do.call(rbind.data.frame, input$detections)
+  type <- match.arg(type)
+
+  base.raster[is.na(base.raster)] <- 2
+  base.raster[base.raster == 1] <- NA
+  base.raster[base.raster == 2] <- 1
+
+  if (!missing(group) & !missing(tag))
+    stop("Both 'group' and 'tag' were set. Please use one at a time.", call. = FALSE)
+
+  if (!missing(group)) {
+    if (is.na(match(group, unique(input$bio$Group))))
+      stop("The requested group is not present in the dataset. Available groups: ", 
+        paste(unique(input$bio$Group), collapse =", "), call. = FALSE)
+    to.keep <- input$bio$Signal[!is.na(match(input$bio$Group, group))]
+    link <- match(actel::stripCodeSpaces(names(input$detections)), to.keep)
+    link <- link[!is.na(link)]
+    detections <- do.call(rbind.data.frame, input$detections[link])
+  }
+
+  if (!missing(tag)) {
+    if(is.na(match(tag, names(input$detections))))
+      stop("The requested tag is not present in the dataset.", call. = FALSE)
+    detections <- input$detections[[tag]]
+  }
+
+  if (missing(group) & missing(tag))
+    detections <- do.call(rbind.data.frame, input$detections)
+
+  detections$temp.col <- paste(detections$Transmitter, "-", detections$Track)
   
   # Convert raster to points:
   base.raster_df <- raster::rasterToPoints(base.raster)
@@ -75,9 +102,12 @@ checkLocations <- function(input) {
   p <- p + ggplot2::theme(legend.position = "bottom")
   p <- p + ggplot2::scale_x_continuous(expand = c(0, 0))
   p <- p + ggplot2::scale_y_continuous(expand = c(0, 0)) 
-  p <- p + ggplot2::geom_point(data = detections, aes(x = Longitude, y = Latitude, colour = Transmitter), alpha = 0.5, size = 0.3)
+  if (type == "points")
+    p <- p + ggplot2::geom_point(data = detections, ggplot2::aes(x = Longitude, y = Latitude, colour = Transmitter), alpha = 0.5, size = 0.3)
+  if (type == "lines")
+    p <- p + ggplot2::geom_line(data = detections, ggplot2::aes(x = Longitude, y = Latitude, colour = Transmitter, group = temp.col), alpha = 0.5, size = 0.3)
   p <- p + ggplot2::theme(legend.position = "bottom")
-  p <- p + labs(colour = "Animal tracked")
+  p <- p + ggplot2::labs(colour = "Animal tracked")
  
   return(p)
 }
