@@ -6,6 +6,8 @@
 #' @param input The output of runRSP.
 #' @param UTM.zone UTM zone of the study area.
 #' @param tags Vector of transmitters to be analyzed. By default all transmitters from runRSP will be analised.
+#' @param start Sets the start point for analysis (format = "Y-m-d H:M:S").
+#' @param stop Sets the stop point for analysis (format = "Y-m-d H:M:S").
 #' @param breaks The contours for calculating usage areas in squared meters. By default the 95\% and 50\% contours are used. 
 #' @param timeframe Temporal window size for fine-scale dBBMM in hours. If left NULL, a single dBBMM is calculated for the whole period.
 #' @param verbose Logical: If TRUE, detailed check messages are displayed. Otherwise, only a summary is displayed.
@@ -15,7 +17,7 @@
 #' 
 #' @export
 #' 
-dynBBMM <- function(input, UTM.zone, tags = NULL, breaks = c(.95, .50), 
+dynBBMM <- function(input, UTM.zone, tags = NULL, start = NULL, stop = NULL, breaks = c(.95, .50), 
   timeframe = NULL, debug = FALSE, verbose = TRUE) {
 
   if (debug) {
@@ -45,6 +47,35 @@ dynBBMM <- function(input, UTM.zone, tags = NULL, breaks = c(.95, .50),
   tz.study.area <- input$tz.study.area
   base.raster <- input$base.raster
   bio <- input$bio
+
+  # Subsetting the data for time period of interest:
+  if (!is.null(start)) {
+
+    # Detection data
+    detections <- lapply(detections, function(x){
+      x <- subset(x, Timestamp >= start & Timestamp <= stop)
+      return(x)
+    })
+   aux <- NULL
+   for (i in 1:length(names(detections))) {
+    aux.save <- nrow(detections[[i]])
+    if (aux.save == 0) {
+      aux <- c(aux, i)
+    }
+   }
+   detections <- detections[-aux]
+
+   # Biometrics data
+   aux.bio <- stringr::str_split_fixed(string = bio$Signal, pattern = " | ", n = 3)
+   bio$aux1 <- aux.bio[, 1]
+   bio$aux2 <- aux.bio[, 3]
+   aux <- stringr::str_split_fixed(string = names(detections), pattern = "-", n = 3)
+   aux.match <- c(aux[, 3], aux[which(aux[, 3] == ""), 2])
+   aux.match <- aux.match[-which(aux.match == "")]
+
+   bio <- bio[which(bio$aux1 %in% aux.match |  bio$aux2 %in% aux.match), ]
+   bio <- bio[, -c(9:10)]
+  }
 
   base.raster <- loadRaster(base.raster = base.raster, UTM.zone = UTM.zone)
 
@@ -188,7 +219,7 @@ loadRaster <- function(base.raster, UTM.zone) {
 groupDetections <- function(detections, tz.study.area, bio, UTM.zone, timeframe = NULL) {
   # Split transmitters per group variable
   df.signal <- data.frame(Transmitter = names(detections),
-                          Signal = stripCodeSpaces(names(detections)),
+                          # Signal = stripCodeSpaces(names(detections)),
                           stringsAsFactors = FALSE)
   
   # HF: remove spaces from groups
@@ -196,7 +227,7 @@ groupDetections <- function(detections, tz.study.area, bio, UTM.zone, timeframe 
     warning("Substituting spaces in group names to avoid function failure.", immediate. = TRUE, call. = FALSE)
     bio$Group <- gsub(" ", "_", bio$Group)
   }
-  df.signal$Group <- as.character(bio$Group[match(df.signal$Signal, bio$Signal)])
+  df.signal$Group <- as.character(bio$Group[match(df.signal$Transmitter, bio$Transmitter)])
 
   # Get signals per group
   signal.list <- split(df.signal, df.signal$Group)
