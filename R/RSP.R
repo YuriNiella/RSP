@@ -56,10 +56,7 @@ runRSP <- function(input, base.raster, distance = 250, time.lapse = 10, er.ad = 
   # Unpack study data
   detections <- input$valid.detections  
   spatial <- input$spatial
-  if (is.null(input$rsp.info$tz))
-    tz.study.area <- input$rsp.info$tz.study.area
-  else
-    tz.study.area <- input$rsp.info$tz
+  tz <- input$rsp.info$tz
 
   # RSP related changes
   detections <- prepareDetections(detections = detections, spatial = spatial)
@@ -68,7 +65,7 @@ runRSP <- function(input, base.raster, distance = 250, time.lapse = 10, er.ad = 
   transition.layer <- RSPtransition(raster.hab = base.raster)
 
   RSP.time <- system.time(recipient <- includeRSP(detections = detections, transition = transition.layer, maximum.time = maximum.time,
-                                           tz.study.area = tz.study.area, distance = distance, time.lapse = time.lapse, er.ad = er.ad, debug = debug))
+                                           tz = tz, distance = distance, time.lapse = time.lapse, er.ad = er.ad, debug = debug))
   rsp.detections <- recipient$output
   tracks <- recipient$tracks
 
@@ -78,7 +75,7 @@ runRSP <- function(input, base.raster, distance = 250, time.lapse = 10, er.ad = 
   message("M: Percentage of detections valid for RSP: ",
     round(sum(unlist(lapply(rsp.detections, function(x) sum(x$Position == "Receiver")))) / sum(unlist(lapply(detections, nrow))) * 100, 1), "%")
 
-  return(list(detections = rsp.detections, tracks = tracks, spatial = spatial, bio = input$rsp.info$bio, tz.study.area = tz.study.area, base.raster = base.raster))
+  return(list(detections = rsp.detections, tracks = tracks, spatial = spatial, bio = input$rsp.info$bio, tz = tz, base.raster = base.raster))
 }
 
 
@@ -330,7 +327,7 @@ RSPtransition <- function(raster.hab = "shapefile.grd") { # HF: We need to discu
 #' Estimates the RSP individually for all tracks of a particular animal.
 #'
 #' @param df.track Detection data for that individual as imported using RSPete.
-#' @param tz.study.area Time zone of the study area.
+#' @param tz Time zone of the study area.
 #' @param distance Maximum distance between RSP locations.
 #' @param time.lapse Time lapse in minutes to be considered for consecutive detections at the same station. 
 #' @param transition TransitionLayer object as returned by LTDpath.
@@ -340,7 +337,7 @@ RSPtransition <- function(raster.hab = "shapefile.grd") { # HF: We need to discu
 #' @return A dataframe with the RSP estimations for all identified tracks for that animal.
 #' 
 #' 
-calcRSP <- function(df.track, tz.study.area, distance, time.lapse, transition, er.ad, path.list) {
+calcRSP <- function(df.track, tz, distance, time.lapse, transition, er.ad, path.list) {
   .N <- NULL
 
   aux.RSP <- as.data.frame(df.track[-(1:.N)]) # Save RSP
@@ -467,7 +464,7 @@ calcRSP <- function(df.track, tz.study.area, distance, time.lapse, transition, e
           rm(AtoB.df)
       }
       
-      mat.aux$Date <- as.Date(mat.aux$Timestamp, tz = tz.study.area)
+      mat.aux$Date <- as.Date(mat.aux$Timestamp, tz = tz)
       mat.aux$Position <- "RSP"
       
       aux.RSP <- rbind(aux.RSP, mat.aux) # Save RSP
@@ -485,12 +482,12 @@ calcRSP <- function(df.track, tz.study.area, distance, time.lapse, transition, e
 #'
 #' @param detections Detection data for that individual as imported using RSPete.
 #' @param transition TransitionLayer object as returned by LTDpath.
-#' @param tz.study.area Timezone of the study area.
+#' @param tz Timezone of the study area.
 #' @inheritParams runRSP
 #' 
 #' @return A list with the RSP estimations of individual tracks per transmitter.
 #' 
-includeRSP <- function(detections, transition, tz.study.area, distance, time.lapse, er.ad, maximum.time, debug = FALSE) {
+includeRSP <- function(detections, transition, tz, distance, time.lapse, er.ad, maximum.time, debug = FALSE) {
   if (debug)
     on.exit(save(list = ls(), file = "includeRSP_debug.RData"), add = TRUE)
   
@@ -511,7 +508,7 @@ includeRSP <- function(detections, transition, tz.study.area, distance, time.lap
       message("Estimating ", names(detections)[i], " RSP: ", names(track.aux)[j])
       flush.console()
       # Recreate RSP
-      function.recipient <- calcRSP(df.track = track.aux[[j]], tz.study.area = tz.study.area, distance = distance, 
+      function.recipient <- calcRSP(df.track = track.aux[[j]], tz = tz, distance = distance, 
                                     time.lapse = time.lapse, transition = transition, er.ad = er.ad, path.list = path.list)
       # return path.list directly to environment above
       path.list <<- function.recipient$path.list

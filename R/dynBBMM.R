@@ -44,7 +44,7 @@ dynBBMM <- function(input, UTM.zone, tags = NULL, start = NULL, stop = NULL, bre
   # Unpack study data
   detections <- input$detections  
   spatial <- input$spatial
-  tz.study.area <- input$tz.study.area
+  tz <- input$tz
   base.raster <- input$base.raster
   bio <- input$bio
 
@@ -86,7 +86,7 @@ dynBBMM <- function(input, UTM.zone, tags = NULL, start = NULL, stop = NULL, bre
   # Prepare detections
   message("M: Preparing data to apply dBBMM.")
   detections <- trimDetections(detections = detections, tags = tags)
-  group.list <- groupDetections(detections = detections, tz.study.area = tz.study.area, bio = bio, UTM.zone = UTM.zone, timeframe = timeframe) 
+  group.list <- groupDetections(detections = detections, tz = tz, bio = bio, UTM.zone = UTM.zone, timeframe = timeframe) 
 
   if (attributes(group.list)$type == "group")
     before <- sum(unlist(lapply(group.list, nrow)))
@@ -132,7 +132,7 @@ dynBBMM <- function(input, UTM.zone, tags = NULL, start = NULL, stop = NULL, bre
 
   # Save track info
   message("M: Storing final results.")
-  track.info <- saveTrackInfo(input = group.list, water = water.areas[[1]], tz.study.area = tz.study.area)
+  track.info <- saveTrackInfo(input = group.list, water = water.areas[[1]], tz = tz)
 
   if (attributes(mod_dbbmm)$type == "group")
     return(list(dbbmm = mod_dbbmm, base.raster = base.raster, group.areas = overlaps$group.areas, group.rasters = dbbmm.rasters, track.areas = track.info, 
@@ -213,14 +213,14 @@ loadRaster <- function(base.raster, UTM.zone) {
 #' Joins the detections by group.
 #' 
 #' @param detections a list of detections per fish
-#' @param tz.study.area the time UTM.zone of the study area
+#' @param tz the time UTM.zone of the study area
 #' @param UTM.zone the UTM UTM.zone of the study area
 #' 
 #' @return the detections grouped by group
 #' 
 #' @keywords internal
 #' 
-groupDetections <- function(detections, tz.study.area, bio, UTM.zone, timeframe = NULL) {
+groupDetections <- function(detections, tz, bio, UTM.zone, timeframe = NULL) {
   # Split transmitters per group variable
   df.signal <- data.frame(Transmitter = names(detections),
                           # Signal = stripCodeSpaces(names(detections)),
@@ -906,7 +906,7 @@ getOverlaps <- function(dbbmm.rasters, base.raster, breaks) {
 #' 
 #' @keywords internal
 #' 
-saveTrackInfo <- function(input, water, tz.study.area) {
+saveTrackInfo <- function(input, water, tz) {
   if (attributes(input)$type == "group") {
     track.info <- lapply(input, function(x) {
       by.ID <- split(x, x$ID)
@@ -947,8 +947,8 @@ saveTrackInfo <- function(input, water, tz.study.area) {
 
   # Convert times
   track.info <- lapply(track.info, function(x) {
-    x$Start <- as.POSIXct(x$Start, tz = tz.study.area)
-    x$Stop <- as.POSIXct(x$Stop, tz = tz.study.area)
+    x$Start <- as.POSIXct(x$Start, tz = tz)
+    x$Stop <- as.POSIXct(x$Stop, tz = tz)
     x$Time.lapse.min <- as.numeric(difftime(time1 = x$Stop, 
                                             time2 = x$Start,
                                             units = "mins"))
