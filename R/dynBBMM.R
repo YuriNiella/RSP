@@ -56,7 +56,7 @@ dynBBMM <- function(input, UTM.zone, tags = NULL, start = NULL, stop = NULL, bre
       x <- subset(x, Timestamp >= start & Timestamp <= stop)
       return(x)
     })
-   aux <- NULL
+    aux <- NULL
    for (i in 1:length(names(detections))) {
     aux.save <- nrow(detections[[i]])
     if (aux.save == 0) {
@@ -75,6 +75,10 @@ dynBBMM <- function(input, UTM.zone, tags = NULL, start = NULL, stop = NULL, bre
 
    bio <- bio[which(bio$aux1 %in% aux.match |  bio$aux2 %in% aux.match), ]
    bio <- bio[, -c(9:10)]
+    
+   if (length(unique(bio$Group)) == 1) {
+    stop("Only one 'Group' was detected during the specified timeframe.", call. = FALSE)
+   }
   }
 
   base.raster <- loadRaster(base.raster = base.raster, UTM.zone = UTM.zone)
