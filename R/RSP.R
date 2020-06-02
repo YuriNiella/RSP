@@ -15,7 +15,7 @@ NULL
 #' new track (see maximum.time for details). 
 #'
 #' @param input The output of one of actel's main functions (explore, migration or residency)
-#' @param base.raster Raster file from the study area defining land (1) and water (0) regions. 
+#' @param t.layer A transition layer calculated using the function \code{\link[actel]{transitionLayer}}
 #' @param distance Fixed distances in meters to add intermediate track locations. By default intermediate positions are added every 250 m.
 #' @param time.lapse Temporal limit for the RSP in minutes. Consecutive detections shorter than the time.lapse will not have interpolated positions. 
 #' @param er.ad By default, 5\% of the distance argument is used as the increment rate of the position erros for the estimated locations. Alternatively, can be defined by the user in meters.
@@ -26,24 +26,12 @@ NULL
 #' 
 #' @export
 #' 
-runRSP <- function(input, base.raster, distance = 250, time.lapse = 10, er.ad = NULL, maximum.time = 24, debug = FALSE) {
+runRSP <- function(input, t.layer, coord.x, coord.y, distance = 250, 
+  time.lapse = 10, er.ad = NULL, maximum.time = 24, debug = FALSE) {
   if (debug) {
     on.exit(save(list = ls(), file = "RSP_debug.RData"), add = TRUE)
     message("!!!--- Debug mode has been activated ---!!!")
   } 
-
-  # check stations fall within the base raster provided
-  ext1 <- raster::extent(sp::SpatialPoints(data.frame(y = input$spatial$stations$Longitude, x = input$spatial$stations$Latitude)))
-  ext2 <- raster::extent(raster::raster(base.raster, full.names = TRUE))
-  ext.check <- ext1 < ext2 
-  if (ext.check == FALSE) {
-    stop("The stations don't fit within the raster provided. Please see ?plotRaster() for details.\n")
-  }
-
-  # check if all spatial locations are in-water in the base raster provided
-  if (checkSpatialWater(input$spatial, base.raster)) {
-    stop(paste0("The location of station(s) '", input$spatial$stations$Station.name[which(spatial.check != 0)], "' is in land. Please see ?plotRaster() for details.\n"))
-  }
 
   if (is.null(input$rsp.info))
     stop("'input' could not be recognized as an actel analysis result.\n")
@@ -54,17 +42,15 @@ runRSP <- function(input, base.raster, distance = 250, time.lapse = 10, er.ad = 
   message("M: Calculating RSP for the '", input$rsp.info$analysis.type, "' data compiled on ", input$rsp.info$analysis.time)
 
   # Unpack study data
-  detections <- input$valid.detections  
+  detections <- input$valid.detections
   spatial <- input$spatial
   tz <- input$rsp.info$tz
 
   # RSP related changes
-  detections <- prepareDetections(detections = detections, spatial = spatial)
+  detections <- prepareDetections(detections = detections, 
+    spatial = spatial, coord.x = coord.x, coord.y = coord.y)
 
-  # create a transition layer
-  transition.layer <- RSPtransition(raster.hab = base.raster)
-
-  RSP.time <- system.time(recipient <- includeRSP(detections = detections, transition = transition.layer, maximum.time = maximum.time,
+  RSP.time <- system.time(recipient <- includeRSP(detections = detections, transition = t.layer, maximum.time = maximum.time,
                                            tz = tz, distance = distance, time.lapse = time.lapse, er.ad = er.ad, debug = debug))
   rsp.detections <- recipient$output
   tracks <- recipient$tracks
@@ -75,7 +61,7 @@ runRSP <- function(input, base.raster, distance = 250, time.lapse = 10, er.ad = 
   message("M: Percentage of detections valid for RSP: ",
     round(sum(unlist(lapply(rsp.detections, function(x) sum(x$Position == "Receiver")))) / sum(unlist(lapply(detections, nrow))) * 100, 1), "%")
 
-  return(list(detections = rsp.detections, tracks = tracks, spatial = spatial, bio = input$rsp.info$bio, tz = tz, base.raster = base.raster))
+  return(list(detections = rsp.detections, tracks = tracks, spatial = spatial, bio = input$rsp.info$bio, tz = tz))
 }
 
 
@@ -195,7 +181,7 @@ checkSpatial <- function(input, base.raster) {
 #' @return A TRUE/FALSE value for validating in-water locations.
 #' 
 checkSpatialWater <- function(input, base.raster) {
-  aux.spatial <- input$spatial
+  aux.spatial <- input$stations
   raster.file <- raster::raster(base.raster)
   aux <- raster::extract(x = raster.file, y = sp::SpatialPoints(data.frame(y = aux.spatial$stations$Longitude, x = aux.spatial$stations$Latitude)))
   
@@ -218,7 +204,7 @@ checkSpatialWater <- function(input, base.raster) {
 #' 
 #' @return A standardized dataframe to be used for RSP calculation. 
 #' 
-prepareDetections <- function(detections, spatial) {
+prepareDetections <- function(detections, spatial, coord.x, coord.y) {
   if (!any(colnames(spatial$stations) == "Range")) 
     warning("Could not find a 'Range' column in the spatial data; assuming a range of 500 metres for each receiver.", immediate. = TRUE, call. = FALSE)
 
@@ -231,8 +217,8 @@ prepareDetections <- function(detections, spatial) {
       x$Error <- 500
     }
     x$Time.lapse.min <- c(0, as.numeric(difftime(x$Timestamp[-1], x$Timestamp[-nrow(x)], units = "mins")))
-    x$Longitude <- spatial$stations$Longitude[match(x$Standard.name, spatial$stations$Standard.name)]
-    x$Latitude <- spatial$stations$Latitude[match(x$Standard.name, spatial$stations$Standard.name)]
+    x$Longitude <- spatial$stations[[coord.x]][match(x$Standard.name, spatial$stations$Standard.name)]
+    x$Latitude <- spatial$stations[[coord.y]][match(x$Standard.name, spatial$stations$Standard.name)]
     x$Position <- "Receiver"
     return(x)
   })
@@ -341,7 +327,7 @@ calcRSP <- function(df.track, tz, distance, time.lapse, transition, er.ad, path.
   .N <- NULL
 
   aux.RSP <- as.data.frame(df.track[-(1:.N)]) # Save RSP
-  
+
   pb <- txtProgressBar(min = 0, max = nrow(df.track),
                               initial = 0, style = 3, width = 60)
   
@@ -365,14 +351,22 @@ calcRSP <- function(df.track, tz, distance, time.lapse, transition, er.ad, path.
       if (any(names(path.list) == path.name)) {
         AtoB.df <- path.list[[path.name]]
       } else {
+        # definitive AtoB's
         AtoB <- gdistance::shortestPath(transition, A, B, output = "SpatialLines")
-        AtoB.df <- methods::as(methods::as(AtoB, "SpatialPointsDataFrame"), "data.frame")[, c(4, 5)] 
+        AtoB.spdf <- methods::as(AtoB, "SpatialPointsDataFrame")
+        AtoB.df <- methods::as(AtoB.spdf, "data.frame")[, c(4, 5)]
+        # wgs84 version just for distance calcs
+        AtoB.wgs84 <- sp::spTransform(AtoB, "+init=epsg:4326")
+        AtoB.wgs84.spdf <- methods::as(AtoB.wgs84, "SpatialPointsDataFrame")
+        AtoB.wgs84.df <- methods::as(AtoB.wgs84.spdf, "data.frame")[, c(4, 5)]
+        colnames(AtoB.wgs84.df) <- c("x", "y")
         # Prepare to calculate distance between coordinate pairs
-        start <- AtoB.df[-nrow(AtoB.df), ]
-        stop <- AtoB.df[-1, ]
+        start <- AtoB.wgs84.df[-nrow(AtoB.df), ]
+        stop <- AtoB.wgs84.df[-1, ]
         aux <- cbind(start, stop)
         # Distance in meters
         AtoB.df$Distance <- c(0, apply(aux, 1, function(m) geosphere::distm(x = m[1:2], y = m[3:4])))
+        rm(AtoB.wgs84, AtoB.wgs84.df, AtoB.wgs84.spdf)
         # Cumulative distance
         AtoB.df$cumSum <- cumsum(AtoB.df$Distance)
         AtoB.dist <- sum(AtoB.df$Distance)
@@ -459,7 +453,7 @@ calcRSP <- function(df.track, tz, distance, time.lapse, transition, er.ad, path.
         mat.aux$Latitude <- AtoB.df$y
         mat.aux$Longitude <- AtoB.df$x
         if (exists("AtoB"))
-          rm(AtoB.df, AtoB)
+          rm(AtoB.df, AtoB, AtoB.spdf)
         else
           rm(AtoB.df)
       }
