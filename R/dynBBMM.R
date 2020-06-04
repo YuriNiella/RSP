@@ -207,25 +207,6 @@ trimDetections <- function(detections, tags = NULL) {
   return(detections)
 }
 
-#' Load Raster for dBBMM
-#' 
-#' A simpler version of SPBDraster, as not as many conversions are needed.
-#' 
-#' @param base.raster the name of the raster file
-#' @param UTM.zone the UTM UTM.zone of the study area
-#' 
-#' @return the raster object.
-#' 
-#' @keywords internal
-#' 
-loadRaster <- function(base.raster, UTM.zone) {
-  base.raster <- raster::raster(base.raster)
-  raster::crs(base.raster) <- "+proj=longlat +datum=WGS84" # Base raster in lonlat CRS
-  base.raster <- raster::projectRaster(from = base.raster,  # Convert to UTM
-                                      crs = paste0("+proj=utm +UTM.zone=", UTM.zone, " +units=m +ellps=WGS84"))
-  base.raster[which(raster::values(base.raster) == 0)] <- NA # Zero values to NA = mask
-  return(base.raster)
-}
 
 #' Prepare detections for the dBBMM
 #' 
@@ -432,43 +413,6 @@ checkTrackPoints <- function(input, group, verbose = TRUE) {
       warning(length(tracks) - length(output), " track(s) in group ", group, " have less than eight detections and will not be used.", immediate. = TRUE, call. = FALSE)
     return(do.call(rbind.data.frame, output))
   }
-}
-
-#' Convert WGS84 co-ords to UTM
-#' 
-#' @inheritParams checkDupTimestamps
-#' @inheritParams groupDetections
-#' 
-#' @return The detections with UTM coordinates
-#' 
-#' @keywords internal
-#' 
-getUTM <- function(input, UTM.zone) {
-  aux <- LonLatToUTM(input$Longitude, input$Latitude, UTM.zone = UTM.zone)
-  input$X <- aux[, 2]
-  input$Y <- aux[, 3]
-  return(input)
-}
-
-#' Converts coordinates to UTM projection
-#' 
-#' Convert Coordinate Reference System (CRS) from lonlat to 
-#' the UTM projection and meter units, as required for calculating the dynamic Brownian Bridge 
-#' Movement Model. 
-#'
-#' @param x Vector of Longitudes in decimal degrees.
-#' @param y Vector of Latitudes in decimal degrees.
-#' @param UTM.zone UTM UTM.zone of input locations.
-#' 
-#' @return Dataframe with the converted coordinates in UTM.
-#' 
-LonLatToUTM <- function(x, y, UTM.zone) {
-  xy <- data.frame(ID = 1:length(x), X = x, Y = y)
-  sp::coordinates(xy) <- c("X", "Y")
-  sp::proj4string(xy) <- sp::CRS("+proj=longlat +datum=WGS84")  ## for example
-  res <- sp::spTransform(xy, sp::CRS(paste0("+proj=utm +UTM.zone=", UTM.zone, " +datum=WGS84 +units=m +no_defs")))
-  
-  return(as.data.frame(res))
 }
 
 #' Calculate the dBBMM for each group
