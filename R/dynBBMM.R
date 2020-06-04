@@ -4,11 +4,9 @@
 #' are automatically identified and not included in the analysis.
 #'
 #' @param input The output of runRSP.
-#' @param UTM.zone UTM zone of the study area.
 #' @param tags Vector of transmitters to be analyzed. By default all transmitters from runRSP will be analised.
 #' @param start Sets the start point for analysis (format = "Y-m-d H:M:S").
 #' @param stop Sets the stop point for analysis (format = "Y-m-d H:M:S").
-#' @param breaks The contours for calculating usage areas in squared meters. By default the 95\% and 50\% contours are used. 
 #' @param timeframe Temporal window size for fine-scale dBBMM in hours. If left NULL, a single dBBMM is calculated for the whole period.
 #' @param verbose Logical: If TRUE, detailed check messages are displayed. Otherwise, only a summary is displayed.
 #' @param debug Logical: If TRUE, the function progress is saved to an RData file.
@@ -17,7 +15,7 @@
 #' 
 #' @export
 #' 
-dynBBMM <- function(input, UTM.zone, tags = NULL, start = NULL, stop = NULL, breaks = c(.95, .50), 
+dynBBMM <- function(input, base.raster, tags = NULL, start = NULL, stop = NULL, 
   timeframe = NULL, debug = FALSE, verbose = TRUE) {
 
   if (debug) {
@@ -25,11 +23,12 @@ dynBBMM <- function(input, UTM.zone, tags = NULL, start = NULL, stop = NULL, bre
     message("!!!--- Debug mode has been activated ---!!!")
   }
 
+  # paint land rather than water
+  base.raster[is.na(base.raster)] <- 2
+  base.raster[base.raster == 1] <- NA
+  base.raster[base.raster == 2] <- 1
+
   # check input quality
-  if (!is.numeric(UTM.zone))
-    stop("'UTM.zone' must be numeric.", call. = FALSE)
-  if (length(UTM.zone) > 1)
-    stop("Please provide only one value for 'UTM.zone.", call. = FALSE)
   if (!is.numeric(breaks))
     stop("'breaks' must be numeric.", call. = FALSE)
   if (any(breaks <= 0 | breaks >= 1))
@@ -45,59 +44,34 @@ dynBBMM <- function(input, UTM.zone, tags = NULL, start = NULL, stop = NULL, bre
   detections <- input$detections  
   spatial <- input$spatial
   tz <- input$tz
-  base.raster <- input$base.raster
+  crs <- input$crs
   bio <- input$bio
 
-  # Subsetting the data for time period of interest:
+  if (as.character(crs) != as.character(raster::crs(base.raster))) # HF: This should never happen (unless the user screwed up), but I am leaving it here as a tester
+    stop("The base raster and the input data are not in the came coordinate system!", call. = FALSE)
+
+  # Sub-setting the data for time period of interest:
   if (!is.null(start)) { # HF: What if the user only sets a stop argument? (or vice versa)
     # Detection data
     detections <- lapply(detections, function(x){
       x <- subset(x, Timestamp >= start & Timestamp <= stop)
       return(x)
     })
-    aux <- NULL
-    for (i in 1:length(names(detections))) {
-      aux.save <- nrow(detections[[i]])
-      if (aux.save == 0) {
-        aux <- c(aux, i)
-      }
-    }
-    detections <- detections[-aux]
-
-    # Biometrics data
-    aux.bio <- stringr::str_split_fixed(string = bio$Signal, pattern = " | ", n = 3) # HF: How does this behave if the user has a tag with two signals? or four? Seems like it needs to be generalised
-    bio$aux1 <- aux.bio[, 1]
-    bio$aux2 <- aux.bio[, 3]
-    aux <- stringr::str_split_fixed(string = names(detections), pattern = "-", n = 3) # HF: Same as above
-    aux.match <- c(aux[, 3], aux[which(aux[, 3] == ""), 2])
-    aux.match <- aux.match[-which(aux.match == "")]
-
-    bio <- bio[which(bio$aux1 %in% aux.match |  bio$aux2 %in% aux.match), ]
-    bio <- bio[, -c(9:10)] # HF: using column numbers will cause errors. Users don't always have the same number of columns in the biometrics.
-
-    # the tag will always be referred to by its lowest signal, wouldn't something like the below be an easier solution?
-    if (FALSE) { # wrapped in dummy false statement so it doesn't accidentally run.
-      lowest.signals <- sapply(bio$Signal, function(i) {
-        aux <- as.numeric(unlist(strsplit(as.character(i), "|", fixed = TRUE)))
-        return(min(aux))
-        })
-      bio$signal <- lowest.signals
-    }
+    remove.empty <- sapply(detections, nrow) != 0
+    detections <- detections[remove.empty]
   }
-
-  base.raster <- loadRaster(base.raster = base.raster, UTM.zone = UTM.zone)
 
   # Prepare detections
   message("M: Preparing data to apply dBBMM.")
   detections <- trimDetections(detections = detections, tags = tags)
-  group.list <- groupDetections(detections = detections, tz = tz, bio = bio, UTM.zone = UTM.zone, timeframe = timeframe) 
+  group.list <- groupDetections(detections = detections, tz = tz, bio = bio, timeframe = timeframe) 
 
   if (attributes(group.list)$type == "group")
     before <- sum(unlist(lapply(group.list, nrow)))
   if (attributes(group.list)$type == "timeslot")
     before <- sum(unlist(lapply(group.list, function(group) lapply(group, nrow))))
 
-  group.list <- checkGroupQuality(input = group.list, UTM.zone = UTM.zone, verbose = verbose)
+  group.list <- checkGroupQuality(input = group.list, verbose = verbose)
 
   if (attributes(group.list)$type == "group")
     after <- sum(unlist(lapply(group.list, nrow)))
@@ -108,42 +82,22 @@ dynBBMM <- function(input, UTM.zone, tags = NULL, start = NULL, stop = NULL, bre
     message("M: In total, ", before - after, " detections were excluded as they failed the track quality checks.")
   rm(before, after)
 
-  # Calculate dBBMM
-  mod_dbbmm <- calculateDBBMM(input = group.list, UTM.zone = UTM.zone, raster = base.raster)
+  valid.tracks <- updateTrackValidity(input = input, group.list = group.list)
 
-  # Calculate dbbmm rasters
-  if (attributes(mod_dbbmm)$type == "group") {
-    dbbmm.rasters <- lapply(mod_dbbmm, move::getVolumeUD)
-    attributes(dbbmm.rasters)$type = "group"
-  }
-  if (attributes(mod_dbbmm)$type == "timeslot") {
-    dbbmm.rasters <- lapply(mod_dbbmm, function(group) lapply(group, move::getVolumeUD))
-    attributes(dbbmm.rasters)$type = "timeslot"
-  }
+  # Calculate dBBMM
+  mod_dbbmm <- calculateDBBMM(input = group.list, crs = crs, base.raster = base.raster)
 
   # Remove land areas
   message("M: Subtracting land areas from output.")
-  water.areas <- getWaterAreas(dbbmm.rasters = dbbmm.rasters, base.raster = base.raster, breaks = breaks)
+  dbbmm.rasters <- clipLand(input = mod_dbbmm, base.raster)
 
-  # calculate overlaps
-  if (length(group.list) == 1) {
-    message("M: Only one group found, skipping overlap calculations.")
-    overlaps <- NULL
-  } else {
-    message("M: Calculating overlaps between groups.")
-    overlaps <- getOverlaps(dbbmm.rasters = dbbmm.rasters, base.raster = base.raster, breaks = breaks)
-  }
-
-  # Save track info
-  message("M: Storing final results.")
-  track.info <- saveTrackInfo(input = group.list, water = water.areas[[1]], tz = tz)
 
   if (attributes(mod_dbbmm)$type == "group")
-    return(list(dbbmm = mod_dbbmm, base.raster = base.raster, group.areas = overlaps$group.areas, group.rasters = dbbmm.rasters, track.areas = track.info, 
-      track.rasters = water.areas$track.rasters, overlap.areas = overlaps$overlap.areas, overlap.rasters = overlaps$overlap.rasters, spatial = spatial))  
+    return(list(dbbmm = mod_dbbmm, base.raster = base.raster, valid.tracks = valid.tracks,
+      group.rasters = dbbmm.rasters, spatial = spatial))  
 
   if (attributes(mod_dbbmm)$type == "timeslot"){
-    # make timeslot dataframe before finishing
+    # make timeslot data frame before finishing
     aux <- range(do.call(c, lapply(detections, function(x) x$Timestamp)))
     aux[1] <- round.POSIXt(x = (aux[1] - 43200), units = "days") 
     aux[2] <- round.POSIXt(x = (aux[2] + 43200), units = "days")
@@ -154,19 +108,80 @@ dynBBMM <- function(input, UTM.zone, tags = NULL, start = NULL, stop = NULL, bre
       slot = 1:(length(timebreaks) - 1),
       start = timebreaks[-length(timebreaks)],
       stop = timebreaks[-1])
-    aux <- t(overlaps$group.areas[[1]])
-    link <- match(rownames(aux), timeslots$slot)
-    capture <- apply(aux, 2, function(x) {
-      timeslots[, ncol(timeslots) + 1] <<- FALSE
-      timeslots[link, ncol(timeslots)] <<- as.logical(x)
-    })
-    colnames(timeslots)[4:ncol(timeslots)] <- colnames(aux)
-    rm(aux, capture)
 
-    return(list(dbbmm = mod_dbbmm, base.raster = base.raster, group.areas = overlaps$group.areas, group.rasters = dbbmm.rasters, 
-      track.areas = track.info, track.rasters = water.areas$track.rasters, overlap.areas = overlaps$overlap.areas, 
-      overlap.rasters = overlaps$overlap.rasters, timeslots = timeslots, spatial = spatial))  
+    return(list(dbbmm = mod_dbbmm, base.raster = base.raster, valid.tracks = valid.tracks,
+      group.rasters = dbbmm.rasters, timeslots = timeslots, spatial = spatial)) 
   }
+}
+
+updateTrackValidity <- function(input, group.list) {
+  updated.tracks <- input$tracks
+  updated.tracks <- lapply(updated.tracks, function(x) {
+    x$Valid <- FALSE
+    return(x)
+  })
+
+  if (attributes(group.list)$type == "group") {
+    capture <- lapply(names(group.list), function(group) {
+      x <- split(group.list[[group]], as.character(group.list[[group]]$Transmitter))
+      lapply(names(x), function(tag) {
+        valid.tracks <- unique(x[[tag]]$Track)
+        updated.tracks[[tag]]$Valid[match(updated.tracks[[tag]]$Track, valid.tracks)] <- TRUE
+        updated.tracks <<- updated.tracks
+      })
+      updated.tracks <<- updated.tracks
+    })
+  }
+
+  if (attributes(group.list)$type == "timeslot") {
+    capture <- lapply(group.list, function(group) {
+      lapply(names(group), function(slot) {
+        x <- split(group[[slot]], as.character(group[[slot]]$Transmitter))
+        lapply(names(x), function(tag) {
+          valid.tracks <- unique(x[[tag]]$Track)
+          updated.tracks[[tag]]$Valid[match(updated.tracks[[tag]]$Track, valid.tracks)] <- TRUE
+          updated.tracks <<- updated.tracks
+        })
+        updated.tracks <<- updated.tracks
+      })
+    })
+  }
+
+  valid.tracks <- lapply(updated.tracks, function(x) return(x[x$Valid, ]))
+  valid.tracks <- valid.tracks[sapply(valid.tracks, nrow) != 0]
+
+  return(valid.tracks)
+}
+
+#' Clip land areas from the dbbmm output
+#' 
+#' @param input The dbbmm
+#' @param base.raster the base raster
+#' 
+#' @return the dbbmm rasters with the land areas cut out
+#' 
+#' @keywords internal
+#' 
+clipLand <- function(input, base.raster) {
+  if (attributes(input)$type == "group") {
+    dbbmm.rasters <- lapply(input, function(x) {
+      ras <- move::getVolumeUD(x)
+      water <- raster::mask(x = ras, mask = base.raster, inverse = TRUE)
+      return(water)
+      })
+    attributes(dbbmm.rasters)$type = "group"
+  }
+  if (attributes(input)$type == "timeslot") {
+    dbbmm.rasters <- lapply(input, function(group) {
+      lapply(group, function(x) {
+        ras <- move::getVolumeUD(x)
+        water <- raster::mask(x = ras, mask = base.raster, inverse = TRUE)
+        return(water)
+        })  
+      })  
+    attributes(dbbmm.rasters)$type = "timeslot"
+  }
+  return(dbbmm.rasters)
 }
 
 #' Select specific transmitters to analyze
