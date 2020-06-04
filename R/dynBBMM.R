@@ -65,15 +65,24 @@ dynBBMM <- function(input, UTM.zone, tags = NULL, start = NULL, stop = NULL, bre
     detections <- detections[-aux]
 
     # Biometrics data
-    aux.bio <- stringr::str_split_fixed(string = bio$Signal, pattern = " | ", n = 3)
+    aux.bio <- stringr::str_split_fixed(string = bio$Signal, pattern = " | ", n = 3) # HF: How does this behave if the user has a tag with two signals? or four? Seems like it needs to be generalised
     bio$aux1 <- aux.bio[, 1]
     bio$aux2 <- aux.bio[, 3]
-    aux <- stringr::str_split_fixed(string = names(detections), pattern = "-", n = 3)
+    aux <- stringr::str_split_fixed(string = names(detections), pattern = "-", n = 3) # HF: Same as above
     aux.match <- c(aux[, 3], aux[which(aux[, 3] == ""), 2])
     aux.match <- aux.match[-which(aux.match == "")]
 
     bio <- bio[which(bio$aux1 %in% aux.match |  bio$aux2 %in% aux.match), ]
-    bio <- bio[, -c(9:10)]
+    bio <- bio[, -c(9:10)] # HF: using column numbers will cause errors. Users don't always have the same number of columns in the biometrics.
+
+    # the tag will always be referred to by its lowest signal, wouldn't something like the below be an easier solution?
+    if (FALSE) { # wrapped in dummy false statement so it doesn't accidentally run.
+      lowest.signals <- sapply(bio$Signal, function(i) {
+        aux <- as.numeric(unlist(strsplit(as.character(i), "|", fixed = TRUE)))
+        return(min(aux))
+        })
+      bio$signal <- lowest.signals
+    }
   }
 
   base.raster <- loadRaster(base.raster = base.raster, UTM.zone = UTM.zone)
