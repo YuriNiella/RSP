@@ -61,7 +61,7 @@ runRSP <- function(input, t.layer, coord.x, coord.y, distance = 250,
   message("M: Percentage of detections valid for RSP: ",
     round(sum(unlist(lapply(rsp.detections, function(x) sum(x$Position == "Receiver")))) / sum(unlist(lapply(detections, nrow))) * 100, 1), "%")
 
-  return(list(detections = rsp.detections, tracks = tracks, spatial = spatial, bio = input$rsp.info$bio, tz = tz))
+  return(list(detections = rsp.detections, tracks = tracks, spatial = spatial, bio = input$rsp.info$bio, tz = tz, crs = raster::crs(t.layer)))
 }
 
 
