@@ -6,11 +6,10 @@
 \usage{
 dynBBMM(
   input,
-  UTM.zone,
+  base.raster,
   tags = NULL,
   start = NULL,
   stop = NULL,
-  breaks = c(0.95, 0.5),
   timeframe = NULL,
   debug = FALSE,
   verbose = TRUE
@@ -19,15 +18,11 @@ dynBBMM(
 \arguments{
 \item{input}{The output of runRSP.}
 
-\item{UTM.zone}{UTM zone of the study area.}
-
 \item{tags}{Vector of transmitters to be analyzed. By default all transmitters from runRSP will be analised.}
 
 \item{start}{Sets the start point for analysis (format = "Y-m-d H:M:S").}
 
 \item{stop}{Sets the stop point for analysis (format = "Y-m-d H:M:S").}
-
-\item{breaks}{The contours for calculating usage areas in squared meters. By default the 95\% and 50\% contours are used.}
 
 \item{timeframe}{Temporal window size for fine-scale dBBMM in hours. If left NULL, a single dBBMM is calculated for the whole period.}
 

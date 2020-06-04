@@ -9,7 +9,7 @@ saveTrackInfo(input, water, tz)
 \arguments{
 \item{input}{The detections list used for the dbbmm}
 
-\item{water}{The water areas computed by getWaterAreas}
+\item{water}{The water areas computed by \code{\link{getAreas}}}
 }
 \value{
 a summary list with track information

@@ -4,14 +4,12 @@
 \alias{calculateDBBMM}
 \title{Calculate the dBBMM for each group}
 \usage{
-calculateDBBMM(input, UTM.zone, raster)
+calculateDBBMM(input, crs, base.raster)
 }
 \arguments{
 \item{input}{The detections to be used as input for the model}
 
-\item{UTM.zone}{the UTM UTM.zone of the study area}
-
-\item{raster}{The raster object}
+\item{base.raster}{The raster object}
 }
 \value{
 A list of dBBMM's per group

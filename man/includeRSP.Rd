@@ -12,6 +12,7 @@ includeRSP(
   time.lapse,
   er.ad,
   maximum.time,
+  verbose,
   debug = FALSE
 )
 }
@@ -29,6 +30,8 @@ includeRSP(
 \item{er.ad}{By default, 5\% of the distance argument is used as the increment rate of the position errors for the estimated locations. Alternatively, can be defined by the user in meters.}
 
 \item{maximum.time}{Temporal lag in hours to be considered for the fine-scale tracking. Default is to consider 1-day intervals.}
+
+\item{verbose}{Logical: If TRUE, detailed messages and progression are displayed. Otherwise, a single progress bar is shown.}
 
 \item{debug}{Logical: If TRUE, the function progress is saved to an RData file.}
 }

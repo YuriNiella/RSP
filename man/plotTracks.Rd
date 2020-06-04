@@ -10,6 +10,7 @@ plotTracks(
   type = c("both", "points", "lines"),
   group,
   tag,
+  track,
   size = 0.3
 )
 }

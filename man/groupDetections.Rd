@@ -4,14 +4,12 @@
 \alias{groupDetections}
 \title{Prepare detections for the dBBMM}
 \usage{
-groupDetections(detections, tz, bio, UTM.zone, timeframe = NULL)
+groupDetections(detections, tz, bio, timeframe = NULL)
 }
 \arguments{
 \item{detections}{a list of detections per fish}
 
 \item{tz}{the time UTM.zone of the study area}
-
-\item{UTM.zone}{the UTM UTM.zone of the study area}
 }
 \value{
 the detections grouped by group

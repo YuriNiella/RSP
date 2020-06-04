@@ -9,8 +9,6 @@ checkGroupQuality(input, UTM.zone, verbose = TRUE)
 \arguments{
 \item{input}{The detections list}
 
-\item{UTM.zone}{UTM zone of the study area.}
-
 \item{verbose}{Logical: If TRUE, detailed check messages are displayed. Otherwise, only a summary is displayed.}
 }
 \value{
