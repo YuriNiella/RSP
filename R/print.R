@@ -45,8 +45,8 @@ plotRaster <- function(input, base.raster, coord.x, coord.y, size) {
   p <- p + ggplot2::theme_bw()
   p <- p + ggplot2::theme(legend.position = "bottom")
   p <- p + ggplot2::scale_x_continuous(expand = c(0, 0))
-  p <- p + ggplot2::scale_y_continuous(expand = c(0, 0)) 
-  p <- p + ggplot2::geom_point(data = data.stations, aes(x = Longitude, y = Latitude, color = Check), size = size)
+  p <- p + ggplot2::scale_y_continuous(expand = c(0, 0))
+  p <- p + ggplot2::geom_point(data = data.stations, ggplot2::aes(x = Longitude, y = Latitude, color = Check), size = size)
   p <- p + ggplot2::labs(color = "")
   
   return(p)
