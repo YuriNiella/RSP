@@ -214,13 +214,12 @@ trimDetections <- function(detections, tags = NULL) {
 #' 
 #' @param detections a list of detections per fish
 #' @param tz the time UTM.zone of the study area
-#' @param UTM.zone the UTM UTM.zone of the study area
 #' 
 #' @return the detections grouped by group
 #' 
 #' @keywords internal
 #' 
-groupDetections <- function(detections, tz, bio, UTM.zone, timeframe = NULL) {
+groupDetections <- function(detections, tz, bio, timeframe = NULL) {
   # Split transmitters per group variable
   df.signal <- data.frame(Transmitter = names(detections),
                           # Signal = stripCodeSpaces(names(detections)),
@@ -304,10 +303,8 @@ checkGroupQuality <- function(input, UTM.zone, verbose = TRUE) {
     output <- lapply(names(input), function(i) {
       outp <- checkDupTimestamps(input = input[[i]], group = i, verbose = verbose)
       outp <- checkTrackPoints(input = outp, group = i, verbose = verbose)
-      if (!is.null(outp))
-        outp <- checkTrackTimes(input = outp, group = i, verbose = verbose)
       if (!is.null(outp)) {
-        outp <- getUTM(input = outp, UTM.zone = UTM.zone)
+        outp <- checkTrackTimes(input = outp, group = i, verbose = verbose)
         return(outp)
       } else {
         return(NULL)
@@ -327,10 +324,8 @@ checkGroupQuality <- function(input, UTM.zone, verbose = TRUE) {
       recipient <- lapply(names(input[[g]]), function(i) {
         aux <- checkDupTimestamps(input = input[[g]][[i]], group = paste0(g, " (timeslot ", i, ")"), verbose = verbose)
         aux <- checkTrackPoints(input = aux, group = paste0(g, " (timeslot ", i, ")"), verbose = verbose)
-        if (!is.null(aux))
-          aux <- checkTrackTimes(input = aux, group = paste0(g, " (timeslot ", i, ")"), verbose = verbose)
         if (!is.null(aux)) {
-          aux <- getUTM(input = aux, UTM.zone = UTM.zone)
+          aux <- checkTrackTimes(input = aux, group = paste0(g, " (timeslot ", i, ")"), verbose = verbose)
           return(aux)
         } else {
           return(NULL)
@@ -419,18 +414,18 @@ checkTrackPoints <- function(input, group, verbose = TRUE) {
 #' 
 #' @param input The detections to be used as input for the model
 #' @inheritParams groupDetections
-#' @param raster The raster object
+#' @param base.raster The raster object
 #' 
 #' @return A list of dBBMM's per group
 #' 
 #' @keywords internal
 #' 
-calculateDBBMM <- function(input, UTM.zone, raster) {
+calculateDBBMM <- function(input, crs, base.raster) {
   if (attributes(input)$type == "group") {
     # Create a move object for all animals together:
     loc <- lapply(input, function(i) {
-      move::move(x = i$X, y = i$Y, time = i$Timestamp,
-                 proj = sp::CRS(paste0("+proj=utm +UTM.zone=", UTM.zone, " +units=m +ellps=WGS84")), 
+      move::move(x = i$Longitude, y = i$Latitude, time = i$Timestamp,
+                 proj = crs, 
                  animal = i$ID)
     })
 
@@ -438,12 +433,15 @@ calculateDBBMM <- function(input, UTM.zone, raster) {
     mod_dbbmm <- lapply(seq_along(loc), function(i) {
       message("M: Calculating dBBMM: ", crayon::bold(crayon::green(names(loc)[i])))
       flush.console()
-      time.spent <- system.time(suppressMessages(
+      time.spent <- system.time(suppressWarnings(suppressMessages( # HF: temporarily suppress new raster warnings. We need to revisit this once move::brownian.bridge.dyn has been updated
         output <- move::brownian.bridge.dyn(object = loc[[i]],
-                                  raster = raster,  
+                                  raster = base.raster,  
                                   window.size = 7, margin = 3,
                                   location.error = input[[i]]$Error)
-        ))
+        )))
+      if (length(unique(input[[i]]$ID)) == 1)
+        names(output) <- unique(input[[i]]$ID)
+
       message("M: Success! (Time spent: ", minuteTime(time.spent["elapsed"], format = "s", seconds = TRUE), ")")
       flush.console()
       return(output)
@@ -457,8 +455,8 @@ calculateDBBMM <- function(input, UTM.zone, raster) {
     # Create a move object for per timeslot:
     loc <- lapply(input, function(group) {
       aux <- lapply(group, function(timeslot) {
-        move::move(x = timeslot$X, y = timeslot$Y, time = timeslot$Timestamp,
-                   proj = sp::CRS(paste0("+proj=utm +UTM.zone=", UTM.zone, " +units=m +ellps=WGS84")), 
+        move::move(x = timeslot$Longitude, y = timeslot$Latitude, time = timeslot$Timestamp,
+                   proj = crs, 
                    animal = timeslot$ID)
       })
     })
@@ -470,10 +468,10 @@ calculateDBBMM <- function(input, UTM.zone, raster) {
       pb <-  txtProgressBar(min = 0, max = length(loc[[g]]),  
                             initial = 0, style = 3, width = 60)
       counter <- 0
-      time.spent <- system.time(suppressMessages(
+      time.spent <- system.time(suppressWarnings(suppressMessages( # HF: temporarily suppress new raster warnings. We need to revisit this once move::brownian.bridge.dyn has been updated
         aux <- lapply(seq_along(loc[[g]]), function(i) {
             output <- move::brownian.bridge.dyn(object = loc[[g]][[i]],
-                                      raster = raster,  
+                                      raster = base.raster,  
                                       window.size = 7, margin = 3,
                                       location.error = input[[g]][[i]]$Error)
             if(length(names(output)) == 1)
@@ -482,7 +480,7 @@ calculateDBBMM <- function(input, UTM.zone, raster) {
             setTxtProgressBar(pb, counter) # Progress bar    
           return(output)
         })
-      ))
+      )))
       close(pb)
       message("M: Success! (Time spent: ", minuteTime(time.spent["elapsed"], format = "s", seconds = TRUE), ")")
       flush.console()
@@ -862,7 +860,7 @@ getOverlaps <- function(dbbmm.rasters, base.raster, breaks) {
 #' Compile a summary for each track (and slot, if timeframes were used)
 #' 
 #' @param input The detections list used for the dbbmm
-#' @param water The water areas computed by getWaterAreas
+#' @param water The water areas computed by \code{\link{getAreas}}
 #' @inheritParams dynBBMM
 #' 
 #' @return a summary list with track information
@@ -880,10 +878,10 @@ saveTrackInfo <- function(input, water, tz) {
       return(output)
     })
 
-    # Save area info
-    track.info <- lapply(seq_along(track.info), function(i) {
-      cbind(track.info[[i]], water[[i]][, -1])
-    })
+    # # Save area info
+    # track.info <- lapply(seq_along(track.info), function(i) {
+    #   cbind(track.info[[i]], water[[i]][, -1])
+    # })
   }
 
   if (attributes(input)$type == "timeslot") {
@@ -902,10 +900,10 @@ saveTrackInfo <- function(input, water, tz) {
       return(output)
     })
 
-    # Save area info
-    track.info <- lapply(seq_along(track.info), function(i) {
-      cbind(track.info[[i]], water[[i]][, -c(1, 2)])
-    })
+    # # Save area info
+    # track.info <- lapply(seq_along(track.info), function(i) {
+    #   cbind(track.info[[i]], water[[i]][, -c(1, 2)])
+    # })
   }
 
   # Convert times
