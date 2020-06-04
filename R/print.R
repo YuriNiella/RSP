@@ -71,7 +71,7 @@ plotRaster <- function(input, base.raster, coord.x, coord.y, size) {
 #' 
 #' @export
 #' 
-plotTracks <- function(input, base.raster, type = c("both", "points", "lines"), group, tag, size = 0.3) {
+plotTracks <- function(input, base.raster, type = c("both", "points", "lines"), group, tag, track, size = 0.3) {
   temp.col <- NULL
 
   type <- match.arg(type)
@@ -97,6 +97,15 @@ plotTracks <- function(input, base.raster, type = c("both", "points", "lines"), 
     if(is.na(match(tag, names(input$detections))))
       stop("The requested tag is not present in the dataset.", call. = FALSE)
     detections <- input$detections[[tag]]
+    if (!missing(track)) {
+      if (is.numeric(track)) {
+        digits <- nchar(as.character(detections$Track[1])) - 6
+        track <- paste0("Track_", stringr::str_pad(string = track, width = digits, pad = "0"))
+      }
+      if (is.na(match(track, unique(detections$Track))))
+        stop("The requested track does not exist for the specified tag.", call. = FALSE)
+      detections <- subset(detections, Track == track)
+    }
   }
 
   if (missing(group) & missing(tag))
