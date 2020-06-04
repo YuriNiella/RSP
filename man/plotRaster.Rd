@@ -4,12 +4,20 @@
 \alias{plotRaster}
 \title{Check input data quality for the RSP analysis}
 \usage{
-plotRaster(input, base.raster)
+plotRaster(input, base.raster, coord.x, coord.y, size)
 }
 \arguments{
 \item{input}{The output of one of actel's main functions (explore, migration or residency)}
 
 \item{base.raster}{Raster file from the study area defining land (1) and water (0) regions.}
+
+\item{coord.x}{The names of the columns containing the x and y positions of the stations 
+in the spatial object.}
+
+\item{coord.y}{The names of the columns containing the x and y positions of the stations 
+in the spatial object.}
+
+\item{size}{The size of the station dots}
 }
 \value{
 A plot of your base raster extent and the receiver locations.

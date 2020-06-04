@@ -6,28 +6,37 @@
 #'
 #' @param input The output of one of actel's main functions (explore, migration or residency)
 #' @param base.raster Raster file from the study area defining land (1) and water (0) regions. 
+#' @inheritParams runRSP
+#' @param size The size of the station dots
 #' 
 #' @return A plot of your base raster extent and the receiver locations.
 #' 
 #' @export
 #' 
-plotRaster <- function(input, base.raster) {
-  aux <- raster::raster(base.raster, full.names = TRUE)
+plotRaster <- function(input, base.raster, coord.x, coord.y, size) {
+
+  # paint land rather than water
+  base.raster[is.na(base.raster)] <- 2
+  base.raster[base.raster == 1] <- NA
+  base.raster[base.raster == 2] <- 1
 
   # Convert raster to points:
-  base.raster_df <- raster::rasterToPoints(aux)
+  base.raster_df <- raster::rasterToPoints(base.raster)
   
   # Make the points a dataframe for ggplot
   df <- data.frame(base.raster_df)
   colnames(df) <- c("Longitude", "Latitude", "MAP")
-  df$MAP[df$MAP == 0] <- NA
-
+  
   # Find stations in land:
   aux.spatial <- input$spatial
-  data.stations <- data.frame(Check = checkSpatial(input, base.raster), 
-    Longitude = aux.spatial$stations$Longitude,
-    Latitude = aux.spatial$stations$Latitude)
-  data.stations$Check[data.stations$Check == 0] <- "Water"
+
+  stations <- input$spatial$stations
+  on.land <- raster::extract(x = base.raster, y = sp::SpatialPoints(data.frame(y = stations[, coord.y], x = stations[, coord.x])))
+
+  data.stations <- data.frame(Check = on.land, 
+    Longitude = aux.spatial$stations[, coord.x],
+    Latitude = aux.spatial$stations[, coord.y])
+  data.stations$Check[is.na(data.stations$Check)] <- "Water"
   data.stations$Check[data.stations$Check == 1] <- "Land"
 
   p <- ggplot2::ggplot(data = df, ggplot2::aes(y = Latitude, x = Longitude))
@@ -37,7 +46,7 @@ plotRaster <- function(input, base.raster) {
   p <- p + ggplot2::theme(legend.position = "bottom")
   p <- p + ggplot2::scale_x_continuous(expand = c(0, 0))
   p <- p + ggplot2::scale_y_continuous(expand = c(0, 0)) 
-  p <- p + ggplot2::geom_point(data = data.stations, aes(x = Longitude, y = Latitude, color = Check), size = 0.5)
+  p <- p + ggplot2::geom_point(data = data.stations, aes(x = Longitude, y = Latitude, color = Check), size = size)
   p <- p + ggplot2::labs(color = "")
   
   return(p)
@@ -50,12 +59,20 @@ plotRaster <- function(input, base.raster) {
 #' study area.
 #'
 #' @param input The output of runRSP.
+#' @param base.raster The raster used to generate the transition layer used in runRSP
+#' @param type One of "points", "line" or "both". Defaults to "both", i.e. both lines and points are plotted for the
+#'  generated tracks.
+#' @param group Choose a single group of fish to plot
+#' @param tag Choose a single tag to plot
+#' @param size The size/width of the points and lines to be plotted. if type = "both", the line size will be the
+#'  one specified and the point size will be 10\% larger than the specified.
 #' 
 #' @return A plot showing the RSP locations by tracked group.
 #' 
 #' @export
 #' 
-checkLocations <- function(input, base.raster, type = c("points", "lines"), group, tag) {
+plotTracks <- function(input, base.raster, type = c("both", "points", "lines"), group, tag, size = 0.3) {
+  temp.col <- NULL
 
   type <- match.arg(type)
 
@@ -95,6 +112,11 @@ checkLocations <- function(input, base.raster, type = c("points", "lines"), grou
   colnames(df) <- c("Longitude", "Latitude", "MAP")
   df$MAP[df$MAP == 0] <- NA
 
+  if (type == "both")
+    point.size <- size * 1.1
+  else
+    point.size <- size
+
   p <- ggplot2::ggplot(data = df, ggplot2::aes(y = Latitude, x = Longitude))
   p <- p + ggplot2::geom_raster(ggplot2::aes(fill = MAP), show.legend = FALSE)
   p <- p + ggplot2::scale_fill_gradientn(colours = "#BABCBF", na.value = NA)
@@ -102,10 +124,10 @@ checkLocations <- function(input, base.raster, type = c("points", "lines"), grou
   p <- p + ggplot2::theme(legend.position = "bottom")
   p <- p + ggplot2::scale_x_continuous(expand = c(0, 0))
   p <- p + ggplot2::scale_y_continuous(expand = c(0, 0)) 
-  if (type == "points")
-    p <- p + ggplot2::geom_point(data = detections, ggplot2::aes(x = Longitude, y = Latitude, colour = Transmitter), alpha = 0.5, size = 0.3)
-  if (type == "lines")
-    p <- p + ggplot2::geom_line(data = detections, ggplot2::aes(x = Longitude, y = Latitude, colour = Transmitter, group = temp.col), alpha = 0.5, size = 0.3)
+  if (type == "points" | type == "both")
+    p <- p + ggplot2::geom_point(data = detections, ggplot2::aes(x = Longitude, y = Latitude, colour = Transmitter), alpha = 0.5, size = point.size)
+  if (type == "lines" | type == "both")
+    p <- p + ggplot2::geom_path(data = detections, ggplot2::aes(x = Longitude, y = Latitude, colour = Transmitter, group = temp.col), alpha = 0.5, size = size)
   p <- p + ggplot2::theme(legend.position = "bottom")
   p <- p + ggplot2::labs(colour = "Animal tracked")
  
@@ -119,54 +141,44 @@ checkLocations <- function(input, base.raster, type = c("points", "lines"), grou
 #' receiver locations and adding the RSP positions. Data on the total distances travelled are stored in the 
 #' 'distances' objtect.
 #'
-#' @param input RSP dataset as returned by RSP.
-#' @param Group If TRUE, plots are returned individually for each tracked group.
+#' @param input output of \code{\link{getDistances}}
+#' @param by.group If TRUE, plots are returned individually (as a list) for each tracked group.
 #' 
 #' @return A barplot of total distances travelled as a function of location type (Loc.type) and the distances travelled during each RSP track.  
 #' 
 #' @export
 #' 
-plotDistance <- function(input, Group = FALSE) {
+plotDistances <- function(input, by.group = FALSE) {
+  Group <- NULL
   
-  plot.save <- dist.calc(input = getDistance(input))
+  plot.save <- dist.calc(input = input)
 
-  # Add corresponding groups:
-  bio.aux <- data.frame(Group = input$bio$Group, Transmitter = input$bio$Transmitter)
-  bio.aux$Group <- as.character(bio.aux$Group)
-  bio.aux$Transmitter <- as.character(bio.aux$Transmitter)
-  plot.save$Group <- NA
-  for (i in 1:nrow(plot.save)) {
-    plot.save$Group[i] <- as.character(bio.aux$Group[bio.aux$Transmitter == plot.save$Animal.tracked[i]])
-  }
-  plot.save <- plot.save[order(plot.save$Group), ]
-
-  if (Group == FALSE) {
-    p <- ggplot2::ggplot(data = plot.save, ggplot2::aes(x = Animal.tracked, y = Dist.travel, fill = Loc.type))
-    p <- p + ggplot2::geom_bar(stat = "identity", position = ggplot2::position_dodge())
-    p <- p + ggplot2::labs(x = "Animal tracked", y = "Total distance travelled (km)", fill = "")
-    p <- p + ggplot2::scale_fill_brewer(palette = "Paired")
-    p <- p + ggplot2::theme_bw()
-    p <- p + ggplot2::coord_flip(ylim = c(0, max(plot.save$Dist.travel) * 1.05), expand = FALSE)
-
-    return(p)
-  }
-
-  if (Group == TRUE) {
+  if (by.group) {
     groups <- sort(unique(plot.save$Group))
 
-    Plot <- lapply(seq_along(groups), function(i) {
+    plots <- lapply(seq_along(groups), function(i) {
       aux <- subset(plot.save, Group == groups[i])
       p <- ggplot2::ggplot(data = aux, ggplot2::aes(x = Animal.tracked, y = Dist.travel, fill = Loc.type))
       p <- p + ggplot2::geom_bar(stat = "identity", position = ggplot2::position_dodge())
-      p <- p + ggplot2::labs(x = "Animal tracked", y = "Total distance travelled (km)", fill = "")
+      p <- p + ggplot2::labs(x = "Animal tracked", y = "Total distance travelled (metres by default)", fill = "")
       p <- p + ggplot2::scale_fill_brewer(palette = "Paired")
       p <- p + ggplot2::theme_bw()
       p <- p + ggplot2::coord_flip(ylim = c(0, max(aux$Dist.travel) * 1.05), expand = FALSE)
+      p <- p + ggplot2::guides(fill = ggplot2::guide_legend(reverse = TRUE))
       p <- p + ggplot2::labs(title = groups[i])
+      return(p)
     })
-    names(Plot) <- groups
+    names(plots) <- groups
 
-    return(Plot)
+    return(plots)    
+  } else {
+    p <- ggplot2::ggplot(data = plot.save, ggplot2::aes(x = Animal.tracked, y = Dist.travel, fill = Loc.type))
+    p <- p + ggplot2::geom_bar(stat = "identity", position = ggplot2::position_dodge())
+    p <- p + ggplot2::labs(x = "Animal tracked", y = "Total distance travelled (metres by default)", fill = "")
+    p <- p + ggplot2::scale_fill_brewer(palette = "Paired")
+    p <- p + ggplot2::theme_bw()
+    p <- p + ggplot2::coord_flip(ylim = c(0, max(plot.save$Dist.travel) * 1.05), expand = FALSE)
+    return(p)
   }
 }
 
@@ -178,19 +190,19 @@ plotDistance <- function(input, Group = FALSE) {
 #' can be set to be performed at group level using the type argument. 
 #'
 #' @param input RSP dataset as returned by RSP.
-#' @param Group Character vector defining the group to which calculate density distributions. By default, density is calculated for all animals and groups tracked.
+#' @param group Character vector defining the group to which calculate density distributions. By default, density is calculated for all animals and groups tracked.
 #' 
 #' @return Density plots of hours elapsed between consecutive acoustic detections. 
 #' 
 #' @export
 #' 
-densityRSP <- function(input, Group = "Total") {
+plotDensities <- function(input, group) {
   Time.lapse.hour <- NULL
-  #input <- rsp.data
+  
+  if (!missing(group) & is.na(match(group, levels(input$bio$Group))))
+    stop("'group' should match one of the groups present in the dataset.", call. = FALSE)
 
-  # Quality check group name!! Add!!
-
-  if (Group == "Total") {
+  if (missing(group)) {
     input <- do.call(rbind.data.frame, input$detections)
     input <- subset(input, Position == "Receiver")
     input$Track.name <- paste(input$Transmitter, input$Track, sep = "_")
@@ -209,11 +221,9 @@ densityRSP <- function(input, Group = "Total") {
       color = cmocean::cmocean('matter')(3)[3], linetype="dashed", size=1)
 
     return(p)
-  }
-
-  if (Group != "Total") {
+  } else {
     bio.aux <- data.frame(Group = as.character(input$bio$Group), Transmitter = input$bio$Transmitter)
-    bio.aux <- bio.aux[bio.aux$Group == Group, ]
+    bio.aux <- bio.aux[bio.aux$Group == group, ]
 
     input <- input$detections
     input <- input[which(names(input) %in% bio.aux$Transmitter)]
@@ -230,7 +240,7 @@ densityRSP <- function(input, Group = "Total") {
     p <- ggplot2::ggplot() + ggplot2::theme_classic()
     p <- p + ggplot2::geom_density(data = input, ggplot2::aes(x = Time.lapse.hour), color = NA, fill = cmocean::cmocean('matter')(3)[2], na.rm = TRUE)
     p <- p + ggplot2::labs(x = "Time (hours)", y = "Frequency", 
-      title = paste0(Group, ": mean = ", format(round(mean(input$Time.lapse.hour, na.rm = TRUE), 2), nsmall = 2), 
+      title = paste0(group, ": mean = ", format(round(mean(input$Time.lapse.hour, na.rm = TRUE), 2), nsmall = 2), 
       " | max = ", format(round(max(input$Time.lapse.hour, na.rm = TRUE), 2), nsmall = 2)))
     p <- p + ggplot2::geom_vline(ggplot2::aes(xintercept = mean(input$Time.lapse.hour, na.rm = TRUE)), 
       color = cmocean::cmocean('matter')(3)[3], linetype="dashed", size=1)

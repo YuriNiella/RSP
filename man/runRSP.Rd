@@ -6,7 +6,9 @@
 \usage{
 runRSP(
   input,
-  base.raster,
+  t.layer,
+  coord.x,
+  coord.y,
   distance = 250,
   time.lapse = 10,
   er.ad = NULL,
@@ -15,22 +17,25 @@ runRSP(
 )
 }
 \arguments{
-\item{input}{The output of one of actel's main functions (explore, migration or residency)}
+\item{input}{The output of one of \code{\link[actel]{actel}}'s main functions (\code{\link[actel]{explore}}, \code{\link[actel]{migration}} or \code{\link[actel]{residency}})}
 
-\item{base.raster}{Raster file from the study area defining land (1) and water (0) regions.}
+\item{t.layer}{A transition layer calculated using the function \code{\link[actel]{transitionLayer}}}
 
-\item{distance}{Fixed distances in meters to add intermediate track locations. By default intermediate positions are added every 250 m.}
+\item{coord.x, coord.y}{The names of the columns containing the x and y positions of the stations 
+in the spatial object.}
 
-\item{time.lapse}{Temporal limit for the RSP in minutes. Consecutive detections shorter than the time.lapse will not have interpolated positions.}
+\item{distance}{Fixed distances in meters to add intermediate track locations. By default intermediate positions are added every 250 metres.}
 
-\item{er.ad}{By default, 5\% of the distance argument is used as the increment rate of the position erros for the estimated locations. Alternatively, can be defined by the user in meters.}
+\item{time.lapse}{Time lapse in minutes to be considered for consecutive detections at the same station.}
+
+\item{er.ad}{By default, 5\% of the distance argument is used as the increment rate of the position errors for the estimated locations. Alternatively, can be defined by the user in meters.}
 
 \item{maximum.time}{Temporal lag in hours to be considered for the fine-scale tracking. Default is to consider 1-day intervals.}
 
 \item{debug}{Logical: If TRUE, the function progress is saved to an RData file.}
 }
 \value{
-Returns a list of RSP tracks (as dataframe) for each transmitter detected.
+Returns a list of RSP tracks (as data frame) for each transmitter detected.
 }
 \description{
 Estimates the RSP for a series of animals tracked with acoustic transmitters. Intermediate

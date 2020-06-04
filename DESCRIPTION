@@ -3,7 +3,7 @@ Title: Refined Shortest Paths
 Version: 0.0.0.9000
 Authors@R: c(
     person("Yuri", "Niella", role = c("aut", "cre"), email = "yuri.niella@hdr.mq.edu.au"),
-    person("Hugo", "Flávio", role = c("aut"), email = "hdmfla@aqua.dtu.dk")
+    person("Hugo", "Flávio", role = c("aut"), email = "hdmfla@aqua.dtu.dk", comment = c(ORCID = "0000-0002-5174-1197"))
     )
 Description: ...
 License: GPL-3 + file LICENSE
@@ -32,7 +32,8 @@ Imports:
     sp,
     stats,
     stringr,
-    utils
+    utils,
+    reshape2
 VignetteBuilder: knitr
 URL: https://github.com/YuriNiella/RSP
 BugReports: https://github.com/YuriNiella/RSP/issues

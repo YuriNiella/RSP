@@ -4,20 +4,12 @@
 \alias{calcRSP}
 \title{Recreating RSP for a particular tracked animal}
 \usage{
-calcRSP(
-  df.track,
-  tz.study.area,
-  distance,
-  time.lapse,
-  transition,
-  er.ad,
-  path.list
-)
+calcRSP(df.track, tz, distance, time.lapse, transition, er.ad, path.list)
 }
 \arguments{
 \item{df.track}{Detection data for that individual as imported using RSPete.}
 
-\item{tz.study.area}{Time zone of the study area.}
+\item{tz}{Time zone of the study area.}
 
 \item{distance}{Maximum distance between RSP locations.}
 

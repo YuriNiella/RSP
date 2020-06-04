@@ -7,7 +7,7 @@
 includeRSP(
   detections,
   transition,
-  tz.study.area,
+  tz,
   distance,
   time.lapse,
   er.ad,
@@ -20,13 +20,13 @@ includeRSP(
 
 \item{transition}{TransitionLayer object as returned by LTDpath.}
 
-\item{tz.study.area}{Timezone of the study area.}
+\item{tz}{Timezone of the study area.}
 
-\item{distance}{Fixed distances in meters to add intermediate track locations. By default intermediate positions are added every 250 m.}
+\item{distance}{Fixed distances in meters to add intermediate track locations. By default intermediate positions are added every 250 metres.}
 
-\item{time.lapse}{Temporal limit for the RSP in minutes. Consecutive detections shorter than the time.lapse will not have interpolated positions.}
+\item{time.lapse}{Time lapse in minutes to be considered for consecutive detections at the same station.}
 
-\item{er.ad}{By default, 5\% of the distance argument is used as the increment rate of the position erros for the estimated locations. Alternatively, can be defined by the user in meters.}
+\item{er.ad}{By default, 5\% of the distance argument is used as the increment rate of the position errors for the estimated locations. Alternatively, can be defined by the user in meters.}
 
 \item{maximum.time}{Temporal lag in hours to be considered for the fine-scale tracking. Default is to consider 1-day intervals.}
 

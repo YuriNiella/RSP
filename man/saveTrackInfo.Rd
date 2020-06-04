@@ -4,7 +4,7 @@
 \alias{saveTrackInfo}
 \title{Compile a summary for each track (and slot, if timeframes were used)}
 \usage{
-saveTrackInfo(input, water, tz.study.area)
+saveTrackInfo(input, water, tz)
 }
 \arguments{
 \item{input}{The detections list used for the dbbmm}

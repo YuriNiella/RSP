@@ -50,35 +50,30 @@ dynBBMM <- function(input, UTM.zone, tags = NULL, start = NULL, stop = NULL, bre
 
   # Subsetting the data for time period of interest:
   if (!is.null(start)) {
-
     # Detection data
     detections <- lapply(detections, function(x){
       x <- subset(x, Timestamp >= start & Timestamp <= stop)
       return(x)
     })
     aux <- NULL
-   for (i in 1:length(names(detections))) {
-    aux.save <- nrow(detections[[i]])
-    if (aux.save == 0) {
-      aux <- c(aux, i)
+    for (i in 1:length(names(detections))) {
+      aux.save <- nrow(detections[[i]])
+      if (aux.save == 0) {
+        aux <- c(aux, i)
+      }
     }
-   }
-   detections <- detections[-aux]
+    detections <- detections[-aux]
 
-   # Biometrics data
-   aux.bio <- stringr::str_split_fixed(string = bio$Signal, pattern = " | ", n = 3)
-   bio$aux1 <- aux.bio[, 1]
-   bio$aux2 <- aux.bio[, 3]
-   aux <- stringr::str_split_fixed(string = names(detections), pattern = "-", n = 3)
-   aux.match <- c(aux[, 3], aux[which(aux[, 3] == ""), 2])
-   aux.match <- aux.match[-which(aux.match == "")]
+    # Biometrics data
+    aux.bio <- stringr::str_split_fixed(string = bio$Signal, pattern = " | ", n = 3)
+    bio$aux1 <- aux.bio[, 1]
+    bio$aux2 <- aux.bio[, 3]
+    aux <- stringr::str_split_fixed(string = names(detections), pattern = "-", n = 3)
+    aux.match <- c(aux[, 3], aux[which(aux[, 3] == ""), 2])
+    aux.match <- aux.match[-which(aux.match == "")]
 
-   bio <- bio[which(bio$aux1 %in% aux.match |  bio$aux2 %in% aux.match), ]
-   bio <- bio[, -c(9:10)]
-    
-   if (length(unique(bio$Group)) == 1) {
-    stop("Only one 'Group' was detected during the specified timeframe.", call. = FALSE)
-   }
+    bio <- bio[which(bio$aux1 %in% aux.match |  bio$aux2 %in% aux.match), ]
+    bio <- bio[, -c(9:10)]
   }
 
   base.raster <- loadRaster(base.raster = base.raster, UTM.zone = UTM.zone)

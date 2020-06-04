@@ -2,20 +2,25 @@
 % Please edit documentation in R/RSP.R
 \name{prepareDetections}
 \alias{prepareDetections}
-\title{Import detection data as sorted format}
+\title{Prepare detection data for RSP calculations}
 \usage{
-prepareDetections(detections, spatial)
+prepareDetections(detections, spatial, coord.x, coord.y)
 }
 \arguments{
-\item{detections}{A list of detections provived by an actel function.}
+\item{detections}{A list of detections provided by an actel function.}
 
 \item{spatial}{A list of spatial objects in the study area}
+
+\item{coord.x}{The names of the columns containing the x and y positions of the stations 
+in the spatial object.}
+
+\item{coord.y}{The names of the columns containing the x and y positions of the stations 
+in the spatial object.}
 }
 \value{
-A standardized dataframe to be used for RSP calculation.
+A standardised data frame to be used for RSP calculation.
 }
 \description{
 Open and sort the detections dataset for applying RSP estimation, using the tagging data to assign 
-species names and indexes for each tracked animal. Also coverts the UTC date and time column to the 
-local time zone of the study area.
+species names and indexes for each tracked animal.
 }

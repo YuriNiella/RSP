@@ -14,15 +14,17 @@ NULL
 #' the animal is not detected for a long time (default is a daily absence), the detections are broken into a 
 #' new track (see maximum.time for details). 
 #'
-#' @param input The output of one of actel's main functions (explore, migration or residency)
+#' @param input The output of one of \code{\link[actel]{actel}}'s main functions (\code{\link[actel]{explore}}, \code{\link[actel]{migration}} or \code{\link[actel]{residency}})
 #' @param t.layer A transition layer calculated using the function \code{\link[actel]{transitionLayer}}
-#' @param distance Fixed distances in meters to add intermediate track locations. By default intermediate positions are added every 250 m.
-#' @param time.lapse Temporal limit for the RSP in minutes. Consecutive detections shorter than the time.lapse will not have interpolated positions. 
-#' @param er.ad By default, 5\% of the distance argument is used as the increment rate of the position erros for the estimated locations. Alternatively, can be defined by the user in meters.
+#' @param coord.x,coord.y The names of the columns containing the x and y positions of the stations 
+#'  in the spatial object. 
+#' @param distance Fixed distances in meters to add intermediate track locations. By default intermediate positions are added every 250 metres.
+#' @param time.lapse Time lapse in minutes to be considered for consecutive detections at the same station. 
+#' @param er.ad By default, 5\% of the distance argument is used as the increment rate of the position errors for the estimated locations. Alternatively, can be defined by the user in meters.
 #' @param maximum.time Temporal lag in hours to be considered for the fine-scale tracking. Default is to consider 1-day intervals.
 #' @param debug Logical: If TRUE, the function progress is saved to an RData file.
 #' 
-#' @return Returns a list of RSP tracks (as dataframe) for each transmitter detected. 
+#' @return Returns a list of RSP tracks (as data frame) for each transmitter detected. 
 #' 
 #' @export
 #' 
@@ -67,7 +69,7 @@ runRSP <- function(input, t.layer, coord.x, coord.y, distance = 250,
 
 #' Get total distances travelled 
 #' 
-#' Obtain the total distances travelled (in kilometers) for the tracked animals, using only the 
+#' Obtain the total distances travelled (in kilometres) for the tracked animals, using only the 
 #' receiver locations and also adding the RSP positions. 
 #'
 #' @param input RSP dataset as returned by RSP.
@@ -76,61 +78,87 @@ runRSP <- function(input, t.layer, coord.x, coord.y, distance = 250,
 #' 
 #' @export
 #' 
-getDistance <- function(input) {
+getDistances <- function(input) {
   detections <- input$detections
 
   df.diag <- lapply(seq_along(detections), function(i) {
-  df.aux <- split(detections[[i]], detections[[i]]$Track)
-  track <- names(df.aux) # Analyze tracks individually
-  aux <- lapply(seq_along(df.aux), function(j) {
-  df.rec <- subset(df.aux[[j]], Position == "Receiver")
+    df.aux <- split(detections[[i]], detections[[i]]$Track)
+    track <- names(df.aux) # Analyse tracks individually
+    aux <- lapply(seq_along(df.aux), function(j) {
+      df.rec <- subset(df.aux[[j]], Position == "Receiver")
 
-  # Receiver distances only
-  aux.coords <- data.frame(
-  x1 = df.rec$Longitude[-nrow(df.rec)],
-  y1 = df.rec$Latitude[-nrow(df.rec)],
-  x2 = df.rec$Longitude[-1],
-  y2 = df.rec$Latitude[-1])
-  rec.tot <- apply(aux.coords, 1, function(p) geosphere::distm(x = c(p[1], p[2]), y = c(p[3], p[4])))
-  rec.tot <- sum(rec.tot) / 1000 # in Km
-      
-  # Receiver + RSP distances
-  aux.coords <- data.frame(
-  x1 = df.aux[[j]]$Longitude[-nrow(df.aux[[j]])],
-  y1 = df.aux[[j]]$Latitude[-nrow(df.aux[[j]])],
-  x2 = df.aux[[j]]$Longitude[-1],
-  y2 = df.aux[[j]]$Latitude[-1])
-  RSP.tot <- apply(aux.coords, 1, function(p) geosphere::distm(x = c(p[1], p[2]), y = c(p[3], p[4])))
-  RSP.tot <- sum(RSP.tot) / 1000 # in Km
-      
-  # Save output:
-  output <- data.frame(
-    Animal.tracked = rep(names(detections)[i], 2),
-    Track = rep(names(df.aux)[j], 2),
-    Day.n = rep(length(unique(df.aux[[j]]$Date)), 2),
-    Loc.type = c("Receiver", "RSP"),
-    Dist.travel = c(rec.tot, RSP.tot)
-    )
+      # Receiver distances only
+      receiver.from.coords <- sp::SpatialPoints(data.frame(
+        y = df.rec$Latitude[-nrow(df.rec)],
+        x = df.rec$Longitude[-nrow(df.rec)]))
+      raster::crs(receiver.from.coords) <- input$crs
+      receiver.from.coords.wgs84 <- as.data.frame(sp::spTransform(receiver.from.coords, "+init=epsg:4326"))
 
-  return(output)
+      receiver.to.coords  <- sp::SpatialPoints(data.frame(
+        y = df.rec$Latitude[-1],
+        x = df.rec$Longitude[-1]))
+      raster::crs(receiver.to.coords) <- input$crs
+      receiver.to.coords.wgs84 <- as.data.frame(sp::spTransform(receiver.to.coords, "+init=epsg:4326"))
+
+      receiver.combined.coords.wgs84 <- cbind(
+        receiver.from.coords.wgs84,
+        receiver.to.coords.wgs84)
+      
+      receiver.distances <- apply(receiver.combined.coords.wgs84, 1, 
+        function(r) geosphere::distm(x = c(r[1], r[2]), y = c(r[3], r[4])))
+
+      receiver.total.distance <- sum(receiver.distances)
+          
+      # Receiver + RSP distances
+      combined.from.coords <- sp::SpatialPoints(data.frame(
+        y = df.aux[[j]]$Latitude[-nrow(df.aux[[j]])],
+        x = df.aux[[j]]$Longitude[-nrow(df.aux[[j]])]))
+      raster::crs(combined.from.coords) <- input$crs
+      combined.from.coords.wgs84 <- as.data.frame(sp::spTransform(combined.from.coords, "+init=epsg:4326"))
+
+      combined.to.coords  <- sp::SpatialPoints(data.frame(
+        y = df.aux[[j]]$Latitude[-1],
+        x = df.aux[[j]]$Longitude[-1]))
+      raster::crs(combined.to.coords) <- input$crs
+      combined.to.coords.wgs84 <- as.data.frame(sp::spTransform(combined.to.coords, "+init=epsg:4326"))
+
+      combined.combined.coords.wgs84 <- cbind(
+        combined.from.coords.wgs84,
+        combined.to.coords.wgs84)
+      
+      combined.distances <- apply(combined.combined.coords.wgs84, 1, 
+        function(r) geosphere::distm(x = c(r[1], r[2]), y = c(r[3], r[4])))
+
+      combined.total.distance <- sum(combined.distances)
+  
+      # Save output:
+      recipient <- data.frame(
+        Animal.tracked = rep(names(detections)[i], 2),
+        Track = rep(names(df.aux)[j], 2),
+        Day.n = rep(length(unique(df.aux[[j]]$Date)), 2),
+        Loc.type = c("Receiver", "RSP"),
+        Dist.travel = c(receiver.total.distance, combined.total.distance)
+        )
+
+      return(recipient)
     })
     return(as.data.frame(data.table::rbindlist(aux)))
   })
   
-  plotdata <- as.data.frame(data.table::rbindlist(df.diag))
+  output <- as.data.frame(data.table::rbindlist(df.diag))
 
   # Add corresponding groups:
   bio.aux <- data.frame(Group = input$bio$Group, Transmitter = input$bio$Transmitter)
+  bio.aux <- bio.aux[complete.cases(bio.aux), ]
   bio.aux$Group <- as.character(bio.aux$Group)
   bio.aux$Transmitter <- as.character(bio.aux$Transmitter)
-  plotdata$Group <- NA
-  for (i in 1:nrow(plotdata)) {
-    plotdata$Group[i] <- as.character(bio.aux$Group[bio.aux$Transmitter == plotdata$Animal.tracked[i]] )
+  output$Group <- NA
+  for (i in 1:nrow(output)) {
+    output$Group[i] <- as.character(bio.aux$Group[bio.aux$Transmitter == output$Animal.tracked[i]] )
   }
-  plotdata <- plotdata[order(plotdata$Group), ]
+  output <- output[order(output$Group), ]
 
-
-  return(plotdata)
+  return(output)
 }
 
 
@@ -143,31 +171,24 @@ getDistance <- function(input) {
 #' @return A dataframe of the total distances travelled using RSP and Receiver tracks.
 #' 
 dist.calc <- function(input) {
-  animal <- unique(input$Animal.tracked)
-  dist.save <- NULL
-  for (i in 1:length(animal)) {
-    aux1 <- sum(input$Dist.travel[input$Loc.type == "RSP" & input$Animal.tracked == animal[i]])
-    aux2 <- sum(input$Dist.travel[input$Loc.type == "Receiver" & input$Animal.tracked == animal[i]])
-    dist.save <- c(dist.save, aux1, aux2)
-  }
-  return(data.frame(Animal.tracked = sort(rep(animal, 2)), Loc.type = c("RSP", "Receiver"), Dist.travel = dist.save))
-}
+  output <- input[!duplicated(input$Animal.tracked), ]
+  output <- output[order(output$Animal.tracked), c("Animal.tracked", "Group")]
 
+  aux <- split(input, input$Loc.type)
 
-#' Check all receiver stations are in the water
-#' 
-#' Verify that receivers are in-water within the base raster provided
-#'
-#' @param input The spatial file from actel analysis.
-#' @param base.raster Raster file from the study area defining land (1) and water (0) regions. 
-#' 
-#' @return A vector containing the raster values for each station location. 
-#' 
-checkSpatial <- function(input, base.raster) {
-  aux.spatial <- input$spatial
-  raster.file <- raster::raster(base.raster)
-  aux <- raster::extract(x = raster.file, y = sp::SpatialPoints(data.frame(y = aux.spatial$stations$Longitude, x = aux.spatial$stations$Latitude)))
-  return(aux)
+  recipient <- lapply(aux, function(x) {
+    aggregate(x$Dist.travel, by = list(x$Animal.tracked), sum)[, 2]
+  })
+
+  output$Receiver <- recipient$Receiver
+  output$RSP <- recipient$RSP
+
+  output <- reshape2::melt(output, id.vars = c("Animal.tracked", "Group"))
+  colnames(output)[3:4] <- c("Loc.type", "Dist.travel")
+  output <- output[order(output$Animal.tracked), ]
+  rownames(output) <- 1:nrow(output)
+
+  return(output)
 }
 
 
@@ -193,16 +214,16 @@ checkSpatialWater <- function(input, base.raster) {
 
 
 
-#' Import detection data as sorted format
+#' Prepare detection data for RSP calculations
 #' 
 #' Open and sort the detections dataset for applying RSP estimation, using the tagging data to assign 
-#' species names and indexes for each tracked animal. Also coverts the UTC date and time column to the 
-#' local time zone of the study area.  
-#'
-#' @param detections A list of detections provived by an actel function.
-#' @param spatial A list of spatial objects in the study area
+#' species names and indexes for each tracked animal. 
 #' 
-#' @return A standardized dataframe to be used for RSP calculation. 
+#' @param detections A list of detections provided by an actel function.
+#' @param spatial A list of spatial objects in the study area
+#' @inheritParams runRSP
+#' 
+#' @return A standardised data frame to be used for RSP calculation. 
 #' 
 prepareDetections <- function(detections, spatial, coord.x, coord.y) {
   if (!any(colnames(spatial$stations) == "Range")) 
