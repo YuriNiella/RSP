@@ -682,13 +682,37 @@ getAreas <- function(input, type = c("group", "track"), breaks = c(0.5, 0.95)) {
     return(tracks.list)
 }
 
-getOverlaps <- function(dbbmm.rasters, base.raster, breaks) {
+#' Calculate overlaps between different groups
+#' 
+#' @param input The output of \code{\link{dynBBMM}}
+#' @param breaks The contours for calculating usage areas in squared metres. By default the 95\% and 50\% contours are used. 
+#' 
+#' @return A list of areas per track, per group
+#' 
+#' @keywords export
+#' 
+getOverlaps <- function(input, breaks) {
+
+  dbbmm.rasters <- input$group.rasters
+
+  if (length(dbbmm.rasters) == 1) 
+    stop("M: Only one group found, overlap calculations cannot be performed.", call. = FALSE)
+
+  aux <- t(overlaps$group.areas[[1]])
+  link <- match(rownames(aux), timeslots$slot)
+  capture <- apply(aux, 2, function(x) {
+    timeslots[, ncol(timeslots) + 1] <<- FALSE
+    timeslots[link, ncol(timeslots)] <<- as.logical(x)
+  })
+  colnames(timeslots)[4:ncol(timeslots)] <- colnames(aux)
+  rm(aux, capture)
+
   if (attributes(dbbmm.rasters)$type == "group") {
     # prepare input rasters
     # counter <- 1
     raster.crop <- lapply(dbbmm.rasters, function(group) {
       # cat(counter, "\n")
-      output <- lapply(breaks, function(limit, aux.base = base.raster) {
+      output <- lapply(breaks, function(limit) {
         # cat(limit, '\n')
         aux.raster <- group <= limit
         if (class(group) != "RasterLayer") {
@@ -696,10 +720,6 @@ getOverlaps <- function(dbbmm.rasters, base.raster, breaks) {
         } else {
           the.raster <- aux.raster
         }
-        raster::extent(aux.base) <- raster::extent(the.raster) # Get all rasters with the same extent
-        the.raster <- raster::mask(x = the.raster,
-                                    mask = aux.base,
-                                    inverse = TRUE)
         return(the.raster)
       })
       names(output) <- breaks
@@ -789,16 +809,12 @@ getOverlaps <- function(dbbmm.rasters, base.raster, breaks) {
     # prepare input rasters
     raster.crop <- lapply(dbbmm.rasters, function(group) {
       output_i <- lapply(group, function(timeslot) {
-        output <- lapply(breaks, function(limit, aux.base = base.raster) { 
+        output <- lapply(breaks, function(limit) { 
           aux.raster <- timeslot <= limit
           if (class(timeslot) != "RasterLayer")
             the.raster <- raster::calc(aux.raster, fun = max, na.rm = TRUE) # Merge all transmitters in one raster
           else
             the.raster <- aux.raster
-          raster::extent(aux.base) <- raster::extent(the.raster) # Get all rasters with the same extent
-          the.raster <- raster::mask(x = the.raster,
-                                      mask = aux.base,
-                                      inverse = TRUE)
         })
         names(output) <- breaks
         return(output)
@@ -913,6 +929,9 @@ getOverlaps <- function(dbbmm.rasters, base.raster, breaks) {
       return(list(absolutes = absolutes, percentage = percentage))
     })
   }
+
+  # areas = overlaps$group.areas, overlap.areas = overlaps$overlap.areas, overlap.rasters = overlaps$overlap.rasters
+  # areas = overlaps$group.areas, overlap.rasters = overlaps$overlap.rasters, overlap.areas = overlaps$overlap.areas,
 
   return(list(group.areas = group.areas, overlap.areas = overlap.areas, overlap.rasters = overlap.rasters))
 }
