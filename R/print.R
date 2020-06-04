@@ -208,12 +208,12 @@ plotDistances <- function(input, by.group = FALSE) {
 #' @export
 #' 
 plotDensities <- function(input, group) {
-  Time.lapse.hour <- NULL
+  # Time.lapse.hour <- NULL
   
   if (!missing(group) & is.na(match(group, levels(input$bio$Group))))
     stop("'group' should match one of the groups present in the dataset.", call. = FALSE)
 
-  if (missing(group)) {
+  if (missing(group)) { # YN: Not working! 
     input <- do.call(rbind.data.frame, input$detections)
     input <- subset(input, Position == "Receiver")
     input$Track.name <- paste(input$Transmitter, input$Track, sep = "_")
