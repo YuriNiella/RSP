@@ -49,7 +49,7 @@ dynBBMM <- function(input, UTM.zone, tags = NULL, start = NULL, stop = NULL, bre
   bio <- input$bio
 
   # Subsetting the data for time period of interest:
-  if (!is.null(start)) {
+  if (!is.null(start)) { # HF: What if the user only sets a stop argument? (or vice versa)
     # Detection data
     detections <- lapply(detections, function(x){
       x <- subset(x, Timestamp >= start & Timestamp <= stop)
