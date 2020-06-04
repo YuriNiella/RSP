@@ -30,12 +30,12 @@ dynBBMM <- function(input, base.raster, tags = NULL, start = NULL, stop = NULL,
   base.raster[base.raster == 2] <- 1
 
   # check input quality
-  if (!is.numeric(breaks))
-    stop("'breaks' must be numeric.", call. = FALSE)
-  if (any(breaks <= 0 | breaks >= 1))
-    stop("'breaks' must be between 0 and 1 (both exclusive).", call. = FALSE)
-  if (any(duplicated(breaks)))
-    stop("All values in 'breaks' must be unique.", call. = FALSE)
+  # if (!is.numeric(breaks))
+  #   stop("'breaks' must be numeric.", call. = FALSE)
+  # if (any(breaks <= 0 | breaks >= 1))
+  #   stop("'breaks' must be between 0 and 1 (both exclusive).", call. = FALSE)
+  # if (any(duplicated(breaks)))
+  #   stop("All values in 'breaks' must be unique.", call. = FALSE)
   if (!is.null(timeframe) && !is.numeric(timeframe))
     stop("'timeframe' must be either NULL or numeric", call. = FALSE)
   if (!is.null(timeframe) && timeframe <= 0.5)
