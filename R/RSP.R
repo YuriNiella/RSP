@@ -89,14 +89,14 @@ getDistances <- function(input) {
 
       # Receiver distances only
       receiver.from.coords <- sp::SpatialPoints(data.frame(
-        y = df.rec$Latitude[-nrow(df.rec)],
-        x = df.rec$Longitude[-nrow(df.rec)]))
+        x = df.rec$Longitude[-nrow(df.rec)],
+        y = df.rec$Latitude[-nrow(df.rec)]))
       raster::crs(receiver.from.coords) <- input$crs
       receiver.from.coords.wgs84 <- as.data.frame(sp::spTransform(receiver.from.coords, "+init=epsg:4326"))
 
       receiver.to.coords  <- sp::SpatialPoints(data.frame(
-        y = df.rec$Latitude[-1],
-        x = df.rec$Longitude[-1]))
+        x = df.rec$Longitude[-1],
+        y = df.rec$Latitude[-1]))
       raster::crs(receiver.to.coords) <- input$crs
       receiver.to.coords.wgs84 <- as.data.frame(sp::spTransform(receiver.to.coords, "+init=epsg:4326"))
 
@@ -111,14 +111,14 @@ getDistances <- function(input) {
           
       # Receiver + RSP distances
       combined.from.coords <- sp::SpatialPoints(data.frame(
-        y = df.aux[[j]]$Latitude[-nrow(df.aux[[j]])],
-        x = df.aux[[j]]$Longitude[-nrow(df.aux[[j]])]))
+        x = df.aux[[j]]$Longitude[-nrow(df.aux[[j]])],
+        y = df.aux[[j]]$Latitude[-nrow(df.aux[[j]])]))
       raster::crs(combined.from.coords) <- input$crs
       combined.from.coords.wgs84 <- as.data.frame(sp::spTransform(combined.from.coords, "+init=epsg:4326"))
 
       combined.to.coords  <- sp::SpatialPoints(data.frame(
-        y = df.aux[[j]]$Latitude[-1],
-        x = df.aux[[j]]$Longitude[-1]))
+        x = df.aux[[j]]$Longitude[-1],
+        y = df.aux[[j]]$Latitude[-1]))
       raster::crs(combined.to.coords) <- input$crs
       combined.to.coords.wgs84 <- as.data.frame(sp::spTransform(combined.to.coords, "+init=epsg:4326"))
 
