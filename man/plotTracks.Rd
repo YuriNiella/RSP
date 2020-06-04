@@ -26,6 +26,8 @@ generated tracks.}
 
 \item{tag}{Choose a single tag to plot}
 
+\item{track}{If a single tag was chosen, you can use 'track' to define a specific track to be plotted.}
+
 \item{size}{The size/width of the points and lines to be plotted. if type = "both", the line size will be the
 one specified and the point size will be 10\% larger than the specified.}
 }

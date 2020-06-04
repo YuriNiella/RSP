@@ -4,7 +4,8 @@
 #' are automatically identified and not included in the analysis.
 #'
 #' @param input The output of runRSP.
-#' @param tags Vector of transmitters to be analyzed. By default all transmitters from runRSP will be analised.
+#' @param base.raster The water raster of the study area. For example the output of \code{\link[actel]{loadShape}}.
+#' @param tags Vector of transmitters to be analysand. By default all transmitters from runRSP will be analysed.
 #' @param start Sets the start point for analysis (format = "Y-m-d H:M:S").
 #' @param stop Sets the stop point for analysis (format = "Y-m-d H:M:S").
 #' @param timeframe Temporal window size for fine-scale dBBMM in hours. If left NULL, a single dBBMM is calculated for the whole period.
@@ -602,7 +603,7 @@ getAreas <- function(input, type = c("group", "track"), breaks = c(0.5, 0.95)) {
             return(output_breaks) 
           })
           counter <<- counter
-          names(output_i) <- names(the.dbbmm)
+          names(output_i) <- names(timeslot)
           return(output_i)
         }
         if (type == "group") {
@@ -693,19 +694,21 @@ getAreas <- function(input, type = c("group", "track"), breaks = c(0.5, 0.95)) {
 #' 
 getOverlaps <- function(input, breaks) {
 
+  stop("getOverlaps is currently under reconstruction!")
+  
   dbbmm.rasters <- input$group.rasters
 
   if (length(dbbmm.rasters) == 1) 
     stop("M: Only one group found, overlap calculations cannot be performed.", call. = FALSE)
 
-  aux <- t(overlaps$group.areas[[1]])
-  link <- match(rownames(aux), timeslots$slot)
-  capture <- apply(aux, 2, function(x) {
-    timeslots[, ncol(timeslots) + 1] <<- FALSE
-    timeslots[link, ncol(timeslots)] <<- as.logical(x)
-  })
-  colnames(timeslots)[4:ncol(timeslots)] <- colnames(aux)
-  rm(aux, capture)
+  # aux <- t(overlaps$group.areas[[1]])
+  # link <- match(rownames(aux), timeslots$slot)
+  # capture <- apply(aux, 2, function(x) {
+  #   timeslots[, ncol(timeslots) + 1] <<- FALSE
+  #   timeslots[link, ncol(timeslots)] <<- as.logical(x)
+  # })
+  # colnames(timeslots)[4:ncol(timeslots)] <- colnames(aux)
+  # rm(aux, capture)
 
   if (attributes(dbbmm.rasters)$type == "group") {
     # prepare input rasters

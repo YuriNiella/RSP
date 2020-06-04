@@ -341,6 +341,7 @@ RSPtransition <- function(raster.hab = "shapefile.grd") { # HF: We need to discu
 #' @param transition TransitionLayer object as returned by LTDpath.
 #' @param er.ad Incremental error per additional RSP point.
 #' @param path.list A list of previously calculated paths.
+#' @inheritParams runRSP
 #' 
 #' @return A dataframe with the RSP estimations for all identified tracks for that animal.
 #' 

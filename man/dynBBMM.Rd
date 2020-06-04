@@ -18,7 +18,9 @@ dynBBMM(
 \arguments{
 \item{input}{The output of runRSP.}
 
-\item{tags}{Vector of transmitters to be analyzed. By default all transmitters from runRSP will be analised.}
+\item{base.raster}{The water raster of the study area. For example the output of \code{\link[actel]{loadShape}}.}
+
+\item{tags}{Vector of transmitters to be analysand. By default all transmitters from runRSP will be analysed.}
 
 \item{start}{Sets the start point for analysis (format = "Y-m-d H:M:S").}
 

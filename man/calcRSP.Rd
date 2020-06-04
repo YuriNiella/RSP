@@ -29,6 +29,8 @@ calcRSP(
 \item{er.ad}{Incremental error per additional RSP point.}
 
 \item{path.list}{A list of previously calculated paths.}
+
+\item{verbose}{Logical: If TRUE, detailed messages and progression are displayed. Otherwise, a single progress bar is shown.}
 }
 \value{
 A dataframe with the RSP estimations for all identified tracks for that animal.

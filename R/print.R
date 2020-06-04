@@ -64,6 +64,7 @@ plotRaster <- function(input, base.raster, coord.x, coord.y, size) {
 #'  generated tracks.
 #' @param group Choose a single group of fish to plot
 #' @param tag Choose a single tag to plot
+#' @param track If a single tag was chosen, you can use 'track' to define a specific track to be plotted.
 #' @param size The size/width of the points and lines to be plotted. if type = "both", the line size will be the
 #'  one specified and the point size will be 10\% larger than the specified.
 #' 
@@ -73,7 +74,8 @@ plotRaster <- function(input, base.raster, coord.x, coord.y, size) {
 #' 
 plotTracks <- function(input, base.raster, type = c("both", "points", "lines"), group, tag, track, size = 0.3) {
   temp.col <- NULL
-
+  Track <- NULL
+  
   type <- match.arg(type)
 
   base.raster[is.na(base.raster)] <- 2
