@@ -23,13 +23,14 @@ NULL
 #' @param er.ad By default, 5\% of the distance argument is used as the increment rate of the position errors for the estimated locations. Alternatively, can be defined by the user in meters.
 #' @param maximum.time Temporal lag in hours to be considered for the fine-scale tracking. Default is to consider 1-day intervals.
 #' @param debug Logical: If TRUE, the function progress is saved to an RData file.
+#' @param verbose Logical: If TRUE, detailed messages and progression are displayed. Otherwise, a single progress bar is shown.
 #' 
 #' @return Returns a list of RSP tracks (as data frame) for each transmitter detected. 
 #' 
 #' @export
 #' 
 runRSP <- function(input, t.layer, coord.x, coord.y, distance = 250, 
-  time.lapse = 10, er.ad = NULL, maximum.time = 24, debug = FALSE) {
+  time.lapse = 10, er.ad = NULL, maximum.time = 24, verbose = FALSE, debug = FALSE) {
   if (debug) {
     on.exit(save(list = ls(), file = "RSP_debug.RData"), add = TRUE)
     message("!!!--- Debug mode has been activated ---!!!")
@@ -53,7 +54,7 @@ runRSP <- function(input, t.layer, coord.x, coord.y, distance = 250,
     spatial = spatial, coord.x = coord.x, coord.y = coord.y)
 
   RSP.time <- system.time(recipient <- includeRSP(detections = detections, transition = t.layer, maximum.time = maximum.time,
-                                           tz = tz, distance = distance, time.lapse = time.lapse, er.ad = er.ad, debug = debug))
+                                           tz = tz, distance = distance, time.lapse = time.lapse, er.ad = er.ad, verbose = verbose, debug = debug))
   rsp.detections <- recipient$output
   tracks <- recipient$tracks
 
@@ -344,12 +345,13 @@ RSPtransition <- function(raster.hab = "shapefile.grd") { # HF: We need to discu
 #' @return A dataframe with the RSP estimations for all identified tracks for that animal.
 #' 
 #' 
-calcRSP <- function(df.track, tz, distance, time.lapse, transition, er.ad, path.list) {
+calcRSP <- function(df.track, tz, distance, time.lapse, transition, er.ad, path.list, verbose) {
   .N <- NULL
 
   aux.RSP <- as.data.frame(df.track[-(1:.N)]) # Save RSP
 
-  pb <- txtProgressBar(min = 0, max = nrow(df.track),
+  if (verbose)
+    pb <- txtProgressBar(min = 0, max = nrow(df.track),
                               initial = 0, style = 3, width = 60)
   
   station.shifts <- c(FALSE, df.track$Standard.name[-1] != df.track$Standard.name[-nrow(df.track)])
@@ -358,7 +360,8 @@ calcRSP <- function(df.track, tz, distance, time.lapse, transition, er.ad, path.
   same.station.shift <- !station.shifts & time.shifts
   # Add intermediate positions to the RSP track:
   for (i in 2:nrow(df.track)) {
-    setTxtProgressBar(pb, i) # Progress bar
+    if (verbose)
+      setTxtProgressBar(pb, i) # Progress bar
     
     if (same.station.shift[i]) {      
       # Number of intermediate positions to add:
@@ -486,7 +489,8 @@ calcRSP <- function(df.track, tz, distance, time.lapse, transition, er.ad, path.
       rm(intermediate.points)
     }
   }
-  close(pb)
+  if (verbose)
+    close(pb)
   return(list(output = rbind(aux.RSP, df.track), path.list = path.list))
 }
 
@@ -502,15 +506,20 @@ calcRSP <- function(df.track, tz, distance, time.lapse, transition, er.ad, path.
 #' 
 #' @return A list with the RSP estimations of individual tracks per transmitter.
 #' 
-includeRSP <- function(detections, transition, tz, distance, time.lapse, er.ad, maximum.time, debug = FALSE) {
+includeRSP <- function(detections, transition, tz, distance, time.lapse, er.ad, maximum.time, verbose, debug = FALSE) {
   if (debug)
     on.exit(save(list = ls(), file = "includeRSP_debug.RData"), add = TRUE)
   
   path.list <- list() # Empty list to save already calculated paths
 
+  if (!verbose)
+    pb <- txtProgressBar(min = 0, max = length(detections),
+                          initial = 0, style = 3, width = 60)
+
   # Recreate RSP individually
   aux <- lapply(seq_along(detections), function(i) {
-    message(crayon::bold(crayon::green((paste("Analyzing:", names(detections)[i])))))
+    if (verbose)
+      message(crayon::bold(crayon::green((paste("Analyzing:", names(detections)[i])))))
     flush.console()
     # dates.aux <- timeInterval(detections[[i]]) # Identify time differences between detections (in days)
     recipient <- nameTracks(detections = detections[[i]], maximum.time = maximum.time) # Fine-scale tracking
@@ -520,10 +529,11 @@ includeRSP <- function(detections, transition, tz, distance, time.lapse, er.ad, 
     track.aux <- split(detections[[i]], detections[[i]]$Track)
 
     tag.aux <- lapply(which(tracks$Valid), function(j) {
-      message("Estimating ", names(detections)[i], " RSP: ", names(track.aux)[j])
+      if (verbose)
+        message("Estimating ", names(detections)[i], " RSP: ", names(track.aux)[j])
       flush.console()
       # Recreate RSP
-      function.recipient <- calcRSP(df.track = track.aux[[j]], tz = tz, distance = distance, 
+      function.recipient <- calcRSP(df.track = track.aux[[j]], tz = tz, distance = distance, verbose = verbose, 
                                     time.lapse = time.lapse, transition = transition, er.ad = er.ad, path.list = path.list)
       # return path.list directly to environment above
       path.list <<- function.recipient$path.list
@@ -542,7 +552,11 @@ includeRSP <- function(detections, transition, tz, distance, time.lapse, er.ad, 
     tag.recipient$Standard.name <- as.factor(tag.recipient$Standard.name)
     tag.recipient <- tag.recipient[order(tag.recipient$Timestamp), ]
     return(list(detections = tag.recipient, tracks = tracks))
+    if (!verbose)
+      setTxtProgressBar(pb, i) # Progress bar
   })
+  if (!verbose)
+    close(pb)    
   output <- lapply(aux, function(x) x$detections)
   tracks <- lapply(aux, function(x) x$tracks)
   names(output) <- names(detections)
