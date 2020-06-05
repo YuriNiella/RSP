@@ -8,6 +8,7 @@
 #' @param tags Vector of transmitters to be analysand. By default all transmitters from runRSP will be analysed.
 #' @param start Sets the start point for analysis (format = "Y-m-d H:M:S").
 #' @param stop Sets the stop point for analysis (format = "Y-m-d H:M:S").
+#' @param UTM The UTM zone of the study area. Only relevant if a latlon-to-metric conversion is required.
 #' @param timeframe Temporal window size for fine-scale dBBMM in hours. If left NULL, a single dBBMM is calculated for the whole period.
 #' @param verbose Logical: If TRUE, detailed check messages are displayed. Otherwise, only a summary is displayed.
 #' @param debug Logical: If TRUE, the function progress is saved to an RData file.
@@ -17,7 +18,7 @@
 #' @export
 #' 
 dynBBMM <- function(input, base.raster, tags = NULL, start = NULL, stop = NULL, 
-  timeframe = NULL, debug = FALSE, verbose = TRUE) {
+  timeframe = NULL, UTM, debug = FALSE, verbose = TRUE) {
 
   if (debug) {
     on.exit(save(list = ls(), file = "dynBBMM_debug.RData"), add = TRUE)
@@ -30,12 +31,6 @@ dynBBMM <- function(input, base.raster, tags = NULL, start = NULL, stop = NULL,
   base.raster[base.raster == 2] <- 1
 
   # check input quality
-  # if (!is.numeric(breaks))
-  #   stop("'breaks' must be numeric.", call. = FALSE)
-  # if (any(breaks <= 0 | breaks >= 1))
-  #   stop("'breaks' must be between 0 and 1 (both exclusive).", call. = FALSE)
-  # if (any(duplicated(breaks)))
-  #   stop("All values in 'breaks' must be unique.", call. = FALSE)
   if (!is.null(timeframe) && !is.numeric(timeframe))
     stop("'timeframe' must be either NULL or numeric", call. = FALSE)
   if (!is.null(timeframe) && timeframe <= 0.5)
@@ -50,6 +45,21 @@ dynBBMM <- function(input, base.raster, tags = NULL, start = NULL, stop = NULL,
 
   if (as.character(crs) != as.character(raster::crs(base.raster))) # HF: This should never happen (unless the user screwed up), but I am leaving it here as a tester
     stop("The base raster and the input data are not in the came coordinate system!", call. = FALSE)
+
+  if (raster::isLonLat(base.raster)) {
+    if (missing(UTM))
+      stop("The data are in a latitude-longitude coordinate system, which is incompatible with the dynamic brownian bridge model.\nPlease supply a 'UTM' zone for coordinate conversion.", call. = FALSE)
+    if (length(UTM) > 1)
+      stop("Please supply only one UTM zone")
+    message("M: Converting coordinates to UTM. Original latitude/longitude values for the detections will be stored in columns 'O.LAT' and 'O.LON'.")
+    flush.console()
+    detections <- lapply(detections, function(x) toUTM(x, crs = crs, UTM = UTM))
+    base.raster <- suppressWarnings(raster::projectRaster(base.raster, crs = raster::crs(paste0("+proj=utm +UTM.zone=", UTM, " +datum=WGS84 +units=m +no_defs")))) # HF: suppressed rgdal complaints about using a proj string. Output seems to be correct.
+    crs <- raster::crs(paste0("+proj=utm +UTM.zone=", UTM, " +datum=WGS84 +units=m +no_defs"))
+  } else {
+    if (!missing(UTM))
+      warning("'UTM' supplied but data is already in a metric coordinate system. Skipping transformation.", call. = FALSE, immediate. = TRUE)
+  }
 
   # Sub-setting the data for time period of interest:
   if (!is.null(start)) { # HF: What if the user only sets a stop argument? (or vice versa)
@@ -114,6 +124,35 @@ dynBBMM <- function(input, base.raster, tags = NULL, start = NULL, stop = NULL,
       group.rasters = dbbmm.rasters, timeslots = timeslots, spatial = spatial)) 
   }
 }
+
+#' Converts coordinates to UTM projection
+#' 
+#' Convert Coordinate Reference System (CRS) from lonlat to 
+#' metric UTM projection, as required for calculating the dynamic Brownian Bridge 
+#' Movement Model. 
+#'
+#' @param input The detections data frame
+#' @param UTM the UTM zone chosen by the user
+#' @param crs The original coordinate system
+#' 
+#' @return Dataframe with the converted coordinates in UTM.
+#' 
+#' @keywords internal
+#' 
+toUTM <- function(input, UTM, crs) {
+  input$O.LAT <- input$Latitude
+  input$O.LON <- input$Longitude
+  xy <- data.frame(ID = 1:nrow(input), X = input$Longitude, Y = input$Latitude)
+  sp::coordinates(xy) <- c("X", "Y")
+  sp::proj4string(xy) <- sp::CRS(as.character(crs))
+  metric.coords <- as.data.frame(sp::spTransform(xy, 
+    sp::CRS(paste0("+proj=utm +UTM.zone=", UTM, " +datum=WGS84 +units=m +no_defs"))))
+
+  input$Longitude <- metric.coords[, 2]
+  input$Latitude <- metric.coords[, 3]
+  return(input)
+}
+
 
 updateTrackValidity <- function(input, group.list) {
   updated.tracks <- input$tracks
@@ -435,10 +474,17 @@ calculateDBBMM <- function(input, crs, base.raster) {
       message("M: Calculating dBBMM: ", crayon::bold(crayon::green(names(loc)[i])))
       flush.console()
       time.spent <- system.time(suppressWarnings(suppressMessages( # HF: temporarily suppress new raster warnings. We need to revisit this once move::brownian.bridge.dyn has been updated
-        output <- move::brownian.bridge.dyn(object = loc[[i]],
+        output <- tryCatch(move::brownian.bridge.dyn(object = loc[[i]],
                                   raster = base.raster,  
                                   window.size = 7, margin = 3,
-                                  location.error = input[[i]]$Error)
+                                  location.error = input[[i]]$Error),
+          error = function(e) {
+            if (grepl("consider extending the raster", e))
+              stop("The brownian bridge model needs a larger raster to work on. This could happen because some of the detections are too close to the raster's edge. 
+You can create a larger raster by using the argument 'buffer' in loadShape. If the error persists, increase the buffer size further.", call. = FALSE)
+            else
+              stop(e)
+          })
         )))
       if (length(unique(input[[i]]$ID)) == 1)
         names(output) <- unique(input[[i]]$ID)

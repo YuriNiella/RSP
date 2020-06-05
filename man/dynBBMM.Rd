@@ -11,6 +11,7 @@ dynBBMM(
   start = NULL,
   stop = NULL,
   timeframe = NULL,
+  UTM,
   debug = FALSE,
   verbose = TRUE
 )
@@ -27,6 +28,8 @@ dynBBMM(
 \item{stop}{Sets the stop point for analysis (format = "Y-m-d H:M:S").}
 
 \item{timeframe}{Temporal window size for fine-scale dBBMM in hours. If left NULL, a single dBBMM is calculated for the whole period.}
+
+\item{UTM}{The UTM zone of the study area. Only relevant if a latlon-to-metric conversion is required.}
 
 \item{debug}{Logical: If TRUE, the function progress is saved to an RData file.}
 
