@@ -6,8 +6,8 @@
 #' @param input The output of runRSP.
 #' @param base.raster The water raster of the study area. For example the output of \code{\link[actel]{loadShape}}.
 #' @param tags Vector of transmitters to be analysand. By default all transmitters from runRSP will be analysed.
-#' @param start Sets the start point for analysis (format = "Y-m-d H:M:S").
-#' @param stop Sets the stop point for analysis (format = "Y-m-d H:M:S").
+#' @param start.time Sets the start point for analysis (format = "Y-m-d H:M:S").
+#' @param stop.time Sets the stop point for analysis (format = "Y-m-d H:M:S").
 #' @param UTM The UTM zone of the study area. Only relevant if a latlon-to-metric conversion is required.
 #' @param timeframe Temporal window size for fine-scale dBBMM in hours. If left NULL, a single dBBMM is calculated for the whole period.
 #' @param verbose Logical: If TRUE, detailed check messages are displayed. Otherwise, only a summary is displayed.
@@ -17,7 +17,7 @@
 #' 
 #' @export
 #' 
-dynBBMM <- function(input, base.raster, tags = NULL, start = NULL, stop = NULL, 
+dynBBMM <- function(input, base.raster, tags = NULL, start.time = NULL, stop.time = NULL, 
   timeframe = NULL, UTM, debug = FALSE, verbose = TRUE) {
 
   if (debug) {
@@ -62,14 +62,30 @@ dynBBMM <- function(input, base.raster, tags = NULL, start = NULL, stop = NULL,
   }
 
   # Sub-setting the data for time period of interest:
-  if (!is.null(start)) { # HF: What if the user only sets a stop argument? (or vice versa)
-    # Detection data
-    detections <- lapply(detections, function(x){
-      x <- subset(x, Timestamp >= start & Timestamp <= stop)
+  if (is.null(start.time) & !is.null(stop.time)) {
+    stop("'start.time' argument is missing.")
+  }
+  if (!is.null(start.time) & is.null(stop.time)) {
+    stop("'stop.time' argument is missing.")
+  }
+  if (!is.null(start.time) & !is.null(stop.time)) {
+    message(paste0("M: Discarding detection data previous to ",start.time," and after ",stop.time," per user command."))
+    start.time <- as.POSIXct(start.time, tz = input$tz)
+    stop.time <- as.POSIXct(stop.time, tz = input$tz)
+
+    if (stop.time < start.time) {
+      stop("'stop.time' must be after 'start.time'.")
+    } else {
+
+      # Detection data
+      detections <- lapply(detections, function(x){
+      x <- subset(x, Timestamp >= start.time & Timestamp <= stop.time)
       return(x)
     })
     remove.empty <- sapply(detections, nrow) != 0
     detections <- detections[remove.empty]
+    bio <- bio[which(bio$Transmitter %in% names(detections)), ]
+    }
   }
 
   # Prepare detections
@@ -549,6 +565,8 @@ You can create a larger raster by using the argument 'buffer' in loadShape. If t
 #' @return A list of areas per track, per group
 #' 
 #' @keywords export
+#' 
+#' @export
 #' 
 getAreas <- function(input, type = c("group", "track"), breaks = c(0.5, 0.95)) {
 

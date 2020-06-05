@@ -8,8 +8,8 @@ dynBBMM(
   input,
   base.raster,
   tags = NULL,
-  start = NULL,
-  stop = NULL,
+  start.time = NULL,
+  stop.time = NULL,
   timeframe = NULL,
   UTM,
   debug = FALSE,
@@ -23,9 +23,9 @@ dynBBMM(
 
 \item{tags}{Vector of transmitters to be analysand. By default all transmitters from runRSP will be analysed.}
 
-\item{start}{Sets the start point for analysis (format = "Y-m-d H:M:S").}
+\item{start.time}{Sets the start point for analysis (format = "Y-m-d H:M:S").}
 
-\item{stop}{Sets the stop point for analysis (format = "Y-m-d H:M:S").}
+\item{stop.time}{Sets the stop point for analysis (format = "Y-m-d H:M:S").}
 
 \item{timeframe}{Temporal window size for fine-scale dBBMM in hours. If left NULL, a single dBBMM is calculated for the whole period.}
 
