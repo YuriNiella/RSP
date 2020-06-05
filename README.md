@@ -59,28 +59,30 @@ can vary from a couple of hours to several days long, the latter does so
 according to **fixed temporal windows** over the entire monitoring
 period.
 
+**getOverlaps()**
+
+When multiple biological groups are tracked (e.g. different sexes, different species, etc.), the ammounts of overlap between them can be calculated using this function. 
+
 ### Plotting the results
 
-**plotRSP()**
+**plotTracks()**
 
-This function can be used to visualize the **runRSP() output** to inspect for
-differences in tracks using either only receiver locations (Straight
-lines) or including the RSP positions:
+This function can be used to visualize the tracks created using **runRSP()**:
 
-<img src="vignettes/plotRSP_readme.png" width="850"  />
+<img src="vignettes/plotTrack1.png" width="600"  />
 
 **plotContours()**
 
-Plots a specified dBBMM utilization distribution:
+Plots a specified dBBMM utilization distribution calculated using **dynBBMM()**:
 
-<img src="vignettes/plotContours_readme.png" width="1400"  />
+<img src="vignettes/plotContours_readme.png" width="700"  />
 
 **plotOverlap()**
 
 This function shows where in the study area the overlaps between **different
 biological groups** occurred:
 
-<img src="vignettes/plotOverlap_readme.png" width="400"  />
+<img src="vignettes/plotOverlap_readme.png" width="850"  />
 
 ## Installation
 
