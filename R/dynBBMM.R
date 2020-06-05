@@ -35,6 +35,10 @@ dynBBMM <- function(input, base.raster, tags = NULL, start.time, stop.time,
     stop("'timeframe' must be either NULL or numeric", call. = FALSE)
   if (!is.null(timeframe) && timeframe <= 0.5)
     stop("'timeframe' must be larger than 0.5.", call. = FALSE)
+  if (!missing(start.time) && !grepl("^[1-2][0-9][0-9][0-9]-[0-1][0-9]-[0-3][0-9] [0-2][0-9]:[0-5][0-9]:[0-5][0-9]", start.time))
+      stop("'start.time' must be in 'yyyy-mm-dd hh:mm:ss' format.\n", call. = FALSE)
+  if (!missing(stop.time) && !grepl("^[1-2][0-9][0-9][0-9]-[0-1][0-9]-[0-3][0-9] [0-2][0-9]:[0-5][0-9]:[0-5][0-9]", stop.time))
+      stop("'stop.time' must be in 'yyyy-mm-dd hh:mm:ss' format.\n", call. = FALSE)
   
   # Unpack study data
   detections <- input$detections  
@@ -77,9 +81,6 @@ dynBBMM <- function(input, base.raster, tags = NULL, start.time, stop.time,
   }
 
   if (!missing(start.time)) {
-     if (!grepl("^[1-2][0-9][0-9][0-9]-[0-1][0-9]-[0-3][0-9] [0-2][0-9]:[0-5][0-9]:[0-5][0-9]", start.time))
-      stop("'start.time' must be in 'yyyy-mm-dd hh:mm:ss' format.\n", call. = FALSE)
-
       start.time <- as.POSIXct(start.time, tz = input$tz)
       # Detection data
       detections <- lapply(detections, function(x){
@@ -90,9 +91,6 @@ dynBBMM <- function(input, base.raster, tags = NULL, start.time, stop.time,
       detections <- detections[remove.empty]
     }
     if (!missing(stop.time)) {
-      if (!grepl("^[1-2][0-9][0-9][0-9]-[0-1][0-9]-[0-3][0-9] [0-2][0-9]:[0-5][0-9]:[0-5][0-9]", stop.time))
-        stop("'stop.time' must be in 'yyyy-mm-dd hh:mm:ss' format.\n", call. = FALSE)
-
       stop.time <- as.POSIXct(stop.time, tz = input$tz)
       # Detection data
       detections <- lapply(detections, function(x){
