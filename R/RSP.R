@@ -398,10 +398,12 @@ calcRSP <- function(df.track, tz, distance, time.lapse, transition, er.ad, path.
         # Prepare to find points to keep
         n.points <- roundDown(AtoB.dist / distance, to = 1)
         if (n.points == 0) {
-          message("")
-          warning("One of the inter-station RSP segments within ", df.track$Track[1], 
-                  " is too short to fit extra \n   detections (Total distance: ", round(AtoB.dist, 0), 
-                  "m). Adding one single point between detections.", immediate. = TRUE, call. = FALSE)
+          if (verbose) {
+            message("")
+            warning("One of the inter-station RSP segments within ", df.track$Track[1], 
+                    " is too short to fit extra \n   detections (Total distance: ", round(AtoB.dist, 0), 
+                    "m). Adding one single point between detections.", immediate. = TRUE, call. = FALSE)
+          }
           n.points <- 1
           markers <- AtoB.dist / 2
         } else {
@@ -513,6 +515,10 @@ includeRSP <- function(detections, transition, tz, distance, time.lapse, er.ad, 
   
   path.list <- list() # Empty list to save already calculated paths
 
+  if (!verbose)
+      pb <- txtProgressBar(min = 0, max = length(detections),
+                            initial = 0, style = 3, width = 60)
+
   # Recreate RSP individually
   aux <- lapply(seq_along(detections), function(i) {
     if (verbose)
@@ -548,9 +554,9 @@ includeRSP <- function(detections, transition, tz, distance, time.lapse, er.ad, 
     tag.recipient$Transmitter <- as.factor(tag.recipient$Transmitter)
     tag.recipient$Standard.name <- as.factor(tag.recipient$Standard.name)
     tag.recipient <- tag.recipient[order(tag.recipient$Timestamp), ]
-    return(list(detections = tag.recipient, tracks = tracks))
     if (!verbose)
       setTxtProgressBar(pb, i) # Progress bar
+    return(list(detections = tag.recipient, tracks = tracks))
   })
   if (!verbose)
     close(pb)    
