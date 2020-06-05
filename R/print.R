@@ -189,6 +189,7 @@ plotDistances <- function(input, by.group = FALSE) {
     p <- p + ggplot2::scale_fill_brewer(palette = "Paired")
     p <- p + ggplot2::theme_bw()
     p <- p + ggplot2::coord_flip(ylim = c(0, max(plot.save$Dist.travel) * 1.05), expand = FALSE)
+    p <- p + ggplot2::guides(fill = ggplot2::guide_legend(reverse = TRUE))
     return(p)
   }
 }
@@ -210,9 +211,6 @@ plotDistances <- function(input, by.group = FALSE) {
 plotDensities <- function(input, group) {
   # Time.lapse.hour <- NULL
   
-  if (!missing(group) & is.na(match(group, levels(input$bio$Group))))
-    stop("'group' should match one of the groups present in the dataset.", call. = FALSE)
-
   if (missing(group)) { # YN: Not working! 
     input <- do.call(rbind.data.frame, input$detections)
     input <- subset(input, Position == "Receiver")
@@ -233,6 +231,10 @@ plotDensities <- function(input, group) {
 
     return(p)
   } else {
+    
+    if (is.na(match(group, levels(input$bio$Group))))
+      stop("'group' should match one of the groups present in the dataset.", call. = FALSE)
+
     bio.aux <- data.frame(Group = as.character(input$bio$Group), Transmitter = input$bio$Transmitter)
     bio.aux <- bio.aux[bio.aux$Group == group, ]
 

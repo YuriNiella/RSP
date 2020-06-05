@@ -1,0 +1,64 @@
+---
+title: "1. Preparing the data"
+author: "Yuri Niella & Hugo Flávio"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{1. Preparing the data}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+	echo = TRUE)
+```
+
+## Index
+
+1. [Preparing your data](a-1_Preparing_the_data.html)
+2. [Estimation of shortest in-water paths](a-2_Estimating_in-water_paths.html)
+3. [Calculating utilization distribution areas and space-use overlaps](a-3_dBBMM_overlaps.html)
+
+
+## 1. Preparing the data 
+
+### 1.1. Preliminary analysis using actel
+
+Analysing acoustic telemetry data requires initial filtering to exclude misleading data (e.g. false detections, detections prior to release). To overcome this issue and ensure reliable results, the RSP toolkit operates in close relationship with the **actel R package**, which filters and invalidates flawed detections. Before getting started with RSP, you will have to download actel and filter your acoustic data. Please click [here](https://github.com/hugomflavio/actel) for more information and to download actel.
+
+To start using RSP, you can run the simplest actel analysis with the function `explore`. You can find more about how to organize your data and run this preliminary analysis in actel's manual pages (run `?actel` after loading the library).
+
+It is important that you save the output of the actel function, so you can later on use it to calculate the RSP. e.g.:
+
+```
+library(actel)
+filtered_data <- explore(tz = "Europe/Copenhagen")
+```
+
+### 1.2. Preparing a shapefile from your study area
+
+You will also need a **shapefile** (.shp) from your study area **delimiting the land contours**. This shapefile has to be converted into a **base raster** in order to be used for the RSP analysis. You can create your base raster using the function `loadShape()`:
+
+```
+base.shape <- loadShape(shape = "Limfjord_shape.shp", size = 0.002)
+```
+
+You can check the quality of the shapefile you just loaded using the function `plotRaster()`. This function gets the **spatial** dataset from the object containing the filtered detections from actel, and assesses whether the locations of all receiver stations are **inside the water** in the raster file:
+
+```
+plotRaster(input = filtered_data, base.raster = base.shape, coord.x = "Longitude", coord.y = "Latitude", size = 1)
+```
+![We can see exactly in the example where there is one station placed in land. To fix this, you can correct the station location within the **spatial** file. Changing the **size** argument for a smaller value might also help to get all your stations inside of the water.](plotRaster.png){#id .class width=550}
+
+
+Now that your shapefile is loaded, and your stations are all inside of the water, you have to create a **transition layer** from your study area using the function `transitionLayer`: 
+```
+base.t <- transitionLayer(x = base.shape, directions = 16)
+```
+
+The transition layer is used behind the scenes to generate the shortest in-water paths of tracked animals. If in the future you decide to use a different transition layer, either because you loaded a **new shapefile** or you want to use a **different number of directions**, you can run `rmTransition()` to exclude the previously calculated transition layer. 
+
+Now that you have your **filtered detections**, your **base raster** and its corresponding **transition layer**, you are ready to get started with **RSP**!
+
+

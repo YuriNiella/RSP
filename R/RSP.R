@@ -347,18 +347,18 @@ RSPtransition <- function(raster.hab = "shapefile.grd") { # HF: We need to discu
 #' 
 #' 
 calcRSP <- function(df.track, tz, distance, time.lapse, transition, er.ad, path.list, verbose) {
-  .N <- NULL
-
+  
   aux.RSP <- as.data.frame(df.track[-(1:.N)]) # Save RSP
 
-  if (verbose)
-    pb <- txtProgressBar(min = 0, max = nrow(df.track),
-                              initial = 0, style = 3, width = 60)
-  
   station.shifts <- c(FALSE, df.track$Standard.name[-1] != df.track$Standard.name[-nrow(df.track)])
   time.shifts <- df.track$Time.lapse.min > time.lapse
   different.station.shift <- station.shifts & time.shifts
   same.station.shift <- !station.shifts & time.shifts
+
+  if (verbose) 
+    pb <- txtProgressBar(min = 0, max = nrow(df.track),
+                              initial = 0, style = 3, width = 60)
+
   # Add intermediate positions to the RSP track:
   for (i in 2:nrow(df.track)) {
     if (verbose)
@@ -512,10 +512,6 @@ includeRSP <- function(detections, transition, tz, distance, time.lapse, er.ad, 
     on.exit(save(list = ls(), file = "includeRSP_debug.RData"), add = TRUE)
   
   path.list <- list() # Empty list to save already calculated paths
-
-  if (!verbose)
-    pb <- txtProgressBar(min = 0, max = length(detections),
-                          initial = 0, style = 3, width = 60)
 
   # Recreate RSP individually
   aux <- lapply(seq_along(detections), function(i) {

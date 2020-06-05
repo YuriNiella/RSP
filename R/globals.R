@@ -1,5 +1,5 @@
 utils::globalVariables(c("Animal.tracked", "Dist.travel", "Loc.type"))
 utils::globalVariables(c("Latitude", "Longitude", "MAP", "aes", "Transmitter", "labs"))
-utils::globalVariables(c("study.data"))
+utils::globalVariables(c("study.data", "pb"))
 utils::globalVariables(c("Check", "spatial.check"))
-utils::globalVariables(c("stop", "breaks", "timeframe", "debug", "verbose", "Timestamp"))
+utils::globalVariables(c("stop", "breaks", "timeframe", "debug", "verbose", "Timestamp", "Time.lapse.hour"))
