@@ -19,4 +19,3 @@ A list of areas per track, per group
 \description{
 Calculate water areas per group or track
 }
-\keyword{export}

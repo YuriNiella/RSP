@@ -578,8 +578,6 @@ You can create a larger raster by using the argument 'buffer' in loadShape. If t
 #' 
 #' @return A list of areas per track, per group
 #' 
-#' @keywords export
-#' 
 #' @export
 #' 
 getAreas <- function(input, type = c("group", "track"), breaks = c(0.5, 0.95)) {
@@ -764,15 +762,15 @@ getAreas <- function(input, type = c("group", "track"), breaks = c(0.5, 0.95)) {
 #' Calculate overlaps between different groups
 #' 
 #' @param input The output of \code{\link{dynBBMM}}
-#' @param breaks The contours for calculating usage areas in squared metres. By default the 95\% and 50\% contours are used. 
+#' @param breaks The contour(s) for calculating usage areas in squared metres. By default the 95\% and 50\% contours are used. 
 #' 
 #' @return A list of areas per track, per group
 #' 
-#' @keywords export
+#' @export
 #' 
-getOverlaps <- function(input, breaks) {
+getOverlaps <- function(input, breaks = c(.5, .95)) {
 
-  stop("getOverlaps is currently under reconstruction!")
+  # stop("getOverlaps is currently under reconstruction!")
   
   dbbmm.rasters <- input$group.rasters
 
@@ -1014,7 +1012,14 @@ getOverlaps <- function(input, breaks) {
   # areas = overlaps$group.areas, overlap.areas = overlaps$overlap.areas, overlap.rasters = overlaps$overlap.rasters
   # areas = overlaps$group.areas, overlap.rasters = overlaps$overlap.rasters, overlap.areas = overlaps$overlap.areas,
 
-  return(list(group.areas = group.areas, overlap.areas = overlap.areas, overlap.rasters = overlap.rasters))
+  if (attributes(dbbmm.rasters)$type == "group") {
+    output <- list(type = "group", group.areas = group.areas, overlap.areas = overlap.areas, overlap.rasters = overlap.rasters)
+  }
+  if (attributes(dbbmm.rasters)$type == "timeslot") {
+    output <- list(type = "timeslot", group.areas = group.areas, overlap.areas = overlap.areas, overlap.rasters = overlap.rasters)
+  }
+  
+  return(output)
 }
 
 

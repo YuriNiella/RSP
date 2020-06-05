@@ -1,5 +1,8 @@
-utils::globalVariables(c("Animal.tracked", "Dist.travel", "Loc.type"))
-utils::globalVariables(c("Latitude", "Longitude", "MAP", "aes", "Transmitter", "labs"))
-utils::globalVariables(c("study.data", "pb"))
-utils::globalVariables(c("Check", "spatial.check"))
-utils::globalVariables(c("stop", "breaks", "timeframe", "debug", "verbose", "Timestamp", "Time.lapse.hour"))
+# dynBBMM global variables:
+utils::globalVariables(c("Timestamp"))
+# plotDensities global variables:
+utils::globalVariables(c("Time.lapse.hour"))
+# plotDistances global variables:
+utils::globalVariables(c("Animal.tracked", "Dist.travel", "Loc.type", "Animal.tracked", "Dist.travel", "Loc.type"))
+# plotRaster global variables:
+utils::globalVariables(c("Latitude", "Longitude", "MAP", "Check", "Transmitter"))

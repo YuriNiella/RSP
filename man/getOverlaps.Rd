@@ -4,12 +4,12 @@
 \alias{getOverlaps}
 \title{Calculate overlaps between different groups}
 \usage{
-getOverlaps(input, breaks)
+getOverlaps(input, breaks = c(0.5, 0.95))
 }
 \arguments{
 \item{input}{The output of \code{\link{dynBBMM}}}
 
-\item{breaks}{The contours for calculating usage areas in squared metres. By default the 95\% and 50\% contours are used.}
+\item{breaks}{The contour(s) for calculating usage areas in squared metres. By default the 95\% and 50\% contours are used.}
 }
 \value{
 A list of areas per track, per group
@@ -17,4 +17,3 @@ A list of areas per track, per group
 \description{
 Calculate overlaps between different groups
 }
-\keyword{export}
