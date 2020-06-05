@@ -69,7 +69,7 @@ dynBBMM <- function(input, base.raster, tags = NULL, start.time = NULL, stop.tim
     stop("'stop.time' argument is missing.")
   }
   if (!is.null(start.time) & !is.null(stop.time)) {
-    message(paste0("M: Discarding detection data previous to ",start.time," and after ",stop.time," per user command."))
+    message(paste0("M: Discarding detection data previous to ",start.time," and posterior to ",stop.time," per user command."))
     start.time <- as.POSIXct(start.time, tz = input$tz)
     stop.time <- as.POSIXct(stop.time, tz = input$tz)
 
