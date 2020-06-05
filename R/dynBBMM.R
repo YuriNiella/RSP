@@ -17,7 +17,7 @@
 #' 
 #' @export
 #' 
-dynBBMM <- function(input, base.raster, tags = NULL, start.time = NULL, stop.time = NULL, 
+dynBBMM <- function(input, base.raster, tags = NULL, start.time, stop.time, 
   timeframe = NULL, UTM, debug = FALSE, verbose = TRUE) {
 
   if (debug) {
@@ -62,47 +62,47 @@ dynBBMM <- function(input, base.raster, tags = NULL, start.time = NULL, stop.tim
   }
 
   # Sub-setting the data for time period of interest:
-  if (!is.null(start.time) & is.null(stop.time)) {
-    message(paste0("M: Discarding detection data previous to ",start.time," per user command."))
-    start.time <- as.POSIXct(start.time, tz = input$tz)
-    # Detection data
-    detections <- lapply(detections, function(x){
-      x <- subset(x, Timestamp >= start.time)
-      return(x)
-    })
-    remove.empty <- sapply(detections, nrow) != 0
-    detections <- detections[remove.empty]
-    bio <- bio[which(bio$Transmitter %in% names(detections)), ]
-  }
-  if (is.null(start.time) & !is.null(stop.time)) {
-    message(paste0("M: Discarding detection data posterior to ",stop.time," per user command."))
-    stop.time <- as.POSIXct(stop.time, tz = input$tz)
-    # Detection data
-    detections <- lapply(detections, function(x){
-      x <- subset(x, Timestamp <= stop.time)
-      return(x)
-    })
-    remove.empty <- sapply(detections, nrow) != 0
-    detections <- detections[remove.empty]
-    bio <- bio[which(bio$Transmitter %in% names(detections)), ]
-  }
-  if (!is.null(start.time) & !is.null(stop.time)) {
-    if (stop.time < start.time) {
-      stop("'stop.time' must be after 'start.time'.")
-    } else {
+  if (!missing(start.time) & missing(stop.time))
+    message("M: Discarding detection data previous to ",start.time," per user command.")
+
+  if (missing(start.time) & !missing(stop.time))
+    message("M: Discarding detection data posterior to ",stop.time," per user command.")
+
+  if (!missing(start.time) & !missing(stop.time)) {
+    if (stop.time < start.time)
+      stop("'stop.time' must be after 'start.time'.", call. = FALSE)
+    if (stop.time == start.time)
+      stop("'stop.time' and 'stop.time' are equal. Continuing would erase all detection data", call. = FALSE)
       message(paste0("M: Discarding detection data previous to ",start.time," and posterior to ",stop.time," per user command."))
+  }
+
+  if (!missing(start.time)) {
+     if (!grepl("^[1-2][0-9][0-9][0-9]-[0-1][0-9]-[0-3][0-9] [0-2][0-9]:[0-5][0-9]:[0-5][0-9]", start.time))
+      stop("'start.time' must be in 'yyyy-mm-dd hh:mm:ss' format.\n", call. = FALSE)
+
       start.time <- as.POSIXct(start.time, tz = input$tz)
+      # Detection data
+      detections <- lapply(detections, function(x){
+        x <- subset(x, Timestamp >= start.time)
+        return(x)
+      })
+      remove.empty <- sapply(detections, nrow) != 0
+      detections <- detections[remove.empty]
+    }
+    if (!missing(stop.time)) {
+      if (!grepl("^[1-2][0-9][0-9][0-9]-[0-1][0-9]-[0-3][0-9] [0-2][0-9]:[0-5][0-9]:[0-5][0-9]", stop.time))
+        stop("'stop.time' must be in 'yyyy-mm-dd hh:mm:ss' format.\n", call. = FALSE)
+
       stop.time <- as.POSIXct(stop.time, tz = input$tz)
       # Detection data
       detections <- lapply(detections, function(x){
-      x <- subset(x, Timestamp >= start.time & Timestamp <= stop.time)
-      return(x)
+        x <- subset(x, Timestamp <= stop.time)
+        return(x)
       })
-    remove.empty <- sapply(detections, nrow) != 0
-    detections <- detections[remove.empty]
-    bio <- bio[which(bio$Transmitter %in% names(detections)), ]
+      remove.empty <- sapply(detections, nrow) != 0
+      detections <- detections[remove.empty]
     }
-  }
+
 
   # Prepare detections
   message("M: Preparing data to apply dBBMM.")
