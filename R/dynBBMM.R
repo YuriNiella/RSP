@@ -62,26 +62,42 @@ dynBBMM <- function(input, base.raster, tags = NULL, start.time = NULL, stop.tim
   }
 
   # Sub-setting the data for time period of interest:
-  if (is.null(start.time) & !is.null(stop.time)) {
-    stop("'start.time' argument is missing.")
-  }
   if (!is.null(start.time) & is.null(stop.time)) {
-    stop("'stop.time' argument is missing.")
+    message(paste0("M: Discarding detection data previous to ",start.time," per user command."))
+    start.time <- as.POSIXct(start.time, tz = input$tz)
+    # Detection data
+    detections <- lapply(detections, function(x){
+      x <- subset(x, Timestamp >= start.time)
+      return(x)
+    })
+    remove.empty <- sapply(detections, nrow) != 0
+    detections <- detections[remove.empty]
+    bio <- bio[which(bio$Transmitter %in% names(detections)), ]
+  }
+  if (is.null(start.time) & !is.null(stop.time)) {
+    message(paste0("M: Discarding detection data posterior to ",stop.time," per user command."))
+    stop.time <- as.POSIXct(stop.time, tz = input$tz)
+    # Detection data
+    detections <- lapply(detections, function(x){
+      x <- subset(x, Timestamp <= stop.time)
+      return(x)
+    })
+    remove.empty <- sapply(detections, nrow) != 0
+    detections <- detections[remove.empty]
+    bio <- bio[which(bio$Transmitter %in% names(detections)), ]
   }
   if (!is.null(start.time) & !is.null(stop.time)) {
-    message(paste0("M: Discarding detection data previous to ",start.time," and posterior to ",stop.time," per user command."))
-    start.time <- as.POSIXct(start.time, tz = input$tz)
-    stop.time <- as.POSIXct(stop.time, tz = input$tz)
-
     if (stop.time < start.time) {
       stop("'stop.time' must be after 'start.time'.")
     } else {
-
+      message(paste0("M: Discarding detection data previous to ",start.time," and posterior to ",stop.time," per user command."))
+      start.time <- as.POSIXct(start.time, tz = input$tz)
+      stop.time <- as.POSIXct(stop.time, tz = input$tz)
       # Detection data
       detections <- lapply(detections, function(x){
       x <- subset(x, Timestamp >= start.time & Timestamp <= stop.time)
       return(x)
-    })
+      })
     remove.empty <- sapply(detections, nrow) != 0
     detections <- detections[remove.empty]
     bio <- bio[which(bio$Transmitter %in% names(detections)), ]
