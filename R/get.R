@@ -299,23 +299,6 @@ getDistances <- function(input) {
 }
 
 
-#' Get metadata from total dBBMM 
-#' 
-#' Extracts movement metadata from the total dynamic Brownian Bridge Movement Model (dBBMM) for a particular group of interest. 
-#'
-#' @param input The total dBBMM as returned by the dynBBMM function. 
-#' @param group Group of interest.
-#' 
-#' @return A data frame with metadata for the group of interest. 
-#' 
-getMeta <- function(input, group) {
-
-  aux <- which(names(input[[2]]) == group)
-  input <- input[[2]][[aux]]
-
-  return(input)
-}
-
 #' Calculate overlaps between different groups
 #' 
 #' @param input The output of \code{\link{getAreas}}

@@ -613,3 +613,27 @@ plotTracks <- function(input, base.raster, type = c("both", "points", "lines"),
  
   return(p)
 }
+
+#' Suggest plot dimentions for a given raster
+#' 
+#' @param input The raster being plotted
+#' @param max the desired size for the longest edge
+#' 
+#' @return A width/height vector (rounded)
+#' 
+#' @export
+#' 
+suggestSize <- function(input, max) {
+  ex <- raster::extent(input)
+  x <- ex[2] - ex[1]
+  y <- ex[4] - ex[3]
+  xy <- c(x, y)
+  aux <- which.max(xy)
+  if (aux == 1) {
+    ratio <- x/y
+    return(round(c("width" = max, "height" = max / ratio), 0))
+  } else {
+    ratio <- y/x
+    return(round(c("width" = max / ratio, "height" = max), 0))
+  }
+}
