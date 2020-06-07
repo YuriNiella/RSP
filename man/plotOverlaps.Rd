@@ -2,43 +2,44 @@
 % Please edit documentation in R/print.R
 \name{plotOverlaps}
 \alias{plotOverlaps}
-\title{Plot orverlapping contours}
+\title{Plot overlapping contours}
 \usage{
 plotOverlaps(
-  input,
+  overlaps,
+  areas,
   base.raster,
-  timeslot = NULL,
-  stations = FALSE,
-  level = 0.95,
-  main = NULL,
-  color.plot,
-  land.col = "#BABCBF",
-  store = FALSE
+  groups,
+  timeslot,
+  level,
+  title = NULL,
+  col,
+  land.col = "#BABCBF80"
 )
 }
 \arguments{
-\item{input}{An overlap object as returned by getOverlaps.}
+\item{overlaps}{An overlap object as returned by \code{\link{getOverlaps}}.}
 
-\item{base.raster}{Raster file from the study area defining land (1) and water (0) regions.}
+\item{areas}{The areas object used to calculate the overlaps.}
 
-\item{timeslot}{The timeslot to be plotted.}
+\item{base.raster}{The raster used in the dbbmm calculations.}
 
-\item{stations}{Should receiver stations be added to the graph. Default is TRUE.}
+\item{groups}{Character vector indicating the two groups to be displayed.}
 
-\item{level}{Numeric vector of the use area to plot. By default the .95 areas will be returned.}
+\item{timeslot}{The timeslot to be displayed. Only relevant for timeslot dbbmms.}
 
-\item{main}{Character vector of the plot title. By default, the temporal window is returned in the title.}
+\item{level}{Value of the use area to plot. Must match one the levels calculated in the overlaps.}
 
-\item{color.plot}{Character vector of colours for overlapping area.}
+\item{title}{Plot title. By default, the names of the groups being compared are displayed.}
 
-\item{land.col}{Color of the land mass.}
+\item{col}{Character vector of three colours to be used in the plot (one for each group and one for the overlap).}
 
-\item{store}{Logical: If TRUE, a list of plots is returned.}
+\item{land.col}{Colour of the land masses. Defaults to semi-transparent grey.}
 }
 \value{
-A plot of the overlapping areas between groups.
+A plot of the overlapping areas between two groups.
 }
 \description{
-Plot specific dBBMM overlaping areas when multiple groups are tracked. The contour is automatically chosen to be 95\% if the 
-default version of getOverlaps() was used. If overlaps were calculated at a different and specific contour, please provide it through the level argument.
+Plot specific dBBMM overlapping areas for a specific combination of groups and, if relevant, a specific timeslot.
+If the base raster is in a geographic coordinate system, plotOverlaps will attempt to convert the dbbmm results
+to that same geographic system, so everything falls in place.
 }

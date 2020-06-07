@@ -4,7 +4,7 @@
 \alias{checkGroupQuality}
 \title{Performs a series of quality checks on the detection data.}
 \usage{
-checkGroupQuality(input, UTM.zone, verbose = TRUE)
+checkGroupQuality(input, verbose = TRUE)
 }
 \arguments{
 \item{input}{The detections list}
