@@ -58,8 +58,8 @@ dynBBMM <- function(input, base.raster, tags = NULL, start.time, stop.time,
     message("M: Converting coordinates to UTM. Original latitude/longitude values for the detections will be stored in columns 'O.LAT' and 'O.LON'.")
     flush.console()
     detections <- lapply(detections, function(x) toUTM(x, crs = crs, UTM = UTM))
-    base.raster <- suppressWarnings(raster::projectRaster(base.raster, crs = raster::crs(paste0("+proj=utm +UTM.zone=", UTM, " +datum=WGS84 +units=m +no_defs")))) # HF: suppressed rgdal complaints about using a proj string. Output seems to be correct.
-    crs <- raster::crs(paste0("+proj=utm +UTM.zone=", UTM, " +datum=WGS84 +units=m +no_defs"))
+    base.raster <- suppressWarnings(raster::projectRaster(base.raster, crs = raster::crs(paste0("+proj=utm +zone=", UTM, " +datum=WGS84 +units=m +no_defs")))) # HF: suppressed rgdal complaints about using a proj string. Output seems to be correct.
+    crs <- raster::crs(paste0("+proj=utm +zone=", UTM, " +datum=WGS84 +units=m +no_defs"))
   } else {
     if (!missing(UTM))
       warning("'UTM' supplied but data is already in a metric coordinate system. Skipping transformation.", call. = FALSE, immediate. = TRUE)
@@ -176,7 +176,7 @@ toUTM <- function(input, UTM, crs) {
   sp::coordinates(xy) <- c("X", "Y")
   sp::proj4string(xy) <- sp::CRS(as.character(crs))
   metric.coords <- as.data.frame(sp::spTransform(xy, 
-    sp::CRS(paste0("+proj=utm +UTM.zone=", UTM, " +datum=WGS84 +units=m +no_defs"))))
+    sp::CRS(paste0("+proj=utm +zone=", UTM, " +datum=WGS84 +units=m +no_defs"))))
 
   input$Longitude <- metric.coords[, 2]
   input$Latitude <- metric.coords[, 3]
