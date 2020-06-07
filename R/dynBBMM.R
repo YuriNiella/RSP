@@ -777,53 +777,27 @@ getAreas <- function(input, type = c("group", "track"), breaks = c(0.5, 0.95)) {
 
 #' Calculate overlaps between different groups
 #' 
-#' @param input The output of \code{\link{dynBBMM}}
-#' @param breaks The contour(s) for calculating usage areas in squared metres. By default the 95\% and 50\% contours are used. 
+#' @param input The output of \code{\link{getAreas}}
 #' 
-#' @return A list of areas per track, per group
+#' @return A list of Overlaps (per timeslot if relevant), as well as the respective overlap rasters.
 #' 
 #' @export
 #' 
-getOverlaps <- function(input, breaks = c(.5, .95)) {
+getOverlaps <- function(input) {
 
-  # stop("getOverlaps is currently under reconstruction!")
-  
-  dbbmm.rasters <- input$group.rasters
+  the.rasters <- input$rasters
+  breaks <- attributes(input)$breaks
 
-  if (length(dbbmm.rasters) == 1) 
-    stop("M: Only one group found, overlap calculations cannot be performed.", call. = FALSE)
+  if (length(the.rasters) == 1) 
+    stop("Only one group found, overlap calculations cannot be performed.", call. = FALSE)
 
-  # aux <- t(overlaps$group.areas[[1]])
-  # link <- match(rownames(aux), timeslots$slot)
-  # capture <- apply(aux, 2, function(x) {
-  #   timeslots[, ncol(timeslots) + 1] <<- FALSE
-  #   timeslots[link, ncol(timeslots)] <<- as.logical(x)
-  # })
-  # colnames(timeslots)[4:ncol(timeslots)] <- colnames(aux)
-  # rm(aux, capture)
+  if (attributes(input)$area != "group")
+    stop("Overlaps can only be calculated for 'group' areas. Please re-run getAreas with type = 'group'.", call. = FALSE)
 
-  if (attributes(dbbmm.rasters)$type == "group") {
-    # prepare input rasters
-    # counter <- 1
-    raster.crop <- lapply(dbbmm.rasters, function(group) {
-      # cat(counter, "\n")
-      output <- lapply(breaks, function(limit) {
-        # cat(limit, '\n')
-        aux.raster <- group <= limit
-        if (class(group) != "RasterLayer") {
-          the.raster <- raster::calc(aux.raster, fun = max, na.rm = TRUE) # Merge all transmitters in one raster
-        } else {
-          the.raster <- aux.raster
-        }
-        return(the.raster)
-      })
-      names(output) <- breaks
-      # counter <<- counter + 1
-      return(output)
-    })
+  if (attributes(input)$type == "group") {
     # re-structure the list before continuing
     by.breaks <- lapply(breaks, function(limit) {
-      output <- lapply(raster.crop, function(group) group[[as.character(limit)]])
+      output <- lapply(the.rasters, function(group) group[[as.character(limit)]])
     })
     names(by.breaks) <- breaks
 
@@ -900,32 +874,17 @@ getOverlaps <- function(input, breaks = c(.5, .95)) {
     })
   }
 
-  if (attributes(dbbmm.rasters)$type == "timeslot") {
-    # prepare input rasters
-    raster.crop <- lapply(dbbmm.rasters, function(group) {
-      output_i <- lapply(group, function(timeslot) {
-        output <- lapply(breaks, function(limit) { 
-          aux.raster <- timeslot <= limit
-          if (class(timeslot) != "RasterLayer")
-            the.raster <- raster::calc(aux.raster, fun = max, na.rm = TRUE) # Merge all transmitters in one raster
-          else
-            the.raster <- aux.raster
-        })
-        names(output) <- breaks
-        return(output)
-      })
-    })
-
+  if (attributes(input)$type == "timeslot") {
     # re-structure the list before continuing
     by.breaks.by.group <- lapply(breaks, function(limit) {
-      lapply(raster.crop, function(group) {
+      lapply(the.rasters, function(group) {
         lapply(group, function(timeslot) timeslot[[as.character(limit)]])
       })
     })
     names(by.breaks.by.group) <- breaks
     # Validate
     # sum(raster::values(by.breaks.by.group$`0.5`$Brown_Trout1$`25`), na.rm = TRUE)
-    # sum(raster::values(raster.crop$Brown_Trout1$`25`$`0.5`), na.rm = TRUE)
+    # sum(raster::values(the.rasters$Brown_Trout1$`25`$`0.5`), na.rm = TRUE)
     # OK
 
     by.breaks.by.timeslot <- lapply(by.breaks.by.group, function(limit) {
@@ -1004,16 +963,12 @@ getOverlaps <- function(input, breaks = c(.5, .95)) {
         setTxtProgressBar(pb, counter) # Progress bar    
         return(list(overlap.areas = overlap.matrix.a, overlap.percentages = overlap.matrix.p, overlap.rasters = overlap.rasters, areas = areas))
       })
-      counter <<- counter + 1
+      counter <<- counter
       return(output)
     })
     close(pb)
 
     # simplify the output
-    group.areas <- lapply(recipient, function(limit) {
-        as.data.frame(sapply(limit, function(timeslot) timeslot$area))
-      })
-
     overlap.rasters <- lapply(recipient, function(limit) {
       lapply(limit, function(timeslot) timeslot$overlap.rasters)
     })
@@ -1025,16 +980,9 @@ getOverlaps <- function(input, breaks = c(.5, .95)) {
     })
   }
 
-  # areas = overlaps$group.areas, overlap.areas = overlaps$overlap.areas, overlap.rasters = overlaps$overlap.rasters
-  # areas = overlaps$group.areas, overlap.rasters = overlaps$overlap.rasters, overlap.areas = overlaps$overlap.areas,
-
-  if (attributes(dbbmm.rasters)$type == "group") {
-    output <- list(type = "group", group.areas = group.areas, overlap.areas = overlap.areas, overlap.rasters = overlap.rasters)
-  }
-  if (attributes(dbbmm.rasters)$type == "timeslot") {
-    output <- list(type = "timeslot", group.areas = group.areas, overlap.areas = overlap.areas, overlap.rasters = overlap.rasters)
-  }
-  
+  output <- list(areas = overlap.areas, rasters = overlap.rasters)
+  attributes(output)$type <- attributes(input)$type
+  attributes(output)$breaks <- breaks  
   return(output)
 }
 
