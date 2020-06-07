@@ -1,6 +1,6 @@
 Package: RSP
 Title: Refined Shortest Paths
-Version: 0.0.0.9000
+Version: 0.0.1
 Authors@R: c(
     person("Yuri", "Niella", role = c("aut", "cre"), email = "yuri.niella@hdr.mq.edu.au"),
     person("Hugo", "Flávio", role = c("aut"), email = "hdmfla@aqua.dtu.dk", comment = c(ORCID = "0000-0002-5174-1197"))
@@ -10,6 +10,7 @@ License: GPL-3 + file LICENSE
 Encoding: UTF-8
 LazyData: true
 RoxygenNote: 7.1.0
+Depends: R (>= 3.6)
 Imports:
     actel,
     cmocean,
@@ -34,6 +35,8 @@ Imports:
     stringr,
     utils,
     reshape2
+Suggests:
+    testthat
 VignetteBuilder: knitr
 URL: https://github.com/YuriNiella/RSP
 BugReports: https://github.com/YuriNiella/RSP/issues
