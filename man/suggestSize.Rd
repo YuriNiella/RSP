@@ -2,7 +2,7 @@
 % Please edit documentation in R/plot.R
 \name{suggestSize}
 \alias{suggestSize}
-\title{Suggest plot dimentions for a given raster}
+\title{Suggest plot dimensions for a given raster}
 \usage{
 suggestSize(input, max)
 }
@@ -15,5 +15,5 @@ suggestSize(input, max)
 A width/height vector (rounded)
 }
 \description{
-Suggest plot dimentions for a given raster
+Suggest plot dimensions for a given raster
 }

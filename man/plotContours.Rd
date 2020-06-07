@@ -2,16 +2,15 @@
 % Please edit documentation in R/plot.R
 \name{plotContours}
 \alias{plotContours}
-\title{Plot dynamic Brownian Bridge Movement Model (dBBMM) countours}
+\title{Plot dynamic Brownian Bridge Movement Model (dBBMM) contours}
 \usage{
 plotContours(
   input,
-  group,
   tag,
   track,
   timeslot,
-  stations = FALSE,
-  breaks = c(0.99, 0.95, 0.75, 0.5, 0.25),
+  breaks = c(0.95, 0.75, 0.5, 0.25),
+  col,
   title,
   land.col = "#BABCBF80"
 )
@@ -19,17 +18,15 @@ plotContours(
 \arguments{
 \item{input}{The dbbmm object as returned by \code{\link{dynBBMM}}.}
 
-\item{group}{Choose a single group of fish to plot}
-
 \item{tag}{Choose a single tag to plot}
 
 \item{track}{If a single tag was chosen, you can use 'track' to define a specific track to be plotted.}
 
 \item{timeslot}{The timeslot to be plotted. Only relevant for timeslot dbbmms.}
 
-\item{stations}{Logical: Should receiver stations be added to the graph? Defaults to TRUE.}
-
 \item{breaks}{Numeric vector of use areas to plot. By default, the 99\%, 95\%, 75\%, 50\% and 25\% areas will be returned.}
+
+\item{col}{The colours to be used. Must match the number of breaks.}
 
 \item{title}{The title of the plot.}
 
@@ -39,5 +36,5 @@ plotContours(
 dynamic Brownian Bridge Movement Model plot.
 }
 \description{
-Plot dynamic Brownian Bridge Movement Model (dBBMM) countours
+Plot dynamic Brownian Bridge Movement Model (dBBMM) contours
 }

@@ -24,18 +24,18 @@ addStations <- function(p, input, shape = 21, size = 1.5, colour = "white", fill
 #' @param input The dbbmm object as returned by \code{\link{dynBBMM}}.
 #' @inheritParams plotTracks
 #' @param timeslot The timeslot to be plotted. Only relevant for timeslot dbbmms.
-#' @param stations Logical: Should receiver stations be added to the graph? Defaults to TRUE.
 #' @param breaks Numeric vector of use areas to plot. By default, the 99\%, 95\%, 75\%, 50\% and 25\% areas will be returned.
 #' @param title The title of the plot.
 #' @param land.col Colour of the land mass. 
+#' @param col The colours to be used. Must match the number of breaks.
 #' 
 #' @return dynamic Brownian Bridge Movement Model plot.
 #' 
 #' @export
 #' 
-plotContours <- function(input, group, tag, track, timeslot, stations = FALSE,
-                       breaks = c(.99, .95, .75, .50, .25), title,
-                       land.col = "#BABCBF80") {
+plotContours <- function(input, tag, track, timeslot, breaks = c(0.95, 0.75, 0.50, 0.25), 
+  col, title, land.col = "#BABCBF80") {
+
   Latitude <- NULL
   Longitude <- NULL
   MAP <- NULL
@@ -44,21 +44,19 @@ plotContours <- function(input, group, tag, track, timeslot, stations = FALSE,
   y <- NULL
   layer <- NULL
 
-  if (is.null(title))
-    title <- track
   
   # detach some objects from the main input
   base.raster <- input$base.raster
   dbbmm <- input$dbbmm
-  if (!is.null(track))
-    track <- gsub("-", ".", track) # Replace "-" for "." so that the track can be found!
+  group.rasters <- input$group.rasters
+
+  tag <- gsub("-", ".", tag, fixed = TRUE)
 
   # input quality
-  if (length(group) != 1)
-    stop("Please select only one group.\n", call. = FALSE)
-
-  if (!is.null(timeslot))
+  if (!missing(timeslot))
     timeslot <- as.character(timeslot)
+  else
+    timeslot <- NULL
 
   if (!is.null(timeslot) && length(timeslot) != 1)
     stop("Please select only one timeslot.\n", call. = FALSE)
@@ -69,52 +67,85 @@ plotContours <- function(input, group, tag, track, timeslot, stations = FALSE,
   if (attributes(dbbmm)$type == "timeslot" & is.null(timeslot))
     stop("The dbbmm is of type 'timeslot', but no timeslot was selected.\n", call. = FALSE)
 
-  if (is.na(match(group, names(dbbmm))))
-    stop("The selected group is not present in the dbbmm.\n", call. = FALSE)
+  if (!is.numeric(breaks))
+    stop("'breaks' must be numeric.\n", call. = FALSE)
 
-  if (!is.null(timeslot) && is.na(match(timeslot, names(dbbmm[[group]]))))
-    stop("The selected group was not detected in the selected timeslot.\n", call. = FALSE)
+  if (!missing(col) && length(col) != length(breaks))
+    stop("'col' must be as long as 'breaks' (", length(col), " != ", length(breaks), ").", call. = FALSE)
 
+  if (any(breaks >= 1 | breaks <= 0))
+    stop("Please select breaks between 0 and 1 (both exclusive).\n", call. = FALSE)
+
+  # Find which group contains tag
   if (is.null(timeslot)) {
-    if (is.null(track) && length(names(dbbmm[[group]])) > 1)
-      stop(paste0("'track' was not set, but the selected dbbmm has more than one track.\nPlease choose one of the available tracks: '", 
-        paste(names(dbbmm[[group]]), collapse = "', '"), "'\n"), call. = FALSE)
+    the.group <- which(sapply(group.rasters, function(x) any(grepl(paste0("^", tag), names(x)))))
   } else {
-    if (is.null(track) && length(names(dbbmm[[group]][[timeslot]])) > 1)
-      stop(paste0("'track' was not set, but the selected dbbmm has more than one track.\nPlease choose one of the available tracks: '", 
-        paste(names(dbbmm[[group]][[timeslot]]), collapse = "', '"), "'\n"), call. = FALSE)
+    the.group <- which(sapply(group.rasters, function(x) any(grepl(paste0("^", tag), names(x[[timeslot]])))))
   }
 
-  if (!is.numeric(levels))
-    stop("'levels' must be numeric.\n", call. = FALSE)
+  if (length(the.group) == 0) {
+    if (is.null(timeslot))
+      stop("Could not find required tag in the dbbmm results.", call. = FALSE)
+    else
+      stop("Could not find the required tag in the selected timeslot", call. = FALSE)
+  }
 
-  if (any(levels >= 1 | levels <= 0))
-    stop("Please select levels between 0 and 1 (both exclusive).\n", call. = FALSE)
+  if (is.null(timeslot)) {
+    the.group.raster <- group.rasters[[the.group]]
+  } else {
+    the.group.raster <- group.rasters[[the.group]][[timeslot]]
+  }
 
-  # choose dbbmm
-  if (is.null(timeslot))
-    dbbmm.raster <- move::getVolumeUD(dbbmm[[group]])
-  else
-    dbbmm.raster <- move::getVolumeUD(dbbmm[[group]][[timeslot]])
+  # Find the track
+  if (sum(tag.link <- grepl(paste0("^", tag), names(the.group.raster))) > 1) {
+    
+    the.tracks <- as.numeric(gsub(paste0("^", tag, "_Track_"), "", names(the.group.raster)[tag.link]))
+    
+    if(missing(track)) {
+       stop("'track' was not set, but the selected tag has more than one track.\nPlease choose one of the available tracks: ", 
+          paste(the.tracks, collapse = ", "), "\n", call. = FALSE)
+    } else {
+      # convert numeric track to track name
+      digits <- nchar(names(the.group.raster)[which(tag.link)[1]]) - nchar(tag) - nchar("_Track_")
+      numeric.track <- track
+      track <- paste0("Track_", stringr::str_pad(string = track, width = digits, pad = "0"))
+    
+      # combine tag and track
+      tag_track <- paste(tag, track, sep = "_")
+    
+      # find which raster corresponds to the tag_track
+      tag_track.link <- match(tag_track, names(the.group.raster)[tag.link])
 
-  # Get specific track of interest (when multiple tracks)
-  if (!is.null(track))
-    dbbmm.raster <- dbbmm.raster[[track]]
-  else
-    dbbmm.raster <- dbbmm.raster
+      # if no matches are found, stop
+      if (is.na(tag_track.link))
+        stop("Could not find track ", numeric.track, " for tag ", gsub(".", "-", tag, fixed = TRUE), ". Please choose one of the available tracks: ", 
+          paste(the.tracks, collapse = ", "), "\n", call. = FALSE)
 
-  # Convert projection to lonlat projection for plotting:
-  dbbmm.raster <- raster::projectRaster(from = dbbmm.raster, crs = "+proj=longlat +datum=WGS84")
-  base.raster <- raster::projectRaster(from = base.raster, crs = "+proj=longlat +datum=WGS84")
-  
+      # extract relevant raster
+      tag_track.raster <- the.group.raster[[tag_track.link]]
+    } 
+  } else {
+    the.tracks <- as.numeric(gsub(paste0("^", tag, "_Track_"), "", names(the.group.raster)[tag.link]))
+    if (!missing(track))
+      warning("'track' was set but target tag only has one tag. Disregarding.", immediate. = TRUE, call. = FALSE)
+    tag_track.raster <- the.group.raster[[which(tag.link)]]
+  }
+
+  if (as.character(raster::crs(base.raster)) != as.character(raster::crs(tag_track.raster))) {
+    warning("The dbbmm output and the base raster are not in the same coordinate system. Attempting to re-project the dbbmm output.", call. = FALSE, immediate. = TRUE)
+    flush.console()
+    tag_track.raster <- raster::projectRaster(tag_track.raster, base.raster)
+    track <- gsub(paste0(tag, "_"), "", names(tag_track.raster), fixed = TRUE)
+  }
+
   # Convert map raster to points
   base.map <- raster::rasterToPoints(base.raster)
   base.map <- data.frame(base.map)
   colnames(base.map) <- c("x", "y", "MAP")
   
   # Get desired contours:
-  aux <- lapply(levels, function(i) {
-    contour <- dbbmm.raster <= i
+  aux <- lapply(breaks, function(i) {
+    contour <- tag_track.raster <= i
     output <- raster::rasterToPoints(contour)
     output <- data.frame(output)
     names(output) <- c("x", "y", "layer")
@@ -126,25 +157,21 @@ plotContours <- function(input, group, tag, track, timeslot, stations = FALSE,
   contours$Contour <- as.factor(contours$Contour)
 
   # get contour colours
-  color.plot <- cmocean::cmocean('matter')(length(levels) + 1)[-1] # Color pallete
+  if (missing(col))
+    col <- rev(cmocean::cmocean('matter')(length(breaks) + 1)[-1]) # Colour palette
   
+  if (missing(title))
+    title <- paste(gsub(".", "-", tag, fixed = TRUE), "-", sub("_", " ", track, fixed = TRUE))
+
   # Plot
   p <- ggplot2::ggplot()
-  p <- p + ggplot2::geom_tile(data = contours,
-                              ggplot2::aes(x = x, y = y, fill = Contour))
-  p <- p + ggplot2::scale_fill_manual(values = rev(color.plot))
-  p <- p + ggplot2::geom_raster(data = base.map, ggplot2::aes(x = x, y = y, fill = MAP), 
-                                show.legend = FALSE, fill = land.col) 
+  p <- p + ggplot2::geom_raster(data = contours, ggplot2::aes(x = x, y = y, fill = Contour))
+  p <- p + ggplot2::scale_fill_manual(values = col)
+  p <- p + ggplot2::geom_raster(data = base.map, ggplot2::aes(x = x, y = y), fill = land.col) 
   p <- p + ggplot2::theme_bw() 
   p <- p + ggplot2::scale_x_continuous(expand = c(0, 0))
   p <- p + ggplot2::scale_y_continuous(expand = c(0, 0))
   p <- p + ggplot2::labs(x = "Longitude", y = "Latitude", fill = "Space use", title = title)
-  
-  # Add stations
-  if (stations) {
-    p <- p + ggplot2::geom_point(data = input$spatial$stations, color = "white", fill = "black", shape = 21, size = 1.5,
-                                 ggplot2::aes(x = Longitude, y = Latitude))  
-  } 
   return(p)
 }
 
@@ -550,7 +577,7 @@ plotRaster <- function(input, base.raster, coord.x, coord.y, size, land.col = "#
 #' 
 #' @export
 #' 
-plotTracks <- function(input, base.raster, type = c("both", "points", "lines"), 
+plotTracks <- function(input, base.raster, type = c("both", "points", "lines"),
   group, tag, track, size = c(0.33, 0.3), alpha = c(0.5, 0.5), land.col = "#BABCBF80") {
   Latitude <- NULL
   Longitude <- NULL
@@ -635,7 +662,7 @@ plotTracks <- function(input, base.raster, type = c("both", "points", "lines"),
   return(p)
 }
 
-#' Suggest plot dimentions for a given raster
+#' Suggest plot dimensions for a given raster
 #' 
 #' @param input The raster being plotted
 #' @param max the desired size for the longest edge
