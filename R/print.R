@@ -67,16 +67,24 @@ plotRaster <- function(input, base.raster, coord.x, coord.y, size) {
 #' @param track If a single tag was chosen, you can use 'track' to define a specific track to be plotted.
 #' @param size The size/width of the points and lines to be plotted. if type = "both", the line size will be the
 #'  one specified and the point size will be 10\% larger than the specified.
+#' @param land.col Colour of the land masses. Defaults to semi-transparent grey.
 #' 
 #' @return A plot showing the RSP locations by tracked group.
 #' 
 #' @export
 #' 
-plotTracks <- function(input, base.raster, type = c("both", "points", "lines"), group, tag, track, size = 0.3) {
+plotTracks <- function(input, base.raster, type = c("both", "points", "lines"), 
+  group, tag, track, size = c(0.33, 0.3), alpha = c(0.5, 0.5), land.col = "#BABCBF80") {
   temp.col <- NULL
   Track <- NULL
   
   type <- match.arg(type)
+
+  if (length(alpha) == 1)
+    alpha <- rep(alpha, 2)
+
+  if (length(size == 1))
+    size <- c(size * 1.1, size)
 
   base.raster[is.na(base.raster)] <- 2
   base.raster[base.raster == 1] <- NA
@@ -123,24 +131,26 @@ plotTracks <- function(input, base.raster, type = c("both", "points", "lines"), 
   colnames(df) <- c("Longitude", "Latitude", "MAP")
   df$MAP[df$MAP == 0] <- NA
 
-  if (type == "both")
-    point.size <- size * 1.1
-  else
-    point.size <- size
+  # start plotting
+  p <- ggplot2::ggplot()
+  
+  # draw the base map
+  p <- p + ggplot2::geom_raster(data = df, ggplot2::aes(y = Latitude, x = Longitude), fill = land.col, show.legend = FALSE)
+  
+  # plot points and/or lines
+  if (type == "points" | type == "both")
+    p <- p + ggplot2::geom_point(data = detections, ggplot2::aes(x = Longitude, y = Latitude, colour = Transmitter), alpha = alpha[1], size = size[1])
+  if (type == "lines" | type == "both") {
+    if (alpha[2] < 1)
+      warning("A known bug prevents R from showing lines with alpha on the ggplot's caption.\nHowever, this only happens in the visualisation window.\nIf you save the plot using ggsave(), the caption will be displayed correctly.", call. = FALSE)
+    p <- p + ggplot2::geom_path(data = detections, ggplot2::aes(x = Longitude, y = Latitude, colour = Transmitter, group = temp.col), alpha = alpha[2], size = size[2])
+  }
 
-  p <- ggplot2::ggplot(data = df, ggplot2::aes(y = Latitude, x = Longitude))
-  p <- p + ggplot2::geom_raster(ggplot2::aes(fill = MAP), show.legend = FALSE)
-  p <- p + ggplot2::scale_fill_gradientn(colours = "#BABCBF", na.value = NA)
+  # graphic details
   p <- p + ggplot2::theme_bw()
   p <- p + ggplot2::theme(legend.position = "bottom")
   p <- p + ggplot2::scale_x_continuous(expand = c(0, 0))
   p <- p + ggplot2::scale_y_continuous(expand = c(0, 0)) 
-  if (type == "points" | type == "both")
-    p <- p + ggplot2::geom_point(data = detections, ggplot2::aes(x = Longitude, y = Latitude, colour = Transmitter), alpha = 0.5, size = point.size)
-  if (type == "lines" | type == "both")
-    p <- p + ggplot2::geom_path(data = detections, ggplot2::aes(x = Longitude, y = Latitude, colour = Transmitter, group = temp.col), alpha = 0.5, size = size)
-  p <- p + ggplot2::theme(legend.position = "bottom")
-  p <- p + ggplot2::labs(colour = "Animal tracked")
  
   return(p)
 }
@@ -148,7 +158,7 @@ plotTracks <- function(input, base.raster, type = c("both", "points", "lines"), 
 
 #' Plot total distances travelled 
 #' 
-#' Compare the outputs of total distances travelled (in kilometers) for the tracked animals, using only the 
+#' Compare the outputs of total distances travelled (in kilometres) for the tracked animals, using only the 
 #' receiver locations and adding the RSP positions. Data on the total distances travelled are stored in the 
 #' 'distances' objtect.
 #'
@@ -432,27 +442,23 @@ plotRSP <- function(input, tag, display = c("Receiver", "RSP", "Both"), type = c
     ggpubr::ggarrange(p1, p2)
 }
 
-#' Plot dynamic Brownian Bridge Movement Models (dBBMM)
+#' Plot dynamic Brownian Bridge Movement Model (dBBMM) countours
 #'
-#' Plot specific dBBMM contours. By default, the inside contour (level1) is chosen to be the 50\% 
-#' and the outer (level2) to be the 95\%. 
-#'   
-#' @param input Dynamic Brownian Bridge Movement Model object as returned by dynBBMM.
-#' @param group Group/species of transmitters.
-#' @param track Transmitter and track names to plot.
-#' @param timeslot The timeslot to be plotted.
-#' @param stations Should receiver stations be added to the graph. Default is TRUE.
-#' @param levels Numeric vector of use areas to plot. By default the 99\%, 95\%, 75\%, 50\% and 25\% areas will be returned.
-#' @param title The title of the plot
+#' @param input The dbbmm object as returned by \code{\link{dynBBMM}}.
+#' @inheritParams plotTracks
+#' @param timeslot The timeslot to be plotted. Only relevant for timeslot dbbmms.
+#' @param stations Logical: Should receiver stations be added to the graph? Defaults to TRUE.
+#' @param breaks Numeric vector of use areas to plot. By default, the 99\%, 95\%, 75\%, 50\% and 25\% areas will be returned.
+#' @param title The title of the plot.
 #' @param land.col Colour of the land mass. 
 #' 
 #' @return dynamic Brownian Bridge Movement Model plot.
 #' 
 #' @export
 #' 
-plotContours <- function(input, group, track = NULL, timeslot = NULL, stations = FALSE,
-                       levels = c(.99, .95, .75, .50, .25), title = NULL,
-                       land.col = "#BABCBF") {
+plotContours <- function(input, group, tag, track, timeslot, stations = FALSE,
+                       breaks = c(.99, .95, .75, .50, .25), title,
+                       land.col = "#BABCBF80") {
   Latitude <- NULL
   Longitude <- NULL
   MAP <- NULL
