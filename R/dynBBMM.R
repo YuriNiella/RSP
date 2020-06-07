@@ -368,7 +368,7 @@ breakByTimeframe <- function(input, timerange, timeframe) {
 #' 
 #' @keywords internal
 #' 
-checkGroupQuality <- function(input, UTM.zone, verbose = TRUE) {
+checkGroupQuality <- function(input, verbose = TRUE) {
   if (attributes(input)$type == "group") {
     output <- lapply(names(input), function(i) {
       outp <- checkDupTimestamps(input = input[[i]], group = i, verbose = verbose)
@@ -606,7 +606,7 @@ getAreas <- function(input, type = c("group", "track"), breaks = c(0.5, 0.95)) {
         output_breaks <- lapply(breaks, function(limit) {
           aux <- the.dbbmm <= limit
           output <- sum(raster::values(aux), na.rm = TRUE)
-          return(output)
+          return(list(raster = aux, area = output))
         })
         names(output_breaks) <- breaks
         return(output_breaks) 
@@ -630,7 +630,7 @@ getAreas <- function(input, type = c("group", "track"), breaks = c(0.5, 0.95)) {
         return(recipient[, c(length(breaks) + 1, 1:length(breaks))])
       }
       if (type == "group") {
-        aux <- sapply(breaks, function(i) group[[as.character(i)]])
+        aux <- sapply(breaks, function(i) group[[as.character(i)]]$area)
         names(aux) <- breaks
         return(aux)
       }
@@ -654,6 +654,13 @@ getAreas <- function(input, type = c("group", "track"), breaks = c(0.5, 0.95)) {
           names(aux) <- breaks
           return(aux)
         })
+      })
+    }
+    if (type == "group") {
+      track.rasters <- lapply(water.areas, function(group) {
+        aux <- lapply(breaks, function(i) group[[as.character(i)]]$raster)
+        names(aux) <- breaks
+        return(aux)
       })
     }
   }
@@ -686,7 +693,7 @@ getAreas <- function(input, type = c("group", "track"), breaks = c(0.5, 0.95)) {
           output_breaks <- lapply(breaks, function(limit) {
             aux <- timeslot <= limit
             output <- sum(raster::values(aux), na.rm = TRUE)
-            return(output)
+            return(list(raster = aux, area = output))
           })
           counter <<- counter + 1
           setTxtProgressBar(pb, counter) # Progress bar    
@@ -714,7 +721,7 @@ getAreas <- function(input, type = c("group", "track"), breaks = c(0.5, 0.95)) {
           rownames(recipient) <- names(timeslot)
         }
         if (type == "group") {
-          aux <- sapply(breaks, function(i) timeslot[[as.character(i)]])
+          aux <- sapply(breaks, function(i) timeslot[[as.character(i)]]$area)
           recipient <- t(as.data.frame(aux))
           rownames(recipient) <- names(group)
         }
@@ -751,12 +758,21 @@ getAreas <- function(input, type = c("group", "track"), breaks = c(0.5, 0.95)) {
         })
       })
     }
+    if (type == "group") {
+      track.rasters <- lapply(water.areas, function(group) {
+        aux <- lapply(group, function(timeslot) {
+          aux <- lapply(breaks, function(i) timeslot[[as.character(i)]]$raster)
+          names(aux) <- breaks
+          return(aux)
+        })
+      })
+    }
   }
-
-  if (type == "track")
-    return(list(track.info = tracks.list, track.rasters = track.rasters))
-  if (type == "group")
-    return(tracks.list)
+  output <- list(areas = tracks.list, rasters = track.rasters)
+  attributes(output)$type <- attributes(dbbmm.rasters)$type
+  attributes(output)$area <- type
+  attributes(output)$breaks <- breaks
+  return(output)
 }
 
 #' Calculate overlaps between different groups
