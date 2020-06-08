@@ -167,6 +167,17 @@ dynBBMM <- function(input, base.raster, tags = NULL, start.time, stop.time,
 #' @keywords internal
 #' 
 calculateDBBMM <- function(input, crs, base.raster) {
+
+  the.dbbmm.call <- function(x, rst, err) {
+    output <- move::brownian.bridge.dyn(
+      object = x,
+      raster = rst,  
+      window.size = 7, 
+      margin = 3,
+      location.error = err)
+    return(output)
+  }
+
   if (attributes(input)$type == "group") {
     # Create a move object for all animals together:
     loc <- lapply(input, function(i) {
@@ -180,10 +191,12 @@ calculateDBBMM <- function(input, crs, base.raster) {
       message("M: Calculating dBBMM: ", crayon::bold(crayon::green(names(loc)[i])))
       flush.console()
       time.spent <- system.time(suppressWarnings(suppressMessages( # HF: temporarily suppress new raster warnings. We need to revisit this once move::brownian.bridge.dyn has been updated
-        output <- tryCatch(move::brownian.bridge.dyn(object = loc[[i]],
-                                  raster = base.raster,  
-                                  window.size = 7, margin = 3,
-                                  location.error = input[[i]]$Error),
+        output <- tryCatch(
+          callr::r(func = the.dbbmm.call, 
+                   args = list(x = loc[[i]], 
+                               rst = base.raster, 
+                               err = input[[i]]$Error), 
+                   spinner = TRUE),
           error = function(e) {
             if (grepl("consider extending the raster", e))
               stop("The brownian bridge model needs a larger raster to work on. This could happen because some of the detections are too close to the raster's edge. 
@@ -224,10 +237,19 @@ You can create a larger raster by using the argument 'buffer' in loadShape. If t
       counter <- 0
       time.spent <- system.time(suppressWarnings(suppressMessages( # HF: temporarily suppress new raster warnings. We need to revisit this once move::brownian.bridge.dyn has been updated
         aux <- lapply(seq_along(loc[[g]]), function(i) {
-            output <- move::brownian.bridge.dyn(object = loc[[g]][[i]],
-                                      raster = base.raster,  
-                                      window.size = 7, margin = 3,
-                                      location.error = input[[g]][[i]]$Error)
+          output <- tryCatch(
+            callr::r(func = the.dbbmm.call, 
+                     args = list(x = loc[[g]][[i]], 
+                                 rst = base.raster, 
+                                 err = input[[g]][[i]]$Error), 
+                     spinner = TRUE),
+            error = function(e) {
+              if (grepl("consider extending the raster", e))
+                stop("The brownian bridge model needs a larger raster to work on. This could happen because some of the detections are too close to the raster's edge. 
+You can create a larger raster by using the argument 'buffer' in loadShape. If the error persists, increase the buffer size further.", call. = FALSE)
+              else
+                stop(e)
+            })
             if(length(names(output)) == 1)
               names(output) <- unique(input[[g]][[i]]$ID)
             counter <<- counter + 1
