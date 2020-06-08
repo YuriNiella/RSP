@@ -17,8 +17,11 @@ breakByTimeframe <- function(input, timerange, timeframe) {
                    by = 3600 * timeframe) # User-defined intervals (6-h default)
 
   # Fix daylight savings shifts
-  timeslots[lubridate::dst(timeslots)] <- timeslots[lubridate::dst(timeslots)] - 3600
-
+  # timeslots[lubridate::dst(timeslots)] <- timeslots[lubridate::dst(timeslots)] - 3600
+  # HF: I have disabled the line above as it was causing issues. I believe R should be able
+  #     to handle the timezones correctly on its own. We need to keep an eye on this until
+  #     we do a test on a longer dataset, that spans over Summer and Winter time.
+  
   output <- lapply(input, function(x) {
     x$Slot <- NA_integer_
     recipient <- lapply(1:(length(timeslots) - 1), function(i) {
