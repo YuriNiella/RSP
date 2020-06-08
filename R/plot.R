@@ -191,27 +191,31 @@ plotContours <- function(input, tag, track, timeslot, breaks = c(0.95, 0.75, 0.5
 plotDensities <- function(input, group) {
   Time.lapse.hour <- NULL
   
-  if (missing(group)) { # YN: Not working! 
+  if (missing(group)) {
     input <- do.call(rbind.data.frame, input$detections)
     input <- subset(input, Position == "Receiver")
     input$Track.name <- paste(input$Transmitter, input$Track, sep = "_")
     input$Time.lapse.hour <- NA
+
     for (i in 2:nrow(input)) {
-      if (input$Track.name[i] == input$Track.name[i - 1]) {
-       input$Time.lapse.hour[i] <- as.numeric(difftime(input$Timestamp[i], input$Timestamp[i - 1], units = "hours"))
-      }
+      if (input$Track.name[i] == input$Track.name[i - 1])
+        input$Time.lapse.hour[i] <- as.numeric(difftime(input$Timestamp[i], input$Timestamp[i - 1], units = "hours"))
     }
-    p <- ggplot2::ggplot() + ggplot2::theme_classic()
-    p <- p + ggplot2::geom_density(data = input, ggplot2::aes(x = Time.lapse.hour), color = NA, fill = cmocean::cmocean('matter')(3)[2], na.rm = TRUE)
-    p <- p + ggplot2::labs(x = "Time (hours)", y = "Frequency", 
-      title = paste0("Total: mean = ", format(round(mean(input$Time.lapse.hour, na.rm = TRUE), 2), nsmall = 2), 
-      " | max = ", format(round(max(input$Time.lapse.hour, na.rm = TRUE), 2), nsmall = 2)))
+
+    plot.title <- paste0("Total: mean = ", 
+      format(round(mean(input$Time.lapse.hour, na.rm = TRUE), 2), nsmall = 2), 
+      " | max = ", 
+      format(round(max(input$Time.lapse.hour, na.rm = TRUE), 2), nsmall = 2))
+
+    p <- ggplot2::ggplot() 
+    p <- p + ggplot2::theme_classic()
+    p <- p + ggplot2::geom_density(data = input, ggplot2::aes(x = Time.lapse.hour), color = NA, 
+      fill = cmocean::cmocean('matter')(3)[2], na.rm = TRUE)
+    p <- p + ggplot2::labs(x = "Time (hours)", y = "Frequency", title = plot.title)
     p <- p + ggplot2::geom_vline(ggplot2::aes(xintercept = mean(input$Time.lapse.hour, na.rm = TRUE)), 
       color = cmocean::cmocean('matter')(3)[3], linetype="dashed", size=1)
 
-    return(p)
   } else {
-    
     if (is.na(match(group, levels(input$bio$Group))))
       stop("'group' should match one of the groups present in the dataset.", call. = FALSE)
 
@@ -225,21 +229,27 @@ plotDensities <- function(input, group) {
     input <- subset(input, Position == "Receiver")
     input$Track.name <- paste(input$Transmitter, input$Track, sep = "_")
     input$Time.lapse.hour <- NA
+
     for (i in 2:nrow(input)) {
-      if (input$Track.name[i] == input$Track.name[i - 1]) {
-       input$Time.lapse.hour[i] <- as.numeric(difftime(input$Timestamp[i], input$Timestamp[i - 1], units = "hours"))
-      }
+      if (input$Track.name[i] == input$Track.name[i - 1])
+        input$Time.lapse.hour[i] <- as.numeric(difftime(input$Timestamp[i], input$Timestamp[i - 1], units = "hours"))
     }
-    p <- ggplot2::ggplot() + ggplot2::theme_classic()
-    p <- p + ggplot2::geom_density(data = input, ggplot2::aes(x = Time.lapse.hour), color = NA, fill = cmocean::cmocean('matter')(3)[2], na.rm = TRUE)
-    p <- p + ggplot2::labs(x = "Time (hours)", y = "Frequency", 
-      title = paste0(group, ": mean = ", format(round(mean(input$Time.lapse.hour, na.rm = TRUE), 2), nsmall = 2), 
-      " | max = ", format(round(max(input$Time.lapse.hour, na.rm = TRUE), 2), nsmall = 2)))
+
+    plot.title <- paste0(group, ": mean = ", 
+      format(round(mean(input$Time.lapse.hour, na.rm = TRUE), 2), nsmall = 2), 
+      " | max = ", 
+      format(round(max(input$Time.lapse.hour, na.rm = TRUE), 2), nsmall = 2))
+
+    p <- ggplot2::ggplot()
+    p <- p + ggplot2::theme_classic()
+    p <- p + ggplot2::geom_density(data = input, ggplot2::aes(x = Time.lapse.hour), color = NA, 
+      fill = cmocean::cmocean('matter')(3)[2], na.rm = TRUE)
+    p <- p + ggplot2::labs(x = "Time (hours)", y = "Frequency", title = plot.title)
     p <- p + ggplot2::geom_vline(ggplot2::aes(xintercept = mean(input$Time.lapse.hour, na.rm = TRUE)), 
       color = cmocean::cmocean('matter')(3)[3], linetype="dashed", size=1)
-
-    return(p)
   }
+
+  return(p)
 }
 
 #' Plot total distances travelled 
@@ -504,11 +514,13 @@ plotOverlaps <- function(overlaps, areas, base.raster, groups, timeslot,
 #' or any of your receiver location was found to be in land. This function allows you to visually identify the station(s) 
 #' with problem. Please either extend your raster to include all stations or fix receiver locations to be in-water.
 #'
-#' @param input The output of one of actel's main functions (explore, migration or residency)
-#' @param base.raster Raster file from the study area defining land (1) and water (0) regions. 
+#' @param input The output of one of \code{\link[actel]{actel}}'s main functions (\code{\link[actel]{explore}}, 
+#'  \code{\link[actel]{migration}} or \code{\link[actel]{residency}})
+#' @param base.raster Raster object. Imported for example using \code{\link[actel]{loadShape}}.
 #' @inheritParams runRSP
 #' @param size The size of the station dots
 #' @inheritParams plotContours
+#' @param land.col Colour of the land masses. Defaults to semi-transparent grey.
 #' 
 #' @return A plot of your base raster extent and the receiver locations.
 #' 
@@ -518,7 +530,6 @@ plotRaster <- function(input, base.raster, coord.x, coord.y, size, land.col = "#
   Latitude <- NULL
   Longitude <- NULL
   Check <- NULL
-
 
   # paint land rather than water
   base.raster[is.na(base.raster)] <- 2
