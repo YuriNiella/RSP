@@ -319,6 +319,16 @@ getOverlaps <- function(input) {
     stop("Overlaps can only be calculated for 'group' areas. Please re-run getAreas with type = 'group'.", call. = FALSE)
 
   if (attributes(input)$type == "group") {
+    # flatten rasters if needed (i.e. merge all tracks in one raster)
+    the.rasters <- lapply(the.rasters, function(group) {
+      lapply(group, function(limit) {
+        if (class(limit) != "RasterLayer")
+          return(raster::calc(limit, fun = max, na.rm = TRUE))
+        else
+          return(limit)
+      })
+    })
+
     # re-structure the list before continuing
     by.breaks <- lapply(breaks, function(limit) {
       output <- lapply(the.rasters, function(group) group[[as.character(limit)]])
@@ -396,6 +406,19 @@ getOverlaps <- function(input) {
   }
 
   if (attributes(input)$type == "timeslot") {
+
+    # flatten rasters if needed (i.e. merge all tracks in one raster)
+    the.rasters <- lapply(the.rasters, function(group) {
+      lapply(group, function(timeslot) {
+        lapply(timeslot, function(limit) {
+          if (class(limit) != "RasterLayer")
+            return(raster::calc(limit, fun = max, na.rm = TRUE))
+          else
+            return(limit)
+        })
+      })
+    })
+
     # re-structure the list before continuing
     by.breaks.by.group <- lapply(breaks, function(limit) {
       lapply(the.rasters, function(group) {
