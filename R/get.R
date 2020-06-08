@@ -21,7 +21,7 @@ getAreas <- function(input, type = c("group", "track"), breaks = c(0.5, 0.95)) {
           # Calculate contour areas
           output_breaks <- lapply(breaks, function(limit) {
             aux <- the.dbbmm[[i]] <= limit
-            output <- sum(raster::values(aux), na.rm = TRUE)
+            output <- sum(raster::values(aux), na.rm = TRUE) * raster::xres(aux) * raster::yres(aux)
             return(list(raster = aux, area = output))
           })
           names(output_breaks) <- breaks
@@ -33,7 +33,7 @@ getAreas <- function(input, type = c("group", "track"), breaks = c(0.5, 0.95)) {
       if (type == "group") {
         output_breaks <- lapply(breaks, function(limit) {
           aux <- the.dbbmm <= limit
-          output <- sum(raster::values(aux), na.rm = TRUE)
+          output <- sum(raster::values(aux), na.rm = TRUE) * raster::xres(aux) * raster::yres(aux)
           return(list(raster = aux, area = output))
         })
         names(output_breaks) <- breaks
@@ -105,7 +105,7 @@ getAreas <- function(input, type = c("group", "track"), breaks = c(0.5, 0.95)) {
             # Calculate contour areas
             output_breaks <- lapply(breaks, function(limit) {
               aux <- timeslot[[i]] <= limit
-              output <- sum(raster::values(aux), na.rm = TRUE)
+              output <- sum(raster::values(aux), na.rm = TRUE) * raster::xres(aux) * raster::yres(aux)
               return(list(raster = aux, area = output))
             })
             counter <<- counter + 1
@@ -120,7 +120,7 @@ getAreas <- function(input, type = c("group", "track"), breaks = c(0.5, 0.95)) {
         if (type == "group") {
           output_breaks <- lapply(breaks, function(limit) {
             aux <- timeslot <= limit
-            output <- sum(raster::values(aux), na.rm = TRUE)
+            output <- sum(raster::values(aux), na.rm = TRUE) * raster::xres(aux) * raster::yres(aux)
             return(list(raster = aux, area = output))
           })
           counter <<- counter + 1
@@ -331,7 +331,7 @@ getOverlaps <- function(input) {
     counter <- 0
     recipient <- lapply(by.breaks, function(limit) {
       # calculate areas only once
-      areas <- sapply(limit, function(x) sum(raster::values(x), na.rm = TRUE))
+      areas <- sapply(limit, function(x) sum(raster::values(x), na.rm = TRUE) * raster::xres(x) * raster::yres(x))
       names(areas) <- names(limit)
       # prepare recipients for the overlap data
       overlap.rasters <- list()
@@ -355,12 +355,9 @@ getOverlaps <- function(input) {
             }
             # match both and calculate overlap
             raster::extent(smaller) <- raster::extent(bigger)
-            aux <- raster::overlay(x = bigger, y = smaller, fun = min)
-            over.area <- sum(raster::values(aux), na.rm = TRUE)
+            over.raster <- raster::overlay(x = bigger, y = smaller, fun = min)
+            over.area <- sum(raster::values(over.raster), na.rm = TRUE) * raster::xres(over.raster) * raster::yres(over.raster)
             over.percentage <- over.area / min(area.a, area.b)
-            # prepare raster to save as well
-            aux[which(raster::values(aux) > 0)] <- 1 # Overlapping raster as a solid contour
-            over.raster <- aux
           } else {
             over.area <- NA
             over.percentage <- NA
@@ -435,7 +432,7 @@ getOverlaps <- function(input) {
           if (is.null(x)) 
             return(0)
           else
-            return(sum(raster::values(x), na.rm = TRUE))
+            return(sum(raster::values(x), na.rm = TRUE) * raster::xres(x) * raster::yres(x))
         })
         # prepare recipients for the overlap data
         overlap.rasters <- list()
@@ -459,12 +456,9 @@ getOverlaps <- function(input) {
               }
               # match both and calculate overlap
               raster::extent(smaller) <- raster::extent(bigger)
-              aux <- raster::overlay(x = bigger, y = smaller, fun = min)
-              over.area <- sum(raster::values(aux), na.rm = TRUE)
+              over.raster <- raster::overlay(x = bigger, y = smaller, fun = min)
+              over.area <- sum(raster::values(over.raster), na.rm = TRUE) * raster::xres(over.raster) * raster::yres(over.raster)
               over.percentage <- over.area / min(area.a, area.b)
-              # prepare raster to save as well
-              aux[which(raster::values(aux) > 0)] <- 1 # Overlapping raster as a solid contour
-              over.raster <- aux
             } else {
               over.area <- NA
               over.percentage <- NA
