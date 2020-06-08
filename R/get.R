@@ -95,7 +95,12 @@ getAreas <- function(input, type = c("group", "track"), breaks = c(0.5, 0.95)) {
 
   if (attributes(dbbmm.rasters)$type == "timeslot") {
     # Clip dBBMM contours by land limits
-    pb <-  txtProgressBar(min = 0, max = sum(unlist(lapply(dbbmm.rasters, function(x) lapply(x, function(xi) length(names(xi)))))),  
+    if (type == "track")
+      pb.end <- sum(unlist(lapply(dbbmm.rasters, function(x) lapply(x, function(xi) length(names(xi))))))
+    if (type == "group")
+      pb.end <- sum(unlist(lapply(dbbmm.rasters, function(x) length(names(x)))))
+
+    pb <-  txtProgressBar(min = 0, max = pb.end,  
                           initial = 0, style = 3, width = 60)
     counter <- 0 
     water.areas <- lapply(dbbmm.rasters, function(group) {
@@ -137,25 +142,27 @@ getAreas <- function(input, type = c("group", "track"), breaks = c(0.5, 0.95)) {
     close(pb)
     
     # simplify the output  
-    tracks.list <- lapply(water.areas, function(group) {
-      aux <- lapply(group, function(timeslot) {
+    tracks.list <- lapply(water.areas, function(group) { # for each group,
+      aux <- lapply(names(group), function(ts) { # for each timeslot,
+        timeslot <- group[[ts]]
         if (type == "track") {
-          aux <- lapply(timeslot, function(track) {
-            aux <- sapply(breaks, function(i) track[[as.character(i)]]$area)
-            names(aux) <- breaks
+          aux <- lapply(timeslot, function(track) { # for each track,
+            aux <- sapply(breaks, function(i) track[[as.character(i)]]$area) # for each break, collect the area
+            names(aux) <- breaks # name columns with the break names
             return(aux)
           })
-          recipient <- do.call(rbind.data.frame, lapply(aux, unlist))
-          rownames(recipient) <- names(timeslot)
+          recipient <- do.call(rbind.data.frame, lapply(aux, unlist)) # combine rows into dataframe
+          rownames(recipient) <- names(timeslot) # each row is a timeslot? hm...
         }
         if (type == "group") {
           aux <- sapply(breaks, function(i) timeslot[[as.character(i)]]$area)
           recipient <- t(as.data.frame(aux))
-          rownames(recipient) <- names(group)
+          rownames(recipient) <- ts
         }
         colnames(recipient) <- paste0("area", gsub("^0", "", breaks))      
         return(as.data.frame(recipient))
       })
+      names(aux) <- names(group)
       aux <- lapply(seq_along(aux), function(i) {
         if (type == "track") {
           aux[[i]]$ID <- rownames(aux[[i]])
