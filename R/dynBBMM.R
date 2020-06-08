@@ -124,7 +124,7 @@ dynBBMM <- function(input, base.raster, tags = NULL, start.time, stop.time,
     message("M: In total, ", before - after, " detections were excluded as they failed the track quality checks.")
   rm(before, after)
 
-  valid.tracks <- updateTrackValidity(input = input, group.list = group.list)
+  valid.tracks <- compileTrackInfo(group.list = group.list)
 
   # Calculate dBBMM
   mod_dbbmm <- calculateDBBMM(input = group.list, crs = crs, base.raster = base.raster)

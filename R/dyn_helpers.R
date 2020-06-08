@@ -97,6 +97,85 @@ combine <- function(input) {
   return(output)
 }
 
+
+#' compiles summary information for the tracks used in the dbbmm
+#' 
+#' @param group.list the lists of valid detections
+#' 
+#' @return a list of valid track summaries
+#' 
+#' @keywords internal
+#' 
+compileTrackInfo <- function(group.list) {  
+  if (attributes(group.list)$type == "group") {
+    recipient0 <- lapply(group.list, function(group) { # split by group
+      by.tag <- split(group, as.character(group$Transmitter))
+      recipient <- lapply(by.tag, function(tag) { # split by tag
+        aux <- split(tag, as.character(tag$Track))
+        track.aux <- lapply(aux, function(x) { # split by track
+          data.frame(Group = NA_character_,
+            Tag = x$Transmitter[1],
+            Track = x$Track[1], # compile track info
+            valid.n = nrow(x),
+            First.time = x$Timestamp[1],
+            Last.time = x$Timestamp[nrow(x)],
+            Timespan = difftime(x$Timestamp[nrow(x)], x$Timestamp[1], units = "hours")
+            )
+        })
+        tracks <- data.table::rbindlist(track.aux)
+        return(tracks)
+      }) # return by tag
+      return(recipient)
+    }) # return by group
+  }
+
+  if (attributes(group.list)$type == "timeslot") {
+    recipient0 <- lapply(group.list, function(group) { # break by group
+      recipient1 <- lapply(group, function(timeslot) { # break by timeslot
+        by.tag <- split(timeslot, as.character(timeslot$Transmitter))
+        recipient2 <- lapply(by.tag, function(tag) { # break by tag
+          aux <- split(tag, as.character(tag$Track))
+          track.aux <- lapply(aux, function(x) {  # break by track
+            data.frame(Group = NA_character_,
+              Tag = x$Transmitter[1],
+              Track = x$Track[1], # collect info
+              Slot = x$Slot[1],
+              valid.n = nrow(x),
+              First.time = x$Timestamp[1],
+              Last.time = x$Timestamp[nrow(x)],
+              Timespan = difftime(x$Timestamp[nrow(x)], x$Timestamp[1], units = "hours")
+              )
+          })
+          tracks <- data.table::rbindlist(track.aux) # bind tracks
+          return(tracks)
+        }) # return by tag
+        return(recipient2)
+      }) # return by timeslot
+      # simplify
+      aux <- unlist(recipient1, recursive = FALSE)
+      unique.tags <- sort(unique(gsub("^[^\\.]*\\.", "", names(aux))))
+      output <- lapply(unique.tags, function(i) { # merge info from the same tag
+        link <- grepl(paste0(i, "$"), names(aux))
+        data.table::rbindlist(aux[which(link)])
+      })
+      names(output) <- unique.tags
+      return(output)
+    }) # return by group
+  }
+
+  # add group info
+  aux <- lapply(names(recipient0), function(group) {
+    lapply(recipient0[[group]], function(tag) {
+      tag$Group <- group
+      return(tag)
+    })
+  })
+
+  # simplify
+  output <- data.table::rbindlist(unlist(aux, recursive = FALSE))
+  return(output)
+}
+
 #' Prepare detections for the dBBMM
 #' 
 #' Joins the detections by group.
