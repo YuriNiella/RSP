@@ -7,7 +7,7 @@
 plotContours(
   input,
   tag,
-  track,
+  track = NULL,
   timeslot,
   breaks = c(0.95, 0.75, 0.5, 0.25),
   col,

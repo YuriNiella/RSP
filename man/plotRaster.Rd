@@ -7,9 +7,10 @@
 plotRaster(input, base.raster, coord.x, coord.y, size, land.col = "#BABCBF80")
 }
 \arguments{
-\item{input}{The output of one of actel's main functions (explore, migration or residency)}
+\item{input}{The output of one of \code{\link[actel]{actel}}'s main functions (\code{\link[actel]{explore}}, 
+\code{\link[actel]{migration}} or \code{\link[actel]{residency}})}
 
-\item{base.raster}{Raster file from the study area defining land (1) and water (0) regions.}
+\item{base.raster}{Raster object. Imported for example using \code{\link[actel]{loadShape}}.}
 
 \item{coord.x}{The names of the columns containing the x and y positions of the stations 
 in the spatial object.}
@@ -19,7 +20,7 @@ in the spatial object.}
 
 \item{size}{The size of the station dots}
 
-\item{land.col}{Colour of the land mass.}
+\item{land.col}{Colour of the land masses. Defaults to semi-transparent grey.}
 }
 \value{
 A plot of your base raster extent and the receiver locations.

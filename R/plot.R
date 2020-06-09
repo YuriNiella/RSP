@@ -19,6 +19,129 @@ addStations <- function(p, input, shape = 21, size = 1.5, colour = "white", fill
   return(p)
 }
 
+#' Plot areas
+#'
+#' Plot areas for a specific group and, if relevant, track and timeslot.
+#' If the base raster is in a geographic coordinate system, plotAreas will attempt to convert the dbbmm results
+#' to that same geographic system, so everything falls in place.
+#'   
+#' @param areas The areas object used to calculate the overlaps.
+#' @param base.raster The raster used in the dbbmm calculations.
+#' @param group Character vector indicating the group to be displayed.
+#' @param timeslot The timeslot to be displayed. Only relevant for timeslot dbbmms.
+#' @param title Plot title. By default, the names of the groups being compared are displayed.
+#' @param col Character vector of three colours to be used in the plot (one for each group and one for the overlap).
+#' @param land.col Colour of the land masses. Defaults to semi-transparent grey.
+#' 
+#' @return A plot of the overlapping areas between two groups.
+#' 
+#' @export
+#' 
+plotAreas <- function(areas, base.raster, group, timeslot, 
+                      title = NULL, col, land.col = "#BABCBF80") {
+  Latitude <- NULL
+  Longitude <- NULL
+  MAP <- NULL
+  x <- NULL
+  y <- NULL
+  layer <- NULL
+  Contour <- NULL
+
+  if (attributes(areas)$area != "group")
+    stop("plotAreas currently only works for 'group' areas. Please re-run getAreas with type = 'group'.", call. = FALSE)
+
+  if (!missing(timeslot) && length(timeslot) != 1)
+    stop("Please select only one timeslot.\n", call. = FALSE)
+
+  if (is.na(match(group, names(areas$rasters))))
+    stop("Could not find the specified group in the input data", call. = FALSE)
+
+  group.rasters <- areas$rasters[[group]]
+  
+  if (!missing(timeslot) && attributes(areas)$type != "timeslot")
+    stop("'timeslot' was set but the input data stems from a dbbmm with no timeslots.", call. = FALSE)
+
+  if (missing(timeslot) && attributes(areas)$type == "timeslot")
+    stop("The data have timeslots but 'timeslot' was not set.", call. = FALSE)
+
+  if (!missing(timeslot) && is.na(match(timeslot, names(group.rasters))))
+    stop("Could not find the required timeslot in the specified group.", call. = FALSE)
+
+  if (missing(timeslot)) {
+    the.rasters <- group.rasters
+    ol.crs <- as.character(raster::crs(areas$rasters[[1]][[1]]))
+  } else {
+    the.rasters <- group.rasters[[as.character(timeslot)]]
+    ol.crs <- as.character(raster::crs(areas$rasters[[1]][[1]][[1]]))
+  }
+
+  breaks <- names(the.rasters)
+
+  if (missing(col))
+    col <- cmocean::cmocean('matter')(length(breaks) + 1)[- 1]
+
+  if (as.character(raster::crs(base.raster)) != ol.crs) {
+    warning("The dbbmm output and the base raster are not in the same coordinate system. Attempting to re-project the dbbmm output.", call. = FALSE, immediate. = TRUE)
+    flush.console()
+    reproject <- TRUE
+  } else {
+    reproject <- FALSE
+  }
+  rm(ol.crs)
+
+  # Convert water raster to land raster
+  base.raster[is.na(base.raster)] <- 2
+  base.raster[base.raster == 1] <- NA
+  base.raster[base.raster == 2] <- 1
+
+  # Convert map raster to points
+  base.map <- raster::rasterToPoints(base.raster)
+  base.map <- data.frame(base.map)
+  colnames(base.map) <- c("x", "y", "MAP")
+
+  # Get group contours:
+  contours <- lapply(rev(sort(breaks)), function(i) {
+    the.contour <- the.rasters[[i]]
+    if (reproject)
+      the.contour <- suppressWarnings(raster::projectRaster(the.contour, base.raster))
+    # raster::extent(the.contour) <- raster::extent(base.raster)
+    output <- raster::rasterToPoints(the.contour)
+    output <- data.frame(output)
+    names(output) <- c("x", "y", "layer")
+    output <- subset(output, layer > 0)
+    output$Contour <- paste0((as.numeric(i) * 100), "%")
+    return(output)
+  })
+  names(contours) <- breaks
+
+  # start plotting
+  p <- ggplot2::ggplot()
+
+  # plot individual contours
+  for (i in breaks) {
+    if (!is.null(contours[[i]]))
+      p <- p + ggplot2::geom_raster(data = contours[[i]], ggplot2::aes(x = x, y = y, fill = Contour))
+  }
+  # overlay the map
+  p <- p + ggplot2::geom_raster(data = base.map, ggplot2::aes(x = x, y = y), fill = land.col) 
+
+  # graphic details
+  p <- p + ggplot2::scale_fill_manual(values = col)
+  p <- p + ggplot2::theme_bw() 
+  p <- p + ggplot2::scale_x_continuous(expand = c(0, 0))
+  p <- p + ggplot2::scale_y_continuous(expand = c(0, 0))
+  p <- p + ggplot2::labs(x = "Longitude", y = "Latitude", fill = "Space use")
+  
+  # Add title
+  if (missing(title))
+    p <- p + ggplot2::labs(title = paste(group, "-", "Slot", timeslot))
+  else
+    p <- p + ggplot2::labs(title = title)
+
+  return(p)
+}
+
+
 #' Plot dynamic Brownian Bridge Movement Model (dBBMM) contours
 #'
 #' @param input The dbbmm object as returned by \code{\link{dynBBMM}}.
@@ -33,7 +156,7 @@ addStations <- function(p, input, shape = 21, size = 1.5, colour = "white", fill
 #' 
 #' @export
 #' 
-plotContours <- function(input, tag, track, timeslot, breaks = c(0.95, 0.75, 0.50, 0.25), 
+plotContours <- function(input, tag, track = NULL, timeslot, breaks = c(0.95, 0.75, 0.50, 0.25), 
   col, title, land.col = "#BABCBF80") {
 
   Latitude <- NULL
@@ -126,16 +249,17 @@ plotContours <- function(input, tag, track, timeslot, breaks = c(0.95, 0.75, 0.5
     } 
   } else {
     the.tracks <- as.numeric(gsub(paste0("^", tag, "_Track_"), "", names(the.group.raster)[tag.link]))
-    if (!missing(track))
+    if (!is.null(track)) {
       warning("'track' was set but target tag only has one tag. Disregarding.", immediate. = TRUE, call. = FALSE)
+      track <- NULL
+    }
     tag_track.raster <- the.group.raster[[which(tag.link)]]
   }
 
   if (as.character(raster::crs(base.raster)) != as.character(raster::crs(tag_track.raster))) {
     warning("The dbbmm output and the base raster are not in the same coordinate system. Attempting to re-project the dbbmm output.", call. = FALSE, immediate. = TRUE)
     flush.console()
-    tag_track.raster <- raster::projectRaster(tag_track.raster, base.raster)
-    track <- gsub(paste0(tag, "_"), "", names(tag_track.raster), fixed = TRUE)
+    tag_track.raster <- suppressWarnings(raster::projectRaster(tag_track.raster, base.raster))
   }
 
   # Convert map raster to points
@@ -160,8 +284,19 @@ plotContours <- function(input, tag, track, timeslot, breaks = c(0.95, 0.75, 0.5
   if (missing(col))
     col <- rev(cmocean::cmocean('matter')(length(breaks) + 1)[-1]) # Colour palette
   
-  if (missing(title))
-    title <- paste(gsub(".", "-", tag, fixed = TRUE), "-", sub("_", " ", track, fixed = TRUE))
+  if (missing(title)) {
+    if (is.null(timeslot)) {
+      if (is.null(track))
+        title <- gsub(".", "-", tag, fixed = TRUE)
+      else
+        title <- paste(gsub(".", "-", tag, fixed = TRUE), "-", sub("_", " ", track, fixed = TRUE))
+    } else {
+      if (is.null(track))
+        title <- paste(gsub(".", "-", tag, fixed = TRUE), "-", "Slot", timeslot)
+      else
+        title <- paste(gsub(".", "-", tag, fixed = TRUE), "-", "Slot", timeslot, "-", sub("_", " ", track, fixed = TRUE))
+    }
+  }
 
   # Plot
   p <- ggplot2::ggplot()

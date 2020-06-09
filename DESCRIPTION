@@ -34,7 +34,8 @@ Imports:
     stats,
     stringr,
     utils,
-    reshape2
+    reshape2,
+    callr
 Suggests:
     testthat
 VignetteBuilder: knitr

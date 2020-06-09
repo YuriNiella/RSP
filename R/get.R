@@ -13,6 +13,9 @@ getAreas <- function(input, type = c("group", "track"), breaks = c(0.5, 0.95)) {
   type <- match.arg(type)
   dbbmm.rasters <- input$group.rasters
 
+  if (any(breaks >= 1) | any(breaks <= 0))
+    stop("breaks must be between 0 and 1 (both exclusive).", call. = FALSE)
+  
   if (attributes(dbbmm.rasters)$type == "group") {
     # Clip dBBMM contours by land limits
     water.areas <- lapply(dbbmm.rasters, function(the.dbbmm) {
@@ -86,7 +89,13 @@ getAreas <- function(input, type = c("group", "track"), breaks = c(0.5, 0.95)) {
     }
     if (type == "group") {
       track.rasters <- lapply(water.areas, function(group) {
-        aux <- lapply(breaks, function(i) group[[as.character(i)]]$raster)
+        aux <- lapply(breaks, function(i) {
+          output <- group[[as.character(i)]]$raster # extract relevant raster
+          if (class(output) != "RasterLayer") # flatten it if needed
+            return(raster::calc(output, fun = max, na.rm = TRUE))
+          else
+            return(output)         
+        })
         names(aux) <- breaks
         return(aux)
       })
@@ -184,7 +193,7 @@ getAreas <- function(input, type = c("group", "track"), breaks = c(0.5, 0.95)) {
     # grab the rasters only in a separate object
     if (type == "track") {
       track.rasters <- lapply(water.areas, function(group) {
-        aux <- lapply(group, function(timeslot) {
+        lapply(group, function(timeslot) {
           lapply(timeslot, function(track) {
             aux <- lapply(breaks, function(i) track[[as.character(i)]]$raster)
             names(aux) <- breaks
@@ -195,8 +204,14 @@ getAreas <- function(input, type = c("group", "track"), breaks = c(0.5, 0.95)) {
     }
     if (type == "group") {
       track.rasters <- lapply(water.areas, function(group) {
-        aux <- lapply(group, function(timeslot) {
-          aux <- lapply(breaks, function(i) timeslot[[as.character(i)]]$raster)
+        lapply(group, function(timeslot) {
+          aux <- lapply(breaks, function(i) {
+            output <- timeslot[[as.character(i)]]$raster # extract relevant raster
+            if (class(output) != "RasterLayer") # flatten it if needed
+              return(raster::calc(output, fun = max, na.rm = TRUE))
+            else
+              return(output)         
+          })
           names(aux) <- breaks
           return(aux)
         })
@@ -327,6 +342,10 @@ getOverlaps <- function(input) {
 
   if (attributes(input)$type == "group") {
     # flatten rasters if needed (i.e. merge all tracks in one raster)
+    # - 
+    # HF: This part should now be obsulete since getAreas flattens the 
+    # rasters before wrapping up. Keeping it in for now anyway, as it 
+    # should be harmless.    
     the.rasters <- lapply(the.rasters, function(group) {
       lapply(group, function(limit) {
         if (class(limit) != "RasterLayer")
@@ -334,7 +353,7 @@ getOverlaps <- function(input) {
         else
           return(limit)
       })
-    })
+    }) 
 
     # re-structure the list before continuing
     by.breaks <- lapply(breaks, function(limit) {
@@ -415,6 +434,10 @@ getOverlaps <- function(input) {
   if (attributes(input)$type == "timeslot") {
 
     # flatten rasters if needed (i.e. merge all tracks in one raster)
+    # - 
+    # HF: This part should now be obsulete since getAreas flattens the 
+    # rasters before wrapping up. Keeping it in for now anyway, as it 
+    # should be harmless.    
     the.rasters <- lapply(the.rasters, function(group) {
       lapply(group, function(timeslot) {
         lapply(timeslot, function(limit) {

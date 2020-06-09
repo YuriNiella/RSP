@@ -31,6 +31,8 @@ dynBBMM <- function(input, base.raster, tags = NULL, start.time, stop.time,
   base.raster[base.raster == 1] <- NA
   base.raster[base.raster == 2] <- 1
 
+  original.base.raster <- base.raster
+
   # check input quality
   if (!is.null(timeframe) && !is.numeric(timeframe))
     stop("'timeframe' must be either NULL or numeric", call. = FALSE)
@@ -135,7 +137,7 @@ dynBBMM <- function(input, base.raster, tags = NULL, start.time, stop.time,
 
 
   if (attributes(mod_dbbmm)$type == "group")
-    return(list(dbbmm = mod_dbbmm, base.raster = base.raster, valid.tracks = valid.tracks,
+    return(list(dbbmm = mod_dbbmm, base.raster = original.base.raster, valid.tracks = valid.tracks,
       group.rasters = dbbmm.rasters, spatial = spatial))  
 
   if (attributes(mod_dbbmm)$type == "timeslot"){
@@ -151,7 +153,7 @@ dynBBMM <- function(input, base.raster, tags = NULL, start.time, stop.time,
       start = timebreaks[-length(timebreaks)],
       stop = timebreaks[-1] - 1)
 
-    return(list(dbbmm = mod_dbbmm, base.raster = base.raster, valid.tracks = valid.tracks,
+    return(list(dbbmm = mod_dbbmm, base.raster = original.base.raster, valid.tracks = valid.tracks,
       group.rasters = dbbmm.rasters, timeslots = timeslots, spatial = spatial)) 
   }
 }
@@ -230,7 +232,7 @@ You can create a larger raster by using the argument 'buffer' in loadShape. If t
 
     # Calculate dynamic Brownian Bridge Movement Model:
     mod_dbbmm <- lapply(seq_along(loc), function(g) {
-      message("M: Calculating dBBMM:", crayon::bold(crayon::green(names(loc)[g])))
+      message("M: Calculating dBBMM: ", crayon::bold(crayon::green(names(loc)[g])))
       flush.console()
       pb <-  txtProgressBar(min = 0, max = length(loc[[g]]),  
                             initial = 0, style = 3, width = 60)
