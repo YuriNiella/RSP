@@ -44,24 +44,23 @@ combined**:
 You can use runRSP() to estimate the shortest in-water paths. Each
 animal monitored is analysed individually and all detections are
 assigned to separate **tracks**: a sequence of detections with
-**intervals shorter than 24 hours**. When the animal is not detected for
-a period of time **longer than a day**, a **new track** is created.
+**intervals shorter than 24 hours** (by default, using maximum.time = 24). When the animal is not detected for
+a period of time **longer than the maximum.time argument**, a **new track** is created.
 
 **dynBBMM()**
 
-After the shortest in-water paths are estimated, the **runRSP() output**
-can be used for calculating utilization distribution areas using
-**dynamic Brownian Bridge Movement Models** (dBBMM) through the **dynBBMM()** function. This same function
-can be either used for assessing the overall space use of tracked
-animals or in fine scale (by setting the **timeframe** argument in
-hours). While the former calculates the dBBMM at **track level**, which
-can vary from a couple of hours to several days long, the latter does so
-according to **fixed temporal windows** over the entire monitoring
-period.
+After the shortest in-water paths are estimated, the runRSP() output
+can be used for calculating utilization distribution areas with
+**dynamic Brownian Bridge Movement Models** (dBBMM) using the dynBBMM() function. 
+
+**getAreas()**
+
+Obtains the **in-water** areas for the tracked animals, either at monitored group or track levels. The countour levels of interest can be set, and by default the areas are calculated for both the **50%** and **95%** contours.
 
 **getOverlaps()**
 
-When multiple biological groups are tracked (e.g. different sexes, different species, etc.), the ammounts of overlap between them can be calculated using this function. 
+Calculates the ammounts of overlap among the different biological groups monitored, at the same contour levels as defined in getAreas(). Overlaps are returned as **only in space** when the default dynBBMM() is used, and if a **timeframe** argument is set (in hours), overlaps are simultaneously in space and time.  
+
 
 ### Plotting the results
 
@@ -86,7 +85,7 @@ biological groups** occurred:
 
 ## Installation
 
-Current version: **0.1.0**
+Current version: **0.0.1**
 
 You will need the **remotes** package **to install RSP**:
 

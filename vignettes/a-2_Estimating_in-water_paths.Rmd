@@ -121,6 +121,8 @@ RSP also has a `plotDensities()` function, which allows you to investigate the e
 
 We can use `plotTracks()` to perform a quality check in the `runRSP()` output, which by default returns a condensed plot for all tracked animals and allows you to observe whether any strange movements were estimated (e.g. animals crossing through land masses):
 
+USE `suggestSize()` TO FIND BEST SIZE FOR RASTER PLOT!
+
 ![If you see any **strange behaviours** in this plot it is likely because your **base raster** is not good enought. Changing it's resolution could help obtaining more accurate results. Plese remember to exclude the previous transition layer from your working directory before running `runRSP()` again, or you can use `rmTransition()` to do so automatically.](checkLocations.png){#id .class width=550} 
 
 The `getDistances()` function returns the distances travelled (in km) during each track:

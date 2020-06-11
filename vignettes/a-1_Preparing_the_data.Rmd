@@ -23,42 +23,41 @@ knitr::opts_chunk$set(
 
 ## 1. Preparing the data 
 
-### 1.1. Preliminary analysis using actel
+### 1.1. Preliminary analysis of acoustic detections using actel
 
 Analysing acoustic telemetry data requires initial filtering to exclude misleading data (e.g. false detections, detections prior to release). To overcome this issue and ensure reliable results, the RSP toolkit operates in close relationship with the **actel R package**, which filters and invalidates flawed detections. Before getting started with RSP, you will have to download actel and filter your acoustic data. Please click [here](https://github.com/hugomflavio/actel) for more information and to download actel.
 
 To start using RSP, you can run the simplest actel analysis with the function `explore`. You can find more about how to organize your data and run this preliminary analysis in actel's manual pages (run `?actel` after loading the library).
 
-It is important that you save the output of the actel function, so you can later on use it to calculate the RSP. e.g.:
+It is important that you save the output of the actel function, so you can later on use it in RSP. e.g.:
 
 ```
 library(actel)
 filtered_data <- explore(tz = "Europe/Copenhagen")
 ```
 
-### 1.2. Preparing a shapefile from your study area
+### 1.2. Preparing the data from your study area using actel
 
-You will also need a **shapefile** (.shp) from your study area **delimiting the land contours**. This shapefile has to be converted into a **base raster** in order to be used for the RSP analysis. You can create your base raster using the function `loadShape()`:
-
-```
-base.shape <- loadShape(shape = "Limfjord_shape.shp", size = 0.002)
-```
-
-You can check the quality of the shapefile you just loaded using the function `plotRaster()`. This function gets the **spatial** dataset from the object containing the filtered detections from actel, and assesses whether the locations of all receiver stations are **inside the water** in the raster file:
+To recreate the shortest paths in water of tracked animals, RSP needs a **transition layer** of your study area (please click [here](https://mran.microsoft.com/snapshot/2016-08-05/web/packages/gdistance/vignettes/gdistance1.pdf) for more information about this step). You may already have a transition layer calculated for your study area, or you can use actel again to do so. First, you need to load a **shapefile** (.shp) from your study area **delimiting the land contours** using `loadShape()`. This function automatically imports your shapefile and converts it to a raster, and the pixel size can be set using the `size` argument. After loading your shapefile, you need to create your transition layer using `transitionLayer()` by choosing a number of `directions`. You can run the example below:
 
 ```
-plotRaster(input = filtered_data, base.raster = base.shape, coord.x = "Longitude", coord.y = "Latitude", size = 1)
-```
-![We can see exactly in the example where there is one station placed in land. To fix this, you can correct the station location within the **spatial** file. Changing the **size** argument for a smaller value might also help to get all your stations inside of the water.](plotRaster.png){#id .class width=550}
-
-
-Now that your shapefile is loaded, and your stations are all inside of the water, you have to create a **transition layer** from your study area using the function `transitionLayer`: 
-```
-base.t <- transitionLayer(x = base.shape, directions = 16)
+library(actel)
+library(RSP)
+aux <- system.file(package = "RSP")[1]
+water.shape <- loadShape(path = aux, shape = "example_shape_geo.shp", size = 0.0001) # Load example shapefile 
+water.transition <- transitionLayer(water.shape, directions = 16)
 ```
 
-The transition layer is used behind the scenes to generate the shortest in-water paths of tracked animals. If in the future you decide to use a different transition layer, either because you loaded a **new shapefile** or you want to use a **different number of directions**, you can run `rmTransition()` to exclude the previously calculated transition layer. 
+This shapefile will be also necessary during the RSP analysis. RSP currently accepts both **metric** and **geographic** coordinate reference system formats.
 
-Now that you have your **filtered detections**, your **base raster** and its corresponding **transition layer**, you are ready to get started with **RSP**!
 
+### 1.3. Checking the quality of the input files
+
+Depending on the **pixel size** used for your study area and the locations of your receivers (provided in the spatial dataset to actel), it could be that your receivers might end up in land. This will cause the RSP analysis to return funky results such as animal tracks crossing extensively through land. To avoid this, you need to use the `plotRaster()` function:
+
+```
+explore.save <- example.results # Example from explore analysis with actel
+plotRaster(input = explore.save, base.raster = water.shape, coord.x = "Longitude", coord.y = "Latitude", size = 1)
+```
+![You you get a plot similar to this one, with only **Water** showing up in the legend, it means all your receivers are in water and you are good to continue. If any receivers are **in land** they will be coloured differently in this plot, and you will need to either adjust your shapefile/position of the receiver in the spatial dataset before continuing.](plotRaster.png){#id .class width=750}
 

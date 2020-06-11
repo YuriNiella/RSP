@@ -250,7 +250,7 @@ plotContours <- function(input, tag, track = NULL, timeslot, breaks = c(0.95, 0.
   } else {
     the.tracks <- as.numeric(gsub(paste0("^", tag, "_Track_"), "", names(the.group.raster)[tag.link]))
     if (!is.null(track)) {
-      warning("'track' was set but target tag only has one tag. Disregarding.", immediate. = TRUE, call. = FALSE)
+      warning("'track' was set but target tag only has one track. Disregarding.", immediate. = TRUE, call. = FALSE)
       track <- NULL
     }
     tag_track.raster <- the.group.raster[[which(tag.link)]]
