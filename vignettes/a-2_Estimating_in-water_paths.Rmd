@@ -1,5 +1,5 @@
 ---
-title: "2. Estimation of shortest in-water paths"
+title: "2. Refining the shortest paths in-water"
 author: "Yuri Niella & Hugo Flávio"
 date: "`r Sys.Date()`"
 output: rmarkdown::html_vignette
@@ -16,18 +16,18 @@ knitr::opts_chunk$set(
 
 ## Index
 
-1. [Preparing your data](a-1_Preparing_the_data.html)
-2. [Estimation of shortest in-water paths](a-2_Estimating_in-water_paths.html)
-3. [Calculating utilization distribution areas and space-use overlaps](a-3_dBBMM_overlaps.html)
+1. [Preparing the data](a-1_Preparing_the_data.html)
+2. [Refining the shortest paths in-water](a-2_Estimating_in-water_paths.html)
+3. [Calculating utilization distribution areas](a-3_dBBMM_overlaps.html)
 
 
 ## 2. Estimation of shortest in-water paths
 
-The `runRSP()` function is used to recreate the shortest paths between pairs of acoustic detections. The detection data, station coordinates and the group of each fish is passed on to RSP automatically by actel through the argument `input`. You must also include the name of the .grd file you created above in the argument `base.raster`. e.g.:
+The `runRSP()` function is used to recreate the shortest paths between pairs of acoustic detections. The detection data, station coordinates and the group of each fish is passed on to RSP automatically by actel through the argument `input`. You must also include the name of the transition layer you created using the argument `t.layer`. e.g.:
 
 ```
 library(RSP)
-rsp.results <- runRSP(input = filtered_data, coord.x = "Longitude", coord.y = "Latitude", t.layer = base.t)
+rsp.results <- runRSP(input = filtered_data, coord.x = "Longitude", coord.y = "Latitude", t.layer = water.transition)
 ```
 
 The **detection ranges** of each listening station are also taken into account in the `runRSP()`. These will be used as the location errors for the dBBMM when calculating UD areas. A **Range column** can be included in the **spatial.csv file** for specifying the detection ranges (in metres) for each acoustic station if these are known. If the 'Range' column is not found, a default detection range of 500 m is automatically considered for each receiver with the warning:
@@ -39,7 +39,7 @@ Warning: Could not find a 'Range' column in the spatial data; assuming a range o
 **Note:**
 	- The 'Range' column must already be present in the spatial.csv file when you run the `explore()` function for it to be incorporated in the analysis.
 
-While animals move between a pair of consecutive acoustic detections there is some uncertainty regarding the trajectory taken, which increases proportionally to the time taken to go from one place to another. **Consecutive detections longer than 24 hours** apart are thus broken by the `runRSP()` into separate 'tracks'. This avoids the estimation of unrealistic behaviour when the animals do not get detected in any array for exceedingly long periods of time. Detections that occur totally isolated (e.g. more than 24-h before or after any other detection) are automatically excluded from analysis. The `runRSP()` will return the percentage of raw detections that can be used for refining the shortest paths when the analysis is finished:
+While animals move between a pair of consecutive acoustic detections there is some uncertainty regarding the trajectory taken, which increases proportionally to the time taken to go from one place to another. **Consecutive detections longer than 24 hours** apart are thus broken by the `runRSP()` into separate 'tracks' (defined by the `maximum.time = 24` default argument, in hours). This avoids the estimation of unrealistic behaviour when the animals do not get detected in any array for exceedingly long periods of time. Detections that occur totally isolated (e.g. more than 24-h before or after any other detection) are automatically excluded from analysis. The `runRSP()` will return the percentage of raw detections that can be used for refining the shortest paths when the analysis is finished:
 ```
 M: Percentage of detections valid for RSP: 99.8%
 ```
@@ -50,9 +50,11 @@ While moving away from the first detection, the **position errors** gradually in
 
 ![**A:** consecutive detections on the save receiver; **B:** consecutive detections on different receivers.](Example_detection.png){#id .class width=60% height=60%}
 
+<br/>
 
 ![Please note how the **distances between consecutive RSP positions** (points) vary around the `distance` argument (250 m by default) as they depend on the estuary shape and the shortest distances between receivers. It is also possible to observe how the **errors of the estimated positions** (lines) gradually increase/decrease as the animals move between receivers.](RSP_index.png){#id .class width=95% height=95%}
 
+<br/>
 
 The **dynamic Brownian Bridge Movement Model** accounts for the **speed** at which animals move between consecutive detections to **expand/contract the UD areas**. Consequently, depending on your array configuration, estuary shape and species being tracked, you may find useful to adjust the `distance` and `time.lapse` arguments for recreating the most plausible movement patterns of the monitored animals. 
 
@@ -81,7 +83,12 @@ Here are some examples of the `runRSP()` output:
 
 Only the **valid tracks** are used by **RSP** to recreate the shortest in-water paths of tracked animals. The tracking data can be retrieved from the list `$detections` in which data is saved individually for each transmitter.
 
-(2) For consecutive detections on the same receiver:
+<br/>
+
+The RSP data can be found in the `$detections` object, stored individually for each tracked animal. There are **two main types of RSP interpolation**:
+
+(2) For consecutive detections on **the same receiver**:
+
 
 |           Timestamp| Receiver| Transmitter| Error| Longitude| Latitude| Position|   Track|
 |:-------------------|--------:|-----------:|-----:|---------:|--------:|--------:|-------:|
@@ -92,7 +99,7 @@ Only the **valid tracks** are used by **RSP** to recreate the shortest in-water 
 
 The **Position** column in this dataset identifies the two consecutive acoustic detections (`Receiver`) from this animal. We can notice that they occurred on the same **Receiver** (`125449`): the first on `2018-03-07 00:43:49` and the second on `2018-03-07 01:11:45` (slightly less than 30 minutes from each other). Because this time difference is longer than the default `time.lapse` (10 minutes), the `runRSP()` estimated the intermediate positions (RSP) by repeating the receiver **Longitude** and **Latitude** and changing the **Error** parameter at a rate of 5% from the default `distance` argument (250 metres = 12.5 metres). Notice how the elapsed time was distributed evenly between the position intervals.
 
-(3) For consecutive detections on different receivers:
+(3) For consecutive detections on **different receivers**:
 
 |           Timestamp| Receiver| Transmitter| Error| Longitude| Latitude| Position|   Track|
 |:-------------------|--------:|-----------:|-----:|---------:|--------:|--------:|-------:|
@@ -112,18 +119,22 @@ The **Position** column in this dataset identifies the two consecutive acoustic 
 
 Here the animal was detected first at the **Receiver** `100474` on `2018-04-27 05:27:10`, and then at the **Receiver** `107527` on `2018-04-27 07:04:39`. The `runRSP()` now calculated the shortest in-water path between receivers, and we can see how the **Error** of added locations increased up to half-way, (575 metres on `2018-04-27 06:15:54`), and then decreased back to 500 as the track approached the second receiver.
 
-RSP also has a `plotDensities()` function, which allows you to investigate the ellapsed time between consecutive detections:
+<br/>
+
+RSP also has a `plotDensities()` function, which allows you to investigate the distribution of ellapsed time between consecutive acoustic detections:
 
 ![You can set a **group** argument to generate a density plot for a particular group of interest. By default all monitored groups are used.](densityRSP.png){#id .class width=650} 
 
 
 ### 2.2. Visualizing RSP outputs
 
-We can use `plotTracks()` to perform a quality check in the `runRSP()` output, which by default returns a condensed plot for all tracked animals and allows you to observe whether any strange movements were estimated (e.g. animals crossing through land masses):
+We can use `plotTracks()` to plot any of the tracks from the `runRSP()` output:
 
-USE `suggestSize()` TO FIND BEST SIZE FOR RASTER PLOT!
+![You can use the function `suggestSize()` in your base raster (shapefile) file to get suggested dimensions for a projected plot](plotTrack2.png){#id .class width=550} 
 
-![If you see any **strange behaviours** in this plot it is likely because your **base raster** is not good enought. Changing it's resolution could help obtaining more accurate results. Plese remember to exclude the previous transition layer from your working directory before running `runRSP()` again, or you can use `rmTransition()` to do so automatically.](checkLocations.png){#id .class width=550} 
+![The function `addStations()` can be used to **add the receiver locations** to your plot.](plotTrack3.png){#id .class width=750} 
+
+<br/>
 
 The `getDistances()` function returns the distances travelled (in km) during each track:
 
@@ -146,26 +157,9 @@ The `getDistances()` function returns the distances travelled (in km) during eac
 |     R64K-4128| Track_09|     1| Receiver|  32.1082706| R64K-4128|
 |     R64K-4128| Track_09|     1|      RSP|  37.6892695| R64K-4128|
 
+<br/>
 
 We can use `plotDistances()` to compare the total distances travelled by each animal calculated using only the receiver locations and also including the RSP estimations:
 
 ![If you set `by.group = TRUE` plots are returned individually for each group monitored.](distanceRSP.png){#id .class width=450} 
 
-
-
-<!-- You can also plot the tracks from a particular animal using `plotRSP()`:
-
-This function is probably obsulete now that we have plotTracks?
-
-```
-plotRSP(input = rsp.results, tag = "R64K-4075", display = "Receiver", type = "lines") 
-plotRSP(input = rsp.results, tag = "R64K-4075", display = "RSP", type = "lines") 
-plotRSP(input = rsp.results, tag = "R64K-4138", display = "Receiver", type = "lines") 
-plotRSP(input = rsp.results, tag = "R64K-4138", display = "RSP", type = "lines") 
-```
-<center>
-![](plotRSP.png){#id .class width=120% height=120%} 
-</center>
-
-You can also set `display = "Both"` to plot both track options on a single plot. 
- -->

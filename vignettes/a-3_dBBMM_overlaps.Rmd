@@ -1,5 +1,5 @@
 ---
-title: "3. Calculating utilization distribution areas and space-use overlaps"
+title: "3. Calculating utilization distribution areas"
 author: "Yuri Niella & Hugo Flávio"
 date: "`r Sys.Date()`"
 output: rmarkdown::html_vignette
@@ -16,23 +16,21 @@ knitr::opts_chunk$set(
 
 ## Index
 
-1. [Preparing your data](a-1_Preparing_the_data.html)
-2. [Estimation of shortest in-water paths](a-2_Estimating_in-water_paths.html)
-3. [Calculating utilization distribution areas and space-use overlaps](a-3_dBBMM_overlaps.html)
+1. [Preparing the data](a-1_Preparing_the_data.html)
+2. [Refining the shortest paths in-water](a-2_Estimating_in-water_paths.html)
+3. [Calculating utilization distribution areas](a-3_dBBMM_overlaps.html)
 
 
-## 3. Calculating utilization distribution areas and space-use overlaps
+## 3. Calculating utilization distribution areas 
 
-After estimating the in-water shortest paths, we can now use the output from `runRSP()` to calculate UD areas with the `dynBBMM()` function. Here you will need to know the [UTM zone](http://www.dmap.co.uk/utmworld.htm) of your study site and specify it using the argument `UTM.zone`. By default, the analysis will run for all transmitters detected, but you can determine also which transmitters you would like to include using `tags`. As mentioned before, UD areas can be calculated with either of the following temporal resolutions:
+After estimating the in-water shortest paths, we can now use the output from `runRSP()` to calculate utilization distribution areas using **dynamic Brownian Bridge Movement Models** with the `dynBBMM()` function. If you are using a geographic coordinate reference system, here you will need to know the [UTM zone](http://www.dmap.co.uk/utmworld.htm) of your study site and specify it using the argument `UTM`. By default, the analysis will run for all transmitters detected, but you can determine also which transmitters you would like to include using `tags`. 
 
 ### 3.1. Total dynamic Brownian Bridge Movement Model (group dBBMM)
 
-This option calculates a series of dBBMM for each animal track from all the groups monitored. The `breaks` argument defines for which contours the areas of use should be calculated, which by default are the 50% and 95% (i.e. `breaks = c(.5, .95)`). 
-
-Track **quality checks** are performed to ensure that only good tracks which allow the dBBMM to converge are included in the analysis. This is an example of the returned messages from `dynBBMM()`:
+This option calculates a series of dBBMM for each animal track from all the groups monitored and included in the `runRSP()` analysis. Track **quality checks** are performed to ensure that only good tracks which allow the dBBMM to converge are included in the analysis. This is an example of the returned messages from `dynBBMM()`:
 
 ```
-dbbmm.results <- dynBBMM(input = rsp.results, UTM.zone = 56, breaks = c(0.5, 0.95))
+dbbmm.results <- dynBBMM(input = rsp.results, UTM = 32)
 
 M: Preparing data to apply dBBMM.
 M: No specific transmitters selected. All the data will be used for analysis.
@@ -56,84 +54,30 @@ M: Calculating overlaps between groups.
 M: Storing final results.
 ```
 
-The results of the dBBMM are saved in the `$track.areas` object, as a list of data frames for each group analysed:
+The metadata on the dBBMMs are saved in the `$valid.tracks` object as data frame:
 
-|             Track|               Start|                Stop| Area.5| Area.95| Time.lapse.min|
-|:-----------------|-------------------:|-------------------:|------:|-------:|--------------:|
-| R64K-4125_Track_2| 2018-04-21 13:13:24| 2018-04-23 09:09:34|    457|    4021|     2636.16667|
-| R64K-4125_Track_3| 2018-04-25 11:44:05| 2018-04-28 14:10:14|   2016|   28434|     4466.15000|
-| R64K-4125_Track_4| 2018-08-23 12:16:57| 2018-08-24 11:10:14|   2617|    4693|     1373.28333|
-| R64K-4125_Track_5| 2018-08-25 13:37:35| 2018-08-25 15:08:31|     53|     196|       90.93333|
-| R64K-4125_Track_6| 2018-08-27 08:44:04| 2018-08-27 15:38:32|     50|     175|      414.46667|
-| R64K-4125_Track_8| 2018-08-30 17:26:41| 2018-08-31 15:43:46|     80|     418|     1337.08333|
+| Group|       Tag|   Track|valid.n|         First.time|          Last.time|   Timespan|
+|:-----|---------:|-------:|------:|------------------:|------------------:|----------:|
+|     A| R64K-4075|Track_03|    125|2018-03-07 00:41:10|2018-03-07 08:20:02| 7.64 hours|
+|     A| R64K-4075|Track_08|     27|2018-04-23 05:10:47|2018-04-23 08:43:45| 3.54 hours|
+|     A| R64K-4075|Track_09|    303|2018-04-24 11:40:56|2018-04-26 01:00:13|37.32 hours|
+|     B| R64K-4125|Track_02|    206|2018-04-21 13:13:24|2018-04-23 09:09:34|43.93 hours|
+|     B| R64K-4125|Track_03|   1118|2018-04-25 11:44:05|2018-04-28 14:10:14|74.43 hours|
 
+Included is information on the biological group (Group) tracked, number of valid locations (valid.n) used, and the duration of each model (Timespan) in hours.  
 
-Each `Track` is named after the transmitter and the corresponding track name and both `Start` and `Stop` timestamps are stored. The **areas of use** (by default `Area.5` = 50% and `Area.95` = 95%) are saved in squared metres, together with the respective elapsed times in minutes (Time.lapse.min). Note that in this example for the animal **R64K-4125** the tracks 1 and 7 failed the quality checks and thus were not included in the analysis. 
+<br/>
 
 You can use `plotContours()` to visualize any of the dBBMM calculated by specifying the `group` and `track` you want to plot:
 
 ```
-plotContours(input = dbbmm.results, group = "R64K-4138", track = "R64K-4138_Track_10")
-plotContours(input = dbbmm.results, group = "R64K-4125", track = "R64K-4125_Track_3")
+plotContours(input = dbbmm_all, tag = "R64K-4138", track = "10")
+plotContours(input = dbbmm_all, tag = "R64K-4125", track = "3")
 ```
-![The `levels` argument can be used to specify which contours to plot. By default, the **25%**, **50%**, **75%**, **95%** and **99%** contours are returned.](plotContours1.png){#id .class width=70% height=70%} 
+![The `breaks` argument can be used to specify which contours to plot. By default, the **25%**, **50%**, **75%**, and **95%** contours are returned. Again `addStations()` can be used to add the receiver locations.](plotContours1.png){#id .class width=70% height=70%} 
 
 
-### 3.2. Total space-use overlap 
-
-Now that we calculated the areas of space-use within our study area for each group monitored, we can investigate the amount of overall overlap between them by inspecting the `$overlap.areas` object:
-
-```
-dbbmm.results$overlap.areas$`0.5`$absolute
-```
-|          | R64K-4075| R64K-4125| R64K-4128| R64K-4138|
-|:---------|---------:|---------:|---------:|---------:|
-| R64K-4075|        NA|      1716|      1792|      3606|
-| R64K-4125|   	  1716|        NA|      1769|      3551|
-| R64K-4128|	    1792|      1769|        NA|      2635|
-| R64K-4138|      3606|      3551|      2635|        NA|
-
-```
-dbbmm.results$overlap.areas$`0.5`$percentage
-```
-|          | R64K-4075| R64K-4125| R64K-4128| R64K-4138|
-|:---------|---------:|---------:|---------:|---------:|
-| R64K-4075|        NA| 0.3622546| 0.6775047| 0.6049321|
-| R64K-4125| 0.3622546|        NA| 0.6688091| 0.7496306|
-| R64K-4128| 0.6775047| 0.6688091|        NA| 0.9962193|
-| R64K-4138| 0.6049321| 0.7496306| 0.9962193|        NA|
-
-```
-dbbmm.results$overlap.areas$`0.95`$absolute
-```
-|          | R64K-4075| R64K-4125| R64K-4128| R64K-4138|
-|:---------|---------:|---------:|---------:|---------:|
-| R64K-4075|  	    NA|     12851|      4893|     17480|
-| R64K-4125|     12851|        NA|      5115|     29210|
-| R64K-4128|	  4893|      5115|        NA|      6839|
-| R64K-4138|     17480|     29210|      6839|        NA|
-
-```
-dbbmm.results$overlap.areas$`0.95`$percentage
-```
-|          | R64K-4075| R64K-4125| R64K-4128| R64K-4138|
-|:---------|---------:|---------:|---------:|---------:|
-| R64K-4075|        NA| 0.7247349| 0.7133693| 0.9857884|
-| R64K-4125| 0.7247349|        NA| 0.7457355| 0.9064672|
-| R64K-4128| 0.7133693| 0.7457355|        NA| 0.9970841|
-| R64K-4138| 0.9857884| 0.9064672| 0.9970841|        NA|
-
-Please note the overlaps are calculated for the contours defined by `breaks` in `dynBBMM()`, and returned both in **absolute values** (squared metres) and **percentage** matrices. For example, we can see in the last table that **R64K-4128** and **R64K-4138** were the groups with higher overall overlap of 99.71% at the 95% level, whereas **R64K-4075** and **R64K-4128** had a smaller overlap of 71.34% at the 95% contour. To see exactly where space use overlaps occurred you can use `plotOverlap()`:
-
-```
-plotOverlap(input = dbbmm.results, stations = FALSE, level = .95, store = TRUE)
-```
-<center>
-![](plotOverlap.png){#id .class width=70% height=70%} 
-</center>
-
-
-### 3.3. Fine-scale dynamic Brownian Bridge Movement Model (timeslot dBBMM)
+### 3.2. Fine-scale dynamic Brownian Bridge Movement Model (timeslot dBBMM)
 
 dBBMMs can also be calculated according to a moving temporal window. This allows investigating how the space-use overlap between the different groups varied during the study period. It is useful for assessing the influence of environmental parameters upon space-use of different groups tracked within the study area. The same `dynBBMM()` function is used, but here the argument `timeframe` has to be defined in hours as the temporal window. The total tracking period will be divided into `timeslots`, and dBBMMs calculated for each group monitored (for each timeslot). Overlapping areas are now calculated for each `timeslot` and the corresponding metadata stored in the `$timeslots` object:
 

@@ -16,9 +16,9 @@ knitr::opts_chunk$set(
 
 ## Index
 
-1. [Preparing your data](a-1_Preparing_the_data.html)
-2. [Estimation of shortest in-water paths](a-2_Estimating_in-water_paths.html)
-3. [Calculating utilization distribution areas and space-use overlaps](a-3_dBBMM_overlaps.html)
+1. [Preparing the data](a-1_Preparing_the_data.html)
+2. [Refining the shortest paths in-water](a-2_Estimating_in-water_paths.html)
+3. [Calculating utilization distribution areas](a-3_dBBMM_overlaps.html)
 
 
 ## 1. Preparing the data 
