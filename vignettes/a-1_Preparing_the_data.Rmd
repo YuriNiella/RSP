@@ -1,5 +1,6 @@
 ---
-title: "1. Preparing the data"
+title: 1. Preparing the data 
+subtitle: "Refining the Shortest Paths (RSP) of animals tracked with acoustic transmitters in estuarine regions"
 author: "Yuri Niella & Hugo Flávio"
 date: "`r Sys.Date()`"
 output: rmarkdown::html_vignette
@@ -17,11 +18,11 @@ knitr::opts_chunk$set(
 ## Index
 
 1. [Preparing the data](a-1_Preparing_the_data.html)
-2. [Refining the shortest paths in-water](a-2_Estimating_in-water_paths.html)
-3. [Calculating utilization distribution areas](a-3_dBBMM_overlaps.html)
+2. [Refining the Shortest Paths in-water](a-2_Refining_Shortest_paths.html)
+3. [Calculating utilization distribution](a-3_dBBMM.html)
+4. [Calculating overlaps](a-4_Overlaps.html)
 
-
-## 1. Preparing the data 
+***
 
 ### 1.1. Preliminary analysis of acoustic detections using actel
 
@@ -38,26 +39,23 @@ filtered_data <- explore(tz = "Europe/Copenhagen")
 
 ### 1.2. Preparing the data from your study area using actel
 
-To recreate the shortest paths in water of tracked animals, RSP needs a **transition layer** of your study area (please click [here](https://mran.microsoft.com/snapshot/2016-08-05/web/packages/gdistance/vignettes/gdistance1.pdf) for more information about this step). You may already have a transition layer calculated for your study area, or you can use actel again to do so. First, you need to load a **shapefile** (.shp) from your study area **delimiting the land contours** using `loadShape()`. This function automatically imports your shapefile and converts it to a raster, and the pixel size can be set using the `size` argument. After loading your shapefile, you need to create your transition layer using `transitionLayer()` by choosing a number of `directions`. You can run the example below:
+To recreate the shortest in-water paths of tracked animals, RSP needs a **transition layer** from your study area. You may already have a transition layer calculated for your study area, or you can use actel again to do so. First, you need to load a **shapefile** (.shp) from your study area **delimiting the land contours** using `loadShape()`. This function automatically imports your shapefile and converts it to a raster, and the corresponding pixel size can be set using the `size` argument. After loading your shapefile, you need to create your transition layer using `transitionLayer()` by choosing a number of `directions` for distance calculations (please click [here](https://github.com/hugomflavio/actel) and see pages 2 and 3 for more information about this step):
 
 ```
 library(actel)
-library(RSP)
-aux <- system.file(package = "RSP")[1]
-water.shape <- loadShape(path = aux, shape = "example_shape_geo.shp", size = 0.0001) # Load example shapefile 
+water.shape <- loadShape(shape = "my_study_areas.shp", size = 0.0001)  
 water.transition <- transitionLayer(water.shape, directions = 16)
 ```
 
-This shapefile will be also necessary during the RSP analysis. RSP currently accepts both **metric** and **geographic** coordinate reference system formats.
+Please have in mind that this shapefile (or base raster) will be also necessary further down during the RSP analysis. RSP currently accepts shapefiles in both **metric** and **geographic** coordinate reference system formats.
 
 
 ### 1.3. Checking the quality of the input files
 
-Depending on the **pixel size** used for your study area and the locations of your receivers (provided in the spatial dataset to actel), it could be that your receivers might end up in land. This will cause the RSP analysis to return funky results such as animal tracks crossing extensively through land. To avoid this, you need to use the `plotRaster()` function:
+Depending on the format of the shapefile provided, the pixel size used for your study area and the locations of your receivers (provided earlier in the spatial dataset for actel), it might be that your receivers could end up in land during analysis. This will cause the RSP analysis to return funky results such as animal tracks crossing extensively through land. To avoid this issue, you can use the `plotRaster()` function:
 
 ```
-explore.save <- example.results # Example from explore analysis with actel
-plotRaster(input = explore.save, base.raster = water.shape, coord.x = "Longitude", coord.y = "Latitude", size = 1)
+plotRaster(input = filtered_data, base.raster = water.shape, coord.x = "Longitude", coord.y = "Latitude", size = 1)
 ```
-![You you get a plot similar to this one, with only **Water** showing up in the legend, it means all your receivers are in water and you are good to continue. If any receivers are **in land** they will be coloured differently in this plot, and you will need to either adjust your shapefile/position of the receiver in the spatial dataset before continuing.](plotRaster.png){#id .class width=750}
+![If you get a plot similar to this one, with only **Water** showing up in the legend, it means that all your receivers are placed inside of the water and you are all good to continue. If any receivers are **in land** they will be coloured differently in this plot. It is then necessary to either adjust your shapefile or fix the position of the receiver in the spatial dataset before continuing.](plotRaster.png){#id .class width=750}
 

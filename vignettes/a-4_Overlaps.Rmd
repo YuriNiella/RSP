@@ -1,10 +1,11 @@
 ---
-title: "3. Calculating utilization distribution areas and space-use overlaps"
+title: 4. Calculating overlaps
+subtitle: "Refining the Shortest Paths (RSP) of animals tracked with acoustic transmitters in estuarine regions"
 author: "Yuri Niella & Hugo Flávio"
 date: "`r Sys.Date()`"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{3. Calculating utilization distribution areas and space-use overlaps}
+  %\VignetteIndexEntry{4. Calculating overlaps}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -16,12 +17,12 @@ knitr::opts_chunk$set(
 
 ## Index
 
-1. [Preparing your data](a-1_Preparing_the_data.html)
-2. [Estimation of Refined Shortest Paths in-water](a-2_Estimating_in-water_paths.html)
-3. [Calculating utilization distribution areas](a-3_dBBMM_overlaps.html)
+1. [Preparing the data](a-1_Preparing_the_data.html)
+2. [Refining the Shortest Paths in-water](a-2_Refining_Shortest_paths.html)
+3. [Calculating utilization distribution](a-3_dBBMM.html)
+4. [Calculating overlaps](a-4_Overlaps.html)
 
-
-### 4. Total space-use overlap 
+***
 
 Now that we calculated the areas of space-use within our study area for each group monitored, we can investigate the amount of overall overlap between them by inspecting the `$overlap.areas` object:
 

@@ -1,10 +1,11 @@
 ---
-title: "3. Calculating utilization distribution areas"
+title: 3. Calculating utilization distribution
+subtitle: "Refining the Shortest Paths (RSP) of animals tracked with acoustic transmitters in estuarine regions"
 author: "Yuri Niella & Hugo Flávio"
 date: "`r Sys.Date()`"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{3. Calculating utilization distribution areas and space-use overlaps}
+  %\VignetteIndexEntry{3. Calculating utilization distribution}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -17,11 +18,11 @@ knitr::opts_chunk$set(
 ## Index
 
 1. [Preparing the data](a-1_Preparing_the_data.html)
-2. [Refining the shortest paths in-water](a-2_Estimating_in-water_paths.html)
-3. [Calculating utilization distribution areas](a-3_dBBMM_overlaps.html)
+2. [Refining the Shortest Paths in-water](a-2_Refining_Shortest_paths.html)
+3. [Calculating utilization distribution](a-3_dBBMM.html)
+4. [Calculating overlaps](a-4_Overlaps.html)
 
-
-## 3. Calculating utilization distribution areas 
+***
 
 After estimating the in-water shortest paths, we can now use the output from `runRSP()` to calculate utilization distribution areas using **dynamic Brownian Bridge Movement Models** with the `dynBBMM()` function. If you are using a geographic coordinate reference system, here you will need to know the [UTM zone](http://www.dmap.co.uk/utmworld.htm) of your study site and specify it using the argument `UTM`. By default, the analysis will run for all transmitters detected, but you can determine also which transmitters you would like to include using `tags`. 
 
@@ -43,15 +44,15 @@ Warning: 2 track(s) in group R64K-4128 are shorter than 30 minutes and will not 
 Warning: 6 track(s) in group R64K-4138 have less than eight detections and will not be used.
 M: In total, 93 detections were excluded as they failed the track quality checks.
 ```
-
+<!-- PAREI AQUI!! -->
 You can suppress the individual warning messages by setting `verbose` to FALSE. You will still receive the final message indicating how many detections were excluded.
 
 After calculating UDs, the **land areas** are excluded so that the final results represent only **in-water areas of use**. The overall overlap between each group monitored is also calculated. 
 
 ```
 M: Subtracting land areas from output.
-M: Calculating overlaps between groups.
 M: Storing final results.
+M: Percentage of detections valid for RSP: 99.8%
 ```
 
 The metadata on the dBBMMs are saved in the `$valid.tracks` object as data frame:
@@ -82,8 +83,8 @@ plotContours(input = dbbmm_all, tag = "R64K-4125", track = "3")
 dBBMMs can also be calculated according to a moving temporal window. This allows investigating how the space-use overlap between the different groups varied during the study period. It is useful for assessing the influence of environmental parameters upon space-use of different groups tracked within the study area. The same `dynBBMM()` function is used, but here the argument `timeframe` has to be defined in hours as the temporal window. The total tracking period will be divided into `timeslots`, and dBBMMs calculated for each group monitored (for each timeslot). Overlapping areas are now calculated for each `timeslot` and the corresponding metadata stored in the `$timeslots` object:
 
 ```
-time.dbbmm.results <- dynBBMM(input = rsp.results, UTM.zone = 56, breaks = c(0.5, 0.95), timeframe = 24) # 24-h timeslots
-time.dbbmm.results$timeslots[400:410, ] 
+time.dbbmm.results <- dynBBMM(input = rsp.results, UTM.zone = 56, breaks = c(0.5, 0.95), timeframe = 24) # Daily (24-h) timeslots!
+time.dbbmm.results$timeslots
 ```
 | slot|               start|                stop| Bream| Luderick| Tarwhine|
 |:----|-------------------:|-------------------:|-----:|--------:|--------:|
