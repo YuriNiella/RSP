@@ -53,6 +53,10 @@ After the shortest in-water paths are estimated, the runRSP() output
 can be used for calculating utilization distribution areas with
 **dynamic Brownian Bridge Movement Models** (dBBMM) using the dynBBMM() function. 
 
+**getDistances()**
+
+DESCREVER GET DISTANCES!
+
 **getAreas()**
 
 Obtains the **in-water** areas for the tracked animals, either at monitored group or track levels. The countour levels of interest can be set, and by default the areas are calculated for both the **50%** and **95%** contours.

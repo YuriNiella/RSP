@@ -534,7 +534,7 @@ plotOverlaps <- function(overlaps, areas, base.raster, groups, timeslot,
     stop("Please provide three colours in 'col'.", call. = FALSE)
 
   if (is.null(timeslot))
-    ol.crs <- as.character(raster::crs(overlaps$rasters[[1]][[1]][[which(!is.na(overlaps$rasters[[1]][[1]]) == TRUE)]]))
+    ol.crs <- as.character(raster::crs(overlaps$rasters[[1]][[1]][[1]]))
   else
     ol.crs <- as.character(raster::crs(overlaps$rasters[[1]][[1]][[which(!is.na(overlaps$rasters[[1]][[1]]) == TRUE)]]))
 
