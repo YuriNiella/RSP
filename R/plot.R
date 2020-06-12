@@ -133,8 +133,14 @@ plotAreas <- function(areas, base.raster, group, timeslot,
   p <- p + ggplot2::labs(x = "Longitude", y = "Latitude", fill = "Space use")
   
   # Add title
-  if (missing(title))
-    p <- p + ggplot2::labs(title = paste(group, "-", "Slot", timeslot))
+  if (missing(title)) {
+    if (missing(timeslot)){
+      p <- p + ggplot2::labs(title = paste(group))
+    }
+    if (!missing(timeslot)){
+      p <- p + ggplot2::labs(title = paste(group, "-", "Slot", timeslot))
+    }
+  }
   else
     p <- p + ggplot2::labs(title = title)
 
