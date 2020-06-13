@@ -12,21 +12,22 @@ environments, that accounts for the surrounding land masses. The animal
 movements between detections are recreated to have occurred exclusively
 in water and the utilization distribution areas are limited by the land
 contours, providing realistic estimations of space use. The method can
-be divided into two main steps:
+be divided into the following three main steps:
 
-1)  Estimating the shortest in water paths between acoustic detections
+1)  Refining the shortest paths in water between consecutive acoustic detections
 2)  Calculating utilization distribution areas using dynamic Brownian
-    Bridge Movement Models
+    Bridge Movement Models (dBBMM)
+3)	Calculating the overlaps between different biological groups monitored
 
-Depending on the research questions being addressed the utilization
+Depending on the research questions being addressed, the utilization
 distribution areas can be calculated for the entire monitoring periods,
 or in fine-scale according to fixed temporal intervals in hours
 (timeframes). Tracked animals are assigned to specific biological groups
 (different species, different sexes from a same species, etc.) prior to
-analysis, and the RSP calculates the amounts of inter-group overlap in
+analysis, and RSP can be used for calculating the amounts of inter-group overlap in
 space and time between all groups monitored. This approach allows
-spatial ecologists to use the outputs from such fine scale space use
-models (areas of use, or between-group overlap frequencies) as input for
+spatial ecologists to use the outputs from such fine-scale space use
+models (areas of use, or the between-group overlaps) as input for
 further statistical analysis.
 
 Here is an example of the same animal movements animated both using
@@ -41,29 +42,28 @@ combined**:
 
 **runRSP()**
 
-You can use runRSP() to estimate the shortest in-water paths. Each
+Used to estimate the shortest in-water paths. Each
 animal monitored is analysed individually and all detections are
 assigned to separate **tracks**: a sequence of detections with
-**intervals shorter than 24 hours** (by default, using maximum.time = 24). When the animal is not detected for
-a period of time **longer than the maximum.time argument**, a **new track** is created.
+intervals shorter than 24 hours (by default, maximum.time = 24). When the animal is not detected for
+a period of time longer than the maximum.time argument, a new track is created.
 
 **dynBBMM()**
 
-After the shortest in-water paths are estimated, the runRSP() output
-can be used for calculating utilization distribution areas with
-**dynamic Brownian Bridge Movement Models** (dBBMM) using the dynBBMM() function. 
+After the shortest in-water paths are estimated, the utilization distribution areas can be calculated with
+**dynamic Brownian Bridge Movement Models** (dBBMM). Models can be either calculated for the entire monitoring, or during a particular interval of interest. 
 
 **getDistances()**
 
-DESCREVER GET DISTANCES!
+Calculates the distances travelled (in meters) during each RSP track, both using only the receiver locations and also the exclusively in-water tracks. 
 
 **getAreas()**
 
-Obtains the **in-water** areas for the tracked animals, either at monitored group or track levels. The countour levels of interest can be set, and by default the areas are calculated for both the **50%** and **95%** contours.
+Obtains the in-water areas (in squared meters) for the tracked animals, either at monitored group or track levels. The countour levels of interest from the dBBMMs can be set, and by default the **50%** and **95%** contours are used.
 
 **getOverlaps()**
 
-Calculates the ammounts of overlap among the different biological groups monitored, at the same contour levels as defined in getAreas(). Overlaps are returned as **only in space** when the default dynBBMM() is used, and if a **timeframe** argument is set (in hours), overlaps are simultaneously in space and time.  
+Calculates the ammounts of overlap among different biological groups monitored, at the same contour levels as defined in getAreas(). Overlaps are returned as **only in space** for group dBMM, and if a timeframe is set (in hours), overlaps are **simultaneously in space and time** for timeslot dBBMM.  
 
 
 ### Plotting the results
@@ -72,7 +72,7 @@ Calculates the ammounts of overlap among the different biological groups monitor
 
 This function can be used to visualize the tracks created using **runRSP()**:
 
-<img src="vignettes/plotTrack1.png" width="600"  />
+<img src="vignettes/plotTrack4.png" width="700"  />
 
 **plotContours()**
 
@@ -80,10 +80,14 @@ Plots a specified dBBMM utilization distribution calculated using **dynBBMM()**:
 
 <img src="vignettes/plotContours_readme.png" width="700"  />
 
+**plotAreas()**
+
+DESCRIBE! LIMFJORD
+
 **plotOverlap()**
 
 This function shows where in the study area the overlaps between **different
-biological groups** occurred:
+biological groups** occurred: LAKE MACQUARIE
 
 <img src="vignettes/plotOverlap_readme.png" width="850"  />
 
