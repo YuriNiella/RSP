@@ -401,12 +401,14 @@ plotDensities <- function(input, group) {
 #'
 #' @param input output of \code{\link{getDistances}}
 #' @param by.group If TRUE, plots are returned individually (as a list) for each tracked group.
+#' @param compare By default, a comparative plot is returned showing distances travelled with Receiver and RSP location
+#' types. If FALSE, only the RSP total distances travelled will be returned.
 #' 
 #' @return A barplot of total distances travelled as a function of location type (Loc.type) and the distances travelled during each RSP track.  
 #' 
 #' @export
 #' 
-plotDistances <- function(input, by.group = FALSE) {
+plotDistances <- function(input, by.group = FALSE, compare = TRUE) {
   Animal.tracked <- NULL
   Dist.travel <- NULL
   Loc.type <- NULL
@@ -429,33 +431,66 @@ plotDistances <- function(input, by.group = FALSE) {
   plot.save <- plot.save[order(plot.save$Animal.tracked), ]
   rownames(plot.save) <- 1:nrow(plot.save)
 
-  if (by.group) {
-    groups <- sort(unique(plot.save$Group))
+  if (!compare) {
+    plot.save <- subset(plot.save, Loc.type == "RSP")
 
-    plots <- lapply(seq_along(groups), function(i) {
-      aux <- subset(plot.save, Group == groups[i])
-      p <- ggplot2::ggplot(data = aux, ggplot2::aes(x = Animal.tracked, y = Dist.travel, fill = Loc.type))
+    if (by.group) {
+
+        groups <- sort(unique(plot.save$Group))
+
+        plots <- lapply(seq_along(groups), function(i) {
+          aux <- subset(plot.save, Group == groups[i])
+          p <- ggplot2::ggplot(data = aux, ggplot2::aes(x = Animal.tracked, y = Dist.travel, fill = Loc.type))
+          p <- p + ggplot2::geom_bar(stat = "identity", position = ggplot2::position_dodge())
+          p <- p + ggplot2::labs(x = "Animal tracked", y = "RSP total distance travelled (metres by default)", fill = "")
+          p <- p + ggplot2::scale_fill_manual(values = c("#1b63a5"))
+          p <- p + ggplot2::theme_bw()
+          p <- p + ggplot2::coord_flip(ylim = c(0, max(plot.save$Dist.travel) * 1.05), expand = FALSE)
+          p <- p + ggplot2::labs(title = groups[i])
+          p <- p + ggplot2::theme(legend.position = "none")
+          return(p)
+        })
+      names(plots) <- groups
+      return(plots)   
+    } else {
+      p <- ggplot2::ggplot(data = plot.save, ggplot2::aes(x = Animal.tracked, y = Dist.travel, fill = Loc.type))
       p <- p + ggplot2::geom_bar(stat = "identity", position = ggplot2::position_dodge())
-      p <- p + ggplot2::labs(x = "Animal tracked", y = "Total distance travelled (metres by default)", fill = "")
-      p <- p + ggplot2::scale_fill_brewer(palette = "Paired")
+      p <- p + ggplot2::labs(x = "Animal tracked", y = "RSP total distance travelled (metres by default)", fill = "")
+      p <- p + ggplot2::scale_fill_manual(values = c("#1b63a5"))
       p <- p + ggplot2::theme_bw()
-      p <- p + ggplot2::coord_flip(ylim = c(0, max(aux$Dist.travel) * 1.05), expand = FALSE)
-      p <- p + ggplot2::guides(fill = ggplot2::guide_legend(reverse = TRUE))
-      p <- p + ggplot2::labs(title = groups[i])
+      p <- p + ggplot2::coord_flip(ylim = c(0, max(plot.save$Dist.travel) * 1.05), expand = FALSE)
+      p <- p + ggplot2::theme(legend.position = "none")
       return(p)
-    })
-    names(plots) <- groups
-
-    return(plots)    
+    }
   } else {
-    p <- ggplot2::ggplot(data = plot.save, ggplot2::aes(x = Animal.tracked, y = Dist.travel, fill = Loc.type))
-    p <- p + ggplot2::geom_bar(stat = "identity", position = ggplot2::position_dodge())
-    p <- p + ggplot2::labs(x = "Animal tracked", y = "Total distance travelled (metres by default)", fill = "")
-    p <- p + ggplot2::scale_fill_brewer(palette = "Paired")
-    p <- p + ggplot2::theme_bw()
-    p <- p + ggplot2::coord_flip(ylim = c(0, max(plot.save$Dist.travel) * 1.05), expand = FALSE)
-    p <- p + ggplot2::guides(fill = ggplot2::guide_legend(reverse = TRUE))
-    return(p)
+      if (by.group) {
+
+        groups <- sort(unique(plot.save$Group))
+
+        plots <- lapply(seq_along(groups), function(i) {
+          aux <- subset(plot.save, Group == groups[i])
+          p <- ggplot2::ggplot(data = aux, ggplot2::aes(x = Animal.tracked, y = Dist.travel, fill = Loc.type))
+          p <- p + ggplot2::geom_bar(stat = "identity", position = ggplot2::position_dodge())
+          p <- p + ggplot2::labs(x = "Animal tracked", y = "Total distance travelled (metres by default)", fill = "")
+          p <- p + ggplot2::scale_fill_brewer(palette = "Paired")
+          p <- p + ggplot2::theme_bw()
+          p <- p + ggplot2::coord_flip(ylim = c(0, max(aux$Dist.travel) * 1.05), expand = FALSE)
+          p <- p + ggplot2::guides(fill = ggplot2::guide_legend(reverse = TRUE))
+          p <- p + ggplot2::labs(title = groups[i])
+          return(p)
+        })
+      names(plots) <- groups
+      return(plots)   
+      } else {
+        p <- ggplot2::ggplot(data = plot.save, ggplot2::aes(x = Animal.tracked, y = Dist.travel, fill = Loc.type))
+        p <- p + ggplot2::geom_bar(stat = "identity", position = ggplot2::position_dodge())
+        p <- p + ggplot2::labs(x = "Animal tracked", y = "Total distance travelled (metres by default)", fill = "")
+        p <- p + ggplot2::scale_fill_brewer(palette = "Paired")
+        p <- p + ggplot2::theme_bw()
+        p <- p + ggplot2::coord_flip(ylim = c(0, max(plot.save$Dist.travel) * 1.05), expand = FALSE)
+        p <- p + ggplot2::guides(fill = ggplot2::guide_legend(reverse = TRUE))
+        return(p)
+      }
   }
 }
 
