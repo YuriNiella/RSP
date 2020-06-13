@@ -31,28 +31,39 @@ After estimating the in-water shortest paths, we can now use the output from `ru
 This option calculates a series of dBBMM for each animal track from all the groups monitored and included in the `runRSP()` analysis. Track **quality checks** are performed to ensure that only good tracks which allow the dBBMM to converge are included in the analysis. This is an example of the returned messages from `dynBBMM()`:
 
 ```
-dbbmm.results <- dynBBMM(input = rsp.results, UTM = 32)
+dbbmm.results <- dynBBMM(input = rsp.results, UTM = 32, base.raster = water.shape)
 
+M: Converting coordinates to UTM. Original latitude/longitude values for the detections will be stored in columns 'O.LAT' and 'O.LON'.
 M: Preparing data to apply dBBMM.
 M: No specific transmitters selected. All the data will be used for analysis.
 Warning: 7 track(s) in group R64K-4075 have less than eight detections and will not be used.
 Warning: 1 track(s) in group R64K-4075 are shorter than 30 minutes and will not be used.
 Warning: 2 individual detections were removed in group R64K-4125 due to simultaneous detections at two receivers.
-Warning: 2 track(s) in group R64K-4125 have less than eight detections and will not be used.
+Warning: 1 track(s) in group R64K-4125 have less than eight detections and will not be used.
 Warning: 1 track(s) in group R64K-4128 have less than eight detections and will not be used.
 Warning: 2 track(s) in group R64K-4128 are shorter than 30 minutes and will not be used.
 Warning: 6 track(s) in group R64K-4138 have less than eight detections and will not be used.
 M: In total, 93 detections were excluded as they failed the track quality checks.
 ```
-<!-- PAREI AQUI!! -->
-You can suppress the individual warning messages by setting `verbose` to FALSE. You will still receive the final message indicating how many detections were excluded.
 
-After calculating UDs, the **land areas** are excluded so that the final results represent only **in-water areas of use**. The overall overlap between each group monitored is also calculated. 
+You can suppress the individual warning messages by setting `verbose` to FALSE. You will still receive the final message indicating how many detections were excluded. After calculating UDs, the **land areas** are excluded so that the final results represent only **in-water areas of use**.
 
 ```
+dbbmm_all <- dynBBMM(input = rsp.data, UTM = 32, base.raster = water.shape, verbose = FALSE)
+
+M: Converting coordinates to UTM. Original latitude/longitude values for the detections will be stored in columns 'O.LAT' and 'O.LON'.
+M: Preparing data to apply dBBMM.
+M: No specific transmitters selected. All the data will be used for analysis.
+M: In total, 93 detections were excluded as they failed the track quality checks.
+M: Calculating dBBMM: R64K-4075
+M: Success! (Time spent: 00:00:06)
+M: Calculating dBBMM: R64K-4125
+M: Success! (Time spent: 00:01:07)
+M: Calculating dBBMM: R64K-4128
+M: Success! (Time spent: 00:00:10)
+M: Calculating dBBMM: R64K-4138
+M: Success! (Time spent: 00:00:43)
 M: Subtracting land areas from output.
-M: Storing final results.
-M: Percentage of detections valid for RSP: 99.8%
 ```
 
 The metadata on the dBBMMs are saved in the `$valid.tracks` object as data frame:
@@ -65,9 +76,7 @@ The metadata on the dBBMMs are saved in the `$valid.tracks` object as data frame
 |     B| R64K-4125|Track_02|    206|2018-04-21 13:13:24|2018-04-23 09:09:34|43.93 hours|
 |     B| R64K-4125|Track_03|   1118|2018-04-25 11:44:05|2018-04-28 14:10:14|74.43 hours|
 
-Included is information on the biological group (Group) tracked, number of valid locations (valid.n) used, and the duration of each model (Timespan) in hours.  
-
-<br/>
+Included is information on the biological group (Group) tracked, number of valid detections (valid.n) used, and the duration of each model (Timespan) in hours.  
 
 You can use `plotContours()` to visualize any of the dBBMM calculated by specifying the `group` and `track` you want to plot:
 
@@ -80,78 +89,123 @@ plotContours(input = dbbmm_all, tag = "R64K-4125", track = "3")
 
 ### 3.2. Fine-scale dynamic Brownian Bridge Movement Model (timeslot dBBMM)
 
-dBBMMs can also be calculated according to a moving temporal window. This allows investigating how the space-use overlap between the different groups varied during the study period. It is useful for assessing the influence of environmental parameters upon space-use of different groups tracked within the study area. The same `dynBBMM()` function is used, but here the argument `timeframe` has to be defined in hours as the temporal window. The total tracking period will be divided into `timeslots`, and dBBMMs calculated for each group monitored (for each timeslot). Overlapping areas are now calculated for each `timeslot` and the corresponding metadata stored in the `$timeslots` object:
+dBBMMs can also be calculated according to a **fixed moving temporal window**. This allows investigating how space use patterns varied in fine-scale. It is useful for assessing the influence of environmental parameters upon space-use of different groups tracked within the study area. The same `dynBBMM()` function is used, but here the argument `timeframe` has to be defined in hours as the temporal window of interest. The total tracking period will be divided into `timeslots`, and dBBMMs calculated for each group monitored (for each timeslot).
+
+**Note:** You can use the `plotDensities()` function to help you choose the most suitable `timeframe` for `dynBBMM()`, to make sure you won't be mostly using esclusively interpolated locations in your fine-scale analysis:
 
 ```
-time.dbbmm.results <- dynBBMM(input = rsp.results, UTM.zone = 56, breaks = c(0.5, 0.95), timeframe = 24) # Daily (24-h) timeslots!
-time.dbbmm.results$timeslots
-```
-| slot|               start|                stop| Bream| Luderick| Tarwhine|
-|:----|-------------------:|-------------------:|-----:|--------:|--------:|
-|  400| 2014-10-06 00:00:00| 2014-10-07 00:00:00| FALSE|    FALSE|    FALSE|
-|  401| 2014-10-07 00:00:00| 2014-10-08 00:00:00| FALSE|    FALSE|    FALSE|
-|  402| 2014-10-08 00:00:00| 2014-10-09 00:00:00| FALSE|    FALSE|    FALSE|
-|  403| 2014-10-09 00:00:00| 2014-10-10 00:00:00| FALSE|    FALSE|    FALSE|
-|  404| 2014-10-10 00:00:00| 2014-10-11 00:00:00|  TRUE|    FALSE|     TRUE|
-|  405| 2014-10-11 00:00:00| 2014-10-12 00:00:00| FALSE|    FALSE|     TRUE|
-|  406| 2014-10-12 00:00:00| 2014-10-13 00:00:00| FALSE|    FALSE|     TRUE|
-|  407| 2014-10-13 00:00:00| 2014-10-14 00:00:00| FALSE|    FALSE|     TRUE|
-|  408| 2014-10-14 00:00:00| 2014-10-15 00:00:00| FALSE|    FALSE|     TRUE|
-|  409| 2014-10-15 00:00:00| 2014-10-16 00:00:00| FALSE|    FALSE|     TRUE|
-|  410| 2014-10-16 00:00:00| 2014-10-17 00:00:00| FALSE|    FALSE|     TRUE|
-
-In the example above (daily timeslots set using `timeframe = 24`) we can notice that in timeslots 400 to 403 none of the three groups monitored were detected, whereas both **Bream** and **Tarwhine** groups got detected in **slot 404** and from **slot 405** to **slot 410** only **Tarwhine** were detected. 
-
-The `$track.areas` object for each tracked group will now have a first column named **Slot**, which identifies the `timeslot` for each of the dBBMM calculated:
-
-```
-time.dbbmm.results$track.areas$Bream[24:30, ]
+plotDensities(rsp.data)
+plotDensities(rsp.data, group = "Bream")
+plotDensities(rsp.data, group = "Luderick")
+plotDensities(rsp.data, group = "Tarwhine")
 ```
 
-|Slot|                Track|              Start|               Stop|Area.5|Area.95|Time.lapse.min|
-|:---|--------------------:|------------------:|------------------:|-----:|------:|-------------:|
-| 404|A69-9004-485_Track_01|2014-10-10 10:08:08|2014-10-10 10:38:15|   289|   1245|      30.11667|
-| 411|A69-9004-485_Track_02|2014-10-17 12:41:35|2014-10-17 23:59:03|   635|   3489|     677.46667|
-| 412|A69-9004-485_Track_02|2014-10-18 00:09:01|2014-10-18 23:26:49|   670|   4518|    1397.80000|
-| 413|A69-9004-485_Track_02|2014-10-19 00:18:55|2014-10-19 06:45:37|   231|   1062|     386.70000|
-| 425|A69-9004-485_Track_04|2014-10-31 10:24:47|2014-10-31 23:51:01|   685|   2731|     806.23333|
-| 426|A69-9004-485_Track_04|2014-11-01 00:00:59|2014-11-01 23:58:59|  1158|   5344|    1438.00000|
-| 427|A69-9004-485_Track_04|2014-11-02 00:08:18|2014-11-02 23:53:08|   624|   2515|    1424.83333|
+![Here we can notice that most of the consecutive detections occurred at intervals <1 hour for all groups combined (Total), and that **Luderick** was the group with longest mean detection intervals.](plotDensities1.png){#id .class width=100%} 
 
-Here we can see that the Bream **A69-9004-485** was detected consecutively between `2014-10-17 12:41:35` and `2014-10-19 06:45:37` (Track_02) and again between `2014-10-31 10:24:47` and `2014-11-02 23:53:08` (Track_04). 
+<br/>
 
-The following command line can help you assess if any other group got detected during a particular `timeslot`:
+Now that we verified that most of the acoustic detections occurred according to <2 hour time intervals, when the default `maximum.time` of 24 hours was used in `runRSP()`, **timeframe** arguments longer than this value should be safe for analysis. Let's perform a fine-scale analysis using a daily resolution (i.e. `timeframe = 24`):
 
 ```
-> time.dbbmm.results$timeslots[404, ]
-    slot               start                stop Bream Luderick Tarwhine
-404  404 2014-10-10 00:00:00 2014-10-11 00:00:00  TRUE    FALSE     TRUE
+dbbmm.time <- dynBBMM(input = rsp.data, UTM = 56, base.raster = water.shape, timeframe = 24, verbose = FALSE, start.time = "2014-07-01 00:00:00", stop.time = "2015-01-01 00:00:00")
+
+M: Converting coordinates to UTM. Original latitude/longitude values for the detections will be stored in columns 'O.LAT' and 'O.LON'.
+M: Discarding detection data previous to 2014-07-01 00:00:00 and posterior to 2015-01-01 00:00:00 per user command.
+M: Preparing data to apply dBBMM.
+M: No specific transmitters selected. All the data will be used for analysis.
+M: Activating separate dBBMM calculations for each time slot.
+M: In total, 60 detections were excluded as they failed the track quality checks.
+M: Calculating dBBMM: Bream
+  |============================================================| 100%
+M: Success! (Time spent: 00:15:29)
+M: Calculating dBBMM: Tarwhine
+  |============================================================| 100%
+M: Success! (Time spent: 00:03:07)
+M: Subtracting land areas from output.
 ```
 
-Yes, both **Bream** and **Tarwhine** were detected between `2014-10-10 00:00:00` and `2014-10-11 00:00:00` (**timeslot 404**). We can now inspect whether the two groups overlapped or not:
+Please note that you can run the analysis for only a time interval of interest using the `start.time` and `stop.time` arguments. Setting only a **start.time** will cause all data previous to this time to be excluded, and similarly, only a **stop.time** will exclude all the data posterior to the specified time. As in the example, you can also set both arguments to calculate the dBBMMs in a subset of the monitoring period. 
+
+Metadata on the timeslots used in the analysis is returned in the `$timeslots` object:
+
+| slot|               start|                stop| 
+|:----|-------------------:|-------------------:|
+|    1| 2014-06-30 00:00:00| 2014-06-30 23:59:59|
+|    2| 2014-07-01 00:00:00| 2014-07-01 23:59:59|
+|    3| 2014-07-02 00:00:00| 2014-07-02 23:59:59|
+|    4| 2014-07-03 00:00:00| 2014-07-03 23:59:59|
+|    5| 2014-07-04 00:00:00| 2014-07-04 23:59:59|
+|    6| 2014-07-05 00:00:00| 2014-07-05 23:59:59|
+
+And a new column will be added to the `$valid.tracks` object, representing the corresponding timeslot (Slot) that the dBBMMs were calculated for:
+
+|   Group|           Tag|  Track|Slot |valid.n|         First.time|          Last.time|  Timespan|
+|:-------|-------------:|------:|----:|------:|------------------:|------------------:|---------:|
+|   Bream|A69-9002-10473|Track_7|    1|    103|2014-07-01 00:05:53|2014-07-01 12:54:03|12.8 hours|
+|   Bream|A69-9002-10473|Track_7|    2|    121|2014-07-01 13:03:58|2014-07-02 06:02:47|16.9 hours|
+|   Bream|A69-9002-10473|Track_8|   13|    105|2014-07-12 18:40:30|2014-07-13 12:55:45|18.2 hours|
+|Tarwhine|  A69-9004-489|Track_3|  128|    280|2014-11-04 14:01:15|2014-11-05 13:53:22|23.8 hours|
+|Tarwhine|  A69-9004-489|Track_3|  129|    243|2014-11-05 14:00:37|2014-11-06 13:56:15|23.9 hours|
+|Tarwhine|  A69-9004-489|Track_3|  130|     98|2014-11-06 14:06:09|2014-11-07 13:52:10|23.7 hours|
+
+You can again use `plotContours()` to visualize the results of timeslot dBBMM, by setting the **timeslot** of interest:
 
 ```
-> time.dbbmm.results$overlap.areas$`0.95`$percentage$`404`
-             Bream Luderick  Tarwhine
-Bream           NA       NA 0.9799197
-Luderick        NA       NA        NA
-Tarwhine 0.9799197       NA        NA
+plotContours(input = dbbmm.time, tag = "A69-9004-485", track = "4", timeslot = 124, title = "Bream - Slot 124")
+plotContours(input = dbbmm.time, tag = "A69-9004-489", track = "3", timeslot = 124, title = "Tarwhine - Slot 124")
 ```
+![](plotContours3.png){#id .class width=100%} 
 
-This shows that the two groups had an overlap of 97.99% at the 95% dBBMM contour during this particular `timeslot` (or in this case, day). We can now see exactly where the overlap occurred by plotting the space use models and the overlap contours using:
 
-```
-plotContours(input = time.dbbmm.results, group = "Bream", track = "A69-9004-485_Track_01", main = "A69-9004-485 (Bream)", stations = TRUE, timeslot = 404)
-plotContours(input = time.dbbmm.results, group = "Tarwhine", track = "A69-9004-489_Track_1", main = "A69-9004-489 (Tarwhine)", stations = TRUE, timeslot = 404)
-```
-![Setting the argument `stations = TRUE` will include the locations of acoustic receivers in the plot.](plotContours2.png){#id .class width=120% height=120%}
+### 3.3. Calculating areas of space use
 
-Here we can see how these two transmitters really occurred in a similar region during `timeslot = 404`. To inspect for the total space use areas at group level, and the exact overlap in space and time we can use `plotOverlap()`:
+Now you can calculate the areas used with the `getAreas()` function, both at **group** or **track** level, set using the `type` argument. Group areas will correspond to the total areas, within your study site, used by the animals from a particular group. When track areas are set, these are calculated for each animal track individually. Areas are stored in the `$areas` object, as a list of dataframes for each tracked group.
+
+#### 3.3.1. Group areas
 
 ```
-> plotOverlap(input = dbbmm_time_24, level = .95, store = TRUE, stations = FALSE, timeslot = 404, main = "2014-10-10")
-M: No overlap found between 'Bream' and 'Luderick'.
-M: No overlap found between 'Luderick' and 'Tarwhine'.
+areas.group <- getAreas(input = dbbmm.time, type = "group")
+areas.group$areas$Bream
 ```
-![](plotOverlap2.png){#id .class width=70% height=70%}
+
+| Slot|    Area.5|  Area.95|
+|:----|---------:|--------:|
+|    1|	 974333.6|  4310814|
+|    2|	1218435.9|	6141996|
+|   13|	3037994.5| 12030757|
+|   14|	 974333.6|	4408787|
+|   15|	 711134.8|	3224808|
+|   16|	 696189.8|	3053355|
+
+If your analysis is of type timeslot dBBMM, a column will be added representing the corresponding timeslots (Slot). Please note the areas of use are calculated by default for the 50% and 95% contours, but can be customized using the `breaks` argument. 
+
+You can plot the group areas of space use using the `plotAreas()` function:
+```
+plotAreas(areas.group, base.raster = water.shape, group = "Bream", timeslot = 128)
+plotAreas(areas.group, base.raster = water.shape, group = "Tarwhine", timeslot = 128) 
+```
+![](plotAreas.png){#id .class width=100%} 
+
+#### 3.3.2. Track areas
+
+```
+areas.track <- getAreas(input = dbbmm.time, type = "track")
+areas.track$areas$Bream
+```
+
+| Slot|                    ID|   Area.5| Area.95|
+|:----|---------------------:|--------:|-------:|
+|  130| A69.9004.494_Track_01| 719437.6| 2689692|
+|  130| A69.9004.496_Track_01| 974748.7| 3658629|
+|  130| A69.9004.497_Track_01| 691623.2| 2575944|
+|  131| A69.9004.494_Track_01| 712795.4| 2760266|
+|  131| A69.9004.496_Track_01| 892135.9| 3463098|
+|  131| A69.9004.497_Track_01| 711550.0| 2649008|
+|  132| A69.9004.494_Track_01| 679999.3| 2532769|
+|  132| A69.9004.496_Track_01| 885908.8| 3410375|
+|  132| A69.9004.497_Track_02| 871794.0| 3403733|
+
+Track areas have an **ID** column, identifying the corresponding transmitter and track.
+
+
 

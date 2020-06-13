@@ -42,7 +42,6 @@ filtered_data <- explore(tz = "Europe/Copenhagen")
 To recreate the shortest in-water paths of tracked animals, RSP needs a **transition layer** from your study area. You may already have a transition layer calculated for your study area, or you can use actel again to do so. First, you need to load a **shapefile** (.shp) from your study area **delimiting the land contours** using `loadShape()`. This function automatically imports your shapefile and converts it to a raster, and the corresponding pixel size can be set using the `size` argument. After loading your shapefile, you need to create your transition layer using `transitionLayer()` by choosing a number of `directions` for distance calculations (please click [here](https://github.com/hugomflavio/actel) and see pages 2 and 3 for more information about this step):
 
 ```
-library(actel)
 water.shape <- loadShape(shape = "my_study_areas.shp", size = 0.0001)  
 water.transition <- transitionLayer(water.shape, directions = 16)
 ```

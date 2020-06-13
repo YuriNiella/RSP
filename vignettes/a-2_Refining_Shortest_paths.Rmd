@@ -24,11 +24,16 @@ knitr::opts_chunk$set(
 
 ***
 
-The `runRSP()` function is used to recreate the shortest paths between pairs of acoustic detections. The detection data, station coordinates and the group of each fish is passed on to RSP automatically by actel through the argument `input`. You must also include the name of the transition layer you created using the argument `t.layer`. e.g.:
+The `runRSP()` function is used to recreate the shortest paths between pairs of acoustic detections. The detection data, station coordinates and the group of each tracked animal is passed on to RSP automatically by actel through the argument `input`. You must also include the name of the transition layer you created using the argument `t.layer`. e.g.:
 
 ```
+library(actel)
 library(RSP)
-rsp.results <- runRSP(input = filtered_data, coord.x = "Longitude", coord.y = "Latitude", t.layer = water.transition)
+
+filtered_data <- explore(tz = "Europe/Copenhagen")
+water.transition <- transitionLayer(water.shape, directions = 16)
+
+rsp.results <- runRSP(input = filtered_data, t.layer = water.transition, coord.x = "Longitude", coord.y = "Latitude")
 ```
 
 The **detection ranges** of each listening station are also taken into account in the `runRSP()`. These will be used as the location errors for the dBBMM when calculating UD areas. A **Range column** can be included in the **spatial.csv file** for specifying the detection ranges (in metres) for each acoustic station if these are known. If the 'Range' column is not found, a default detection range of 500 m is automatically considered for each receiver with the warning:
@@ -59,7 +64,7 @@ While moving away from the first detection, the **position errors** gradually in
 The **dynamic Brownian Bridge Movement Model** accounts for the **speed** at which animals move between consecutive detections to **expand/contract the UD areas**. Consequently, depending on your array configuration, estuary shape and species being tracked, you may find useful to adjust the `distance` and `time.lapse` arguments for recreating the most plausible movement patterns of the monitored animals. 
 
 
-### 2.1. Exploring the RSP results
+### 2.1. Exploring the runRSP results
 
 Here are some examples of the `runRSP()` output:
 
@@ -124,17 +129,27 @@ RSP also has a `plotDensities()` function, which allows you to investigate the d
 ![You can set a **group** argument to generate a density plot for a particular group of interest. By default all monitored groups are used.](densityRSP.png){#id .class width=650} 
 
 
-### 2.2. Visualizing RSP outputs
+### 2.2. Visualizing the runRSP outputs
 
 We can use `plotTracks()` to plot any of the tracks from the `runRSP()` output:
 
-![You can use the function `suggestSize()` in your base raster (shapefile) file to get suggested dimensions for a projected plot](plotTrack2.png){#id .class width=550} 
+```
+plotTracks(rsp.data1, base.raster = water.shape1, type = "both", tag = "R64K-4125", track = "Track_3")
+plotTracks(rsp.data1, base.raster = water.shape1, type = "both", tag = "R64K-4125", track = "Track_3", land.col = "darkgreen")
+plotTracks(rsp.data2, base.raster = water.shape2, type = "both", tag = "R64K-4545", track = "Track_9")
+```
 
-![The function `addStations()` can be used to **add the receiver locations** to your plot.](plotTrack3.png){#id .class width=750} 
+![You can use the function `suggestSize()` in your base raster (shapefile) file to get suggested dimensions for a projected plot.](plotTrack2.png){#id .class width=550} 
+
+![You can easily change the colour of the land mass using `land.col`.](plotTrack3.png){#id .class width=550} 
+
+![The function `addStations()` can be used to **add the receiver locations** to your plot.](plotTrack4.png){#id .class width=750} 
 
 <br/>
 
-The `getDistances()` function returns the distances travelled (in meters) during each track:
+### 2.3. Distances travelled exclusively in-water
+
+The `getDistances()` function can be used to obtain the distances travelled (in meters) during each RSP track. Distances are returned both as **Receiver** (calculated only using the receiver locations) or **RSP** (calculated using both the receiver locations and the interpolated positions) location types (Loc.type):
 
 ```
 dist.table <- getDistances(rsp.results)
@@ -168,4 +183,11 @@ We can use `plotDistances()` to compare the total distances travelled by each an
 plotDistances(dist.table)
 ```
 ![If you set `by.group = TRUE` plots are returned individually for each group monitored.](distanceRSP.png){#id .class width=550} 
+
+<br/>
+
+```
+plotDistances(dist.table, compare = FALSE)
+```
+![If you set `compare = FALSE`, only the RSP total distances travelled will be returned.](distanceRSP2.png){#id .class width=550} 
 
