@@ -24,7 +24,7 @@ knitr::opts_chunk$set(
 
 ***
 
-### 1.1. Preliminary analysis of acoustic detections using actel
+## 1.1. Preliminary analysis of acoustic detections using actel
 
 Analysing acoustic telemetry data requires initial filtering to exclude misleading data (e.g. false detections, detections prior to release). To overcome this issue and ensure reliable results, the RSP toolkit operates in close relationship with the **actel R package**, which filters and invalidates flawed detections. Before getting started with RSP, you will have to download actel and filter your acoustic data. Please click [here](https://github.com/hugomflavio/actel) for more information and to download actel.
 
@@ -37,7 +37,7 @@ library(actel)
 filtered_data <- explore(tz = "Europe/Copenhagen")
 ```
 
-### 1.2. Preparing the data from your study area using actel
+## 1.2. Preparing the data from your study area using actel
 
 To recreate the shortest in-water paths of tracked animals, RSP needs a **transition layer** from your study area. You may already have a transition layer calculated for your study area, or you can use actel again to do so. First, you need to load a **shapefile** (.shp) from your study area **delimiting the land contours** using `loadShape()`. This function automatically imports your shapefile and converts it to a raster, and the corresponding pixel size can be set using the `size` argument. After loading your shapefile, you need to create your transition layer using `transitionLayer()` by choosing a number of `directions` for distance calculations (please click [here](https://github.com/hugomflavio/actel) and see pages 2 and 3 for more information about this step):
 
@@ -49,7 +49,7 @@ water.transition <- transitionLayer(water.shape, directions = 16)
 Please have in mind that this shapefile (or base raster) will be also necessary further down during the RSP analysis. RSP currently accepts shapefiles in both **metric** and **geographic** coordinate reference system formats.
 
 
-### 1.3. Checking the quality of the input files
+## 1.3. Checking the quality of the input files
 
 Depending on the format of the shapefile provided, the pixel size used for your study area and the locations of your receivers (provided earlier in the spatial dataset for actel), it might be that your receivers could end up in land during analysis. This will cause the RSP analysis to return funky results such as animal tracks crossing extensively through land. To avoid this issue, you can use the `plotRaster()` function:
 

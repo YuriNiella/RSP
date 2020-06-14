@@ -24,54 +24,78 @@ knitr::opts_chunk$set(
 
 ***
 
-Now that we calculated the areas of space-use within our study area for each group monitored, we can investigate the amount of overall overlap between them by inspecting the `$overlap.areas` object:
+If your study comprises **multiple biological groups** (e.g. different species, different sexes, etc.), you might find useful to calculate the ammounts of **overlap** between them. For calculating the overlaps, the areas of space use must be first calculated at **group** level (using the `getAreas()` function). Overlaps are automatically calculated at the same levels provided in the `breaks` argument in `getAreas()`, therefore, are returned at the 50% and 95% contours by default. Areas of overlap correspond to the ammount from the smallest area that falls within the largest area, calculated for all monitored groups and returned both in absolute (squared meters) and percentages. 
+
+### 4.1. Calculating overlaps for group dBBMM 
+
+When utilization distribution areas are calculated for **group dBBMM**, models are calculated at the track level. Since this analysis does not provide standardized tracks (i.e. start and end times might vary among tracked individuals), this option simply calculates the overall overlap among the groups of interest. 
 
 ```
-dbbmm.results$overlap.areas$`0.5`$absolute
+overlap.save <- geOverlaps(areas.group)
+overlap.save$areas$`0.95`$absolute
 ```
-|          | R64K-4075| R64K-4125| R64K-4128| R64K-4138|
-|:---------|---------:|---------:|---------:|---------:|
-| R64K-4075|        NA|      1716|      1792|      3606|
-| R64K-4125|   	  1716|        NA|      1769|      3551|
-| R64K-4128|	    1792|      1769|        NA|      2635|
-| R64K-4138|      3606|      3551|      2635|        NA|
+
+|          | R64K-4075 | R64K-4125| R64K-4128| R64K-4138|
+|:---------|----------:|---------:|---------:|---------:|
+| R64K-4075|         NA|  82080502|  31831020| 103273976|
+| R64K-4125|   82080502|        NA|  33164114| 186469924|
+| R64K-4128|   31831020|  33164114|        NA|  44753870|
+| R64K-4138|  103273976| 186469924|  44753870|        NA|
 
 ```
-dbbmm.results$overlap.areas$`0.5`$percentage
+overlap.save$areas$`0.95`$percentage
 ```
-|          | R64K-4075| R64K-4125| R64K-4128| R64K-4138|
-|:---------|---------:|---------:|---------:|---------:|
-| R64K-4075|        NA| 0.3622546| 0.6775047| 0.6049321|
-| R64K-4125| 0.3622546|        NA| 0.6688091| 0.7496306|
-| R64K-4128| 0.6775047| 0.6688091|        NA| 0.9962193|
-| R64K-4138| 0.6049321| 0.7496306| 0.9962193|        NA|
+
+|          | R64K-4075 | R64K-4125| R64K-4128| R64K-4138|
+|:---------|----------:|---------:|---------:|---------:|
+| R64K-4075|         NA| 0.7607161| 0.7090909| 0.9571357|
+| R64K-4125|  0.7607161|        NA| 0.7387879| 0.9081876|
+| R64K-4128|  0.7090909| 0.7387879|        NA| 0.9969697|
+| R64K-4138|  0.9571357| 0.9081876| 0.9969697|        NA|
+
+Now we can use `plotOverlaps()` to see exactly where in the study area the overlap took place:
 
 ```
-dbbmm.results$overlap.areas$`0.95`$absolute
+plotOverlaps(overlaps = over.save, areas = areas.save, base.raster = limfjord.shape, 
+	groups = c("R64K-4075", "R64K-4125"), level = 0.95) 
+plotOverlaps(overlaps = over.save, areas = areas.save, base.raster = limfjord.shape, 
+	groups = c("R64K-4075", "R64K-4128"), level = 0.95)
 ```
-|          | R64K-4075| R64K-4125| R64K-4128| R64K-4138|
-|:---------|---------:|---------:|---------:|---------:|
-| R64K-4075|  	    NA|     12851|      4893|     17480|
-| R64K-4125|     12851|        NA|      5115|     29210|
-| R64K-4128|	  4893|      5115|        NA|      6839|
-| R64K-4138|     17480|     29210|      6839|        NA|
+![](plotOverlaps1.png){#id .class width=80%} 
+
+
+### 4.2. Calculating overlaps for timeslot dBBMM 
+
+The standardized tracks returned from **timeslot dBBMM** can be used to calculate overlaps between multiple groups both in **space** and **time**. 
 
 ```
-dbbmm.results$overlap.areas$`0.95`$percentage
+overlap.save <- geOverlaps(areas.group)
+overlap.save$areas$`0.95`$absolutes$`128`
 ```
-|          | R64K-4075| R64K-4125| R64K-4128| R64K-4138|
-|:---------|---------:|---------:|---------:|---------:|
-| R64K-4075|        NA| 0.7247349| 0.7133693| 0.9857884|
-| R64K-4125| 0.7247349|        NA| 0.7457355| 0.9064672|
-| R64K-4128| 0.7133693| 0.7457355|        NA| 0.9970841|
-| R64K-4138| 0.9857884| 0.9064672| 0.9970841|        NA|
-
-Please note the overlaps are calculated for the contours defined by `breaks` in `dynBBMM()`, and returned both in **absolute values** (squared metres) and **percentage** matrices. For example, we can see in the last table that **R64K-4128** and **R64K-4138** were the groups with higher overall overlap of 99.71% at the 95% level, whereas **R64K-4075** and **R64K-4128** had a smaller overlap of 71.34% at the 95% contour. To see exactly where space use overlaps occurred you can use `plotOverlap()`:
+|         |      Bream|  Tarwhine|
+|:--------|----------:|---------:|
+|   Bream |         NA|   2454723|
+| Tarwhine|    2454723|        NA|
 
 ```
-plotOverlap(input = dbbmm.results, stations = FALSE, level = .95, store = TRUE)
+overlap.save$areas$`0.95`$percentage$`128`
 ```
-<center>
-![](plotOverlap.png){#id .class width=70% height=70%} 
-</center>
+
+|         |      Bream|  Tarwhine|
+|:--------|----------:|---------:|
+|   Bream |         NA| 0.9680747|
+| Tarwhine|  0.9680747|        NA|
+
+
+```
+plotOverlaps(overlaps = overlap.save, areas = areas.group, base.raster = macquarie.shape, 
+  groups = c("Bream", "Tarwhine"), timeslot = 127, level = 0.95, title = "timeslot 127") 
+
+M: No overlap found between 'Bream' and 'Tarwhine'. Plotting only the separate areas.
+
+plotOverlaps(overlaps = overlap.save, areas = areas.group, base.raster = macquarie.shape, 
+  groups = c("Bream", "Tarwhine"), timeslot = 128, level = 0.95, title = "timeslot 128") 
+```
+![Please note the message for the first plot: no overlaps were found between the two groups during timeslot 126.](plotOverlaps2.png){#id .class width=100%} 
+
 

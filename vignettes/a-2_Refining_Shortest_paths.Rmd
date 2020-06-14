@@ -64,7 +64,7 @@ While moving away from the first detection, the **position errors** gradually in
 The **dynamic Brownian Bridge Movement Model** accounts for the **speed** at which animals move between consecutive detections to **expand/contract the UD areas**. Consequently, depending on your array configuration, estuary shape and species being tracked, you may find useful to adjust the `distance` and `time.lapse` arguments for recreating the most plausible movement patterns of the monitored animals. 
 
 
-### 2.1. Exploring the runRSP results
+## 2.1. Exploring the runRSP results
 
 Here are some examples of the `runRSP()` output:
 
@@ -129,7 +129,7 @@ RSP also has a `plotDensities()` function, which allows you to investigate the d
 ![You can set a **group** argument to generate a density plot for a particular group of interest. By default all monitored groups are used.](densityRSP.png){#id .class width=650} 
 
 
-### 2.2. Visualizing the runRSP outputs
+## 2.2. Visualizing the runRSP outputs
 
 We can use `plotTracks()` to plot any of the tracks from the `runRSP()` output:
 
@@ -147,7 +147,7 @@ plotTracks(rsp.data2, base.raster = water.shape2, type = "both", tag = "R64K-454
 
 <br/>
 
-### 2.3. Distances travelled exclusively in-water
+## 2.3. Distances travelled exclusively in-water
 
 The `getDistances()` function can be used to obtain the distances travelled (in meters) during each RSP track. Distances are returned both as **Receiver** (calculated only using the receiver locations) or **RSP** (calculated using both the receiver locations and the interpolated positions) location types (Loc.type):
 

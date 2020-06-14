@@ -26,7 +26,7 @@ knitr::opts_chunk$set(
 
 After estimating the in-water shortest paths, we can now use the output from `runRSP()` to calculate utilization distribution areas using **dynamic Brownian Bridge Movement Models** with the `dynBBMM()` function. If you are using a geographic coordinate reference system, here you will need to know the [UTM zone](http://www.dmap.co.uk/utmworld.htm) of your study site and specify it using the argument `UTM`. By default, the analysis will run for all transmitters detected, but you can determine also which transmitters you would like to include using `tags`. 
 
-### 3.1. Total dynamic Brownian Bridge Movement Model (group dBBMM)
+## 3.1. Total dynamic Brownian Bridge Movement Model (group dBBMM)
 
 This option calculates a series of dBBMM for each animal track from all the groups monitored and included in the `runRSP()` analysis. Track **quality checks** are performed to ensure that only good tracks which allow the dBBMM to converge are included in the analysis. This is an example of the returned messages from `dynBBMM()`:
 
@@ -87,7 +87,7 @@ plotContours(input = dbbmm_all, tag = "R64K-4125", track = "3")
 ![The `breaks` argument can be used to specify which contours to plot. By default, the **25%**, **50%**, **75%**, and **95%** contours are returned. Again `addStations()` can be used to add the receiver locations.](plotContours1.png){#id .class width=70% height=70%} 
 
 
-### 3.2. Fine-scale dynamic Brownian Bridge Movement Model (timeslot dBBMM)
+## 3.2. Fine-scale dynamic Brownian Bridge Movement Model (timeslot dBBMM)
 
 dBBMMs can also be calculated according to a **fixed moving temporal window**. This allows investigating how space use patterns varied in fine-scale. It is useful for assessing the influence of environmental parameters upon space-use of different groups tracked within the study area. The same `dynBBMM()` function is used, but here the argument `timeframe` has to be defined in hours as the temporal window of interest. The total tracking period will be divided into `timeslots`, and dBBMMs calculated for each group monitored (for each timeslot).
 
@@ -157,11 +157,11 @@ plotContours(input = dbbmm.time, tag = "A69-9004-489", track = "3", timeslot = 1
 ![](plotContours3.png){#id .class width=100%} 
 
 
-### 3.3. Calculating areas of space use
+## 3.3. Calculating areas of space use
 
 Now you can calculate the areas used with the `getAreas()` function, both at **group** or **track** level, set using the `type` argument. Group areas will correspond to the total areas, within your study site, used by the animals from a particular group. When track areas are set, these are calculated for each animal track individually. Areas are stored in the `$areas` object, as a list of dataframes for each tracked group.
 
-#### 3.3.1. Group areas
+### 3.3.1. Group areas
 
 ```
 areas.group <- getAreas(input = dbbmm.time, type = "group")
@@ -186,7 +186,7 @@ plotAreas(areas.group, base.raster = water.shape, group = "Tarwhine", timeslot =
 ```
 ![](plotAreas.png){#id .class width=100%} 
 
-#### 3.3.2. Track areas
+### 3.3.2. Track areas
 
 ```
 areas.track <- getAreas(input = dbbmm.time, type = "track")

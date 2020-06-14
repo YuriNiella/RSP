@@ -79,17 +79,19 @@ This function can be used to visualize the tracks created using **runRSP()**:
 Plots a specified dBBMM utilization distribution calculated using **dynBBMM()**:
 
 <img src="vignettes/plotContours_readme.png" width="700"  />
-
+ 
 **plotAreas()**
 
-DESCRIBE! LIMFJORD
+This plot shows the space use areas from a particular group of animals:
+
+<img src="vignettes/plotAreas1.png" width="650"  />
 
 **plotOverlap()**
 
 This function shows where in the study area the overlaps between **different
-biological groups** occurred: LAKE MACQUARIE
+biological groups** occurred:
 
-<img src="vignettes/plotOverlap_readme.png" width="850"  />
+<img src="vignettes/plotOverlaps2.png" width="850"  />
 
 ## Installation
 
