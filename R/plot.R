@@ -568,10 +568,15 @@ plotOverlaps <- function(overlaps, areas, base.raster, groups, timeslot,
   if (length(col) != 3)
     stop("Please provide three colours in 'col'.", call. = FALSE)
 
-  if (is.null(timeslot))
-    ol.crs <- as.character(raster::crs(overlaps$rasters[[1]][[1]][[1]]))
-  else
-    ol.crs <- as.character(raster::crs(overlaps$rasters[[1]][[1]][[which(!is.na(overlaps$rasters[[1]][[1]]) == TRUE)]]))
+  group.rasters <- areas$rasters[[groups]]
+
+  if (missing(timeslot)) {
+    the.rasters <- group.rasters
+    ol.crs <- as.character(raster::crs(areas$rasters[[1]][[1]]))
+  } else {
+    the.rasters <- group.rasters[[as.character(timeslot)]]
+    ol.crs <- as.character(raster::crs(areas$rasters[[1]][[1]][[1]]))
+  }
 
   if (as.character(raster::crs(base.raster)) != ol.crs) {
     warning("The dbbmm output and the base raster are not in the same coordinate system. Attempting to re-project the dbbmm output.", call. = FALSE, immediate. = TRUE)
