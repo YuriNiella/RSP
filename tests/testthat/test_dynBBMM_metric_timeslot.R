@@ -20,7 +20,6 @@ input$valid.movements <- input$valid.movements[c(1, 52)]
 
 # Save RSP objects per group:
 rsp.data <- runRSP(input = input, t.layer = tl, coord.x = "x", coord.y = "y")
-# dbbmm.all <- dynBBMM(rsp.data, water.large, UTM = 32) # Total
 dbbmm.time <- dynBBMM(rsp.data, water.large, timeframe = 24, UTM = 32) # Timeframe
 
 	## RUN THESE LINES ONLY TO REPLACE THE REFERENCES!
@@ -37,15 +36,6 @@ dbbmm.time <- dynBBMM(rsp.data, water.large, timeframe = 24, UTM = 32) # Timefra
 #===============================================#
 
 ## 1) Testing runRSP:
-# test_that("input for runRSP is an actel analysis result", {
-# 	aux <- input
-# 	aux$rsp.info <- NULL
-
-# 	expect_error(runRSP(input = aux, t.layer = tl, coord.x = "Longitude", coord.y = "Latitude"),
-# 		"'input' could not be recognized as an actel analysis result.", fixed = TRUE)
-# })
-
-
 test_that("runRSP with metric system is working for timeslot", {
 	load("runRSP_metric_timeslot.RData")
 	expect_equivalent(rsp.data, reference_runRSP_metric_timeslot) 
@@ -67,114 +57,8 @@ test_that("dynBBMM with metric system is working for timeslot", {
 
 
 #============================================#
-# Test plot functions for latlon coordinates #
+# Test plot functions for metric coordinates #
 #============================================#
-
-
-# plotRasters:
-# test_that("plotRaster tag is working properly", {
-# 	p <- tryCatch(suppressWarnings(plotRaster(input, base.raster = water.large, coord.x = "Longitude", coord.y = "Latitude", size = 1)), 
-# 		warning = function(w)
-#  	stop("A warning was issued in plotRaster!\n", w))
-# 	expect_that(p, is_a("ggplot"))
-# })
-
-
-# plotTracks:
-# test_that("plotTracks tag is set correctly", {
-# 	expect_error(plotTracks(rsp.data, base.raster = water.large, tag = "banana", track = "Track_1"),
-# 		"The requested tag is not present in the dataset.", fixed = TRUE)
-# })
-
-
-# test_that("plotTracks group is set correctly", {
-# 	expect_error(plotTracks(rsp.data, base.raster = water.large, group = "banana", track = "Track_1"),
-# 		paste0("The requested group is not present in the dataset. Available groups: ", 
-#         paste(unique(input$bio$Group), collapse =", ")), fixed = TRUE)
-# })
-
-
-# test_that("plotTracks track is set correctly", {
-# 	expect_error(plotTracks(rsp.data, base.raster = water.large, tag = "R64K-4451", track = "Track_50"),
-# 		"The requested track does not exist for the specified tag.", fixed = TRUE)
-# })
-
-
-# test_that("plotTracks only group or tag is set at a time", {
-# 	expect_error(plotTracks(rsp.data, base.raster = water.large, group = "A", tag = "R64K-4451"),
-# 		"Both 'group' and 'tag' were set. Please use one at a time.", fixed = TRUE)
-# })
-
-
-# test_that("plotTracks is working properly", {
-# 	p <- tryCatch(suppressWarnings(plotTracks(rsp.data, base.raster = water.large, group = "A", track = "Track_1")), 
-# 		warning = function(w)
-#  	stop("A warning was issued in plotTracks!\n", w))
-# 	expect_that(p, is_a("ggplot"))
-# })
-
-
-# plotDensities:
-# test_that("plotDensities can find the correct group", {
-# 	expect_error(plotDensities(rsp.data, group = "banana"),
-# 		"'group' should match one of the groups present in the dataset.", fixed = TRUE)
-# })
-
-
-# test_that("plotDensities is working properly for total plot", {
-# 	p <- tryCatch(suppressWarnings(plotDensities(rsp.data)), 
-# 		warning = function(w)
-#  	stop("A warning was issued in plotDensities!\n", w))
-# 	expect_that(p, is_a("ggplot"))
-# })
-
-
-# test_that("plotDensities is working properly for group plot", {
-# 	p <- tryCatch(suppressWarnings(plotDensities(rsp.data, group = "A")), 
-# 		warning = function(w)
-#  	stop("A warning was issued in plotDensities!\n", w))
-# 	expect_that(p, is_a("ggplot"))
-# })
-
-
-# plotDistances: but first getDistances has to work!
-# test_that("getDistances is working properly", {
-# 	p <- tryCatch(getDistances(rsp.data), 
-# 		warning = function(w)
-#  	stop("A warning was issued in getDistances!", w))
-# 	expect_that(p, is_a("data.frame"))
-# })
-
-
-# test_that("plotDistances is working properly", {
-# 	output <- getDistances(rsp.data)
-
-# 	p <- tryCatch(plotDistances(output), 
-# 		warning = function(w)
-#  	stop("A warning was issued in plotDistances!", w))
-# 	expect_that(p, is_a("ggplot"))
-# })
-
-
-# test_that("plotDistances by group is working properly", {
-# 	output <- getDistances(rsp.data)
-
-# 	p <- tryCatch(plotDistances(output, by.group = TRUE), 
-# 		warning = function(w)
-#  	stop("A warning was issued in plotDistances!", w))
-# 	expect_that(p, is_a("list"))
-# })
-
-
-## Test dynBBMM plots
-# input2 <- rsp.data
-# input2$detections <- input2$detections[c(1, 52)] # one of each group
-# input2$detections[[1]] <- input2$detections[[1]][c(1:30, 676:800), ]
-# input2$detections[[2]] <- input2$detections[[2]][c(1:30), ]
-
-# dbbmm.all <- dynBBMM(input2, water.large, UTM = 32) # Total
-# dbbmm.time <- dynBBMM(input2, water.large, timeframe = 24, UTM = 32) # Timeframe
-
 
 # plotContours:
 test_that("plotContours is set with only one timeslot", {
@@ -193,39 +77,6 @@ test_that("plotContours timeslot is set when necessary", {
 	expect_error(plotContours(dbbmm.time, tag = "R64K-4451", track = "Track_1"),
 		"The dbbmm is of type 'timeslot', but no timeslot was selected.", fixed = TRUE)
 })
-
-
-# test_that("plotContours col and breaks have same length", {
-# 	breaks <- c(0.5, 0.95)
-# 	col <- "black"
-
-# 	expect_error(plotContours(dbbmm.all, tag = "R64K-4451", track = "Track_1", breaks = breaks, col = col),
-# 		paste0("'col' must be as long as 'breaks' (", length(col), " != ", length(breaks), ")."), fixed = TRUE)
-# })
-
-
-# test_that("plotContours track is not specified when multiple tracks are available", {
-# 	expect_error(plotContours(dbbmm.all, tag = "R64K-4545"),
-# 		"Please choose one of the available tracks: 1, 3", fixed = TRUE)
-# })
-
-
-# test_that("plotContours wrong track is specified", {
-# 	expect_error(plotContours(dbbmm.all, tag = "R64K-4451", track = "banana"),
-# 		"Could not find track banana for tag R64K-4451. Please choose one of the available tracks: 1, 2", fixed = TRUE)
-# })
-
-
-# test_that("plotContours base raster and dynBBMM output are on different CRS", {
-# 	expect_warning(plotContours(dbbmm.all, tag = "R64K-4451", track = "1"),
-# 		"The dbbmm output and the base raster are not in the same coordinate system. Attempting to re-project the dbbmm output.", fixed = TRUE)
-# })
-
-
-# test_that("plotContours track is set but only one track is available", {
-# 	expect_warning(plotContours(dbbmm.all, tag = "R64K-4451", track = "1"),
-# 		"'track' was set but target tag only has one track. Disregarding", fixed = TRUE)
-# })
 
 
 test_that("plotContours add title works", {
@@ -347,7 +198,7 @@ overlap2 <- suppressWarnings(getOverlaps(output2.group))
 
 
 test_that("plotOverlaps works for group and returns the plot for metric timeslot", {
-	p <- tryCatch(suppressWarnings(plotOverlaps(overlaps = overlap2, areas = output2.group, base.raster = water.large, groups = c("A", "C"), level = 0.95, timeslot = 1)), 
+	p <- tryCatch(plotOverlaps(overlaps = overlap2, areas = output2.group, base.raster = water.large, groups = c("A", "C"), level = 0.95, timeslot = 1), 
 		warning = function(w)
  	stop("A warning was issued in plotOverlaps!", w))
 
@@ -356,7 +207,7 @@ test_that("plotOverlaps works for group and returns the plot for metric timeslot
 
 
 test_that("plotOverlaps crashes when multiple timeslots are set", {
-	expect_error(suppressWarnings(plotOverlaps(overlaps = overlap2, areas = output2.group, base.raster = water.large, groups = c("A", "C"), level = 0.95, timeslot = c(1, 2))),
+	expect_error(plotOverlaps(overlaps = overlap2, areas = output2.group, base.raster = water.large, groups = c("A", "C"), level = 0.95, timeslot = c(1, 2)),
 		"Please select only one timeslot.", fixed = TRUE)
 })
 

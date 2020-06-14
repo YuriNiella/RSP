@@ -21,15 +21,14 @@ input$valid.movements <- input$valid.movements[c(1, 52)]
 # Save RSP objects per group:
 rsp.data <- runRSP(input = input, t.layer = tl, coord.x = "x", coord.y = "y")
 dbbmm.all <- dynBBMM(rsp.data, water.large) # Total
-# dbbmm.time <- dynBBMM(rsp.ada, water.large, timeframe = 24, UTM = 32) # Timeframe
 
 	## RUN THESE LINES ONLY TO REPLACE THE REFERENCES!
 	# reference_runRSP_metric_group <- rsp.data
 	# save(reference_runRSP_metric_group, file = "runRSP_metric_group.RData")
 
-	# reference_dynBBMM_metric_group <- dbbmm.all
+	# reference_dynBBMM_metric_group <- dbbmm.time
 	# save(reference_dynBBMM_metric_group, file = "dynBBMM_metric_group.RData")
-	########
+	#######
 
 
 #===============================================#
@@ -60,7 +59,7 @@ test_that("dynBBMM with metric system is working for group", {
 
 
 #============================================#
-# Test plot functions for latlon coordinates #
+# Test plot functions for metric coordinates #
 #============================================#
 
 
@@ -159,35 +158,6 @@ test_that("plotDistances by group is working properly", {
 })
 
 
-## Test dynBBMM plots
-# input2 <- rsp.data
-# input2$detections <- input2$detections[c(1, 52)] # one of each group
-# input2$detections[[1]] <- input2$detections[[1]][c(1:30, 676:800), ]
-# input2$detections[[2]] <- input2$detections[[2]][c(1:30), ]
-
-# dbbmm.all <- dynBBMM(input2, water.large, UTM = 32) # Total
-# dbbmm.time <- dynBBMM(input2, water.large, timeframe = 24, UTM = 32) # Timeframe
-
-
-# plotContours:
-# test_that("plotContours is set with only one timeslot", {
-# 	expect_error(plotContours(dbbmm.time, tag = "R64K-4451", track = "Track_1", timeslot = c(1, 2)),
-# 		"Please select only one timeslot.", fixed = TRUE)
-# })
-
-
-# test_that("plotContours tag was found on the selected timeslot", {
-# 	expect_error(plotContours(dbbmm.time, tag = "R64K-4451", track = "Track_1", timeslot = 100),
-# 		"Could not find the required tag in the selected timeslot", fixed = TRUE)
-# })
-
-
-# test_that("plotContours timeslot is set when necessary", {
-# 	expect_error(plotContours(dbbmm.time, tag = "R64K-4451", track = "Track_1"),
-# 		"The dbbmm is of type 'timeslot', but no timeslot was selected.", fixed = TRUE)
-# })
-
-
 test_that("plotContours timeslot is selected only when analysis is of type timeslot", {
 	expect_error(plotContours(dbbmm.all, tag = "R64K-4451", track = "Track_1", timeslot = 1),
 		"A timeslot was selected but the dbbmm is of type 'group'.", fixed = TRUE)
@@ -277,8 +247,6 @@ test_that("getAreas works for track", {
 # plotAreas:
 output1.group <- getAreas(dbbmm.all, type = "group")
 output1.track <- getAreas(dbbmm.all, type = "track")
-# output2.group <- getAreas(dbbmm.time, type = "group")
-# output2.track <- getAreas(dbbmm.time, type = "track")
 
 
 test_that("plotAreas does not work when getAreas is run for track", {
@@ -294,7 +262,7 @@ test_that("plotAreas the correct group is provided", {
 
 
 test_that("plotAreas is working for group", {
-	p <- tryCatch(suppressWarnings(plotAreas(output1.group, group = "A", base.raster = water.large)), 
+	p <- tryCatch(plotAreas(output1.group, group = "A", base.raster = water.large), 
 		warning = function(w)
  	stop("A warning was issued in plotAreas!", w))
 	expect_that(p, is_a("ggplot"))
@@ -308,55 +276,12 @@ test_that("plotAreas timeslot is only set for timeslot analysis", {
 
 
 test_that("plotAreas add title works", {
-	p <- tryCatch(suppressWarnings(plotAreas(output1.group, group = "A", base.raster = water.large, 
-		title = "Test")), 
+	p <- tryCatch(plotAreas(output1.group, group = "A", base.raster = water.large, 
+		title = "Test"), 
 		warning = function(w)
  	stop("A warning was issued in plotAreas!", w))
 	expect_that(p, is_a("ggplot"))
 })
-
-
-# test_that("plotAreas a timeslot is set", {
-# 	expect_error(plotAreas(output2.group, group = "A"),
-# 		"The data have timeslots but 'timeslot' was not set.", fixed = TRUE)
-# })
-
-
-# test_that("plotAreas base raster is in different CRS format", {
-# 	expect_warning(plotAreas(output2.group, group = "A", timeslot = 1, base.raster = water.large),
-# 		"The dbbmm output and the base raster are not in the same coordinate system. Attempting to re-project the dbbmm output.", fixed = TRUE)
-
-# })
-
-
-# test_that("plotAreas is working", {
-# 	p <- tryCatch(suppressWarnings(plotAreas(output2.group, group = "A", timeslot = 1, base.raster = water.large)), 
-# 		warning = function(w)
-#  	stop("A warning was issued in plotAreas!", w))
-# 	expect_that(p, is_a("ggplot"))
-# })
-
-
-# test_that("plotAreas only one timeslot is selected", {
-# 	expect_error(plotAreas(output2.group, group = "A", timeslot = c(1, 2)),
-# 		"Please select only one timeslot.", fixed = TRUE)
-# })
-
-
-# test_that("plotAreas timeslot is found for specified group", {
-# 	expect_error(plotAreas(output2.group, group = "A", timeslot = 2),
-# 		"Could not find the required timeslot in the specified group.", fixed = TRUE)
-# })
-
-
-# test_that("plotAreas add title works", {
-# 	p <- tryCatch(suppressWarnings(plotAreas(output2.group, group = "A", base.raster = water.large, timeslot = 1, 
-# 		title = "Test")), 
-# 		warning = function(w)
-#  	stop("A warning was issued in plotAreas!", w))
-# 	expect_that(p, is_a("ggplot"))
-# })
-
 
 
 ## plotOverlaps: but first getOverlaps has to work!
@@ -368,14 +293,6 @@ test_that("getOverlaps works for group", {
  	stop("A warning was issued in getOverlaps!", w))
 	expect_that(p, is_a("list"))
 })
-
-
-# test_that("getOverlaps works for timeslot", {
-# 	p <- tryCatch(suppressWarnings(getOverlaps(output2.group)), 
-# 		warning = function(w)
-#  	stop("A warning was issued in getOverlaps!", w))
-# 	expect_that(p, is_a("list"))
-# })
 
 
 test_that("getOverlaps only works for multiple groups", {
@@ -396,7 +313,6 @@ test_that("getOverlaps only takes type = 'group'", {
 
 # plotOverlaps:
 overlap <- suppressWarnings(getOverlaps(output1.group)) 
-# overlap2 <- suppressWarnings(getOverlaps(output2.group))
 
 
 test_that("plotOverlaps works for group and returns the plot", {
@@ -406,12 +322,6 @@ test_that("plotOverlaps works for group and returns the plot", {
 
 	expect_that(p, is_a("ggplot"))
 })
-
-
-# test_that("plotOverlaps crashes when multiple timeslots are set", {
-# 	expect_error(suppressWarnings(plotOverlaps(overlaps = overlap2, areas = output2.group, base.raster = water.large, groups = c("A", "B"), level = 0.95, timeslot = c(1, 2))),
-# 		"Please select only one timeslot.", fixed = TRUE)
-# })
 
 
 test_that("plotOverlaps crashes if track areas are provided", {
@@ -446,40 +356,16 @@ test_that("plotOverlaps timeslot is set only for timeslot dBBMM", {
 })
 
 
-# test_that("plotOverlaps timeslot is set when necessary", {
-# 	expect_error(plotOverlaps(overlaps = overlap2, areas = output2.group, base.raster = water.large, groups = c("A", "B"), level = 0.95),
-# 		"The data have timeslots but 'timeslot' was not set.", fixed = TRUE)
-# })
-
-
-# test_that("plotOverlaps timeslot is set correctly", {
-# 	expect_error(plotOverlaps(overlaps = overlap2, areas = output2.group, base.raster = water.large, groups = c("A", "B"), level = 0.95, timeslot = 200),
-# 		"Could not find the required timeslot in the input data.", fixed = TRUE)
-# })
-
-
 test_that("plotOverlaps only two groups are specified", {
 	expect_error(plotOverlaps(overlaps = overlap, areas = output1.group, base.raster = water.large, groups = c("A", "B", "C"), level = 0.95),
 		"please specify two groups.", fixed = TRUE)
 })
 
 
-# test_that("plotOverlaps only two groups are specified for timeslot", {
-# 	expect_error(plotOverlaps(overlaps = overlap2, areas = output2.group, base.raster = water.large, groups = c("A", "B", "C"), level = 0.95, timeslot = 1),
-# 		"please specify two groups.", fixed = TRUE)
-# })
-
-
 test_that("plotOverlaps correct group names are specified", {
 	expect_error(plotOverlaps(overlaps = overlap, areas = output1.group, base.raster = water.large, groups = c("A", "banana"), level = 0.95),
 		"One or both groups requested do not exist in the input data.", fixed = TRUE)
 })
-
-
-# test_that("plotOverlaps correct group names are specified for timeslot", {
-# 	expect_error(plotOverlaps(overlaps = overlap2, areas = output2.group, base.raster = water.large, groups = c("A", "banana"), level = 0.95, timeslot = 1),
-# 		"One or both groups requested do not exist in the input data.", fixed = TRUE)
-# })
 
 
 test_that("plotOverlaps correct number of colors is set", {
