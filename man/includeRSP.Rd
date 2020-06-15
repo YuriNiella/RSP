@@ -9,9 +9,10 @@ includeRSP(
   transition,
   tz,
   distance,
-  time.lapse,
+  time.step,
   er.ad,
-  maximum.time,
+  min.time,
+  max.time,
   verbose,
   debug = FALSE
 )
@@ -23,13 +24,15 @@ includeRSP(
 
 \item{tz}{Timezone of the study area.}
 
-\item{distance}{Fixed distances in meters to add intermediate track locations. By default intermediate positions are added every 250 metres.}
+\item{distance}{Distance (in metres) by which RSP point should be spaced (between detections at different stations). Defaults to 250 metres.}
 
-\item{time.lapse}{Time lapse in minutes to be considered for consecutive detections at the same station.}
+\item{time.step}{Time lapse (in minutes) between RSP points added between detections at the same station. Defaults to 10 minutes. Must not be larger than \code{min.time}.}
 
-\item{er.ad}{By default, 5\% of the distance argument is used as the increment rate of the position errors for the estimated locations. Alternatively, can be defined by the user in meters.}
+\item{er.ad}{Increment rate of the position errors for the estimated locations (in metres). If left unset, defaults to 5\% of the \code{distance} argument.}
 
-\item{maximum.time}{Temporal lag in hours to be considered for the fine-scale tracking. Default is to consider 1-day intervals.}
+\item{min.time}{Minimum time required between receiver detections (in minutes) for RSP to be calculated. Default to 10 minutes.}
+
+\item{max.time}{Maximum time allowed between receiver detections (in hours) for RSP to be calculated. Defaults to 24 hours.}
 
 \item{verbose}{Logical: If TRUE, detailed messages and progression are displayed. Otherwise, a single progress bar is shown.}
 

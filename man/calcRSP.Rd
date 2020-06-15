@@ -8,7 +8,8 @@ calcRSP(
   df.track,
   tz,
   distance,
-  time.lapse,
+  min.time,
+  time.step,
   transition,
   er.ad,
   path.list,
@@ -22,7 +23,9 @@ calcRSP(
 
 \item{distance}{Maximum distance between RSP locations.}
 
-\item{time.lapse}{Time lapse in minutes to be considered for consecutive detections at the same station.}
+\item{min.time}{Minimum time required between receiver detections (in minutes) for RSP to be calculated. Default to 10 minutes.}
+
+\item{time.step}{Time lapse in minutes to be considered for consecutive detections at the same station.}
 
 \item{transition}{TransitionLayer object as returned by LTDpath.}
 
