@@ -24,14 +24,29 @@ knitr::opts_chunk$set(
 
 ***
 
-After estimating the in-water shortest paths, we can now use the output from `runRSP()` to calculate utilization distribution areas using **dynamic Brownian Bridge Movement Models** with the `dynBBMM()` function. If you are using a geographic coordinate reference system, here you will need to know the [UTM zone](http://www.dmap.co.uk/utmworld.htm) of your study site and specify it using the argument `UTM`. By default, the analysis will run for all transmitters detected, but you can determine also which transmitters you would like to include using `tags`. 
+After estimating the in-water shortest paths, we can now use the output from `runRSP()` to calculate utilization distribution areas using **dynamic Brownian Bridge Movement Models** (dBBMM) with the `dynBBMM()` function. If you are using a geographic coordinate reference system, here you will need to know the [UTM zone](http://www.dmap.co.uk/utmworld.htm) of your study site and specify it using the argument `UTM`. By default, the analysis will run for all transmitters detected, but you can determine also which transmitters you would like to include using `tags`.
+
+A common error you might get when calculating dBBMMs, is when your receivers are **near to the edges** of your base raster. When calculating the space use areas, the dBBMM contours might hit these edges causing the algorithm to crash and stop:
+
+```
+dbbmm.results <- dynBBMM(input = rsp.results, base.raster = water.shape)
+
+Error: The brownian bridge model needs a larger raster to work on. This could happen because some of the detections are too close to the raster's edge. 
+You can create a larger raster by using the argument 'buffer' in loadShape. If the error persists, increase the buffer size further.
+```
+
+This can be simply fixed by increasing the size of your base raster using `loadShape()` and providing a larger `buffer` size. The base raster will be **expanded in all directions** according to the **buffer provided** (meters for metric shapefiles, and degrees for geographic shapefiles):
+
+```
+water.large <- loadShape(shape = "my_study_areas.shp", size = 0.0001, buffer = 0.5)  
+```
 
 ## 3.1. Total dynamic Brownian Bridge Movement Model (group dBBMM)
 
 This option calculates a series of dBBMM for each animal track from all the groups monitored and included in the `runRSP()` analysis. Track **quality checks** are performed to ensure that only good tracks which allow the dBBMM to converge are included in the analysis. This is an example of the returned messages from `dynBBMM()`:
 
 ```
-dbbmm.results <- dynBBMM(input = rsp.results, UTM = 32, base.raster = water.shape)
+dbbmm.results <- dynBBMM(input = rsp.results, UTM = 32, base.raster = water.large)
 
 M: Converting coordinates to UTM. Original latitude/longitude values for the detections will be stored in columns 'O.LAT' and 'O.LON'.
 M: Preparing data to apply dBBMM.
@@ -49,7 +64,7 @@ M: In total, 93 detections were excluded as they failed the track quality checks
 You can suppress the individual warning messages by setting `verbose` to FALSE. You will still receive the final message indicating how many detections were excluded. After calculating UDs, the **land areas** are excluded so that the final results represent only **in-water areas of use**.
 
 ```
-dbbmm_all <- dynBBMM(input = rsp.data, UTM = 32, base.raster = water.shape, verbose = FALSE)
+dbbmm_all <- dynBBMM(input = rsp.data, UTM = 32, base.raster = water.large, verbose = FALSE)
 
 M: Converting coordinates to UTM. Original latitude/longitude values for the detections will be stored in columns 'O.LAT' and 'O.LON'.
 M: Preparing data to apply dBBMM.
@@ -66,7 +81,7 @@ M: Success! (Time spent: 00:00:43)
 M: Subtracting land areas from output.
 ```
 
-The metadata on the dBBMMs are saved in the `$valid.tracks` object as data frame:
+The metadata on the dBBMMs are saved in the `$valid.tracks` object as a data frame:
 
 | Group|       Tag|   Track|valid.n|         First.time|          Last.time|   Timespan|
 |:-----|---------:|-------:|------:|------------------:|------------------:|----------:|
@@ -89,12 +104,12 @@ plotContours(input = dbbmm_all, tag = "R64K-4125", track = "3")
 
 ## 3.2. Fine-scale dynamic Brownian Bridge Movement Model (timeslot dBBMM)
 
-dBBMMs can also be calculated according to a **fixed moving temporal window**. This allows investigating how space use patterns varied in fine-scale. It is useful for assessing the influence of environmental parameters upon space-use of different groups tracked within the study area. The same `dynBBMM()` function is used, but here the argument `timeframe` has to be defined in hours as the temporal window of interest. The total tracking period will be divided into `timeslots`, and dBBMMs calculated for each group monitored (for each timeslot).
+dBBMMs can also be calculated according to a **fixed moving temporal window**. This allows investigating how space use patterns varied in fine-scale. It is useful for assessing the influence of environmental parameters upon space-use of different groups tracked within the study area. The same `dynBBMM()` function is used, but here the argument `timeframe` has to be defined **in hours** as the temporal window of interest. The total tracking period will be divided into `timeslots`, and dBBMMs calculated for each group monitored (for each timeslot).
 
 **Note:** You can use the `plotDensities()` function to help you choose the most suitable `timeframe` for `dynBBMM()`, to make sure you won't be mostly using esclusively interpolated locations in your fine-scale analysis:
 
 ```
-plotDensities(rsp.data)
+plotDensities(rsp.data) # All groups are simultaneously analysed by default!
 plotDensities(rsp.data, group = "Bream")
 plotDensities(rsp.data, group = "Luderick")
 plotDensities(rsp.data, group = "Tarwhine")
@@ -104,7 +119,7 @@ plotDensities(rsp.data, group = "Tarwhine")
 
 <br/>
 
-Now that we verified that most of the acoustic detections occurred according to <2 hour time intervals, when the default `maximum.time` of 24 hours was used in `runRSP()`, **timeframe** arguments longer than this value should be safe for analysis. Let's perform a fine-scale analysis using a daily resolution (i.e. `timeframe = 24`):
+Now that we verified that most of the acoustic detections occurred according to <2 hour time intervals, when the default `max.time` of 24 hours was used in `runRSP()`, **timeframe** arguments longer than this value should be safe for analysis. Let's perform a fine-scale analysis using a daily resolution (i.e. `timeframe = 24`):
 
 ```
 dbbmm.time <- dynBBMM(input = rsp.data, UTM = 56, base.raster = water.shape, timeframe = 24, verbose = FALSE, start.time = "2014-07-01 00:00:00", stop.time = "2015-01-01 00:00:00")
@@ -154,12 +169,12 @@ You can again use `plotContours()` to visualize the results of timeslot dBBMM, b
 plotContours(input = dbbmm.time, tag = "A69-9004-485", track = "4", timeslot = 124, title = "Bream - Slot 124")
 plotContours(input = dbbmm.time, tag = "A69-9004-489", track = "3", timeslot = 124, title = "Tarwhine - Slot 124")
 ```
-![](plotContours3.png){#id .class width=100%} 
+![You can customize the title of you plot by setting a `title` argument.](plotContours3.png){#id .class width=100%} 
 
 
 ## 3.3. Calculating areas of space use
 
-Now you can calculate the areas used with the `getAreas()` function, both at **group** or **track** level, set using the `type` argument. Group areas will correspond to the total areas, within your study site, used by the animals from a particular group. When track areas are set, these are calculated for each animal track individually. Areas are stored in the `$areas` object, as a list of dataframes for each tracked group.
+Now that you have dBBMMs you can calculate the areas used with the `getAreas()` function, both at **group** or **track** level, set using the `type` argument. Group areas will correspond to the total areas used by all animals from a particular group. When track areas are set these are calculated for each animal track individually. Areas are stored in the `$areas` object, as a list of dataframes for each tracked group.
 
 ### 3.3.1. Group areas
 
