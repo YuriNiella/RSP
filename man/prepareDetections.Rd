@@ -11,11 +11,9 @@ prepareDetections(detections, spatial, coord.x, coord.y)
 
 \item{spatial}{A list of spatial objects in the study area}
 
-\item{coord.x}{The names of the columns containing the x and y positions of the stations 
-in the spatial object.}
+\item{coord.x}{The names of the columns containing the x and y positions of the stations in the spatial object.}
 
-\item{coord.y}{The names of the columns containing the x and y positions of the stations 
-in the spatial object.}
+\item{coord.y}{The names of the columns containing the x and y positions of the stations in the spatial object.}
 }
 \value{
 A standardised data frame to be used for RSP calculation.
