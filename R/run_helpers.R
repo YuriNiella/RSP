@@ -4,13 +4,13 @@
 #' then named based on the interval between consecutive detection dates.
 #'
 #' @param detections Detections data frame
-#' @param maximum.time Temporal lag in hours to be considered for the fine-scale tracking. Default is to consider 1-day intervals.
+#' @param max.time Temporal lag in hours to be considered for the fine-scale tracking. Default is to consider 1-day intervals.
 #' 
 #' @return A dataframe with identified and named individual tracks for RSP estimation.
 #' 
-nameTracks <- function(detections, maximum.time = 24) {
+nameTracks <- function(detections, max.time = 24) {
   # Assign tracks to detections
-  breaks <- which(detections$Time.lapse.min > maximum.time * 60)
+  breaks <- which(detections$Time.lapse.min > max.time * 60)
   starts <- c(1, breaks)
   stops  <- c(breaks, nrow(detections) + 1)
   n <- (stops - starts)
@@ -24,6 +24,7 @@ nameTracks <- function(detections, maximum.time = 24) {
   track.aux <- lapply(aux, function(x) {
     data.frame(Track = NA_character_,
       original.n = nrow(x),
+      new.n = nrow(x),
       First.time = x$Timestamp[1],
       Last.time = x$Timestamp[nrow(x)],
       Timespan = difftime(x$Timestamp[nrow(x)], x$Timestamp[1], units = "hours"),

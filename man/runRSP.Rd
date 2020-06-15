@@ -2,7 +2,7 @@
 % Please edit documentation in R/runRSP.R
 \name{runRSP}
 \alias{runRSP}
-\title{Refined Shortest Path (RSP) between detections}
+\title{Calculate refined shortest paths between detections}
 \usage{
 runRSP(
   input,
@@ -10,9 +10,11 @@ runRSP(
   coord.x,
   coord.y,
   distance = 250,
-  time.lapse = 10,
-  er.ad = NULL,
-  maximum.time = 24,
+  tags,
+  time.step = 10,
+  min.time = 10,
+  max.time = 24,
+  er.ad,
   verbose = FALSE,
   debug = FALSE
 )
@@ -20,31 +22,34 @@ runRSP(
 \arguments{
 \item{input}{The output of one of \code{\link[actel]{actel}}'s main functions (\code{\link[actel]{explore}}, \code{\link[actel]{migration}} or \code{\link[actel]{residency}})}
 
-\item{t.layer}{A transition layer calculated using the function \code{\link[actel]{transitionLayer}}}
+\item{t.layer}{A transition layer. Can be calculated using the function \code{\link[actel]{transitionLayer}}.}
 
-\item{coord.x, coord.y}{The names of the columns containing the x and y positions of the stations 
-in the spatial object.}
+\item{coord.x, coord.y}{The names of the columns containing the x and y positions of the stations in the spatial object.}
 
-\item{distance}{Fixed distances in meters to add intermediate track locations. By default intermediate positions are added every 250 metres.}
+\item{distance}{Distance (in metres) by which RSP point should be spaced (between detections at different stations). Defaults to 250 metres.}
 
-\item{time.lapse}{Time lapse in minutes to be considered for consecutive detections at the same station.}
+\item{tags}{Vector of transmitters for which to calculate RSP. By default all transmitters will be analysed.}
 
-\item{er.ad}{By default, 5\% of the distance argument is used as the increment rate of the position errors for the estimated locations. Alternatively, can be defined by the user in meters.}
+\item{time.step}{Time lapse (in minutes) between RSP points added between detections at the same station. Defaults to 10 minutes. Must not be larger than \code{min.time}.}
 
-\item{maximum.time}{Temporal lag in hours to be considered for the fine-scale tracking. Default is to consider 1-day intervals.}
+\item{min.time}{Minimum time required between receiver detections (in minutes) for RSP to be calculated. Default to 10 minutes.}
+
+\item{max.time}{Maximum time allowed between receiver detections (in hours) for RSP to be calculated. Defaults to 24 hours.}
+
+\item{er.ad}{Increment rate of the position errors for the estimated locations (in metres). If left unset, defaults to 5\% of the \code{distance} argument.}
 
 \item{verbose}{Logical: If TRUE, detailed messages and progression are displayed. Otherwise, a single progress bar is shown.}
 
 \item{debug}{Logical: If TRUE, the function progress is saved to an RData file.}
 }
 \value{
-Returns a list of RSP tracks (as data frame) for each transmitter detected.
+Returns a list of RSP tracks for each transmitter detected, as well as auxiliary information.
 }
 \description{
 Estimates the RSP for a series of animals tracked with acoustic transmitters. Intermediate
 locations between consecutive acoustic detections (either on the same or different receivers) are estimated 
-according to fixed distance (see distance for details) and temporal (see time.lapse for details) intervals. The error of estimated locations increase proportionally as 
-the animal moves away from the first detection, and decreases as it approaches the second detection (see er.ad for details). If 
+according to the defined \code{distance} and \code{time.step} arguments. The error of estimated locations increase proportionally as 
+the animal moves away from the first detection, and decreases as it approaches the second detection (argument \code{er.ad}). If 
 the animal is not detected for a long time (default is a daily absence), the detections are broken into a 
-new track (see maximum.time for details).
+new track (argument \code{max.time}).
 }

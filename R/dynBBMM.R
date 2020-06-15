@@ -5,7 +5,7 @@
 #'
 #' @param input The output of runRSP.
 #' @param base.raster The water raster of the study area. For example the output of \code{\link[actel]{loadShape}}.
-#' @param tags Vector of transmitters to be analysand. By default all transmitters from runRSP will be analysed.
+#' @param tags Vector of transmitters to be analysed. By default all transmitters from runRSP will be analysed.
 #' @param start.time Sets the start point for analysis (format = "Y-m-d H:M:S").
 #' @param stop.time Sets the stop point for analysis (format = "Y-m-d H:M:S").
 #' @param UTM The UTM zone of the study area. Only relevant if a latlon-to-metric conversion is required.

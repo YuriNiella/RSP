@@ -5,42 +5,46 @@
 #' 
 NULL
 
-#' Refined Shortest Path (RSP) between detections
+#' Calculate refined shortest paths between detections
 #' 
 #' Estimates the RSP for a series of animals tracked with acoustic transmitters. Intermediate
 #' locations between consecutive acoustic detections (either on the same or different receivers) are estimated 
-#' according to fixed distance (see distance for details) and temporal (see time.lapse for details) intervals. The error of estimated locations increase proportionally as 
-#' the animal moves away from the first detection, and decreases as it approaches the second detection (see er.ad for details). If 
+#' according to the defined \code{distance} and \code{time.step} arguments. The error of estimated locations increase proportionally as 
+#' the animal moves away from the first detection, and decreases as it approaches the second detection (argument \code{er.ad}). If 
 #' the animal is not detected for a long time (default is a daily absence), the detections are broken into a 
-#' new track (see maximum.time for details). 
+#' new track (argument \code{max.time}). 
 #'
 #' @param input The output of one of \code{\link[actel]{actel}}'s main functions (\code{\link[actel]{explore}}, \code{\link[actel]{migration}} or \code{\link[actel]{residency}})
-#' @param t.layer A transition layer calculated using the function \code{\link[actel]{transitionLayer}}
-#' @param coord.x,coord.y The names of the columns containing the x and y positions of the stations 
-#'  in the spatial object. 
-#' @param distance Fixed distances in meters to add intermediate track locations. By default intermediate positions are added every 250 metres.
-#' @param time.lapse Time lapse in minutes to be considered for consecutive detections at the same station. 
-#' @param er.ad By default, 5\% of the distance argument is used as the increment rate of the position errors for the estimated locations. Alternatively, can be defined by the user in meters.
-#' @param maximum.time Temporal lag in hours to be considered for the fine-scale tracking. Default is to consider 1-day intervals.
+#' @param t.layer A transition layer. Can be calculated using the function \code{\link[actel]{transitionLayer}}.
+#' @param coord.x,coord.y The names of the columns containing the x and y positions of the stations in the spatial object. 
+#' @param distance Distance (in metres) by which RSP point should be spaced (between detections at different stations). Defaults to 250 metres.
+#' @param time.step Time lapse (in minutes) between RSP points added between detections at the same station. Defaults to 10 minutes. Must not be larger than \code{min.time}.
+#' @param er.ad Increment rate of the position errors for the estimated locations (in metres). If left unset, defaults to 5\% of the \code{distance} argument.
+#' @param min.time Minimum time required between receiver detections (in minutes) for RSP to be calculated. Default to 10 minutes.
+#' @param max.time Maximum time allowed between receiver detections (in hours) for RSP to be calculated. Defaults to 24 hours.
 #' @param debug Logical: If TRUE, the function progress is saved to an RData file.
 #' @param verbose Logical: If TRUE, detailed messages and progression are displayed. Otherwise, a single progress bar is shown.
-#' 
-#' @return Returns a list of RSP tracks (as data frame) for each transmitter detected. 
+#' @param tags Vector of transmitters for which to calculate RSP. By default all transmitters will be analysed.
+#' @return Returns a list of RSP tracks for each transmitter detected, as well as auxiliary information.
 #' 
 #' @export
 #' 
-runRSP <- function(input, t.layer, coord.x, coord.y, distance = 250, 
-  time.lapse = 10, er.ad = NULL, maximum.time = 24, verbose = FALSE, debug = FALSE) {
+runRSP <- function(input, t.layer, coord.x, coord.y, distance = 250, tags,
+  time.step = 10, min.time = 10, max.time = 24, er.ad, verbose = FALSE, debug = FALSE) {
+
   if (debug) {
     on.exit(save(list = ls(), file = "RSP_debug.RData"), add = TRUE)
     message("!!!--- Debug mode has been activated ---!!!")
   } 
 
   if (is.null(input$rsp.info))
-    stop("'input' could not be recognized as an actel analysis result.\n")
+    stop("'input' could not be recognised as an actel analysis result.\n", call. = FALSE)
 
-  if (is.null(er.ad)) 
+  if (missing(er.ad)) 
     er.ad <- distance * 0.05
+
+  if (time.step > min.time)
+    warning("'time.step' should not be larger than 'min.time'.", call. = FALSE, immediate. = TRUE)
 
   message("M: Calculating RSP for the '", input$rsp.info$analysis.type, "' data compiled on ", input$rsp.info$analysis.time)
 
@@ -49,12 +53,19 @@ runRSP <- function(input, t.layer, coord.x, coord.y, distance = 250,
   spatial <- input$spatial
   tz <- input$rsp.info$tz
 
+  if (!missing(tags)) {
+    if(any(link <- is.na(match(tags, names(detections)))))
+      stop("Could not find tag(s) ", paste(tags[link], collapse = ", ") , " in the detection data.", call = FALSE)
+
+    detections <- detections[match(tags, names(detections))]
+  }
+
   # RSP related changes
   detections <- prepareDetections(detections = detections, 
     spatial = spatial, coord.x = coord.x, coord.y = coord.y)
 
-  RSP.time <- system.time(recipient <- includeRSP(detections = detections, transition = t.layer, maximum.time = maximum.time,
-                                           tz = tz, distance = distance, time.lapse = time.lapse, er.ad = er.ad, verbose = verbose, debug = debug))
+  RSP.time <- system.time(recipient <- includeRSP(detections = detections, transition = t.layer, max.time = max.time, min.time = min.time,
+                                           tz = tz, distance = distance, time.step = time.step, er.ad = er.ad, verbose = verbose, debug = debug))
   rsp.detections <- recipient$output
   tracks <- recipient$tracks
 
@@ -76,7 +87,7 @@ runRSP <- function(input, t.layer, coord.x, coord.y, distance = 250,
 #' @param df.track Detection data for that individual as imported using RSPete.
 #' @param tz Time zone of the study area.
 #' @param distance Maximum distance between RSP locations.
-#' @param time.lapse Time lapse in minutes to be considered for consecutive detections at the same station. 
+#' @param time.step Time lapse in minutes to be considered for consecutive detections at the same station. 
 #' @param transition TransitionLayer object as returned by LTDpath.
 #' @param er.ad Incremental error per additional RSP point.
 #' @param path.list A list of previously calculated paths.
@@ -85,12 +96,12 @@ runRSP <- function(input, t.layer, coord.x, coord.y, distance = 250,
 #' @return A dataframe with the RSP estimations for all identified tracks for that animal.
 #' 
 #' 
-calcRSP <- function(df.track, tz, distance, time.lapse, transition, er.ad, path.list, verbose) {
+calcRSP <- function(df.track, tz, distance, min.time, time.step, transition, er.ad, path.list, verbose) {
   
   aux.RSP <- as.data.frame(df.track[-(1:.N)]) # Save RSP
 
   station.shifts <- c(FALSE, df.track$Standard.name[-1] != df.track$Standard.name[-nrow(df.track)])
-  time.shifts <- df.track$Time.lapse.min > time.lapse
+  time.shifts <- df.track$Time.lapse.min > min.time
   different.station.shift <- station.shifts & time.shifts
   same.station.shift <- !station.shifts & time.shifts
 
@@ -105,7 +116,7 @@ calcRSP <- function(df.track, tz, distance, time.lapse, transition, er.ad, path.
     
     if (same.station.shift[i]) {      
       # Number of intermediate positions to add:
-      intermediate.points <- as.integer(df.track$Time.lapse.min[i] / time.lapse)
+      intermediate.points <- as.integer(df.track$Time.lapse.min[i] / time.step)
     } 
     
     if (different.station.shift[i]) {
@@ -248,7 +259,7 @@ calcRSP <- function(df.track, tz, distance, time.lapse, transition, er.ad, path.
 #' 
 #' @return A list with the RSP estimations of individual tracks per transmitter.
 #' 
-includeRSP <- function(detections, transition, tz, distance, time.lapse, er.ad, maximum.time, verbose, debug = FALSE) {
+includeRSP <- function(detections, transition, tz, distance, time.step, er.ad, min.time, max.time, verbose, debug = FALSE) {
   if (debug)
     on.exit(save(list = ls(), file = "includeRSP_debug.RData"), add = TRUE)
   
@@ -261,10 +272,9 @@ includeRSP <- function(detections, transition, tz, distance, time.lapse, er.ad, 
   # Recreate RSP individually
   aux <- lapply(seq_along(detections), function(i) {
     if (verbose)
-      message(crayon::bold(crayon::green((paste("Analyzing:", names(detections)[i])))))
+      message(crayon::bold(crayon::green((paste("Analysing:", names(detections)[i])))))
     flush.console()
-    # dates.aux <- timeInterval(detections[[i]]) # Identify time differences between detections (in days)
-    recipient <- nameTracks(detections = detections[[i]], maximum.time = maximum.time) # Fine-scale tracking
+    recipient <- nameTracks(detections = detections[[i]], max.time = max.time) # Fine-scale tracking
     detections[[i]] <<- recipient$detections
     tracks <- recipient$tracks
     
@@ -275,14 +285,20 @@ includeRSP <- function(detections, transition, tz, distance, time.lapse, er.ad, 
         message("Estimating ", names(detections)[i], " RSP: ", names(track.aux)[j])
       flush.console()
       # Recreate RSP
-      function.recipient <- calcRSP(df.track = track.aux[[j]], tz = tz, distance = distance, verbose = verbose, 
-                                    time.lapse = time.lapse, transition = transition, er.ad = er.ad, path.list = path.list)
+      function.recipient <- calcRSP(df.track = track.aux[[j]], tz = tz, distance = distance, verbose = verbose, min.time = min.time,
+                                    time.step = time.step, transition = transition, er.ad = er.ad, path.list = path.list)
       # return path.list directly to environment above
       path.list <<- function.recipient$path.list
+
       # return rest to lapply list
       return(function.recipient$output)
     })
+    # update track n
+    tracks$new.n[which(tracks$Valid)] <- sapply(tag.aux, nrow)
+
+    # combine tracks
     tag.recipient <- as.data.frame(data.table::rbindlist(tag.aux))
+
     # pass path.list to main envir.
     path.list <<- path.list
 
@@ -293,8 +309,10 @@ includeRSP <- function(detections, transition, tz, distance, time.lapse, er.ad, 
     tag.recipient$Transmitter <- as.factor(tag.recipient$Transmitter)
     tag.recipient$Standard.name <- as.factor(tag.recipient$Standard.name)
     tag.recipient <- tag.recipient[order(tag.recipient$Timestamp), ]
+
     if (!verbose)
       setTxtProgressBar(pb, i) # Progress bar
+
     return(list(detections = tag.recipient, tracks = tracks))
   })
   if (!verbose)

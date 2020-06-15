@@ -12,11 +12,9 @@ plotRaster(input, base.raster, coord.x, coord.y, size, land.col = "#BABCBF80")
 
 \item{base.raster}{Raster object. Imported for example using \code{\link[actel]{loadShape}}.}
 
-\item{coord.x}{The names of the columns containing the x and y positions of the stations 
-in the spatial object.}
+\item{coord.x}{The names of the columns containing the x and y positions of the stations in the spatial object.}
 
-\item{coord.y}{The names of the columns containing the x and y positions of the stations 
-in the spatial object.}
+\item{coord.y}{The names of the columns containing the x and y positions of the stations in the spatial object.}
 
 \item{size}{The size of the station dots}
 
