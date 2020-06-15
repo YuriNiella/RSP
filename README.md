@@ -59,7 +59,7 @@ Calculates the distances travelled (in meters) during each RSP track, both using
 
 **getAreas()**
 
-Obtains the in-water areas (in squared meters) for the tracked animals, either at monitored group or track levels. The countour levels of interest from the dBBMMs can be set, and by default the **50%** and **95%** contours are used.
+Obtains the in-water areas (in squared meters) for the tracked animals, either at monitored group or track levels. The contour levels of interest from the dBBMMs can be set, and by default areas are calculated for the **50%** and **95%** contours.
 
 **getOverlaps()**
 

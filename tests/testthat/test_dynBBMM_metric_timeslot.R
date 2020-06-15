@@ -43,16 +43,82 @@ test_that("runRSP with metric system is working for timeslot", {
 
 
 ## 2) Testing dynBBMM:
-test_that("raster is too small for dynBBMM", {
-	expect_error(dynBBMM(input = rsp.data, base.raster = water, timeframe = 24),
-		"The brownian bridge model needs a larger raster to work on. This could happen because some of the detections are too close to the raster's edge. 
-You can create a larger raster by using the argument 'buffer' in loadShape. If the error persists, increase the buffer size further.", fixed = TRUE)
-})
-
-
 test_that("dynBBMM with metric system is working for timeslot", {
 	load("dynBBMM_metric_timeslot.RData")
 	expect_equivalent(dbbmm.time, reference_dynBBMM_metric_timeslot) 
+})
+
+
+test_that("Timeframe is numeric for timeslot dBBMM", {
+	expect_error(dynBBMM(input = rsp.data, base.raster = water.large, timeframe = "banana"),
+		"'timeframe' must be either NULL or numeric", fixed = TRUE)
+})
+
+
+test_that("Timeframe is numeric for timeslot dBBMM", {
+	expect_error(dynBBMM(input = rsp.data, base.raster = water.large, timeframe = 0.2),
+		"'timeframe' must be larger than 0.5.", fixed = TRUE)
+})
+
+
+test_that("start.time is in correct format", {
+	expect_error(dynBBMM(input = rsp.data, base.raster = water.large, timeframe = 24, 
+		start.time = "2020-20-05 00:00:00"),
+		"'start.time' must be in 'yyyy-mm-dd hh:mm:ss' format.", fixed = TRUE)
+})
+
+
+test_that("stop.time is in correct format", {
+	expect_error(dynBBMM(input = rsp.data, base.raster = water.large, timeframe = 24, 
+		stop.time = "2020-20-05 00:00:00"),
+		"'stop.time' must be in 'yyyy-mm-dd hh:mm:ss' format.", fixed = TRUE)
+})
+
+
+test_that("start.time is before stopt.time", {
+	expect_error(dynBBMM(input = rsp.data, base.raster = water.large, timeframe = 24, 
+		start.time = "2020-05-12 00:00:00", stop.time = "2020-01-12 00:00:00"),
+		"'stop.time' must be after 'start.time'.", fixed = TRUE)
+})
+
+
+test_that("start.time is different than stopt.time", {
+	expect_error(dynBBMM(input = rsp.data, base.raster = water.large, timeframe = 24, 
+		start.time = "2020-05-12 00:00:00", stop.time = "2020-05-12 00:00:00"),
+		"'stop.time' and 'stop.time' are equal. Continuing would erase all detection data", fixed = TRUE)
+})
+
+
+test_that("start.time works", {
+	start.time <- "2018-05-03 09:17:17"
+	expect_message(dynBBMM(input = rsp.data, base.raster = water.large, timeframe = 24, 
+		start.time = start.time),
+		"M: Discarding detection data previous to ",start.time," per user command.", fixed = TRUE)
+})
+
+
+test_that("stop.time works", {
+	stop.time <- "2018-05-03 09:17:17"
+	expect_message(dynBBMM(input = rsp.data, base.raster = water.large, timeframe = 24, 
+		stop.time = stop.time),
+		"M: Discarding detection data posterior to ",stop.time," per user command.", fixed = TRUE)
+})
+
+
+test_that("both star.time and stop.time works", {
+	start.time <- "2018-04-03 09:17:17"
+	stop.time <- "2018-05-03 09:17:17"
+	expect_message(dynBBMM(input = rsp.data, base.raster = water.large, timeframe = 24, 
+		start.time = start.time, stop.time = stop.time),
+		paste0("M: Discarding detection data previous to ",start.time," and posterior to ",stop.time," per user command."), fixed = TRUE)
+})
+
+
+test_that("The base raster and input are in the same CRS", { # MUDAR PARA LATLON!
+	water.aux <- actel::loadShape(path = aux, shape = "example_shape_geo.shp", size = 0.0001)
+
+	expect_error(dynBBMM(input = rsp.data, base.raster = water.aux, timeframe = 24),
+		"The base raster and the input data are not in the came coordinate system!", fixed = TRUE)
 })
 
 

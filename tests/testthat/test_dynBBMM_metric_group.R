@@ -51,10 +51,109 @@ test_that("runRSP with metric system is working for group", {
 })
 
 
+test_that("debug mode is working for runRSP", {
+	
+	p <- tryCatch(suppressWarnings(runRSP(input = input, t.layer = tl, coord.x = "x", coord.y = "y", 
+		debug = TRUE)), 
+		warning = function(w)
+ 	stop("A warning was issued in dynBBMM with debug!\n", w))
+	expect_that(p, is_a("list"))
+
+	aux <- list.files(path = ".", pattern = "debug.RData", full.names = TRUE, recursive = TRUE)
+	unlink(aux, recursive = TRUE)	
+})
+
+
+test_that("verbose mode is working for runRSP", {
+	p <- tryCatch(suppressWarnings(runRSP(input = input, t.layer = tl, coord.x = "x", coord.y = "y", 
+		verbose = TRUE)), 
+		warning = function(w)
+ 	stop("A warning was issued in dynBBMM with debug!\n", w))
+	expect_that(p, is_a("list"))
+})
+
+
 ## 2) Testing dynBBMM:
 test_that("dynBBMM with metric system is working for group", {
 	load("dynBBMM_metric_group.RData")
 	expect_equivalent(dbbmm.all, reference_dynBBMM_metric_group) 
+})
+
+
+test_that("There is not enought data from a particular group to fit dBBMMs", {
+	rsp.data2 <- rsp.data
+	rsp.data2$tracks[[2]] <- rsp.data2$tracks[[2]][2, ]
+	rsp.data2$detections[[2]] <- rsp.data2$detections[[2]][which(rsp.data2$detections[[2]]$Track == "Track_2"), ]
+	
+	expect_warning(dynBBMM(input = rsp.data2, base.raster = water.large),
+		"ALL tracks in group B are shorter than 30 minutes. Removing group from analysis.", fixed = TRUE)
+})
+
+
+test_that("There is not enought data to fit dBBMMs at all", {
+	input <- actel::example.results
+	input$valid.detections <- input$valid.detections[52]
+	input$valid.detections[[1]] <- input$valid.detections[[1]][18:70, ]	
+	rsp.input <- runRSP(input = input, t.layer = tl, coord.x = "x", coord.y = "y")	
+
+	expect_error(suppressWarnings(dynBBMM(input = rsp.input, base.raster = water.large)),
+		"All detection data failed to pass the quality checks for dBBMM implementation. Aborting.", fixed = TRUE)
+})
+
+
+test_that("Simultaneous detections at two receivers can be excluded", {
+	input <- actel::example.results
+	input$valid.detections <- input$valid.detections[1]
+	input$valid.detections[[1]] <- input$valid.detections[[1]][1:30, ]	
+	aux <- input$valid.detections[[1]][1, ] 
+	aux$Standard.name <- "St.3"
+	aux$Array <- "River2"
+	input$valid.detections[[1]] <- rbind(aux, input$valid.detections[[1]])
+	rsp.input <- runRSP(input = input, t.layer = tl, coord.x = "x", coord.y = "y")
+
+	expect_warning(dynBBMM(input = rsp.input, base.raster = water.large),
+		"1 individual detections were removed in group A due to simultaneous detections at two receivers.", fixed = TRUE)
+})
+
+
+test_that("raster size is enought for dBBMM", {
+	input <- actel::example.results
+	input$valid.detections <- input$valid.detections[52]
+	input$valid.detections[[1]] <- input$valid.detections[[1]][18:70, ]	
+
+	rsp.input <- runRSP(input = input, t.layer = tl, coord.x = "x", coord.y = "y")
+	dynBBMM(input = rsp.input, base.raster = water) # APAGAR!
+
+	expect_error(dynBBMM(input = rsp.input, base.raster = water),
+		"The brownian bridge model needs a larger raster to work on. This could happen because some of the detections are too close to the raster's edge. 
+You can create a larger raster by using the argument 'buffer' in loadShape. If the error persists, increase the buffer size further.", fixed = TRUE)
+})
+
+
+test_that("debug mode is working for dynBBMM", {
+	rsp.data2 <- rsp.data
+	rsp.data2$tracks[[2]] <- rsp.data2$tracks[[2]][2, ]
+	rsp.data2$detections[[2]] <- rsp.data2$detections[[2]][which(rsp.data2$detections[[2]]$Track == "Track_2"), ]
+	
+	p <- tryCatch(suppressWarnings(dynBBMM(input = rsp.data2, base.raster = water.large, debug = TRUE)), 
+		warning = function(w)
+ 	stop("A warning was issued in dynBBMM with debug!\n", w))
+	expect_that(p, is_a("list"))
+
+	aux <- list.files(path = ".", pattern = "debug.RData", full.names = TRUE, recursive = TRUE)
+	unlink(aux, recursive = TRUE)	
+})
+
+
+test_that("verbose mode is working for dynBBMM", {
+	rsp.data2 <- rsp.data
+	rsp.data2$tracks[[2]] <- rsp.data2$tracks[[2]][2, ]
+	rsp.data2$detections[[2]] <- rsp.data2$detections[[2]][which(rsp.data2$detections[[2]]$Track == "Track_2"), ]
+	
+	p <- tryCatch(suppressWarnings(dynBBMM(input = rsp.data2, base.raster = water.large, verbose = TRUE)), 
+		warning = function(w)
+ 	stop("A warning was issued in dynBBMM with debug!\n", w))
+	expect_that(p, is_a("list"))
 })
 
 
@@ -145,6 +244,26 @@ test_that("plotDistances is working properly", {
 		warning = function(w)
  	stop("A warning was issued in plotDistances!", w))
 	expect_that(p, is_a("ggplot"))
+})
+
+
+test_that("plotDistances is working properly for only RSP locations", {
+	output <- getDistances(rsp.data)
+
+	p <- tryCatch(plotDistances(output, compare = FALSE), 
+		warning = function(w)
+ 	stop("A warning was issued in plotDistances!", w))
+	expect_that(p, is_a("ggplot"))
+})
+
+
+test_that("plotDistances is working properly for only RSP locations and by group", {
+	output <- getDistances(rsp.data)
+
+	p <- tryCatch(plotDistances(output, compare = FALSE, by.group = TRUE), 
+		warning = function(w)
+ 	stop("A warning was issued in plotDistances!", w))
+	expect_that(p, is_a("list"))
 })
 
 
@@ -322,6 +441,8 @@ test_that("plotOverlaps works for group and returns the plot", {
 
 	expect_that(p, is_a("ggplot"))
 })
+
+
 
 
 test_that("plotOverlaps crashes if track areas are provided", {
