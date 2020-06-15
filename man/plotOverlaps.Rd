@@ -43,3 +43,10 @@ Plot specific dBBMM overlapping areas for a specific combination of groups and, 
 If the base raster is in a geographic coordinate system, plotOverlaps will attempt to convert the dbbmm results
 to that same geographic system, so everything falls in place.
 }
+\details{
+If one of your groups has more than one usage area, or an overlaps contour has more than one area (both potentially caused by having multiple tags/tracks in a single group), 
+ggplot2 will issue the following warning when plotting the map: 
+Warning message: Raster pixels are placed at uneven horizontal intervals and will be shifted. Consider using geom_tile() instead.
+This is simply because empty cells are cleared out to improve plotting efficiency, which means there will be an empty space between the multiple areas to be drawn. 
+Please be aware that this has no effect on the plot itself.
+}
