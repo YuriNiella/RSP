@@ -499,7 +499,13 @@ plotDistances <- function(input, by.group = FALSE, compare = TRUE) {
 #' Plot specific dBBMM overlapping areas for a specific combination of groups and, if relevant, a specific timeslot.
 #' If the base raster is in a geographic coordinate system, plotOverlaps will attempt to convert the dbbmm results
 #' to that same geographic system, so everything falls in place.
-#'   
+#' 
+#' If one of your groups has more than one usage area, or an overlaps contour has more than one area (both potentially caused by having multiple tags/tracks in a single group), 
+#' ggplot2 will issue the following warning when plotting the map: 
+#' Warning message: Raster pixels are placed at uneven horizontal intervals and will be shifted. Consider using geom_tile() instead.
+#' This is simply because empty cells are cleared out to improve plotting efficiency, which means there will be an empty space between the multiple areas to be drawn. 
+#' Please be aware that this has no effect on the plot itself. 
+#'
 #' @param overlaps An overlap object as returned by \code{\link{getOverlaps}}.
 #' @param areas The areas object used to calculate the overlaps.
 #' @param base.raster The raster used in the dbbmm calculations.
@@ -509,7 +515,7 @@ plotDistances <- function(input, by.group = FALSE, compare = TRUE) {
 #' @param title Plot title. By default, the names of the groups being compared are displayed.
 #' @param col Character vector of three colours to be used in the plot (one for each group and one for the overlap).
 #' @param land.col Colour of the land masses. Defaults to semi-transparent grey.
-#' 
+#'  
 #' @return A plot of the overlapping areas between two groups.
 #' 
 #' @export
