@@ -11,11 +11,11 @@ tl <- actel::transitionLayer(water)
 # Subset actel results to speed up testing:
 input <- actel::example.results
 input$detections <- input$detections[c(1, 52)]
-input$detections[[1]] <- input$detections[[1]][1:30, ] # Select 1 track
-input$detections[[2]] <- input$detections[[2]][c(1:30, 116:160), ] # Select 2 tracks
+input$detections[[1]] <- input$detections[[1]][c(1:15, 60:75), ] # Select 2 track
+input$detections[[2]] <- input$detections[[2]][c(1:7, 116:130), ] # Select 2 tracks (1 not valid)
 input$valid.detections <- input$valid.detections[c(1, 52)]
-input$valid.detections[[1]] <- input$valid.detections[[1]][1:30, ] # Select 1 track
-input$valid.detections[[2]] <- input$valid.detections[[2]][c(1:30, 116:160), ] # Select 3 tracks
+input$valid.detections[[1]] <- input$valid.detections[[1]][c(1:15, 60:75), ] # Select 2 track
+input$valid.detections[[2]] <- input$valid.detections[[2]][c(1:7, 116:130), ] # Select 2 tracks (1 not valid)
 input$valid.movements <- input$valid.movements[c(1, 52)]
 
 # Save RSP objects per group:
@@ -28,7 +28,7 @@ dbbmm.time <- dynBBMM(rsp.data, water.large, timeframe = 24, UTM = 32) # Timefra
 
 	# reference_dynBBMM_latlon_timeslot <- dbbmm.time
 	# save(reference_dynBBMM_latlon_timeslot, file = "dynBBMM_latlon_timeslot.RData")
-	#######
+	######
 
 
 #===============================================#
@@ -45,6 +45,7 @@ test_that("runRSP with latlon system is working for timeslot", {
 ## 2) Testing dynBBMM:
 test_that("dynBBMM with latlon system is working for timeslot", {
 	load("dynBBMM_latlon_timeslot.RData")
+
 	expect_equivalent(dbbmm.time, reference_dynBBMM_latlon_timeslot) 
 })
 
@@ -171,7 +172,7 @@ test_that("plotAreas only one timeslot is selected", {
 
 
 test_that("plotAreas timeslot is found for specified group", {
-	expect_error(plotAreas(output2.group, base.raster = water.large, group = "A", timeslot = 4),
+	expect_error(plotAreas(output2.group, base.raster = water.large, group = "A", timeslot = 6),
 		"Could not find the required timeslot in the specified group.", fixed = TRUE)
 })
 

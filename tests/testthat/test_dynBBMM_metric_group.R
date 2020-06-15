@@ -11,11 +11,11 @@ tl <- actel::transitionLayer(water)
 # Subset actel results to speed up testing:
 input <- actel::example.results
 input$detections <- input$detections[c(1, 52)]
-input$detections[[1]] <- input$detections[[1]][1:30, ] # Select 1 track
-input$detections[[2]] <- input$detections[[2]][c(1:30, 116:160), ] # Select 2 tracks
+input$detections[[1]] <- input$detections[[1]][c(1:15, 60:75), ] # Select 2 track
+input$detections[[2]] <- input$detections[[2]][c(1:7, 116:130), ] # Select 2 tracks (1 not valid)
 input$valid.detections <- input$valid.detections[c(1, 52)]
-input$valid.detections[[1]] <- input$valid.detections[[1]][1:30, ] # Select 1 track
-input$valid.detections[[2]] <- input$valid.detections[[2]][c(1:30, 116:160), ] # Select 3 tracks
+input$valid.detections[[1]] <- input$valid.detections[[1]][c(1:15, 60:75), ] # Select 2 track
+input$valid.detections[[2]] <- input$valid.detections[[2]][c(1:7, 116:130), ] # Select 2 tracks (1 not valid)
 input$valid.movements <- input$valid.movements[c(1, 52)]
 
 # Save RSP objects per group:
@@ -26,7 +26,7 @@ dbbmm.all <- dynBBMM(rsp.data, water.large) # Total
 	# reference_runRSP_metric_group <- rsp.data
 	# save(reference_runRSP_metric_group, file = "runRSP_metric_group.RData")
 
-	# reference_dynBBMM_metric_group <- dbbmm.time
+	# reference_dynBBMM_metric_group <- dbbmm.all
 	# save(reference_dynBBMM_metric_group, file = "dynBBMM_metric_group.RData")
 	#######
 
@@ -41,7 +41,7 @@ test_that("input for runRSP is an actel analysis result", {
 	aux$rsp.info <- NULL
 
 	expect_error(runRSP(input = aux, t.layer = tl, coord.x = "x", coord.y = "y"),
-		"'input' could not be recognized as an actel analysis result.", fixed = TRUE)
+		"'input' could not be recognised as an actel analysis result.", fixed = TRUE)
 })
 
 
@@ -118,11 +118,12 @@ test_that("Simultaneous detections at two receivers can be excluded", {
 
 test_that("raster size is enought for dBBMM", {
 	input <- actel::example.results
-	input$valid.detections <- input$valid.detections[52]
-	input$valid.detections[[1]] <- input$valid.detections[[1]][18:70, ]	
-
+	input$valid.detections <- input$valid.detections[1]
+	input$valid.detections[[1]] <- input$valid.detections[[1]][1, ]	
+	aux <- input$valid.detections[[1]][1, ]	
+	aux$Timestamp <- aux$Timestamp + 64800
+	input$valid.detections[[1]] <- rbind(input$valid.detections[[1]][1, ], aux)
 	rsp.input <- runRSP(input = input, t.layer = tl, coord.x = "x", coord.y = "y")
-	dynBBMM(input = rsp.input, base.raster = water) # APAGAR!
 
 	expect_error(dynBBMM(input = rsp.input, base.raster = water),
 		"The brownian bridge model needs a larger raster to work on. This could happen because some of the detections are too close to the raster's edge. 
@@ -313,25 +314,25 @@ test_that("plotContours col and breaks have same length", {
 
 
 test_that("plotContours track is not specified when multiple tracks are available", {
-	expect_error(plotContours(dbbmm.all, tag = "R64K-4545"),
-		"Please choose one of the available tracks: 1, 3", fixed = TRUE)
+	expect_error(plotContours(dbbmm.all, tag = "R64K-4451"),
+		"Please choose one of the available tracks: 1, 2", fixed = TRUE)
 })
 
 
 test_that("plotContours wrong track is specified", {
-	expect_error(plotContours(dbbmm.all, tag = "R64K-4545", track = "banana"),
-		"Could not find track banana for tag R64K-4545. Please choose one of the available tracks: 1, 3", fixed = TRUE)
+	expect_error(plotContours(dbbmm.all, tag = "R64K-4451", track = "banana"),
+		"Could not find track banana for tag R64K-4451. Please choose one of the available tracks: 1, 2", fixed = TRUE)
 })
 
 
 test_that("plotContours track is set but only one track is available", {
-	expect_warning(plotContours(dbbmm.all, tag = "R64K-4451", track = "1"),
+	expect_warning(plotContours(dbbmm.all, tag = "R64K-4545", track = "1"),
 		"'track' was set but target tag only has one track. Disregarding", fixed = TRUE)
 })
 
 
 test_that("plotContours add title works", {
-	p <- tryCatch(suppressWarnings(plotContours(dbbmm.all, tag = "R64K-4545", track = "1", title = "Test")), 
+	p <- tryCatch(suppressWarnings(plotContours(dbbmm.all, tag = "R64K-4451", track = "1", title = "Test")), 
 		warning = function(w)
  	stop("A warning was issued in plotAreas!", w))
 	expect_that(p, is_a("ggplot"))
@@ -441,8 +442,6 @@ test_that("plotOverlaps works for group and returns the plot", {
 
 	expect_that(p, is_a("ggplot"))
 })
-
-
 
 
 test_that("plotOverlaps crashes if track areas are provided", {

@@ -11,11 +11,11 @@ tl <- actel::transitionLayer(water)
 # Subset actel results to speed up testing:
 input <- actel::example.results
 input$detections <- input$detections[c(1, 52)]
-input$detections[[1]] <- input$detections[[1]][1:30, ] # Select 1 track
-input$detections[[2]] <- input$detections[[2]][c(1:30, 116:160), ] # Select 2 tracks
+input$detections[[1]] <- input$detections[[1]][c(1:15, 60:75), ] # Select 2 track
+input$detections[[2]] <- input$detections[[2]][c(1:7, 116:130), ] # Select 2 tracks (1 not valid)
 input$valid.detections <- input$valid.detections[c(1, 52)]
-input$valid.detections[[1]] <- input$valid.detections[[1]][1:30, ] # Select 1 track
-input$valid.detections[[2]] <- input$valid.detections[[2]][c(1:30, 116:160), ] # Select 3 tracks
+input$valid.detections[[1]] <- input$valid.detections[[1]][c(1:15, 60:75), ] # Select 2 track
+input$valid.detections[[2]] <- input$valid.detections[[2]][c(1:7, 116:130), ] # Select 2 tracks (1 not valid)
 input$valid.movements <- input$valid.movements[c(1, 52)]
 
 # Save RSP objects per group:
@@ -26,9 +26,9 @@ dbbmm.all <- dynBBMM(rsp.data, water.large, UTM = 32) # Total
 	# reference_runRSP_latlon_group <- rsp.data
 	# save(reference_runRSP_latlon_group, file = "runRSP_latlon_group.RData")
 
-	# reference_dynBBMM_metric_group <- dbbmm.time
+	# reference_dynBBMM_latlon_group <- dbbmm.all
 	# save(reference_dynBBMM_latlon_group, file = "dynBBMM_latlon_group.RData")
-	#######
+	####
 
 
 #===============================================#
@@ -41,7 +41,7 @@ test_that("input for runRSP is an actel analysis result", {
 	aux$rsp.info <- NULL
 
 	expect_error(runRSP(input = aux, t.layer = tl, coord.x = "Longitude", coord.y = "Latitude"),
-		"'input' could not be recognized as an actel analysis result.", fixed = TRUE)
+		"'input' could not be recognised as an actel analysis result.", fixed = TRUE)
 })
 
 
@@ -93,8 +93,8 @@ test_that("plotTracks tag is set correctly", {
 
 test_that("plotTracks group is set correctly", {
 	expect_error(plotTracks(rsp.data, base.raster = water.large, group = "banana", track = "Track_1"),
-		paste0("The requested group is not present in the dataset. Available groups: ", 
-        paste(unique(input$bio$Group), collapse =", ")), fixed = TRUE)
+		"The requested group is not present in the dataset. Available groups: A, B", 
+        , fixed = TRUE)
 })
 
 
@@ -207,31 +207,31 @@ test_that("plotContours col and breaks have same length", {
 
 
 test_that("plotContours track is not specified when multiple tracks are available", {
-	expect_error(plotContours(dbbmm.all, tag = "R64K-4545"),
-		"Please choose one of the available tracks: 1, 3", fixed = TRUE)
+	expect_error(plotContours(dbbmm.all, tag = "R64K-4451"),
+		"Please choose one of the available tracks: 1, 2", fixed = TRUE)
 })
 
 
 test_that("plotContours wrong track is specified", {
-	expect_error(plotContours(dbbmm.all, tag = "R64K-4545", track = "banana"),
-		"Could not find track banana for tag R64K-4545. Please choose one of the available tracks: 1, 3", fixed = TRUE)
+	expect_error(plotContours(dbbmm.all, tag = "R64K-4451", track = "banana"),
+		"Could not find track banana for tag R64K-4451. Please choose one of the available tracks: 1, 2", fixed = TRUE)
 })
 
 
 test_that("plotContours base raster and dynBBMM output are on different CRS", {
-	expect_warning(plotContours(dbbmm.all, tag = "R64K-4451", track = "1"),
+	expect_warning(plotContours(dbbmm.all, tag = "R64K-4451", track = "2"),
 		"The dbbmm output and the base raster are not in the same coordinate system. Attempting to re-project the dbbmm output.", fixed = TRUE)
 })
 
 
 test_that("plotContours track is set but only one track is available", {
-	expect_warning(plotContours(dbbmm.all, tag = "R64K-4451", track = "1"),
+	expect_warning(plotContours(dbbmm.all, tag = "R64K-4545", track = "1"),
 		"'track' was set but target tag only has one track. Disregarding", fixed = TRUE)
 })
 
 
 test_that("plotContours add title works", {
-	p <- tryCatch(suppressWarnings(plotContours(dbbmm.all, tag = "R64K-4545", track = "1", title = "Test")), 
+	p <- tryCatch(suppressWarnings(plotContours(dbbmm.all, tag = "R64K-4451", track = "2", title = "Test")), 
 		warning = function(w)
  	stop("A warning was issued in plotAreas!", w))
 	expect_that(p, is_a("ggplot"))
@@ -248,7 +248,7 @@ test_that("getAreas breaks are in right format", {
 
 
 test_that("getAreas works for group", {
-	p <- tryCatch(getAreas(dbbmm.all, type = "group"), 
+	p <- tryCatch(getAreas(dbbmm.all, type = "group", breaks = 0.25), 
 		warning = function(w)
  	stop("A warning was issued in getAreas for group!", w))
 	expect_that(p, is_a("list"))
@@ -256,7 +256,7 @@ test_that("getAreas works for group", {
 
 
 test_that("getAreas works for track", {
-	p <- tryCatch(getAreas(dbbmm.all, type = "track"), 
+	p <- tryCatch(getAreas(dbbmm.all, type = "track", breaks = 0.25), 
 		warning = function(w)
  	stop("A warning was issued in getAreas for track!", w))
 	expect_that(p, is_a("list"))
@@ -281,13 +281,13 @@ test_that("plotAreas the correct group is provided", {
 
 
 test_that("plotAreas base raster is in different CRS format", {
-	expect_warning(plotAreas(output1.group, group = "A", base.raster = water.large),
+	expect_warning(plotAreas(output1.group, group = "A", base.raster = water),
 		"The dbbmm output and the base raster are not in the same coordinate system. Attempting to re-project the dbbmm output.", fixed = TRUE)
 })
 
 
 test_that("plotAreas is working for group", {
-	p <- tryCatch(suppressWarnings(plotAreas(output1.group, group = "A", base.raster = water.large)), 
+	p <- tryCatch(suppressWarnings(plotAreas(output1.group, group = "A", base.raster = water)), 
 		warning = function(w)
  	stop("A warning was issued in plotAreas!", w))
 	expect_that(p, is_a("ggplot"))
@@ -301,7 +301,7 @@ test_that("plotAreas timeslot is only set for timeslot analysis", {
 
 
 test_that("plotAreas add title works", {
-	p <- tryCatch(suppressWarnings(plotAreas(output1.group, group = "A", base.raster = water.large, 
+	p <- tryCatch(suppressWarnings(plotAreas(output1.group, group = "B", base.raster = water, 
 		title = "Test")), 
 		warning = function(w)
  	stop("A warning was issued in plotAreas!", w))
@@ -338,12 +338,6 @@ test_that("getOverlaps only takes type = 'group'", {
 
 # plotOverlaps:
 overlap <- suppressWarnings(getOverlaps(output1.group)) 
-
-
-test_that("plotOverlaps works for group and issues warning for latlon", {	
-	expect_warning(plotOverlaps(overlaps = overlap, areas = output1.group, base.raster = water.large, groups = c("A", "B"), level = 0.95),
-		"The dbbmm output and the base raster are not in the same coordinate system. Attempting to re-project the dbbmm output.", fixed = TRUE)
-})
 
 
 test_that("plotOverlaps works for group and returns the plot", {

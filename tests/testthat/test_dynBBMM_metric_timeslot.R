@@ -11,11 +11,11 @@ tl <- actel::transitionLayer(water)
 # Subset actel results to speed up testing:
 input <- actel::example.results
 input$detections <- input$detections[c(1, 52)]
-input$detections[[1]] <- input$detections[[1]][1:30, ] # Select 1 track
-input$detections[[2]] <- input$detections[[2]][c(1:30, 116:160), ] # Select 2 tracks
+input$detections[[1]] <- input$detections[[1]][c(1:15, 60:75), ] # Select 2 track
+input$detections[[2]] <- input$detections[[2]][c(1:7, 116:130), ] # Select 2 tracks (1 not valid)
 input$valid.detections <- input$valid.detections[c(1, 52)]
-input$valid.detections[[1]] <- input$valid.detections[[1]][1:30, ] # Select 1 track
-input$valid.detections[[2]] <- input$valid.detections[[2]][c(1:30, 116:160), ] # Select 3 tracks
+input$valid.detections[[1]] <- input$valid.detections[[1]][c(1:15, 60:75), ] # Select 2 track
+input$valid.detections[[2]] <- input$valid.detections[[2]][c(1:7, 116:130), ] # Select 2 tracks (1 not valid)
 input$valid.movements <- input$valid.movements[c(1, 52)]
 
 # Save RSP objects per group:
@@ -90,7 +90,7 @@ test_that("start.time is different than stopt.time", {
 
 
 test_that("start.time works", {
-	start.time <- "2018-05-03 09:17:17"
+	start.time <- "2018-04-18 22:52:43"
 	expect_message(dynBBMM(input = rsp.data, base.raster = water.large, timeframe = 24, 
 		start.time = start.time),
 		"M: Discarding detection data previous to ",start.time," per user command.", fixed = TRUE)
@@ -98,7 +98,7 @@ test_that("start.time works", {
 
 
 test_that("stop.time works", {
-	stop.time <- "2018-05-03 09:17:17"
+	stop.time <- "2018-04-19 02:43:34"
 	expect_message(dynBBMM(input = rsp.data, base.raster = water.large, timeframe = 24, 
 		stop.time = stop.time),
 		"M: Discarding detection data posterior to ",stop.time," per user command.", fixed = TRUE)
@@ -106,19 +106,11 @@ test_that("stop.time works", {
 
 
 test_that("both star.time and stop.time works", {
-	start.time <- "2018-04-03 09:17:17"
-	stop.time <- "2018-05-03 09:17:17"
+	start.time <- "2018-04-18 22:52:43"
+	stop.time <- "2018-04-19 02:43:34"
 	expect_message(dynBBMM(input = rsp.data, base.raster = water.large, timeframe = 24, 
 		start.time = start.time, stop.time = stop.time),
 		paste0("M: Discarding detection data previous to ",start.time," and posterior to ",stop.time," per user command."), fixed = TRUE)
-})
-
-
-test_that("The base raster and input are in the same CRS", { # MUDAR PARA LATLON!
-	water.aux <- actel::loadShape(path = aux, shape = "example_shape_geo.shp", size = 0.0001)
-
-	expect_error(dynBBMM(input = rsp.data, base.raster = water.aux, timeframe = 24),
-		"The base raster and the input data are not in the came coordinate system!", fixed = TRUE)
 })
 
 
@@ -225,7 +217,7 @@ test_that("plotAreas only one timeslot is selected", {
 
 
 test_that("plotAreas timeslot is found for specified group", {
-	expect_error(plotAreas(output2.group, base.raster = water.large, group = "A", timeslot = 4),
+	expect_error(plotAreas(output2.group, base.raster = water.large, group = "A", timeslot = 5),
 		"Could not find the required timeslot in the specified group.", fixed = TRUE)
 })
 
