@@ -45,7 +45,6 @@ test_that("runRSP with latlon system is working for timeslot", {
 ## 2) Testing dynBBMM:
 test_that("dynBBMM with latlon system is working for timeslot", {
 	load("dynBBMM_latlon_timeslot.RData")
-
 	expect_equivalent(dbbmm.time, reference_dynBBMM_latlon_timeslot) 
 })
 

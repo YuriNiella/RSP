@@ -45,7 +45,7 @@ combined**:
 Used to estimate the shortest in-water paths. Each
 animal monitored is analysed individually and all detections are
 assigned to separate **tracks**: a sequence of detections with
-intervals shorter than 24 hours (by default, maximum.time = 24). When the animal is not detected for
+intervals shorter than 24 hours (by default, max.time = 24). When the animal is not detected for
 a period of time longer than the maximum.time argument, a new track is created.
 
 **dynBBMM()**
@@ -76,7 +76,7 @@ This function can be used to visualize the tracks created using **runRSP()**:
 
 **plotContours()**
 
-Plots a specified dBBMM utilization distribution calculated using **dynBBMM()**:
+Plots the dBBMM utilization distribution areas calculated for each animal using **dynBBMM()**:
 
 <img src="vignettes/plotContours_readme.png" width="700"  />
  

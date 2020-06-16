@@ -754,10 +754,9 @@ plotRaster <- function(input, base.raster, coord.x, coord.y, size, land.col = "#
   return(p)
 }
 
-#' Check location quality for the RSP output
+#' Plot the RSP tracks
 #' 
-#' This function can be used to verify whether all RSP estimated positions were placed within the water along the 
-#' study area.
+#' This function can be used to plot a map of a particular RSP track of interest. 
 #'
 #' @param input The output of runRSP.
 #' @param base.raster The raster used to generate the transition layer used in runRSP
@@ -771,7 +770,7 @@ plotRaster <- function(input, base.raster, coord.x, coord.y, size, land.col = "#
 #' @param land.col Colour of the land masses. Defaults to semi-transparent grey.
 #' @param alpha One or two transparency values (for points and lines, respectively). For no transparency, alpha = 1.
 #' 
-#' @return A plot showing the RSP locations by tracked group.
+#' @return A plot showing the RSP track locations.
 #' 
 #' @export
 #' 

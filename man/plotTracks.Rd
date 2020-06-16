@@ -2,7 +2,7 @@
 % Please edit documentation in R/plot.R
 \name{plotTracks}
 \alias{plotTracks}
-\title{Check location quality for the RSP output}
+\title{Plot the RSP tracks}
 \usage{
 plotTracks(
   input,
@@ -38,9 +38,8 @@ one specified and the point size will be 10\% larger than the specified.}
 \item{land.col}{Colour of the land masses. Defaults to semi-transparent grey.}
 }
 \value{
-A plot showing the RSP locations by tracked group.
+A plot showing the RSP track locations.
 }
 \description{
-This function can be used to verify whether all RSP estimated positions were placed within the water along the 
-study area.
+This function can be used to plot a map of a particular RSP track of interest.
 }
