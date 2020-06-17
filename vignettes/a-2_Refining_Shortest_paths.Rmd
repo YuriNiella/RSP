@@ -38,8 +38,8 @@ water.transition <- transitionLayer(water.shape, directions = 16)
 rsp.results <- runRSP(input = filtered_data, t.layer = water.transition, coord.x = "Longitude", coord.y = "Latitude")
 ```
 
-**Note:** 
-  * `coord.x` and `coord.y` must be the column names containing the coordinates in the spatial data frame.
+Note:
+  : `coord.x` and `coord.y` must be the column names containing the coordinates in the spatial data frame.
 
 
 The **detection ranges** of each listening station are also taken into account in the `runRSP()`. These will be used as the location errors for the dBBMM when calculating UD areas. A **Range column** can be included in the **spatial.csv file** for specifying the detection ranges (in metres) for each acoustic station if these are known. If the 'Range' column is not found, a default detection range of 500 m is automatically considered for each receiver with the warning:
@@ -48,8 +48,8 @@ The **detection ranges** of each listening station are also taken into account i
 Warning: Could not find a 'Range' column in the spatial data; assuming a range of 500 metres for each receiver.
 ```
 
-**Note:** 
-  * The 'Range' column must already be present in the spatial.csv file when you run the `explore()` function for it to be incorporated in the analysis.
+Note:
+  : The 'Range' column must already be present in the spatial.csv file when you run the `explore()` function for it to be incorporated in the analysis.
 
 There is some uncertainty regarding the trajectory taken while animals move between a pair of consecutive acoustic detections. This uncertainty increases proportionally to the time taken to go from one place to another. By default, consecutive detections separated by more than **24 hours** will be broken by the `runRSP()` into separate 'tracks' (defined by the `max.time = 24` argument, in hours). This avoids the estimation of unrealistic behaviour when the animals do not get detected in any array for exceedingly long periods of time. Detections that occur isolated (e.g. more than 24-h before or after any other detection) are automatically excluded from analysis. The `runRSP()` will return the percentage of raw detections that can be used for refining the shortest paths when the analysis is finished:
 
@@ -67,7 +67,7 @@ While moving away from the first detection, the **position errors** gradually in
 
 ![](RSP_index.png){#id .class width=95% height=95%}
 
-Please note how the **distances between consecutive RSP positions** (points) vary around the `distance` argument (250 m by default) as they depend on the estuary shape and the shortest distances between stations. It is also possible to observe how the **errors of the estimated positions** (lines) gradually increase/decrease as the animals move between stations.
+Note how the **distances between consecutive RSP positions** (points) vary around the `distance` argument (250 m by default) as they depend on the estuary shape and the shortest distances between stations. It is also possible to observe how the **errors of the estimated positions** (lines) gradually increase/decrease as the animals move between stations.
 
 <br/>
 
@@ -111,7 +111,7 @@ The RSP data can be found in the `$detections` object, stored individually for e
 | 2018-03-07 01:11:45|   125449|          St.1|   R64K-4075|   500|  9.380188|  56.5716| Receiver| Track_3|
 
 Note:
-  * Various columns were omitted in this display for simplicity.
+  : Various columns were omitted in this display for simplicity.
 
 The **Position** column in this dataset identifies the two consecutive acoustic detections (`Receiver`) from this animal. We can notice that they occurred on the same **Station** (Standard.name column); the first on `2018-03-07 00:43:49` and the second on `2018-03-07 01:11:45` (slightly less than 30 minutes from each other). Because this time difference is longer than the default `time.lapse` (10 minutes), the `runRSP()` estimated the intermediate positions (RSP) by repeating the station's **Longitude** and **Latitude** and changing the **Error** parameter at a rate of 5% from the default `distance` argument (250 metres = 12.5 metres). Notice how the elapsed time was distributed evenly between the position intervals.
 
@@ -134,7 +134,7 @@ The **Position** column in this dataset identifies the two consecutive acoustic 
 | 2018-04-27 07:04:39|   107527|          St.2|    R64K-4125|   500|  9.992500| 57.07650| Receiver| Track_5|
 
 Note:
-  * Various columns were omitted in this display for simplicity.
+  : Various columns were omitted in this display for simplicity.
 
 
 Here the animal was detected first at the **station** `St.1` on `2018-04-27 05:27:10`, and then at the **station** `St.2` on `2018-04-27 07:04:39`. The `runRSP()` now calculated the shortest in-water path between stations, and we can see how the **Error** of added locations increased up to half-way, (575 metres on `2018-04-27 06:15:54`), and then decreased back to 500 as the track approached the second station.
@@ -143,8 +143,9 @@ Here the animal was detected first at the **station** `St.1` on `2018-04-27 05:2
 
 RSP also has a `plotDensities()` function, which allows you to investigate the distribution of elapsed time between consecutive acoustic detections:
 
-![You can set a **group** argument to generate a density plot for a particular group of interest. By default all monitored groups are used.](densityRSP.png){#id .class width=650} 
+![](densityRSP.png){#id .class width=650} 
 
+You can set a **group** argument to generate a density plot for a particular group of interest. By default all monitored groups are used.
 
 ## 2.2. Visualizing the runRSP outputs
 
@@ -156,11 +157,14 @@ plotTracks(rsp.data1, base.raster = water.shape1, type = "both", tag = "R64K-412
 plotTracks(rsp.data2, base.raster = water.shape2, type = "both", tag = "R64K-4545", track = "Track_9")
 ```
 
-![You can use the function `suggestSize()` in your base raster (shapefile) file to get suggested dimensions for a projected plot.](plotTrack2.png){#id .class width=550} 
+<!-- ![](plotTrack2.png){#id .class width=550}  -->
 
-![You can easily change the colour of the land mass using `land.col`.](plotTrack3.png){#id .class width=550} 
+You can use the function `suggestSize()` in your base raster (shapefile) file to get suggested dimensions for a projected plot, and easily change the colour of the land mass using `land.col`. Lastly, you can use the function `addStations()` can be used to **add the station locations** to your plot.:
 
-![The function `addStations()` can be used to **add the station locations** to your plot.](plotTrack4.png){#id .class width=750} 
+<!-- ![You can easily change the colour of the land mass using `land.col`.](plotTrack3.png){#id .class width=550}  -->
+
+
+![](plotTrack4.png){#id .class width=100%} 
 
 <br/>
 
@@ -199,21 +203,29 @@ We can use `plotDistances()` to compare the total distances travelled by each an
 ```
 plotDistances(dist.table)
 ```
+<center>
 
 ![](distanceRSP.png){#id .class width=550} 	
 
+</center>
+
 Note:
-  * You can view the data for a single group by using the argument `group`.
+  : You can view the data for a single group by using the argument `group`.
 
 <br/>
 
 ```
 plotDistances(dist.table, compare = FALSE)
 ```
+
+<center>
+
 ![](distanceRSP2.png){#id .class width=550} 
 
+</center>
+
 Note:
-  * If you set `compare = FALSE`, only the RSP total distances travelled will be returned.
+  : If you set `compare = FALSE`, only the RSP total distances travelled will be returned.
 
 [Proceed to Calculating utilization distribution](a-3_dBBMM.html)
 

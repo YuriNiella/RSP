@@ -65,7 +65,12 @@ plotOverlaps(overlaps = over.save, areas = areas.save, base.raster = water.shape
 Warning message:
 Raster pixels are placed at uneven horizontal intervals and will be shifted. Consider using geom_tile() instead.
 ```
+
+<center>
+
 ![](plotOverlaps1.png){#id .class width=80%} 
+
+</center>
 
 Please note that these plots can return a **warning**. This is issued by **ggplot2** because, when there are multiple tracks/tags in the same group, the empty cells of the raster are cleared out to improve plotting efficiency. Please be aware that **this warning is harmless** for the map created.
 
@@ -101,7 +106,7 @@ plotOverlaps(overlaps = overlap.save, areas = areas.group, base.raster = water.s
   groups = c("Bream", "Tarwhine"), timeslot = 128, level = 0.95, title = "timeslot 128") 
 ```
 
-![](plotOverlaps2.png){#id .class width=100%} 
+![](plotOverlaps2.png){#id .class width=95%} 
 
 
 Note that if the two groups don't overlap, the following message will be issued:

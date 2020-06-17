@@ -62,7 +62,7 @@ M: In total, 93 detections were excluded as they failed the track quality checks
 ```
 
 Note:
-  * You can suppress the individual warning messages by setting `verbose` to FALSE. You will still receive one single message indicating how many detections were excluded in total. After calculating UDs, the **land areas** are excluded so that the final results represent only **in-water areas of use**.
+  : You can suppress the individual warning messages by setting `verbose` to FALSE. You will still receive one single message indicating how many detections were excluded in total. After calculating UDs, the **land areas** are excluded so that the final results represent only **in-water areas of use**.
 
 ```
 dbbmm_all <- dynBBMM(input = rsp.data, UTM = 32, base.raster = water.large, verbose = FALSE)
@@ -102,9 +102,13 @@ plotContours(input = dbbmm_all, tag = "R64K-4125", track = 3)
 ```
 
 Note:
-  * If a given tag only has one track, specifying just the tag will suffice.
+  : If a given tag only has one track, specifying just the tag will suffice.
+
+<center>
 
 ![](plotContours1.png){#id .class width=70% height=70%} 
+
+</center>
 
 The `breaks` argument can be used to specify which contours to plot. By default, the **25%**, **50%**, **75%**, and **95%** contours are returned. Again, `addStations()` can be used to add the station locations.
 
@@ -113,7 +117,7 @@ The `breaks` argument can be used to specify which contours to plot. By default,
 dBBMMs can also be calculated according to a **fixed moving temporal window**. This allows investigating how space use patterns varied in fine-scale. It is useful for assessing the influence of environmental parameters upon space-use of different groups tracked within the study area. The same `dynBBMM()` function is used, but here the argument `timeframe` has to be defined **in hours** as the temporal window of interest. The total tracking period will be divided into `timeslots`, and dBBMMs calculated for each group monitored (for each timeslot).
 
 Note:
-  * You can use the `plotDensities()` function to help you choose the most suitable `timeframe` for `dynBBMM()`, to make sure you won't be mostly using exclusively interpolated locations in your fine-scale analysis:
+  : You can use the `plotDensities()` function to help you choose the most suitable `timeframe` for `dynBBMM()`, to make sure you won't be mostly using exclusively interpolated locations in your fine-scale analysis:
 
 ```
 plotDensities(rsp.data) # All groups are simultaneously analysed by default!
@@ -122,7 +126,7 @@ plotDensities(rsp.data, group = "Luderick")
 plotDensities(rsp.data, group = "Tarwhine")
 ```
 
-![](plotDensities1.png){#id .class width=100%} 
+![](plotDensities1.png){#id .class width=95%} 
 
 On this plot, we can notice that most of the consecutive detections occurred at intervals of less than one or two hours for all groups combined (Total), and that **Luderick** was the group with longest mean detection intervals.
 
@@ -181,7 +185,7 @@ plotContours(input = dbbmm.time, tag = "A69-9004-489", track = "3", timeslot = 1
 ![](plotContours3.png){#id .class width=100%} 
 
 Note:
-  * You can customize the title of you plot by setting a `title` argument.
+  : You can customize the title of you plot by setting a `title` argument.
 
 ## 3.3. Calculating areas of space use
 
@@ -213,7 +217,7 @@ plotAreas(areas.group, base.raster = water.shape, group = "Tarwhine", timeslot =
 ![](plotAreas.png){#id .class width=100%} 
 
 Note:
-  * plotAreas() can only plot group areas (i.e. run with `type = group`).
+  : plotAreas() can only plot group areas (i.e. run with `type = group`).
 
 
 ### 3.3.2. Track areas

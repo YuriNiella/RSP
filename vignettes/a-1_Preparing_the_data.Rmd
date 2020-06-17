@@ -62,16 +62,16 @@ Depending on the shapefile provided from your study area, the pixel size used an
 plotRaster(input = filtered_data, base.raster = water.shape, coord.x = "Longitude", coord.y = "Latitude")
 ```
 
-**Note:** 
-  * `coord.x` and `coord.y` must be the column names containing the coordinates in the spatial data frame.
+Note:
+  : `coord.x` and `coord.y` must be the column names containing the coordinates in the spatial data frame.
 
 
-![](plotRaster.png){#id .class width=750}
+![](plotRaster.png){#id .class width=100%}
 
 If you get a plot similar to this one, with only **Water** showing up in the legend, it means that all your stations are placed **in the water** and you are all good to continue. If any stations are **in land**, they will be coloured differently in this plot. If this happens, you must then either adjust your shapefile or the station positions in the spatial dataset before continuing.
 
-**Note:** 
-  * Adjusting the station coordinates will require you to run actel's analysis again.
+Note:
+  : Adjusting the station coordinates will require you to run actel's analysis again.
 
 
 [Proceed to Refining the Shortest Paths in-water](a-2_Refining_Shortest_paths.html)
