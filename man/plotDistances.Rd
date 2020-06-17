@@ -4,12 +4,12 @@
 \alias{plotDistances}
 \title{Plot total distances travelled}
 \usage{
-plotDistances(input, by.group = FALSE, compare = TRUE)
+plotDistances(input, group, compare = TRUE)
 }
 \arguments{
-\item{input}{output of \code{\link{getDistances}}}
+\item{input}{output of \code{\link{getDistances}}.}
 
-\item{by.group}{If TRUE, plots are returned individually (as a list) for each tracked group.}
+\item{group}{Define a specific group to be plotted, rather than the overall results.}
 
 \item{compare}{By default, a comparative plot is returned showing distances travelled with Receiver and RSP location
 types. If FALSE, only the RSP total distances travelled will be returned.}
