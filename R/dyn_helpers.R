@@ -213,7 +213,8 @@ groupDetections <- function(detections, tz, bio, timeframe = NULL) {
   
   # Split data by time slot, if necessary
   if (!is.null(timeframe)) {
-    aux <- range(do.call(c, lapply(detections, function(x) x$Timestamp)))
+    aux <- range(sapply(detections, function(x) x$Timestamp))
+    aux <- as.POSIXct(aux, origin = "1970-01-01 00:00:00", tz = tz)
     aux[1] <- round.POSIXt(x = (aux[1] - 43200), units = "days") # extract 12-h (round previous day)
     aux[2] <- round.POSIXt(x = (aux[2] + 43200), units = "days") # add 12-h (round next day)
     group.list <- breakByTimeframe(input = group.list, timerange = aux, timeframe = timeframe)
