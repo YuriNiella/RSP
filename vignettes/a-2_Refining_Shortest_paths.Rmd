@@ -24,17 +24,23 @@ knitr::opts_chunk$set(
 
 ***
 
-The `runRSP()` function is used to recreate the shortest paths between pairs of acoustic detections. The detection data, station coordinates and the group of each tracked animal is passed on to RSP automatically by actel through the argument `input`. You must also include the name of the transition layer you created using the argument `t.layer`. e.g.:
+The `runRSP()` function is used to recreate the shortest paths between pairs of acoustic detections. By default, the analysis will run for all transmitters detected, but you can determine also which transmitters you would like to include using `tags`. The detection data, station coordinates and the group of each tracked animal is passed on to RSP automatically by actel through the argument `input`. You must also include the name of the transition layer you created using the argument `t.layer`, e.g.:
 
 ```
 library(actel)
 library(RSP)
 
 filtered_data <- explore(tz = "Europe/Copenhagen")
+
+water.shape <- loadShape(shape = "my_study_area.shp", size = 0.0001)  
 water.transition <- transitionLayer(water.shape, directions = 16)
 
 rsp.results <- runRSP(input = filtered_data, t.layer = water.transition, coord.x = "Longitude", coord.y = "Latitude")
 ```
+
+**Note:** 
+  * `coord.x` and `coord.y` must be the column names containing the coordinates in the spatial data frame.
+
 
 The **detection ranges** of each listening station are also taken into account in the `runRSP()`. These will be used as the location errors for the dBBMM when calculating UD areas. A **Range column** can be included in the **spatial.csv file** for specifying the detection ranges (in metres) for each acoustic station if these are known. If the 'Range' column is not found, a default detection range of 500 m is automatically considered for each receiver with the warning:
 
@@ -42,22 +48,26 @@ The **detection ranges** of each listening station are also taken into account i
 Warning: Could not find a 'Range' column in the spatial data; assuming a range of 500 metres for each receiver.
 ```
 
-**Note:** The 'Range' column must already be present in the spatial.csv file when you run the `explore()` function for it to be incorporated in the analysis.
+**Note:** 
+  * The 'Range' column must already be present in the spatial.csv file when you run the `explore()` function for it to be incorporated in the analysis.
 
-While animals move between a pair of consecutive acoustic detections there is some uncertainty regarding the trajectory taken, which increases proportionally to the time taken to go from one place to another. **Consecutive detections longer than 24 hours** apart are thus broken by the `runRSP()` into separate 'tracks' (defined by the `max.time = 24` default argument, in hours). This avoids the estimation of unrealistic behaviour when the animals do not get detected in any array for exceedingly long periods of time. Detections that occur totally isolated (e.g. more than 24-h before or after any other detection) are automatically excluded from analysis. The `runRSP()` will return the percentage of raw detections that can be used for refining the shortest paths when the analysis is finished:
+There is some uncertainty regarding the trajectory taken while animals move between a pair of consecutive acoustic detections. This uncertainty increases proportionally to the time taken to go from one place to another. By default, consecutive detections separated by more than **24 hours** will be broken by the `runRSP()` into separate 'tracks' (defined by the `max.time = 24` argument, in hours). This avoids the estimation of unrealistic behaviour when the animals do not get detected in any array for exceedingly long periods of time. Detections that occur isolated (e.g. more than 24-h before or after any other detection) are automatically excluded from analysis. The `runRSP()` will return the percentage of raw detections that can be used for refining the shortest paths when the analysis is finished:
+
 ```
 M: Percentage of detections valid for RSP: 99.8%
 ```
 
-Pairs of detections can occur either at the **same receiver** or at **different receivers**. For consecutive detections on different receivers, estimated positions are added at intervals of approximately a given `distance` argument in metres (250 m by default). Note that the added positions will be centred relative to the total distance, e.g., if the distance between two receivers is 600 m, then two RSP positions will be added; one at 200 m and one at 400 m. On the other hand, if an animal is detected consecutively at the same station (with a time interval greater than the stipulated at the `time.step` argument), then estimated positions are added at that receiver location, over intervals of approximately `time.step` minutes. E.g. if a fish is detected at a station twice with a 22 minute interval, and `time.step` is set to 10, two estimated positions will be included.
+Pairs of detections can occur either at the **same station** or at **different stations**. For consecutive detections on different stations, estimated positions are added at intervals of approximately a given `distance` argument in metres (250 m by default). Note that the added positions will be centred relative to the total distance, e.g., if the distance between two stations is 600 m, then two RSP positions will be added; one at 200 m and one at 400 m. On the other hand, if an animal is detected consecutively at the same station (with a time interval greater than the stipulated at the `time.step` argument), then estimated positions are added at that station location, over intervals of approximately `time.step` minutes. E.g. if a fish is detected at a station twice with a 22 minute interval, and `time.step` is set to 10, two estimated positions will be included.
 
-While moving away from the first detection, the **position errors** gradually increase for each estimated position at a 5% rate of the `distance` but can be specified in meters using `er.ad`. When the animal reaches half of the elapsed time/distance between the first and the second detection, the errors of estimated positions now gradually decrease as it approaches the second receiver where it got detected. This principle is used for both pairs of detections on different receivers, and for consecutive detections at the same station:
+While moving away from the first detection, the **position errors** gradually increase for each estimated position. This increase defaults to a 5% rate of the `distance` argument, but it can be specified in metres using `er.ad`. When the animal reaches half of the elapsed time/distance between the first and the second detection, the errors of estimated positions now gradually decrease as it approaches the second station where it got detected. This principle is used for both pairs of detections on different stations, and for consecutive detections at the same station:
 
-![**A:** consecutive detections on the save receiver; **B:** consecutive detections on different receivers.](Example_detection.png){#id .class width=60% height=60%}
+![**A:** consecutive detections on the same station; **B:** consecutive detections on different stations.](Example_detection.png){#id .class width=60% height=60%}
 
 <br/>
 
-![Please note how the **distances between consecutive RSP positions** (points) vary around the `distance` argument (250 m by default) as they depend on the estuary shape and the shortest distances between receivers. It is also possible to observe how the **errors of the estimated positions** (lines) gradually increase/decrease as the animals move between receivers.](RSP_index.png){#id .class width=95% height=95%}
+![](RSP_index.png){#id .class width=95% height=95%}
+
+Please note how the **distances between consecutive RSP positions** (points) vary around the `distance` argument (250 m by default) as they depend on the estuary shape and the shortest distances between stations. It is also possible to observe how the **errors of the estimated positions** (lines) gradually increase/decrease as the animals move between stations.
 
 <br/>
 
@@ -90,41 +100,48 @@ Only the **valid tracks** are used by **RSP** to recreate the shortest in-water 
 
 The RSP data can be found in the `$detections` object, stored individually for each tracked animal. There are **two main types of RSP interpolation**:
 
-(2) For consecutive detections on **the same receiver**:
+(2) For consecutive detections on **the same station**:
 
 
-|           Timestamp| Receiver| Transmitter| Error| Longitude| Latitude| Position|   Track|
-|:-------------------|--------:|-----------:|-----:|---------:|--------:|--------:|-------:|
-| 2018-03-07 00:43:49|   125449|   R64K-4075|   500|  9.380188|  56.5716| Receiver| Track_3|
-| 2018-03-07 00:53:07|       NA|   R64K-4075| 512.5|  9.380188|  56.5716|      RSP| Track_3|
-| 2018-03-07 01:02:26|       NA|   R64K-4075| 512.5|  9.380188|  56.5716|      RSP| Track_3|
-| 2018-03-07 01:11:45|   125449|   R64K-4075|   500|  9.380188|  56.5716| Receiver| Track_3|
+|           Timestamp| Receiver| Standard.name| Transmitter| Error| Longitude| Latitude| Position|   Track|
+|:-------------------|--------:|-------------:|-----------:|-----:|---------:|--------:|--------:|-------:|
+| 2018-03-07 00:43:49|   125449|          St.1|   R64K-4075|   500|  9.380188|  56.5716| Receiver| Track_3|
+| 2018-03-07 00:53:07|       NA|            NA|   R64K-4075| 512.5|  9.380188|  56.5716|      RSP| Track_3|
+| 2018-03-07 01:02:26|       NA|            NA|   R64K-4075| 512.5|  9.380188|  56.5716|      RSP| Track_3|
+| 2018-03-07 01:11:45|   125449|          St.1|   R64K-4075|   500|  9.380188|  56.5716| Receiver| Track_3|
 
-The **Position** column in this dataset identifies the two consecutive acoustic detections (`Receiver`) from this animal. We can notice that they occurred on the same **Receiver** (`125449`): the first on `2018-03-07 00:43:49` and the second on `2018-03-07 01:11:45` (slightly less than 30 minutes from each other). Because this time difference is longer than the default `time.lapse` (10 minutes), the `runRSP()` estimated the intermediate positions (RSP) by repeating the receiver **Longitude** and **Latitude** and changing the **Error** parameter at a rate of 5% from the default `distance` argument (250 metres = 12.5 metres). Notice how the elapsed time was distributed evenly between the position intervals.
+Note:
+  * Various columns were omitted in this display for simplicity.
 
-(3) For consecutive detections on **different receivers**:
+The **Position** column in this dataset identifies the two consecutive acoustic detections (`Receiver`) from this animal. We can notice that they occurred on the same **Station** (Standard.name column); the first on `2018-03-07 00:43:49` and the second on `2018-03-07 01:11:45` (slightly less than 30 minutes from each other). Because this time difference is longer than the default `time.lapse` (10 minutes), the `runRSP()` estimated the intermediate positions (RSP) by repeating the station's **Longitude** and **Latitude** and changing the **Error** parameter at a rate of 5% from the default `distance` argument (250 metres = 12.5 metres). Notice how the elapsed time was distributed evenly between the position intervals.
 
-|           Timestamp| Receiver| Transmitter| Error| Longitude| Latitude| Position|   Track|
-|:-------------------|--------:|-----------:|-----:|---------:|--------:|--------:|-------:|
-| 2018-04-27 05:27:10|   100474|   R64K-4125|   500|  9.921725| 57.05595| Receiver| Track_5|
-| 2018-04-27 05:35:17|       NA|   R64K-4125| 512.5|  9.928500| 57.05450|      RSP| Track_5|
-| 2018-04-27 05:43:24|       NA|   R64K-4125|   525|  9.935500| 57.05350|      RSP| Track_5|
-| 2018-04-27 05:51:32|       NA|   R64K-4125| 537.5|  9.943500| 57.05450|      RSP| Track_5|
-| 2018-04-27 05:59:39|       NA|   R64K-4125|   550|  9.949500| 57.05650|      RSP| Track_5|
-| 2018-04-27 06:07:47|       NA|   R64K-4125| 562.5|  9.955500| 57.05850|      RSP| Track_5|
-| 2018-04-27 06:15:54|       NA|   R64K-4125|   575|  9.960500| 57.06150|      RSP| Track_5|
-| 2018-04-27 06:24:01|       NA|   R64K-4125| 562.5|  9.964500| 57.06550|      RSP| Track_5|
-| 2018-04-27 06:32:09|       NA|   R64K-4125|   550|  9.968500| 57.06850|      RSP| Track_5|
-| 2018-04-27 06:40:16|       NA|   R64K-4125| 537.5|  9.975500| 57.07050|      RSP| Track_5|
-| 2018-04-27 06:48:24|       NA|   R64K-4125|   525|  9.981500| 57.07250|      RSP| Track_5|
-| 2018-04-27 06:56:31|       NA|   R64K-4125| 512.5|  9.986500| 57.07450|      RSP| Track_5|
-| 2018-04-27 07:04:39|   107527|   R64K-4125|   500|  9.992500| 57.07650| Receiver| Track_5|
+(3) For consecutive detections on **different stations**:
 
-Here the animal was detected first at the **Receiver** `100474` on `2018-04-27 05:27:10`, and then at the **Receiver** `107527` on `2018-04-27 07:04:39`. The `runRSP()` now calculated the shortest in-water path between receivers, and we can see how the **Error** of added locations increased up to half-way, (575 metres on `2018-04-27 06:15:54`), and then decreased back to 500 as the track approached the second receiver.
+|           Timestamp| Receiver| Standard.name|  Transmitter| Error| Longitude| Latitude| Position|   Track|
+|:-------------------|--------:|-------------:|------------:|-----:|---------:|--------:|--------:|-------:|
+| 2018-04-27 05:27:10|   100474|          St.1|    R64K-4125|   500|  9.921725| 57.05595| Receiver| Track_5|
+| 2018-04-27 05:35:17|       NA|            NA|    R64K-4125| 512.5|  9.928500| 57.05450|      RSP| Track_5|
+| 2018-04-27 05:43:24|       NA|            NA|    R64K-4125|   525|  9.935500| 57.05350|      RSP| Track_5|
+| 2018-04-27 05:51:32|       NA|            NA|    R64K-4125| 537.5|  9.943500| 57.05450|      RSP| Track_5|
+| 2018-04-27 05:59:39|       NA|            NA|    R64K-4125|   550|  9.949500| 57.05650|      RSP| Track_5|
+| 2018-04-27 06:07:47|       NA|            NA|    R64K-4125| 562.5|  9.955500| 57.05850|      RSP| Track_5|
+| 2018-04-27 06:15:54|       NA|            NA|    R64K-4125|   575|  9.960500| 57.06150|      RSP| Track_5|
+| 2018-04-27 06:24:01|       NA|            NA|    R64K-4125| 562.5|  9.964500| 57.06550|      RSP| Track_5|
+| 2018-04-27 06:32:09|       NA|            NA|    R64K-4125|   550|  9.968500| 57.06850|      RSP| Track_5|
+| 2018-04-27 06:40:16|       NA|            NA|    R64K-4125| 537.5|  9.975500| 57.07050|      RSP| Track_5|
+| 2018-04-27 06:48:24|       NA|            NA|    R64K-4125|   525|  9.981500| 57.07250|      RSP| Track_5|
+| 2018-04-27 06:56:31|       NA|            NA|    R64K-4125| 512.5|  9.986500| 57.07450|      RSP| Track_5|
+| 2018-04-27 07:04:39|   107527|          St.2|    R64K-4125|   500|  9.992500| 57.07650| Receiver| Track_5|
+
+Note:
+  * Various columns were omitted in this display for simplicity.
+
+
+Here the animal was detected first at the **station** `St.1` on `2018-04-27 05:27:10`, and then at the **station** `St.2` on `2018-04-27 07:04:39`. The `runRSP()` now calculated the shortest in-water path between stations, and we can see how the **Error** of added locations increased up to half-way, (575 metres on `2018-04-27 06:15:54`), and then decreased back to 500 as the track approached the second station.
 
 <br/>
 
-RSP also has a `plotDensities()` function, which allows you to investigate the distribution of ellapsed time between consecutive acoustic detections:
+RSP also has a `plotDensities()` function, which allows you to investigate the distribution of elapsed time between consecutive acoustic detections:
 
 ![You can set a **group** argument to generate a density plot for a particular group of interest. By default all monitored groups are used.](densityRSP.png){#id .class width=650} 
 
@@ -143,13 +160,13 @@ plotTracks(rsp.data2, base.raster = water.shape2, type = "both", tag = "R64K-454
 
 ![You can easily change the colour of the land mass using `land.col`.](plotTrack3.png){#id .class width=550} 
 
-![The function `addStations()` can be used to **add the receiver locations** to your plot.](plotTrack4.png){#id .class width=750} 
+![The function `addStations()` can be used to **add the station locations** to your plot.](plotTrack4.png){#id .class width=750} 
 
 <br/>
 
 ## 2.3. Distances travelled exclusively in-water
 
-The `getDistances()` function can be used to obtain the distances travelled (in meters) during each RSP track. Distances are returned both as **Receiver** (calculated only using the receiver locations) or **RSP** (calculated using both the receiver locations and the interpolated positions) location types (Loc.type):
+The `getDistances()` function can be used to obtain the distances travelled (in metres) during each RSP track. The column `Loc.type` shows you whether the distances were calculated only using the station locations or if they were calculated also accounting for the interpolated positions (added by RSP).
 
 ```
 dist.table <- getDistances(rsp.results)
@@ -177,17 +194,27 @@ dist.table
 
 <br/>
 
-We can use `plotDistances()` to compare the total distances travelled by each animal calculated using only the receiver locations and also including the RSP estimations:
+We can use `plotDistances()` to compare the total distances travelled by each animal calculated using only the station locations and also including the RSP estimations:
 
 ```
 plotDistances(dist.table)
 ```
-![If you set `by.group = TRUE` plots are returned individually for each group monitored.](distanceRSP.png){#id .class width=550} 
+
+![](distanceRSP.png){#id .class width=550} 	
+
+Note:
+  * You can view the data for a single group by using the argument `group`.
 
 <br/>
 
 ```
 plotDistances(dist.table, compare = FALSE)
 ```
-![If you set `compare = FALSE`, only the RSP total distances travelled will be returned.](distanceRSP2.png){#id .class width=550} 
+![](distanceRSP2.png){#id .class width=550} 
 
+Note:
+  * If you set `compare = FALSE`, only the RSP total distances travelled will be returned.
+
+[Proceed to Calculating utilization distribution](a-3_dBBMM.html)
+
+[Back to top.](#)
