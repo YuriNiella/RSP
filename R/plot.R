@@ -440,7 +440,7 @@ plotDistances <- function(input, group, compare = TRUE) {
     if (length(group) != 1)
       stop ("Please select only one group.\n", call. = FALSE)
 
-    if (is.na(match(Group), unique(plot.save$Group)))
+    if (is.na(match(group, unique(plot.save$Group))))
       stop ("Could not find requested group in the input data.\n", call. = FALSE)
 
     plotdata <-  subset(plot.save, Group == group)
@@ -459,7 +459,9 @@ plotDistances <- function(input, group, compare = TRUE) {
   }
   p <- p + ggplot2::theme_bw()
   p <- p + ggplot2::coord_flip(ylim = c(0, max(plot.save$Dist.travel) * 1.05), expand = FALSE)
-  p <- p + ggplot2::labs(title = groups)
+  
+  if (!missing(group))
+    p <- p + ggplot2::labs(title = group)
 
   return(p)
 }
