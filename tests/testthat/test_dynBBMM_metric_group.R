@@ -20,7 +20,7 @@ input$valid.movements <- input$valid.movements[c(1, 52)]
 
 # Save RSP objects per group:
 rsp.data <- runRSP(input = input, t.layer = tl, coord.x = "x", coord.y = "y")
-dbbmm.all <- dynBBMM(rsp.data, water.large) # Total
+dbbmm.all <- dynBBMM(input = rsp.data, base.raster = water.large) # Total
 
 	## RUN THESE LINES ONLY TO REPLACE THE REFERENCES!
 	# reference_runRSP_metric_group <- rsp.data
