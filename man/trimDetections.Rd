@@ -7,7 +7,7 @@
 trimDetections(detections, tags = NULL)
 }
 \arguments{
-\item{detections}{The detections data frame, provided by one of the main actel functions (explore, migrate, residency of spbd)}
+\item{detections}{The detections data frame, provided by one of the main actel functions (explore, migrate, residency)}
 
 \item{tags}{A list of transmitters to be analysed.}
 }
