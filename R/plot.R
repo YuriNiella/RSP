@@ -31,7 +31,7 @@ addStations <- function(p, input, shape = 21, size = 1.5, colour = "white", fill
 #' @param timeslot The timeslot to be displayed. Only relevant for timeslot dbbmms.
 #' @param title Plot title. By default, the names of the groups being compared are displayed.
 #' @param col Character vector of three colours to be used in the plot (one for each group and one for the overlap).
-#' @param land.col Colour of the land masses. Defaults to semi-transparent grey.
+#' @param land.col Colour of the land masses. Defaults to semi-transparent gray.
 #' 
 #' @return A plot of the overlapping areas between two groups.
 #' 
@@ -319,7 +319,7 @@ plotContours <- function(input, tag, track = NULL, timeslot, breaks = c(0.95, 0.
 #' Density plot of elapsed times between consecutive acoustic detections
 #' 
 #' Generates a density plot for inspecting the distribution of elapsed times (in hours) between all consecutive
-#' acustic detections. By default the plot is created including all monitored groups and transmitters. Alternatively,
+#' acoustic detections. By default the plot is created including all monitored groups and transmitters. Alternatively,
 #' can be set to be performed at group level using the type argument. 
 #'
 #' @param input RSP dataset as returned by RSP.
@@ -397,7 +397,7 @@ plotDensities <- function(input, group) {
 #' 
 #' Compare the outputs of total distances travelled (in kilometres) for the tracked animals, using only the 
 #' receiver locations and adding the RSP positions. Data on the total distances travelled are stored in the 
-#' 'distances' objtect.
+#' 'distances' object.
 #'
 #' @param input output of \code{\link{getDistances}}.
 #' @param group Define a specific group to be plotted, rather than the overall results.
@@ -486,7 +486,7 @@ plotDistances <- function(input, group, compare = TRUE) {
 #' @param level Value of the use area to plot. Must match one the levels calculated in the overlaps.
 #' @param title Plot title. By default, the names of the groups being compared are displayed.
 #' @param col Character vector of three colours to be used in the plot (one for each group and one for the overlap).
-#' @param land.col Colour of the land masses. Defaults to semi-transparent grey.
+#' @param land.col Colour of the land masses. Defaults to semi-transparent gray.
 #'  
 #' @return A plot of the overlapping areas between two groups.
 #' 
@@ -679,7 +679,7 @@ plotOverlaps <- function(overlaps, areas, base.raster, groups, timeslot,
 #' @inheritParams runRSP
 #' @param size The size of the station dots
 #' @inheritParams plotContours
-#' @param land.col Colour of the land masses. Defaults to semi-transparent grey.
+#' @param land.col Colour of the land masses. Defaults to semi-transparent gray.
 #' 
 #' @return A plot of your base raster extent and the receiver locations.
 #' 
@@ -739,7 +739,7 @@ plotRaster <- function(input, base.raster, coord.x, coord.y, size, land.col = "#
 #' @param track If a single tag was chosen, you can use 'track' to define a specific track to be plotted.
 #' @param size The size/width of the points and lines to be plotted. if type = "both", the line size will be the
 #'  one specified and the point size will be 10\% larger than the specified.
-#' @param land.col Colour of the land masses. Defaults to semi-transparent grey.
+#' @param land.col Colour of the land masses. Defaults to semi-transparent gray.
 #' @param alpha One or two transparency values (for points and lines, respectively). For no transparency, alpha = 1.
 #' 
 #' @return A plot showing the RSP track locations.

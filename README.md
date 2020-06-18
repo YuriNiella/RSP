@@ -63,7 +63,7 @@ Obtains the in-water areas (in squared meters) for the tracked animals, either a
 
 **getOverlaps()**
 
-Calculates the ammounts of overlap among different biological groups monitored, at the same contour levels as defined in getAreas(). Overlaps are returned as **only in space** for group dBMM, and if a timeframe is set (in hours), overlaps are **simultaneously in space and time** for timeslot dBBMM.  
+Calculates the amounts of overlap among different biological groups monitored, at the same contour levels as defined in getAreas(). Overlaps are returned as **only in space** for group dBBMM, and if a timeframe is set (in hours), overlaps are **simultaneously in space and time** for timeslot dBBMM.  
 
 
 ### Plotting the results

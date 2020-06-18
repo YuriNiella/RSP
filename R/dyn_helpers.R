@@ -306,7 +306,7 @@ toUTM <- function(input, UTM, crs) {
 #' 
 #' If the user specifies transmitters, return only the detections for those tags.
 #' 
-#' @param detections The detections data frame, provided by one of the main actel functions (explore, migrate, residency of spbd)
+#' @param detections The detections data frame, provided by one of the main actel functions (explore, migrate, residency)
 #' @param tags A list of transmitters to be analysed.
 #' 
 #' @return the trimmed detections list
