@@ -4,11 +4,19 @@
 \alias{plotRaster}
 \title{Check input data quality for the RSP analysis}
 \usage{
-plotRaster(input, base.raster, coord.x, coord.y, size, land.col = "#BABCBF80")
+plotRaster(
+  input,
+  base.raster,
+  coord.x,
+  coord.y,
+  size = 1,
+  land.col = "#BABCBF80"
+)
 }
 \arguments{
-\item{input}{The output of one of \code{\link[actel]{actel}}'s main functions (\code{\link[actel]{explore}}, 
-\code{\link[actel]{migration}} or \code{\link[actel]{residency}})}
+\item{input}{Either a data frame containing the coordinates of the stations or the output of one of 
+\code{\link[actel]{actel}}'s main functions (\code{\link[actel]{explore}}, \code{\link[actel]{migration}} 
+or \code{\link[actel]{residency}}).}
 
 \item{base.raster}{Raster object. Imported for example using \code{\link[actel]{loadShape}}.}
 
