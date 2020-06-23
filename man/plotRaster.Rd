@@ -18,7 +18,7 @@ plotRaster(input, base.raster, coord.x, coord.y, size, land.col = "#BABCBF80")
 
 \item{size}{The size of the station dots}
 
-\item{land.col}{Colour of the land masses. Defaults to semi-transparent grey.}
+\item{land.col}{Colour of the land masses. Defaults to semi-transparent gray.}
 }
 \value{
 A plot of your base raster extent and the receiver locations.

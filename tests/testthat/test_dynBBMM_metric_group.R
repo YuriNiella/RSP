@@ -261,20 +261,20 @@ test_that("plotDistances is working properly for only RSP locations", {
 test_that("plotDistances is working properly for only RSP locations and by group", {
 	output <- getDistances(rsp.data)
 
-	p <- tryCatch(plotDistances(output, compare = FALSE, by.group = TRUE), 
+	p <- tryCatch(plotDistances(output, compare = FALSE, group = "A"), 
 		warning = function(w)
  	stop("A warning was issued in plotDistances!", w))
-	expect_that(p, is_a("list"))
+	expect_that(p, is_a("ggplot"))
 })
 
 
 test_that("plotDistances by group is working properly", {
 	output <- getDistances(rsp.data)
 
-	p <- tryCatch(plotDistances(output, by.group = TRUE), 
+	p <- tryCatch(plotDistances(output, group = "A"), 
 		warning = function(w)
  	stop("A warning was issued in plotDistances!", w))
-	expect_that(p, is_a("list"))
+	expect_that(p, is_a("ggplot"))
 })
 
 

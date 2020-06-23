@@ -163,10 +163,10 @@ test_that("plotDistances is working properly", {
 test_that("plotDistances by group is working properly", {
 	output <- getDistances(rsp.data)
 
-	p <- tryCatch(plotDistances(output, by.group = TRUE), 
+	p <- tryCatch(plotDistances(output, group = "A"), 
 		warning = function(w)
  	stop("A warning was issued in plotDistances!", w))
-	expect_that(p, is_a("list"))
+	expect_that(p, is_a("ggplot"))
 })
 
 
