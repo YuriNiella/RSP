@@ -58,7 +58,10 @@ prepareDetections <- function(detections, spatial, coord.x, coord.y) {
   if (!any(colnames(spatial$stations) == "Range")) 
     warning("Could not find a 'Range' column in the spatial data; assuming a range of 500 metres for each receiver.", immediate. = TRUE, call. = FALSE)
 
-  output <- lapply(detections, function(x){
+  output <- lapply(names(detections), function(i){
+    x <- detections[[i]]
+    if (length(unique(x$Transmitter)) > 1)
+      x$Transmitter <- rep(i, nrow(x))
     x$Date <- as.Date(x$Timestamp)
     if (any(colnames(spatial$stations) == "Range")) {
       link <- match(x$Standard.name, spatial$stations$Standard.name)
@@ -72,6 +75,7 @@ prepareDetections <- function(detections, spatial, coord.x, coord.y) {
     x$Position <- "Receiver"
     return(x)
   })
+  names(output) <- names(detections)
   
   return(output)
 }

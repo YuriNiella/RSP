@@ -31,7 +31,7 @@ addStations <- function(p, input, shape = 21, size = 1.5, colour = "white", fill
 #' @param timeslot The timeslot to be displayed. Only relevant for timeslot dbbmms.
 #' @param title Plot title. By default, the names of the groups being compared are displayed.
 #' @param col Character vector of three colours to be used in the plot (one for each group and one for the overlap).
-#' @param land.col Colour of the land masses. Defaults to semi-transparent gray.
+#' @param land.col Colour of the land masses. Defaults to semi-transparent grey.
 #' 
 #' @return A plot of the overlapping areas between two groups.
 #' 
@@ -319,7 +319,7 @@ plotContours <- function(input, tag, track = NULL, timeslot, breaks = c(0.95, 0.
 #' Density plot of elapsed times between consecutive acoustic detections
 #' 
 #' Generates a density plot for inspecting the distribution of elapsed times (in hours) between all consecutive
-#' acoustic detections. By default the plot is created including all monitored groups and transmitters. Alternatively,
+#' acustic detections. By default the plot is created including all monitored groups and transmitters. Alternatively,
 #' can be set to be performed at group level using the type argument. 
 #'
 #' @param input RSP dataset as returned by RSP.
@@ -397,7 +397,7 @@ plotDensities <- function(input, group) {
 #' 
 #' Compare the outputs of total distances travelled (in kilometres) for the tracked animals, using only the 
 #' receiver locations and adding the RSP positions. Data on the total distances travelled are stored in the 
-#' 'distances' object.
+#' 'distances' objtect.
 #'
 #' @param input output of \code{\link{getDistances}}.
 #' @param group Define a specific group to be plotted, rather than the overall results.
@@ -440,7 +440,7 @@ plotDistances <- function(input, group, compare = TRUE) {
     if (length(group) != 1)
       stop ("Please select only one group.\n", call. = FALSE)
 
-    if (is.na(match(group, unique(plot.save$Group))))
+    if (is.na(match(Group), unique(plot.save$Group)))
       stop ("Could not find requested group in the input data.\n", call. = FALSE)
 
     plotdata <-  subset(plot.save, Group == group)
@@ -459,9 +459,7 @@ plotDistances <- function(input, group, compare = TRUE) {
   }
   p <- p + ggplot2::theme_bw()
   p <- p + ggplot2::coord_flip(ylim = c(0, max(plot.save$Dist.travel) * 1.05), expand = FALSE)
-  
-  if (!missing(group))
-    p <- p + ggplot2::labs(title = group)
+  p <- p + ggplot2::labs(title = groups)
 
   return(p)
 }
@@ -486,7 +484,7 @@ plotDistances <- function(input, group, compare = TRUE) {
 #' @param level Value of the use area to plot. Must match one the levels calculated in the overlaps.
 #' @param title Plot title. By default, the names of the groups being compared are displayed.
 #' @param col Character vector of three colours to be used in the plot (one for each group and one for the overlap).
-#' @param land.col Colour of the land masses. Defaults to semi-transparent gray.
+#' @param land.col Colour of the land masses. Defaults to semi-transparent grey.
 #'  
 #' @return A plot of the overlapping areas between two groups.
 #' 
@@ -673,23 +671,30 @@ plotOverlaps <- function(overlaps, areas, base.raster, groups, timeslot,
 #' or any of your receiver location was found to be in land. This function allows you to visually identify the station(s) 
 #' with problem. Please either extend your raster to include all stations or fix receiver locations to be in-water.
 #'
-#' @param input The output of one of \code{\link[actel]{actel}}'s main functions (\code{\link[actel]{explore}}, 
-#'  \code{\link[actel]{migration}} or \code{\link[actel]{residency}})
+#' @param input Either a data frame containing the coordinates of the stations or the output of one of 
+#'  \code{\link[actel]{actel}}'s main functions (\code{\link[actel]{explore}}, \code{\link[actel]{migration}} 
+#'  or \code{\link[actel]{residency}}).
 #' @param base.raster Raster object. Imported for example using \code{\link[actel]{loadShape}}.
 #' @inheritParams runRSP
 #' @param size The size of the station dots
 #' @inheritParams plotContours
-#' @param land.col Colour of the land masses. Defaults to semi-transparent gray.
+#' @param land.col Colour of the land masses. Defaults to semi-transparent grey.
 #' 
 #' @return A plot of your base raster extent and the receiver locations.
 #' 
 #' @export
 #' 
-plotRaster <- function(input, base.raster, coord.x, coord.y, size, land.col = "#BABCBF80") {
+plotRaster <- function(input, base.raster, coord.x, coord.y, size = 1, land.col = "#BABCBF80") {
   Latitude <- NULL
   Longitude <- NULL
   Check <- NULL
 
+  if (missing(coord.x))
+    stop("Please indicate the longitude column with 'coord.x'.\n", call. = FALSE)
+  
+  if (missing(coord.y))
+    stop("Please indicate the latitude column with 'coord.y'.\n", call. = FALSE)
+  
   # paint land rather than water
   base.raster[is.na(base.raster)] <- 2
   base.raster[base.raster == 1] <- NA
@@ -703,14 +708,26 @@ plotRaster <- function(input, base.raster, coord.x, coord.y, size, land.col = "#
   colnames(df) <- c("Longitude", "Latitude", "MAP")
   
   # Find stations in land:
-  aux.spatial <- input$spatial
 
-  stations <- input$spatial$stations
+  if (any(names(input) == "rsp.info"))
+    stations <- input$spatial$stations
+  else
+    stations <- input
+
+  if (!is.data.frame(stations))
+    stop("Could not recognise the station data as a data frame.", call. = FALSE)
+
+  if (is.na(match(coord.x, colnames(stations))))
+    stop("Could not find column '", coord.x, "' in the spatial data frame", call. = FALSE)
+
+  if (is.na(match(coord.y, colnames(stations))))
+    stop("Could not find column '", coord.y, "' in the spatial data frame", call. = FALSE)
+  
   on.land <- raster::extract(x = base.raster, y = sp::SpatialPoints(data.frame(y = stations[, coord.y], x = stations[, coord.x])))
 
   data.stations <- data.frame(Check = on.land, 
-    Longitude = aux.spatial$stations[, coord.x],
-    Latitude = aux.spatial$stations[, coord.y])
+    Longitude = stations[, coord.x],
+    Latitude = stations[, coord.y])
   data.stations$Check[is.na(data.stations$Check)] <- "Water"
   data.stations$Check[data.stations$Check == 1] <- "Land"
 
@@ -739,7 +756,7 @@ plotRaster <- function(input, base.raster, coord.x, coord.y, size, land.col = "#
 #' @param track If a single tag was chosen, you can use 'track' to define a specific track to be plotted.
 #' @param size The size/width of the points and lines to be plotted. if type = "both", the line size will be the
 #'  one specified and the point size will be 10\% larger than the specified.
-#' @param land.col Colour of the land masses. Defaults to semi-transparent gray.
+#' @param land.col Colour of the land masses. Defaults to semi-transparent grey.
 #' @param alpha One or two transparency values (for points and lines, respectively). For no transparency, alpha = 1.
 #' 
 #' @return A plot showing the RSP track locations.
