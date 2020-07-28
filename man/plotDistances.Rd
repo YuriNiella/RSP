@@ -20,5 +20,5 @@ A barplot of total distances travelled as a function of location type (Loc.type)
 \description{
 Compare the outputs of total distances travelled (in kilometres) for the tracked animals, using only the 
 receiver locations and adding the RSP positions. Data on the total distances travelled are stored in the 
-'distances' object.
+'distances' objtect.
 }

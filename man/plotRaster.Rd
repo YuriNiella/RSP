@@ -26,7 +26,7 @@ or \code{\link[actel]{residency}}).}
 
 \item{size}{The size of the station dots}
 
-\item{land.col}{Colour of the land masses. Defaults to semi-transparent gray.}
+\item{land.col}{Colour of the land masses. Defaults to semi-transparent grey.}
 }
 \value{
 A plot of your base raster extent and the receiver locations.

@@ -35,7 +35,7 @@ one specified and the point size will be 10\% larger than the specified.}
 
 \item{alpha}{One or two transparency values (for points and lines, respectively). For no transparency, alpha = 1.}
 
-\item{land.col}{Colour of the land masses. Defaults to semi-transparent gray.}
+\item{land.col}{Colour of the land masses. Defaults to semi-transparent grey.}
 }
 \value{
 A plot showing the RSP track locations.
