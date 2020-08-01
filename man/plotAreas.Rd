@@ -15,7 +15,7 @@ plotAreas(
 )
 }
 \arguments{
-\item{areas}{The areas object used to calculate the overlaps.}
+\item{areas}{The areas object used to calculate the space use areas at group level.}
 
 \item{base.raster}{The raster used in the dbbmm calculations.}
 
@@ -23,9 +23,9 @@ plotAreas(
 
 \item{timeslot}{The timeslot to be displayed. Only relevant for timeslot dbbmms.}
 
-\item{title}{Plot title. By default, the names of the groups being compared are displayed.}
+\item{title}{Plot title.}
 
-\item{col}{Character vector of three colours to be used in the plot (one for each group and one for the overlap).}
+\item{col}{Character vector of colours to be used in the plot (same length as the number of contour levels).}
 
 \item{land.col}{Colour of the land masses. Defaults to semi-transparent grey.}
 }

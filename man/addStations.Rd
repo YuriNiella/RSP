@@ -4,11 +4,9 @@
 \alias{addStations}
 \title{Add receiver stations to an existing plot}
 \usage{
-addStations(p, input, shape = 21, size = 1.5, colour = "white", fill = "black")
+addStations(input, shape = 21, size = 1.5, colour = "white", fill = "black")
 }
 \arguments{
-\item{p}{A ggplot object}
-
 \item{input}{The output of \code{\link{runRSP}} or \code{\link{dynBBMM}}}
 
 \item{shape}{The shape of the points}
