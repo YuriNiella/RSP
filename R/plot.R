@@ -438,7 +438,7 @@ plotDistances <- function(input, group, compare = TRUE) {
     if (length(group) != 1)
       stop ("Please select only one group.\n", call. = FALSE)
 
-    if (is.na(match(group), unique(plot.save$Group)))
+    if (is.na(match(group, unique(plot.save$Group))))
       stop ("Could not find requested group in the input data.\n", call. = FALSE)
 
     plotdata <-  subset(plot.save, Group == group)
