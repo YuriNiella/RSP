@@ -1,6 +1,5 @@
 #' Add receiver stations to an existing plot
 #' 
-#' @param p A ggplot object
 #' @param input The output of \code{\link{runRSP}} or \code{\link{dynBBMM}}
 #' @param shape The shape of the points
 #' @param size The size of the points
@@ -11,12 +10,11 @@
 #' 
 #' @export
 #' 
-addStations <- function(p, input, shape = 21, size = 1.5, colour = "white", fill = "black") {
+addStations <- function(input, shape = 21, size = 1.5, colour = "white", fill = "black") {
   xy <- attributes(input$spatial)$spatial_columns
   stations <- input$spatial$stations
-  p <- p + ggplot2::geom_point(data = stations, ggplot2::aes(x = stations[, xy[1]], y = stations[, xy[2]]), 
+  ggplot2::geom_point(data = stations, ggplot2::aes(x = stations[, xy[1]], y = stations[, xy[2]]), 
     color = colour, fill = fill, shape = shape, size = size)
-  return(p)
 }
 
 #' Plot areas
