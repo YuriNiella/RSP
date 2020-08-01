@@ -1,2 +1,6 @@
 ^doc$
 ^Meta$
+^.travis.yml$
+^.github$
+^cran-comments.md$
+^CRAN-RELEASE$
