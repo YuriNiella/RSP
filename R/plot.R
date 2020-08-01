@@ -23,12 +23,12 @@ addStations <- function(input, shape = 21, size = 1.5, colour = "white", fill = 
 #' If the base raster is in a geographic coordinate system, plotAreas will attempt to convert the dbbmm results
 #' to that same geographic system, so everything falls in place.
 #'   
-#' @param areas The areas object used to calculate the overlaps.
+#' @param areas The areas object used to calculate the space use areas at group level.
 #' @param base.raster The raster used in the dbbmm calculations.
 #' @param group Character vector indicating the group to be displayed.
 #' @param timeslot The timeslot to be displayed. Only relevant for timeslot dbbmms.
-#' @param title Plot title. By default, the names of the groups being compared are displayed.
-#' @param col Character vector of three colours to be used in the plot (one for each group and one for the overlap).
+#' @param title Plot title. 
+#' @param col Character vector of colours to be used in the plot (same length as the number of contour levels).
 #' @param land.col Colour of the land masses. Defaults to semi-transparent grey.
 #' 
 #' @return A plot of the overlapping areas between two groups.
@@ -438,7 +438,7 @@ plotDistances <- function(input, group, compare = TRUE) {
     if (length(group) != 1)
       stop ("Please select only one group.\n", call. = FALSE)
 
-    if (is.na(match(Group), unique(plot.save$Group)))
+    if (is.na(match(group), unique(plot.save$Group)))
       stop ("Could not find requested group in the input data.\n", call. = FALSE)
 
     plotdata <-  subset(plot.save, Group == group)
@@ -457,7 +457,7 @@ plotDistances <- function(input, group, compare = TRUE) {
   }
   p <- p + ggplot2::theme_bw()
   p <- p + ggplot2::coord_flip(ylim = c(0, max(plot.save$Dist.travel) * 1.05), expand = FALSE)
-  p <- p + ggplot2::labs(title = groups)
+  p <- p + ggplot2::labs(title = group)
 
   return(p)
 }

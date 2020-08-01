@@ -16,6 +16,6 @@ Density plots of hours elapsed between consecutive acoustic detections.
 }
 \description{
 Generates a density plot for inspecting the distribution of elapsed times (in hours) between all consecutive
-acustic detections. By default the plot is created including all monitored groups and transmitters. Alternatively,
+acoustic detections. By default the plot is created including all monitored groups and transmitters. Alternatively,
 can be set to be performed at group level using the type argument.
 }
