@@ -2,7 +2,7 @@
 # RSP<img src="vignettes/RSP_logo.png" align="right" width="120" />
 
 [![R-CMD-check](https://github.com/YuriNiella/RSP/workflows/R-CMD-check--as-cran/badge.svg)](https://github.com/hugomflavio/actel/actions)
-[![Travis Build Status](https://travis-ci.com/github/YuriNiella/RSP.svg?branch=master)](https://travis-ci.com/github/YuriNiella/RSP)
+[![Travis Build Status](https://travis-ci.com/YuriNiella/RSP.svg?branch=master)](https://travis-ci.com/github/YuriNiella/RSP)
 [![codecov](https://codecov.io/github/YuriNiella/RSP/branch/master/graphs/badge.svg)](https://codecov.io/github/YuriNiella/RSP)
 
 Refining the Shortest Paths (RSP) of animals tracked with acoustic
