@@ -20,6 +20,7 @@ Imports:
     geosphere,
     ggplot2,
     graphics,
+    knitr,
     methods,
     move,
     raster,
