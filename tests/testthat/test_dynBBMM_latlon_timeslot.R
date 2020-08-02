@@ -2,6 +2,9 @@
 # 		Testing RSP in latlon CRS: timeslot 		#
 #===================================================#
 
+# Set skips
+skip_on_travis()
+
 # Load example files
 aux <- system.file(package = "RSP")[1]
 water <- actel::loadShape(path = aux, shape = "example_shape_geo.shp", size = 0.0001)

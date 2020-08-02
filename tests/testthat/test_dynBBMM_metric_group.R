@@ -2,6 +2,9 @@
 # 		Testing RSP in metric CRS: group		#
 #===============================================#
 
+# Set skips
+skip_on_travis()
+
 # Load example files
 aux <- system.file(package = "RSP")[1]
 water <- actel::loadShape(path = aux, shape = "example_shape_metric.shp", size = 10)
