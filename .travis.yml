@@ -21,6 +21,10 @@ env:
   # don't treat missing suggested packages as error
   - _R_CHECK_FORCE_SUGGESTS_=false
 
+# install rgdal before installing RSP
+before_install:
+  - R -e 'install.packages("rgdal", repos=c("http://R-Forge.R-project.org", "http://cran.rstudio.com"))'
+
 after_success:
   - travis_wait 40 Rscript -e 'covr::codecov()'
 
@@ -34,8 +38,4 @@ addons:
       - libgeos-dev
       - libgdal-dev
       - libgtk2.0-dev
-
-# install rgdal before installing RSP
-before_install:
-  - R -e 'install.packages("rgdal", repos=c("http://R-Forge.R-project.org", "http://cran.rstudio.com"))'
       
