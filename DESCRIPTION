@@ -31,8 +31,6 @@ Imports:
     utils,
     reshape2,
     callr
-    GDAL
-    PROJ
 Suggests:
     testthat
 VignetteBuilder: knitr

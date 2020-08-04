@@ -1,36 +1,18 @@
-# Use R language
-language: r
+language: R
 cache: packages
+sudo: required
+dist: trusty
 
-#Define R-versions
-r:
-  - release
-  - devel
+r_check_args: --as-cran --run-donttest
 
-apt_packages:
-  - libv8-dev
-  - librsvg2-dev
+r_packages:
+    - covr
 
-r_github_packages: 
-  # - r-lib/testthat
-  - r-lib/covr
-
-# environment variables set for all builds
-env:
-  global:
-  # don't treat missing suggested packages as error
-  - _R_CHECK_FORCE_SUGGESTS_=false
+before_install:
+  - sudo add-apt-repository ppa:ubuntugis/ppa --yes
+  - sudo apt-get --yes --force-yes update -qq
+  - sudo apt-get install --yes libudunits2-dev libproj-dev libgeos-dev libgdal-dev
+  - R -e 'install.packages("rgdal", repos="http://R-Forge.R-project.org")'
 
 after_success:
-  - travis_wait 40 Rscript -e 'covr::codecov()'
-
-addons:
-  apt:
-    sources:
-      - sourceline: 'ppa:ubuntugis/ppa'
-    packages:
-      - libudunits2-dev
-      - libproj-dev
-      - libgeos-dev
-      - libgdal-dev
-      - libgtk2.0-dev
+  - Rscript -e 'covr::codecov()'
