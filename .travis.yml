@@ -1,11 +1,16 @@
 # Use R language
 language: r
-cache: packages
+sudo: required
+dist: trusty
+# cache: packages
+cache: 
+  - ccache
 
 #Define R-versions
 r:
   - release
   - devel
+  - oldrel
 
 apt_packages:
   - libv8-dev
@@ -21,31 +26,20 @@ env:
   # don't treat missing suggested packages as error
   - _R_CHECK_FORCE_SUGGESTS_=false
 
-before_script:
-  - if [ "${TRAVIS_OS_NAME}" = "osx" ]; then R -e "install.packages('rgdal', type = 'source')"; fi
-
-# install rgdal before installing RSP
-# before_install:
-#   - sudo apt-get -y install libproj-dev
-#   - sudo apt-get -y install libgdal-dev
-#   - R -e 'install.packages("rgdal", repos=c("http://R-Forge.R-project.org", "http://cran.rstudio.com"))'
-  
 after_success:
   - travis_wait 40 Rscript -e 'covr::codecov()'
 
-
 addons:
-  # homebrew:
-  #   packages:
-  #     - libproj-dev
-  #     - libgeos-dev
   apt:
     sources:
-      - sourceline: 'ppa:ubuntugis/ppa'
+      - sourceline: 'ppa:ubuntugis/ubuntugis-unstable'
     packages:
       - libudunits2-dev
+      - libgtk2.0-dev
+      - devscripts 
+      - libgdal-dev
       - libproj-dev
       - libgeos-dev
-      - libgdal-dev
-      - libgtk2.0-dev
-      
+      - libudunits2-dev
+      - libnetcdf-dev
+      - netcdf-bin
