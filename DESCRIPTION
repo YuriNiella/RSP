@@ -24,13 +24,15 @@ Imports:
     methods,
     move,
     raster,
+    rgdal,
     sp,
     stats,
     stringr,
     utils,
     reshape2,
     callr
-Remotes: cran/rgdal@1.3-9
+    GDAL
+    PROJ
 Suggests:
     testthat
 VignetteBuilder: knitr
