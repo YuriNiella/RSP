@@ -35,6 +35,8 @@ before_install:
 after_success:
   - travis_wait 40 Rscript -e 'covr::codecov()'
 
+dist: trusty
+
 addons:
   apt:
     sources:
@@ -45,5 +47,4 @@ addons:
       - libgeos-dev
       - libgdal-dev
       - libgtk2.0-dev
-      - librgdal-dev
       
