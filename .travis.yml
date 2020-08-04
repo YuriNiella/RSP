@@ -5,7 +5,7 @@ cache: packages
 repos: 
   CRAN: https://cran.rstudio.com
   rforge: http://R-Forge.R-project.org
-  
+
 #Define R-versions
 r:
   - release
@@ -44,4 +44,5 @@ addons:
       - libgeos-dev
       - libgdal-dev
       - libgtk2.0-dev
+      - libmpfr-dev
       
