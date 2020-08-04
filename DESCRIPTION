@@ -22,6 +22,7 @@ Imports:
     graphics,
     knitr,
     methods,
+    rgdal,
     move,
     raster,
     sp,
