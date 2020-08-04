@@ -1,125 +1,36 @@
-sudo: required
-
+# Use R language
 language: r
+cache: packages
 
+#Define R-versions
+r:
+  - release
+  - devel
+
+apt_packages:
+  - libv8-dev
+  - librsvg2-dev
+
+r_github_packages: 
+  # - r-lib/testthat
+  - r-lib/covr
+
+# environment variables set for all builds
 env:
   global:
-    - secure: "KxcKSH4TFMbNMKAj6ePl4yq6SCeYQJcDkw0PMuEdImomwxqY3mP8p+GWVmNN1PKl8k7C/rgLNPAiBoJmddXMzFvGoGRWvyeER0lDN49rzNPHANF9wnMBBYN27mp98hBZlX2Vxu48M3jbmy+wRpmKKvKxTxOa8tUkt0GVEUTPeGQ="
+  # don't treat missing suggested packages as error
+  - _R_CHECK_FORCE_SUGGESTS_=false
 
-matrix:
-  include:
+after_success:
+  - travis_wait 40 Rscript -e 'covr::codecov()'
 
-  - os: linux
-    dist: trusty
-    r: oldrel
-    addons:
-      apt:
-        packages:
-          - libgdal1-dev
-    before_install:
-    - tlmgr install xcolor
-    - export DISPLAY=:99.0
-    - sh -e /etc/init.d/xvfb start
-    - echo "options(repos = c(CRAN='http://cran.rstudio.com'))" >> ~/.Rprofile
-
-  - os: linux
-    dist: precise
-    r: release
-    cran: http://cran.rstudio.com/
-    before_install:
-    - tlmgr install xcolor
-    - export DISPLAY=:99.0
-    - sh -e /etc/init.d/xvfb start
-    - echo "options(repos = c(CRAN='http://cran.rstudio.com'))" >> ~/.Rprofile
-
-  - os: linux
-    dist: precise
-    r: devel
-    addons:
-      apt:
-        packages:
-          - libgdal1-dev
-    before_install:
-    - tlmgr install xcolor
-    - export DISPLAY=:99.0
-    - sh -e /etc/init.d/xvfb start
-    - echo "options(repos = c(CRAN='http://cran.rstudio.com'))" >> ~/.Rprofile
-
-  - os: linux
-    dist: trusty
-    cran: https://cran.rstudio.com/
-    before_install:
-    - tlmgr install xcolor
-    - export DISPLAY=:99.0
-    - sh -e /etc/init.d/xvfb start
-    - echo "options(repos = c(CRAN='https://cran.rstudio.com'))" >> ~/.Rprofile
-    - chmod 755 ./_push_vignettes.sh
-    after_success:
-    - ./_push_vignettes.sh
-    - Rscript -e 'library(covr); coveralls(coverage = print(package_coverage(quiet = FALSE)))'
-
-  - os: osx
-    osx_image: xcode8
-    cran: https://cran.rstudio.com/
-    latex: false
-    r_build_args: '--no-build-vignettes'
-    r_check_args: '--as-cran --ignore-vignettes --no-examples'
-    r_github_packages:
-    - s-u/fastshp
-    - MangoTheCat/VisualTest
-    before_install:
-    - echo "options(repos = c(CRAN='https://cran.rstudio.com'))" >> ~/.Rprofile
-    before_script:
-    - Rscript -e "install.packages('rgdal', type = 'source')"
-
-r_build_args: " "
-
-r_check_args: "--as-cran"
-
-warnings_are_errors: true
-
-r_binary_packages:
-  - chron
-  - CircStats
-  - colorspace
-  - data.table
-  - DEoptim
-  - dichromat
-  - digest
-  - dplyr
-  - ggplot2
-  - gtable
-  - httr
-  - igraph
-  - knitr
-  - labeling
-  - latticeExtra
-  - lubridate
-  - magrittr
-  - munsell
-  - proto
-  - RandomFields
-  - raster
-  - RColorBrewer
-  - Rcpp
-  - reshape
-  - rgdal
-  - scales
-  - secr
-  - snow
-  - sp
-  - stringr
-  - testthat
-  - tkrplot
-  - xts
-  - zoo
-
-notifications:
-  email:
-    on_success: change
-    on_failure: change
-
-branches:
-  only:
-    - master
-    - development
+addons:
+  apt:
+    sources:
+      - sourceline: 'ppa:ubuntugis/ppa'
+    packages:
+      - libudunits2-dev
+      - libproj-dev
+      - libgeos-dev
+      - libgdal-dev
+      - libgtk2.0-dev
