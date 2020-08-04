@@ -2,13 +2,6 @@
 language: r
 cache: packages
 
-repos: 
-  CRAN: https://cran.rstudio.com
-  rforge: http://R-Forge.R-project.org
-
-before_install:
-  - R -e 'install.packages("rgdal", repos=c("http://R-Forge.R-project.org", "http://cran.rstudio.com"))'
-
 #Define R-versions
 r:
   - release
@@ -42,4 +35,7 @@ addons:
       - libgdal-dev
       - libgtk2.0-dev
 
+# install rgdal before installing RSP
+before_install:
+  - R -e 'install.packages("rgdal", repos=c("http://R-Forge.R-project.org", "http://cran.rstudio.com"))'
       
