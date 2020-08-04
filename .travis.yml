@@ -2,10 +2,6 @@
 language: r
 cache: packages
 
-repos: 
-  CRAN: https://cran.rstudio.com
-  rforge: http://R-Forge.R-project.org
-
 #Define R-versions
 r:
   - release
@@ -27,11 +23,9 @@ env:
 
 # install rgdal before installing RSP
 before_install:
-  - sudo add-apt-repository -y ppa:ubuntugis/ubuntugis-unstable
-  - sudo add-apt-repository -y ppa:opencpu/jq
   - sudo apt-get --yes --force-yes update -qq
   - R -e 'install.packages("rgdal", repos=c("http://R-Forge.R-project.org", "http://cran.rstudio.com"))'
-
+  
 after_success:
   - travis_wait 40 Rscript -e 'covr::codecov()'
 
