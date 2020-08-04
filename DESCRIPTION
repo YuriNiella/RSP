@@ -24,7 +24,6 @@ Imports:
     methods,
     move,
     raster,
-    rgdal,
     sp,
     stats,
     stringr,
