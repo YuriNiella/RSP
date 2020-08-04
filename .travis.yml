@@ -1,31 +1,15 @@
+# Use R language
 language: r
+cache: packages
 
-cache: 
-  - packages
-  - ccache
-
-sudo: required
-dist: trusty
-
+#Define R-versions
 r:
   - release
   - devel
 
-repos: 
-  CRAN: https://cran.rstudio.com
-  rforge: http://R-Forge.R-project.org
-
 apt_packages:
   - libv8-dev
   - librsvg2-dev
-
-brew_packages:
-  - libproj-dev
-  - libgeos-dev
-  - libgdal-dev
-
-r_packages:
-  - librgdal-dev
 
 r_github_packages: 
   # - r-lib/testthat
@@ -43,22 +27,10 @@ after_success:
 addons:
   apt:
     sources:
-      - sourceline: 'ppa:opencpu/jq'
-      - sourceline: 'ppa:ubuntugis/ubuntugis-unstable'
-      - sourceline: 'deb http://apt.postgresql.org/pub/repos/apt/ trusty-pgdg main'
-        key_url: 'https://www.postgresql.org/media/keys/ACCC4CF8.asc'
+      - sourceline: 'ppa:ubuntugis/ppa'
     packages:
-      - devscripts 
-      - libprotobuf-dev
-      - protobuf-compiler
-      - libv8-3.14-dev
-      - libjq-dev
       - libudunits2-dev
       - libproj-dev
       - libgeos-dev
-      - libspatialite-dev
       - libgdal-dev
-      - libjson-c-dev
-      - libnetcdf-dev
-      - netcdf-bin
       - libgtk2.0-dev
