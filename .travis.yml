@@ -13,9 +13,9 @@ addons:
 r_packages:
   - covr
 
-
-r_binary_packages:
-  - rgdal
-
 after_success:
 - Rscript -e 'library(covr); codecov()'
+
+env:
+  global:
+    - R_REMOTES_NO_ERRORS_FROM_WARNINGS: true
