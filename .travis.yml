@@ -21,21 +21,24 @@ env:
   # don't treat missing suggested packages as error
   - _R_CHECK_FORCE_SUGGESTS_=false
 
+before_script:
+  - if [ "${TRAVIS_OS_NAME}" = "osx" ]; then R -e "install.packages('rgdal', type = 'source')"; fi
+
 # install rgdal before installing RSP
-before_install:
-  - sudo apt-get -y install libproj-dev
-  - sudo apt-get -y install libgdal-dev
-  - R -e 'install.packages("rgdal", repos=c("http://R-Forge.R-project.org", "http://cran.rstudio.com"))'
+# before_install:
+#   - sudo apt-get -y install libproj-dev
+#   - sudo apt-get -y install libgdal-dev
+#   - R -e 'install.packages("rgdal", repos=c("http://R-Forge.R-project.org", "http://cran.rstudio.com"))'
   
 after_success:
   - travis_wait 40 Rscript -e 'covr::codecov()'
 
-dist: trusty
 
 addons:
-  homebrew:
-    packages:
-      - rgdal
+  # homebrew:
+  #   packages:
+  #     - libproj-dev
+  #     - libgeos-dev
   apt:
     sources:
       - sourceline: 'ppa:ubuntugis/ppa'
