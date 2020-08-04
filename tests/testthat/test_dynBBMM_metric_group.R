@@ -244,7 +244,7 @@ test_that("getDistances is working properly", {
 test_that("plotDistances is working properly", {
 	output <- getDistances(rsp.data)
 
-	p <- tryCatch(plotDistances(output), 
+	p <- tryCatch(plotDistances(output, group = "A"), 
 		warning = function(w)
  	stop("A warning was issued in plotDistances!", w))
 	expect_that(p, is_a("ggplot"))
@@ -254,7 +254,7 @@ test_that("plotDistances is working properly", {
 test_that("plotDistances is working properly for only RSP locations", {
 	output <- getDistances(rsp.data)
 
-	p <- tryCatch(plotDistances(output, compare = FALSE), 
+	p <- tryCatch(plotDistances(output, group = "A", compare = FALSE), 
 		warning = function(w)
  	stop("A warning was issued in plotDistances!", w))
 	expect_that(p, is_a("ggplot"))
@@ -511,12 +511,8 @@ test_that("suggestSize works", {
 # addStations
 test_that("addStations works", {
 	output <- suppressWarnings(plotTracks(rsp.data, base.raster = water.large, tag = "R64K-4545", track = "Track_1")) 
-
-	p <- tryCatch(addStations(output, rsp.data), 
-		warning = function(w)
- 	stop("A warning was issued in suggestSize!", w))
-
-	expect_that(p, is_a("ggplot"))
+	output.stations <- output + addStations(rsp.data)
+	expect_that(output.stations, is_a("ggplot"))
 })
 
 

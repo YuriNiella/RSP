@@ -144,8 +144,13 @@ test_that("plotTracks stops if both group and tag are set", {
 ts <- ts + test.times(
 test_that("plotTracks is working properly", {
 	p <- tryCatch(plotTracks(rsp.data, base.raster = water.large, group = "A", track = "Track_1"), 
-		warning = function(w)
- 	stop("A warning was issued in plotTracks!\n", w))
+		warning = function (w)
+ 	{
+			if (!grepl("A known bug prevents R", w))
+    		stop("An unexpected warning was issued in plotTracks!\n", w)
+    	return(suppressWarnings(plotTracks(rsp.data, base.raster = water.large, group = "A", track = "Track_1")))
+    })
+
 	expect_that(p, is_a("ggplot"))
 })
 )
@@ -190,7 +195,7 @@ ts <- ts + test.times(
 test_that("plotDistances is working properly", {
 	output <- getDistances(rsp.data)
 
-	p <- tryCatch(plotDistances(output), 
+	p <- tryCatch(plotDistances(output, group = "A"), 
 		warning = function(w)
  	stop("A warning was issued in plotDistances!", w))
 	expect_that(p, is_a("ggplot"))
@@ -341,14 +346,14 @@ test_that("plotAreas the correct group is provided", {
 
 ts <- ts + test.times(
 test_that("plotAreas base raster is in different CRS format", {
-	expect_warning(plotAreas(output1.group, group = "A", base.raster = water),
+	expect_warning(plotAreas(output1.group, group = "A", base.raster = water.large),
 		"The dbbmm output and the base raster are not in the same coordinate system. Attempting to re-project the dbbmm output.", fixed = TRUE)
 })
 )
 
 ts <- ts + test.times(
 test_that("plotAreas is working for group", {
-	p <- tryCatch(suppressWarnings(plotAreas(output1.group, group = "A", base.raster = water)), 
+	p <- tryCatch(suppressWarnings(plotAreas(output1.group, group = "A", base.raster = water.large)), 
 		warning = function(w)
  	stop("A warning was issued in plotAreas!", w))
 	expect_that(p, is_a("ggplot"))
@@ -364,7 +369,7 @@ test_that("plotAreas timeslot is only set for timeslot analysis", {
 
 ts <- ts + test.times(
 test_that("plotAreas add title works", {
-	p <- tryCatch(suppressWarnings(plotAreas(output1.group, group = "B", base.raster = water, 
+	p <- tryCatch(suppressWarnings(plotAreas(output1.group, group = "B", base.raster = water.large, 
 		title = "Test")), 
 		warning = function(w)
  	stop("A warning was issued in plotAreas!", w))
@@ -373,14 +378,9 @@ test_that("plotAreas add title works", {
 )
 
 ## plotOverlaps: but first getOverlaps has to work!
-
-# getOverlaps:
 ts <- ts + test.times(
-test_that("getOverlaps works for group", {
-	p <- tryCatch(suppressWarnings(getOverlaps(output1.group)), 
-		warning = function(w)
- 	stop("A warning was issued in getOverlaps!", w))
-	expect_that(p, is_a("list"))
+test_that("getOverlaps works for groups", {
+overlap <<- getOverlaps(output1.group)
 })
 )
 
@@ -403,17 +403,20 @@ test_that("getOverlaps only takes type = 'group'", {
 )
 
 # plotOverlaps:
-ts <- ts + test.times(
-test_that("getOverlaps is working", overlap <- suppressWarnings(getOverlaps(output1.group)))
-)
+# ts <- ts + test.times(
+# test_that("getOverlaps is working", overlap <- suppressWarnings(getOverlaps(output1.group)))
+# )
 
 
 ts <- ts + test.times(
 test_that("plotOverlaps works for group and returns the plot", {
-	p <- tryCatch(suppressWarnings(plotOverlaps(overlaps = overlap, areas = output1.group, base.raster = water.large, groups = c("A", "B"), level = 0.95)), 
-		warning = function(w)
- 	stop("A warning was issued in plotOverlaps!", w))
-
+	p <- tryCatch(plotOverlaps(overlaps = overlap, areas = output1.group, base.raster = water.large, groups = c("A", "B"), level = 0.95), 
+		warning = function (w)
+ 	{
+			if (!grepl("The dbbmm output and the base raster are not", w))
+    		stop("An unexpected warning was issued in plotTracks!\n", w)
+    	return(suppressWarnings(plotTracks(rsp.data, base.raster = water.large, group = "A", track = "Track_1")))
+    })
 	expect_that(p, is_a("ggplot"))
 })
 )
@@ -440,7 +443,7 @@ test_that("plotOverlaps the correct level is not present in the overlaps object"
 )
 
 ts <- ts + test.times(
-test_that("plotOverlaps the correct level is not present in the areas object", {
+test_that("plotOverlaps the correct level is not present in the group areas object", {
 	output <- getAreas(dbbmm.all, type = "group", breaks = 0.6)
 
 	expect_error(plotOverlaps(overlaps = overlap, areas = output, base.raster = water.large, groups = c("A", "B"), level = 0.5),
@@ -492,12 +495,8 @@ test_that("suggestSize works", {
 ts <- ts + test.times(
 test_that("addStations works", {
 	output <- suppressWarnings(plotTracks(rsp.data, base.raster = water.large, tag = "R64K-4545", track = "Track_1")) 
-
-	p <- tryCatch(addStations(output, rsp.data), 
-		warning = function(w)
- 	stop("A warning was issued in suggestSize!", w))
-
-	expect_that(p, is_a("ggplot"))
+	output.station <- output + addStations(rsp.data)
+	expect_that(output.station, is_a("ggplot"))
 })
 )
 if(getOption("RSP.tests.show.time", default = FALSE))

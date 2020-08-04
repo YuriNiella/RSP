@@ -21,25 +21,16 @@ input$valid.detections[[1]] <- input$valid.detections[[1]][c(1:15, 60:75), ] # S
 input$valid.detections[[2]] <- input$valid.detections[[2]][c(1:7, 116:130), ] # Select 2 tracks (1 not valid)
 input$valid.movements <- input$valid.movements[c(1, 52)]
 
-# Save RSP objects per group:
-rsp.data <- runRSP(input = input, t.layer = tl, coord.x = "Longitude", coord.y = "Latitude")
-dbbmm.time <- dynBBMM(input = rsp.data, base.raster = water.large, timeframe = 24, UTM = 32) # Timeframe
-
-	## RUN THESE LINES ONLY TO REPLACE THE REFERENCES!
-	# reference_runRSP_latlon_timeslot <- rsp.data
-	# save(reference_runRSP_latlon_timeslot, file = "runRSP_latlon_timeslot.RData")
-
-	# reference_dynBBMM_latlon_timeslot <- dbbmm.time
-	# save(reference_dynBBMM_latlon_timeslot, file = "dynBBMM_latlon_timeslot.RData")
-	######
-
-
 #===============================================#
 #				TESTING STARTS					#
 #===============================================#
 
 ## 1) Testing runRSP:
 test_that("runRSP with latlon system is working for timeslot", {
+	rsp.data <<- runRSP(input = input, t.layer = tl, coord.x = "Longitude", coord.y = "Latitude")
+	## RUN THESE LINES ONLY TO REPLACE THE REFERENCES!
+	# reference_runRSP_latlon_timeslot <- rsp.data
+	# save(reference_runRSP_latlon_timeslot, file = "runRSP_latlon_timeslot.RData")
 	load("runRSP_latlon_timeslot.RData")
 	expect_equivalent(rsp.data, reference_runRSP_latlon_timeslot) 
 })
@@ -47,27 +38,27 @@ test_that("runRSP with latlon system is working for timeslot", {
 
 ## 2) Testing dynBBMM:
 test_that("dynBBMM with latlon system is working for timeslot", {
+	dbbmm.time <<- dynBBMM(input = rsp.data, base.raster = water.large, timeframe = 24, UTM = 32) 
+	## RUN THESE LINES ONLY TO REPLACE THE REFERENCES!
+	# reference_dynBBMM_latlon_timeslot <- dbbmm.time
+	# save(reference_dynBBMM_latlon_timeslot, file = "dynBBMM_latlon_timeslot.RData")
 	load("dynBBMM_latlon_timeslot.RData")
 	expect_equivalent(dbbmm.time, reference_dynBBMM_latlon_timeslot) 
 })
-
 
 test_that("dynBBMM: UTM zone is correctly provided when latlon CRS is used", {
 	expect_error(dynBBMM(input = rsp.data, base.raster = water.large, timeframe = 24),
 		"The data are in a latitude-longitude coordinate system, which is incompatible with the dynamic brownian bridge model.\nPlease supply a 'UTM' zone for coordinate conversion.", fixed = TRUE)
 })
 
-
 test_that("dynBBMM: UTM zone is provided when latlon CRS is used", {
 	expect_error(dynBBMM(input = rsp.data, base.raster = water.large, UTM = c(32, 31), timeframe = 24),
 		"Please supply only one UTM zone", fixed = TRUE)
 })
 
-
 #============================================#
 # Test plot functions for latlon coordinates #
 #============================================#
-
 
 # plotContours:
 test_that("plotContours is set with only one timeslot", {
