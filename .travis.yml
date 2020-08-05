@@ -6,11 +6,10 @@ services:
 
 warnings_are_errors: false
 
-script: # Tell Travis to wait because the tests take long!
+script: 
   - |
     R CMD build .
     travis_wait 30 R CMD check RSP*tar.gz
-
 addons:
   apt:
     sources:
@@ -23,22 +22,18 @@ addons:
 before_install:
   - "docker pull ubuntu:16.04"
   - sudo add-apt-repository ppa:ubuntugis/ubuntugis-unstable -y
-  - sudo apt update
-  - sudo apt install libgeos++dev
-  - sudo apt-get update
-  - sudo apt-get install libgdal-dev libproj-dev
-  # - sudo apt-get --yes --force-yes update -qq
-  # - sudo apt-get install libgdal-dev libgeos-dev libproj-dev libudunits2-dev libv8-dev libprotobuf-dev protobuf-compiler libjq-dev
+  - sudo apt-get --yes --force-yes update -qq
+  - sudo apt-get install libgdal-dev libgeos-dev libproj-dev libudunits2-dev libv8-dev libprotobuf-dev protobuf-compiler libjq-dev
   - R -e 'install.packages("rgdal", repos=c("http://R-Forge.R-project.org", "http://cran.rstudio.com"))'      
-
-before_script:
-  - if [ "${TRAVIS_OS_NAME}" = "osx" ]; then R -e "install.packages('rgdal', type = 'source')"; fi
   
 r_packages:
   - sp
   - rgdal
   - rgeos
 
+before_script:
+  - if [ "${TRAVIS_OS_NAME}" = "osx" ]; then R -e "install.packages('rgdal', type = 'source')"; fi
+  
 r_github_packages: 
   - r-lib/covr
 
