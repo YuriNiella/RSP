@@ -33,11 +33,6 @@ Imports:
     callr
 Suggests:
     testthat
-    RSQLite
-    maptools
-    mapview
-    rmarkdown
-    curl
 VignetteBuilder: knitr
 URL: https://github.com/YuriNiella/RSP
 BugReports: https://github.com/YuriNiella/RSP/issues
