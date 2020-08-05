@@ -1,21 +1,20 @@
-language: r
+language: R
+sudo: false
+cache: packages
+script:
+- Rscript -e "rmarkdown::render_site('.')"
+- touch _site/.nojekyll
 dist: trusty
-warnings_are_errors: false
-
 addons:
   apt:
     packages:
       - gdal-bin
       - libgdal1-dev
       - libproj-dev
-
-# Code coverage
-r_packages:
-  - covr
-
-after_success:
-- Rscript -e 'library(covr); codecov()'
-
-env:
-  global:
-    - R_REMOTES_NO_ERRORS_FROM_WARNINGS: true
+deploy:
+  provider: pages
+  skip_cleanup: true
+  github_token: $GITHUB_PAT
+  local_dir: _site
+  on:
+    branch: master
