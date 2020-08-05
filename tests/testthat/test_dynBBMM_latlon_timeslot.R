@@ -8,7 +8,7 @@ skip_on_travis()
 # Load example files
 aux <- system.file(package = "RSP")[1]
 water <- actel::loadShape(path = aux, shape = "example_shape_geo.shp", size = 0.0001)
-water.large <- actel::loadShape(path = aux, shape = "example_shape_geo.shp", size = 0.0001, buffer = 0.05)
+water.large <- actel::loadShape(path = aux, shape = "example_shape_geo.shp", size = 0.0001, buffer = 0.08)
 tl <- actel::transitionLayer(water)
 
 # Subset actel results to speed up testing:

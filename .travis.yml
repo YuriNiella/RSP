@@ -19,7 +19,7 @@ r:
 #   - librsvg2-dev
 
 r_github_packages: 
-  # - r-lib/testthat
+  - r-lib/testthat
   - r-lib/covr
 
 # environment variables set for all builds
