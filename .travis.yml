@@ -34,17 +34,10 @@ before_script:
   - if [ "${TRAVIS_OS_NAME}" = "osx" ]; then R -e "install.packages('rgdal', type = 'source')"; fi
 
 before_install:
-  - "docker pull ubuntu:16.04"
-  - sudo add-apt-repository ppa:ubuntugis/ubuntugis-unstable -y
+  - sudo add-apt-repository ppa:ubuntugis/ppa --yes
   - sudo apt-get --yes --force-yes update -qq
-  - sudo apt-get install libgdal-dev libgeos-dev libproj-dev libudunits2-dev libv8-dev libprotobuf-dev protobuf-compiler libjq-dev
-  # - sudo add-apt-repository ppa:ubuntugis/ubuntugis-unstable --yes
-  # - sudo apt-get --yes --force-yes update -qq
-  # - sudo apt-get install --yes libudunits2-dev libproj-dev libgeos-dev libgdal-dev
-  # - sudo apt-get install -y gdal-bin
-  # - R -e 'install.packages("GDAL", repos=c("http://R-Forge.R-project.org", "http://cran.rstudio.com"))'
-  # - R -e 'install.packages("PROJ", repos=c("http://R-Forge.R-project.org", "http://cran.rstudio.com"))'
-  # - R -e 'install.packages("rgdal", repos=c("http://R-Forge.R-project.org", "http://cran.rstudio.com"))'
+  - sudo apt-get install --yes libudunits2-dev libproj-dev libgeos-dev libgdal-dev
+  - R -e 'install.packages("rgdal", repos="http://R-Forge.R-project.org")'
 
 after_success:
   - travis_wait 40 Rscript -e 'covr::codecov()'
