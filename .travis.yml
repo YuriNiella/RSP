@@ -1,6 +1,7 @@
 language: r
 sudo: required
 cache: packages
+dist: trusty
 services:
   - docker
 
@@ -30,3 +31,6 @@ r_packages:
   - sp
   - rgdal
   - rgeos
+
+after_success:
+- Rscript -e 'library(covr); codecov()'
