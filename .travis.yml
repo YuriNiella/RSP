@@ -28,6 +28,9 @@ env:
   # don't treat missing suggested packages as error
   - _R_CHECK_FORCE_SUGGESTS_=false
 
+before_script:
+  - if [ "${TRAVIS_OS_NAME}" = "osx" ]; then R -e "install.packages('rgdal', type = 'source')"; fi
+
 before_install:
   - sudo add-apt-repository ppa:ubuntugis/ubuntugis-unstable --yes
   - sudo apt-get --yes --force-yes update -qq
