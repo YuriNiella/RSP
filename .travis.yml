@@ -13,4 +13,8 @@ addons:
       - libproj-dev
       
 before_install:
+  - sudo apt-get update
+  - sudo apt-get install libgdal-dev libproj-dev
+  - sudo apt install libgeos++dev
   - R -e 'install.packages("rgdal", repos=c("http://R-Forge.R-project.org", "http://cran.rstudio.com"))'      
+  - R -e 'install.packages("rgeos", repos=c("http://R-Forge.R-project.org", "http://cran.rstudio.com"))'      
