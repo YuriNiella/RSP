@@ -26,7 +26,6 @@ Imports:
     move,
     raster,
     sp,
-    sf,
     stats,
     stringr,
     utils,

@@ -12,9 +12,9 @@ r:
   - devel
   - oldrel
 
-apt_packages:
-  - libv8-dev
-  - librsvg2-dev
+# apt_packages:
+#   - libv8-dev
+#   - librsvg2-dev
 
 r_github_packages: 
   # - r-lib/testthat
