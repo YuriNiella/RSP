@@ -26,8 +26,7 @@ before_install:
   - sudo apt-get install libgdal-dev libgeos-dev libproj-dev libudunits2-dev libv8-dev libprotobuf-dev protobuf-compiler libjq-dev
   - sudo add-apt-repository ppa:ubuntugis/ppa --yes
   - sudo apt-get update
-  - R -e 'install.packages("rgdal", repos=c("http://R-Forge.R-project.org"))'      
-  - R -q -e 'install.packages("remotes")
+  - R -e 'install.packages("rgdal", repos=c("http://R-Forge.R-project.org"))' 
   
 r_packages:
   - sp
