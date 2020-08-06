@@ -2,7 +2,7 @@ Package: RSP
 Title: Refined Shortest Paths
 Version: 0.0.1.9001
 Authors@R: c(
-    person("Yuri", "Niella", role = c("aut", "cre"), email = "yuri.niella@gmail.com", comment = c(ORCID = "0000-0003-1878-6091"),
+    person("Yuri", "Niella", role = c("aut", "cre"), email = "yuri.niella@gmail.com", comment = c(ORCID = "0000-0003-1878-6091")),
     person("Hugo", "Flávio", role = c("aut"), email = "hdmfla@aqua.dtu.dk", comment = c(ORCID = "0000-0002-5174-1197"))
     )
 Description: ...
