@@ -3,13 +3,13 @@
 #===================================================#
 
 # Set skips
-skip_on_travis()
+# skip_on_travis()
 
 # Load example files
 test_that("actel inputs are working as expected", {
 	aux <- system.file(package = "RSP")[1]
 	water <<- actel::loadShape(path = aux, shape = "example_shape_geo.shp", size = 0.0001)
-	water.large <<- actel::loadShape(path = aux, shape = "example_shape_geo.shp", size = 0.0001, buffer = 0.05)
+	water.large <<- actel::loadShape(path = aux, shape = "example_shape_geo.shp", size = 0.0001, buffer = 0.08)
 	tl <<- actel::transitionLayer(water)
 
 	# Subset actel results to speed up testing:
@@ -29,8 +29,8 @@ test_that("actel inputs are working as expected", {
 test_that("runRSP with latlon system is working for timeslot", {
 	rsp.data <<- runRSP(input = input, t.layer = tl, coord.x = "Longitude", coord.y = "Latitude")
 	## RUN THESE LINES ONLY TO REPLACE THE REFERENCES!
-	# reference_runRSP_latlon_timeslot <- rsp.data
-	# save(reference_runRSP_latlon_timeslot, file = "runRSP_latlon_timeslot.RData")
+	# # reference_runRSP_latlon_timeslot <- rsp.data
+	# # save(reference_runRSP_latlon_timeslot, file = "runRSP_latlon_timeslot.RData")
 	load("runRSP_latlon_timeslot.RData")
 	expect_equivalent(rsp.data, reference_runRSP_latlon_timeslot) 
 })
