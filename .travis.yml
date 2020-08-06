@@ -4,6 +4,14 @@ cache: packages
 services:
   - docker
 
+r:
+  - release
+  - devel
+
+apt_packages:
+  - libv8-dev
+  - librsvg2-dev
+  
 warnings_are_errors: false
 
 script: 
