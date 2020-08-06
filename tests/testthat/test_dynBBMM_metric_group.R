@@ -6,24 +6,33 @@
 skip_on_travis()
 
 # Load example files
-aux <- system.file(package = "RSP")[1]
-water <- actel::loadShape(path = aux, shape = "example_shape_metric.shp", size = 10)
-water.large <- actel::loadShape(path = aux, shape = "example_shape_metric.shp", size = 10, buffer = 2000)
-tl <- actel::transitionLayer(water)
+test_that("actel inputs are working as expected", {
+	aux <- system.file(package = "RSP")[1]
+	water <- actel::loadShape(path = aux, shape = "example_shape_metric.shp", size = 10)
+	water.large <- actel::loadShape(path = aux, shape = "example_shape_metric.shp", size = 10, buffer = 2000)
+	tl <- actel::transitionLayer(water)
+
+	# Subset actel results to speed up testing:
+	input <- actel::example.results
+	input$valid.detections <- input$valid.detections[c(1, 52)]
+	input$valid.detections[[1]] <- input$valid.detections[[1]][c(1:15, 60:75), ] # Select 2 track
+	input$valid.detections[[2]] <- input$valid.detections[[2]][c(1:7, 116:130), ] # Select 2 tracks (1 not valid)
+
+	input <<- input # export input too
+})
+
 
 # Subset actel results to speed up testing:
-input <- actel::example.results
-input$detections <- input$detections[c(1, 52)]
-input$detections[[1]] <- input$detections[[1]][c(1:15, 60:75), ] # Select 2 track
-input$detections[[2]] <- input$detections[[2]][c(1:7, 116:130), ] # Select 2 tracks (1 not valid)
-input$valid.detections <- input$valid.detections[c(1, 52)]
-input$valid.detections[[1]] <- input$valid.detections[[1]][c(1:15, 60:75), ] # Select 2 track
-input$valid.detections[[2]] <- input$valid.detections[[2]][c(1:7, 116:130), ] # Select 2 tracks (1 not valid)
-input$valid.movements <- input$valid.movements[c(1, 52)]
+# input <- actel::example.results
+# input$detections <- input$detections[c(1, 52)]
+# input$detections[[1]] <- input$detections[[1]][c(1:15, 60:75), ] # Select 2 track
+# input$detections[[2]] <- input$detections[[2]][c(1:7, 116:130), ] # Select 2 tracks (1 not valid)
+# input$valid.detections <- input$valid.detections[c(1, 52)]
+# input$valid.detections[[1]] <- input$valid.detections[[1]][c(1:15, 60:75), ] # Select 2 track
+# input$valid.detections[[2]] <- input$valid.detections[[2]][c(1:7, 116:130), ] # Select 2 tracks (1 not valid)
+# input$valid.movements <- input$valid.movements[c(1, 52)]
 
 # Save RSP objects per group:
-rsp.data <- runRSP(input = input, t.layer = tl, coord.x = "x", coord.y = "y")
-dbbmm.all <- dynBBMM(input = rsp.data, base.raster = water.large) # Total
 
 	## RUN THESE LINES ONLY TO REPLACE THE REFERENCES!
 	# reference_runRSP_metric_group <- rsp.data
@@ -49,10 +58,13 @@ test_that("input for runRSP is an actel analysis result", {
 
 
 test_that("runRSP with metric system is working for group", {
+	runRSP(input = input, t.layer = tl, coord.x = "x", coord.y = "y")
+	## RUN THESE LINES ONLY TO REPLACE THE REFERENCES!
+	# reference_runRSP_metric_group <- rsp.data
+	# save(reference_runRSP_metric_group, file = "runRSP_latlon_group.RData")
 	load("runRSP_metric_group.RData")
 	expect_equivalent(rsp.data, reference_runRSP_metric_group) 
 })
-
 
 test_that("debug mode is working for runRSP", {
 	
@@ -78,6 +90,10 @@ test_that("verbose mode is working for runRSP", {
 
 ## 2) Testing dynBBMM:
 test_that("dynBBMM with metric system is working for group", {
+	dbbmm.all <<- dynBBMM(input = rsp.data, base.raster = water.large)
+	## RUN THESE LINES ONLY TO REPLACE THE REFERENCES!
+	# reference_dynBBMM_metric_group <- dbbmm.all
+	# save(reference_dynBBMM_metric_group, file = "dynBBMM_metric_group.RData")
 	load("dynBBMM_metric_group.RData")
 	expect_equivalent(dbbmm.all, reference_dynBBMM_metric_group) 
 })

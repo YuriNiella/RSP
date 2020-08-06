@@ -3,27 +3,40 @@
 #===================================================#
 
 # Set skips
-skip_on_travis()
+# skip_on_travis()
 
 # Load example files
-aux <- system.file(package = "RSP")[1]
-water <- actel::loadShape(path = aux, shape = "example_shape_metric.shp", size = 10)
-water.large <- actel::loadShape(path = aux, shape = "example_shape_metric.shp", size = 10, buffer = 2000)
-tl <- actel::transitionLayer(water)
+test_that("actel inputs are working as expected", {
+	aux <- system.file(package = "RSP")[1]
+	water <- actel::loadShape(path = aux, shape = "example_shape_metric.shp", size = 10)
+	water.large <- actel::loadShape(path = aux, shape = "example_shape_metric.shp", size = 10, buffer = 2000)
+	tl <- actel::transitionLayer(water)
 
-# Subset actel results to speed up testing:
-input <- actel::example.results
-input$detections <- input$detections[c(1, 52)]
-input$detections[[1]] <- input$detections[[1]][c(1:15, 60:75), ] # Select 2 track
-input$detections[[2]] <- input$detections[[2]][c(1:7, 116:130), ] # Select 2 tracks (1 not valid)
-input$valid.detections <- input$valid.detections[c(1, 52)]
-input$valid.detections[[1]] <- input$valid.detections[[1]][c(1:15, 60:75), ] # Select 2 track
-input$valid.detections[[2]] <- input$valid.detections[[2]][c(1:7, 116:130), ] # Select 2 tracks (1 not valid)
-input$valid.movements <- input$valid.movements[c(1, 52)]
+	# Subset actel results to speed up testing:
+	input <- actel::example.results
+	input$valid.detections <- input$valid.detections[c(1, 52)]
+	input$valid.detections[[1]] <- input$valid.detections[[1]][c(1:15, 60:75), ] # Select 2 track
+	input$valid.detections[[2]] <- input$valid.detections[[2]][c(1:7, 116:130), ] # Select 2 tracks (1 not valid)
+
+	input <<- input # export input too
+})
+
+# aux <- system.file(package = "RSP")[1]
+# water <- actel::loadShape(path = aux, shape = "example_shape_metric.shp", size = 10)
+# water.large <- actel::loadShape(path = aux, shape = "example_shape_metric.shp", size = 10, buffer = 2000)
+# tl <- actel::transitionLayer(water)
+
+# # Subset actel results to speed up testing:
+# input <- actel::example.results
+# input$detections <- input$detections[c(1, 52)]
+# input$detections[[1]] <- input$detections[[1]][c(1:15, 60:75), ] # Select 2 track
+# input$detections[[2]] <- input$detections[[2]][c(1:7, 116:130), ] # Select 2 tracks (1 not valid)
+# input$valid.detections <- input$valid.detections[c(1, 52)]
+# input$valid.detections[[1]] <- input$valid.detections[[1]][c(1:15, 60:75), ] # Select 2 track
+# input$valid.detections[[2]] <- input$valid.detections[[2]][c(1:7, 116:130), ] # Select 2 tracks (1 not valid)
+# input$valid.movements <- input$valid.movements[c(1, 52)]
 
 # Save RSP objects per group:
-rsp.data <- runRSP(input = input, t.layer = tl, coord.x = "x", coord.y = "y")
-dbbmm.time <- dynBBMM(input = rsp.data, base.raster = water.large, timeframe = 24, UTM = 32) # Timeframe
 
 	## RUN THESE LINES ONLY TO REPLACE THE REFERENCES!
 	# reference_runRSP_metric_timeslot <- rsp.data
@@ -40,13 +53,21 @@ dbbmm.time <- dynBBMM(input = rsp.data, base.raster = water.large, timeframe = 2
 
 ## 1) Testing runRSP:
 test_that("runRSP with metric system is working for timeslot", {
+	rsp.data <<- runRSP(input = input, t.layer = tl, coord.x = "x", coord.y = "y")
+	## RUN THESE LINES ONLY TO REPLACE THE REFERENCES!
+	# reference_runRSP_metric_timeslot <- rsp.data
+	# save(reference_runRSP_metric_timeslot, file = "runRSP_metric_timeslot.RData")
 	load("runRSP_metric_timeslot.RData")
 	expect_equivalent(rsp.data, reference_runRSP_metric_timeslot) 
 })
 
 
 ## 2) Testing dynBBMM:
-test_that("dynBBMM with metric system is working for timeslot", {
+test_that("dynBBMM with latlon system is working for timeslot", {
+	dbbmm.time <<- dynBBMM(input = rsp.data, base.raster = water.large, timeframe = 24, UTM = 32) # Timeframe
+	## RUN THESE LINES ONLY TO REPLACE THE REFERENCES!
+	# reference_dynBBMM_metric_timeslot <- dbbmm.time
+	# save(reference_dynBBMM_metric_timeslot, file = "dynBBMM_metric_timeslot.RData")
 	load("dynBBMM_metric_timeslot.RData")
 	expect_equivalent(dbbmm.time, reference_dynBBMM_metric_timeslot) 
 })
