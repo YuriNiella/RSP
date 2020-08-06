@@ -330,6 +330,7 @@ output1.group <<- getAreas(dbbmm.all, type = "group")
 output1.track <<- getAreas(dbbmm.all, type = "track")
 })
 )
+
 ts <- ts + test.times(
 test_that("plotAreas does not work when getAreas is run for track", {
 	expect_error(plotAreas(output1.track),

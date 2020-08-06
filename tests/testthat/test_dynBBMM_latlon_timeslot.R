@@ -3,23 +3,24 @@
 #===================================================#
 
 # Set skips
-skip_on_travis()
+# skip_on_travis()
 
-# Load example files
-aux <- system.file(package = "RSP")[1]
-water <- actel::loadShape(path = aux, shape = "example_shape_geo.shp", size = 0.0001)
-water.large <- actel::loadShape(path = aux, shape = "example_shape_geo.shp", size = 0.0001, buffer = 0.05)
-tl <- actel::transitionLayer(water)
+# Load example data
+test_that("actel inputs are working as expected", {
+	aux <- system.file(package = "RSP")[1]
+	water <<- actel::loadShape(path = aux, shape = "example_shape_geo.shp", size = 0.0001)
+	water.large <<- actel::loadShape(path = aux, shape = "example_shape_geo.shp", size = 0.0001, buffer = 0.05)
+	tl <<- actel::transitionLayer(water)
 
-# Subset actel results to speed up testing:
-input <- actel::example.results
-input$detections <- input$detections[c(1, 52)]
-input$detections[[1]] <- input$detections[[1]][c(1:15, 60:75), ] # Select 2 track
-input$detections[[2]] <- input$detections[[2]][c(1:7, 116:130), ] # Select 2 tracks (1 not valid)
-input$valid.detections <- input$valid.detections[c(1, 52)]
-input$valid.detections[[1]] <- input$valid.detections[[1]][c(1:15, 60:75), ] # Select 2 track
-input$valid.detections[[2]] <- input$valid.detections[[2]][c(1:7, 116:130), ] # Select 2 tracks (1 not valid)
-input$valid.movements <- input$valid.movements[c(1, 52)]
+	# Subset actel results to speed up testing:
+	input <- actel::example.results
+	input$valid.detections <- input$valid.detections[c(1, 52)]
+	input$valid.detections[[1]] <- input$valid.detections[[1]][c(1:15, 60:75), ] # Select 2 track
+	input$valid.detections[[2]] <- input$valid.detections[[2]][c(1:7, 116:130), ] # Select 2 tracks (1 not valid)
+
+	input <<- input # export input too
+})
+
 
 #===============================================#
 #				TESTING STARTS					#

@@ -10,6 +10,7 @@ script:
   - |
     R CMD build .
     travis_wait 30 R CMD check RSP*tar.gz
+    
 addons:
   apt:
     sources:
