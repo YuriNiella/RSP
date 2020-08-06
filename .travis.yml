@@ -4,6 +4,10 @@ cache: packages
 services:
   - docker
 
+repos: 
+  CRAN: https://cran.rstudio.com
+  rforge: http://R-Forge.R-project.org
+  
 warnings_are_errors: false
 
 script: 
