@@ -10,7 +10,6 @@ script:
   - |
     R CMD build .
     travis_wait 30 R CMD check RSP*tar.gz
-    
 addons:
   apt:
     sources:
@@ -31,6 +30,3 @@ r_packages:
   - sp
   - rgdal
   - rgeos
-
-after_success:
-- Rscript -e 'library(covr); codecov()'
