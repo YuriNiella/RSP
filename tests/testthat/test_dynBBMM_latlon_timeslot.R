@@ -3,7 +3,7 @@
 #===================================================#
 
 # Set skips
-# skip_on_travis()
+skip_on_travis()
 
 # Load example data
 test_that("actel inputs are working as expected", {
