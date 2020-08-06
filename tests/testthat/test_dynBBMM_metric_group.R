@@ -3,7 +3,7 @@
 #===============================================#
 
 # Set skips
-skip_on_travis()
+# skip_on_travis()
 
 # Load example files
 aux <- system.file(package = "RSP")[1]
