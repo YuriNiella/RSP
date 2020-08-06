@@ -504,3 +504,4 @@ if(getOption("RSP.tests.show.time", default = FALSE))
 	message("Total time elapsed: ", ts, " seconds\n")
 
 rm(list = ls())
+gc()
