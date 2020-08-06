@@ -503,6 +503,9 @@ test_that("addStations works", {
 if(getOption("RSP.tests.show.time", default = FALSE))
 	message("Total time elapsed: ", ts, " seconds\n")
 
+# Remove files from group mode before timeslot starts:
+rm(output1.track, output1.group, overlap, dbbmm.all)
+gc()
 
 #===========================================================#
 #				TESTING STARTS FOR TIMESLOT					#
