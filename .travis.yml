@@ -29,10 +29,10 @@ before_install:
   - sudo apt-get update
   - R -e 'install.packages("rgdal", repos=c("http://R-Forge.R-project.org"))' 
   
-r_packages:
-  - sp
-  - rgdal
-  - rgeos
+# r_packages:
+#   - sp
+#   - rgdal
+#   - rgeos
 
 # Activate covr
 r_github_packages: 
