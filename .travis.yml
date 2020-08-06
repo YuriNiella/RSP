@@ -4,18 +4,12 @@ cache: packages
 services:
   - docker
 
-#Define R-versions
-r:
-  - release
-  - devel
-
 warnings_are_errors: false
 
 script: 
   - |
     R CMD build .
     travis_wait 30 R CMD check RSP*tar.gz
-
 addons:
   apt:
     sources:
@@ -38,8 +32,6 @@ r_packages:
   - sp
   - rgdal
   - rgeos
-  - gdal
-  - proj
 
 # Activate covr
 r_github_packages: 
@@ -47,4 +39,3 @@ r_github_packages:
 
 after_success:
   - travis_wait 40 Rscript -e 'covr::codecov()'
-
