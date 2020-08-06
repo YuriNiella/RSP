@@ -3,6 +3,11 @@ sudo: required
 cache: packages
 services:
   - docker
+
+#Define R-versions
+r:
+  - release
+  - devel
   
 warnings_are_errors: false
 
