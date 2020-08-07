@@ -33,7 +33,6 @@ r_packages:
   - rgdal
   - rgeos
 
-# Activate covr
 r_github_packages: 
   - r-lib/covr
 
