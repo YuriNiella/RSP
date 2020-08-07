@@ -2,9 +2,6 @@
 #       Testing RSP in latlon CRS: group        #
 #===============================================#
 
-# Set skips
-skip_on_travis()
-
 ts <- 0
 test.times <- function(expr) {
 	# adapted from system.time
