@@ -27,6 +27,8 @@ before_install:
   - R -e 'install.packages("rgdal", repos=c("http://R-Forge.R-project.org", "http://cran.rstudio.com"))'      
   - sudo add-apt-repository ppa:ubuntugis/ppa --yes
   - sudo apt-get update
+  - sudo wget http://security.ubuntu.com/ubuntu/pool/main/i/icu/libicu52_52.1-3ubuntu0.4_amd64.deb
+  - sudo dpkg -i libicu52_52.1-3ubuntu0.4_amd64.deb
   
 r_packages:
   - sp
