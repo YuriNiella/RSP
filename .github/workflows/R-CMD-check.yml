@@ -61,6 +61,8 @@ jobs:
           sudo apt-get --yes --force-yes update -qq
           sudo apt-get install libgdal-dev libgeos-dev libproj-dev libudunits2-dev libv8-dev libprotobuf-dev protobuf-compiler libjq-dev
           Rscript -e "remotes::install_github('r-hub/sysreqs')"
+          sudo add-apt-repository ppa:ubuntugis/ppa --yes
+          sudo apt-get update
           sysreqs=$(Rscript -e "cat(sysreqs::sysreq_commands('DESCRIPTION'))")
           sudo -s eval "$sysreqs"
 
