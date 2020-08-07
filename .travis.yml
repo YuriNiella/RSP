@@ -9,6 +9,11 @@ os:
   - windows
   - osx
 
+jobs:
+  include:
+    - os: windows
+    - os: osx
+
 warnings_are_errors: false
 
 script: 
