@@ -7,10 +7,10 @@ skip_on_travis()
 
 # Load example files
 test_that("actel inputs are working as expected", {
-	aux <- system.file(package = "RSP")[1]
-	water <- actel::loadShape(path = aux, shape = "example_shape_metric.shp", size = 10)
-	water.large <- actel::loadShape(path = aux, shape = "example_shape_metric.shp", size = 10, buffer = 2000)
-	tl <- actel::transitionLayer(water)
+	aux <<- system.file(package = "RSP")[1]
+	water <<- actel::loadShape(path = aux, shape = "example_shape_metric.shp", size = 10)
+	water.large <<- actel::loadShape(path = aux, shape = "example_shape_metric.shp", size = 10, buffer = 2000)
+	tl <<- actel::transitionLayer(water)
 
 	# Subset actel results to speed up testing:
 	input <- actel::example.results
@@ -20,31 +20,6 @@ test_that("actel inputs are working as expected", {
 
 	input <<- input # export input too
 })
-
-# aux <- system.file(package = "RSP")[1]
-# water <- actel::loadShape(path = aux, shape = "example_shape_metric.shp", size = 10)
-# water.large <- actel::loadShape(path = aux, shape = "example_shape_metric.shp", size = 10, buffer = 2000)
-# tl <- actel::transitionLayer(water)
-
-# # Subset actel results to speed up testing:
-# input <- actel::example.results
-# input$detections <- input$detections[c(1, 52)]
-# input$detections[[1]] <- input$detections[[1]][c(1:15, 60:75), ] # Select 2 track
-# input$detections[[2]] <- input$detections[[2]][c(1:7, 116:130), ] # Select 2 tracks (1 not valid)
-# input$valid.detections <- input$valid.detections[c(1, 52)]
-# input$valid.detections[[1]] <- input$valid.detections[[1]][c(1:15, 60:75), ] # Select 2 track
-# input$valid.detections[[2]] <- input$valid.detections[[2]][c(1:7, 116:130), ] # Select 2 tracks (1 not valid)
-# input$valid.movements <- input$valid.movements[c(1, 52)]
-
-# Save RSP objects per group:
-
-	## RUN THESE LINES ONLY TO REPLACE THE REFERENCES!
-	# reference_runRSP_metric_timeslot <- rsp.data
-	# save(reference_runRSP_metric_timeslot, file = "runRSP_metric_timeslot.RData")
-
-	# reference_dynBBMM_metric_timeslot <- dbbmm.time
-	# save(reference_dynBBMM_metric_timeslot, file = "dynBBMM_metric_timeslot.RData")
-	#######
 
 
 #===============================================#
