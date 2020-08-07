@@ -2,6 +2,9 @@
 #       Testing RSP in latlon CRS: group        #
 #===============================================#
 
+# Set skips
+skip_on_travis()
+
 ts <- 0
 test.times <- function(expr) {
 	# adapted from system.time
@@ -63,10 +66,10 @@ ts <- ts + test.times(
 test_that("runRSP with latlon system is working for group", {
 	rsp.data <<- runRSP(input = input, t.layer = tl, coord.x = "Longitude", coord.y = "Latitude")
 	## RUN THESE LINES ONLY TO REPLACE THE REFERENCES!
-	reference_runRSP_latlon <- rsp.data
-	save(reference_runRSP_latlon, file = "runRSP_latlon.RData")
-	load("runRSP_latlon.RData")
-	expect_equivalent(rsp.data, reference_runRSP_latlon) 
+	# reference_runRSP_latlon_group <- rsp.data
+	# save(reference_runRSP_latlon_group, file = "runRSP_latlon_group.RData")
+	load("runRSP_latlon_group.RData")
+	expect_equivalent(rsp.data, reference_runRSP_latlon_group) 
 })
 )
 
@@ -81,25 +84,6 @@ test_that("dynBBMM with latlon system is working for group", {
 	expect_equivalent(dbbmm.all, reference_dynBBMM_latlon_group) 
 })
 )
-
-test_that("dynBBMM with latlon system is working for timeslot", {
-	dbbmm.time <<- dynBBMM(input = rsp.data, base.raster = water.large, timeframe = 24, UTM = 32) 
-	## RUN THESE LINES ONLY TO REPLACE THE REFERENCES!
-	# reference_dynBBMM_latlon_timeslot <- dbbmm.time
-	# save(reference_dynBBMM_latlon_timeslot, file = "dynBBMM_latlon_timeslot.RData")
-	load("dynBBMM_latlon_timeslot.RData")
-	expect_equivalent(dbbmm.time, reference_dynBBMM_latlon_timeslot) 
-})
-
-test_that("dynBBMM: UTM zone is correctly provided when latlon CRS is used", {
-	expect_error(dynBBMM(input = rsp.data, base.raster = water.large, timeframe = 24),
-		"The data are in a latitude-longitude coordinate system, which is incompatible with the dynamic brownian bridge model.\nPlease supply a 'UTM' zone for coordinate conversion.", fixed = TRUE)
-})
-
-test_that("dynBBMM: UTM zone is provided when latlon CRS is used", {
-	expect_error(dynBBMM(input = rsp.data, base.raster = water.large, UTM = c(32, 31), timeframe = 24),
-		"Please supply only one UTM zone", fixed = TRUE)
-})
 
 ts <- ts + test.times(
 test_that("dynBBMM latlong stops if no UTM zone is provided", {
@@ -313,25 +297,6 @@ test_that("plotContours adds title without warnings", {
 	expect_that(p, is_a("ggplot"))
 })
 )
-
-test_that("plotContours is set with only one timeslot", {
-	expect_error(plotContours(dbbmm.time, tag = "R64K-4451", track = "Track_1", timeslot = c(1, 2)),
-		"Please select only one timeslot.", fixed = TRUE)
-})
-
-
-test_that("plotContours tag was found on the selected timeslot", {
-	expect_error(plotContours(dbbmm.time, tag = "R64K-4451", track = "Track_1", timeslot = 100),
-		"Could not find the required tag in the selected timeslot", fixed = TRUE)
-})
-
-
-test_that("plotContours timeslot is set when necessary", {
-	expect_error(plotContours(dbbmm.time, tag = "R64K-4451", track = "Track_1"),
-		"The dbbmm is of type 'timeslot', but no timeslot was selected.", fixed = TRUE)
-})
-
-
 
 ## plotAreas: but first getAreas has to work!
 
