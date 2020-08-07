@@ -4,12 +4,18 @@ cache: packages
 services:
   - docker
 
+os:
+ # - linux
+  - windows
+  - osx
+
 warnings_are_errors: false
 
 script: 
   - |
     R CMD build .
     travis_wait 40 R CMD check RSP*tar.gz
+
 addons:
   apt:
     sources:
@@ -33,7 +39,11 @@ r_packages:
   - rgdal
   - rgeos
 
-# Activate covr
+notifications:
+  email:
+    on_success: never
+    on_failure: never
+
 r_github_packages: 
   - r-lib/covr
 
