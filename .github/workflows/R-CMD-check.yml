@@ -66,9 +66,6 @@ jobs:
           Rscript -e "remotes::install_github('r-hub/sysreqs')"
           sysreqs=$(Rscript -e "cat(sysreqs::sysreq_commands('DESCRIPTION'))")
           sudo -s eval "$sysreqs"
-        before_install:
-          sudo wget http://security.ubuntu.com/ubuntu/pool/main/i/icu/libicu52_52.1-3ubuntu0.4_amd64.deb
-          sudo dpkg -i libicu52_52.1-3ubuntu0.4_amd64.deb
 
       - name: Install system dependencies on macOS
         if: runner.os == 'macOS'
