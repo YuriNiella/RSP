@@ -33,7 +33,11 @@ r_packages:
   - rgdal
   - rgeos
 
-# Activate covr
+notifications:
+  email:
+    on_success: never
+    on_failure: never
+
 r_github_packages: 
   - r-lib/covr
 
