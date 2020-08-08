@@ -2,6 +2,9 @@
 #       Testing RSP in latlon CRS: group        #
 #===============================================#
 
+# Set skips
+# skip_on_travis()
+
 ts <- 0
 test.times <- function(expr) {
 	# adapted from system.time
@@ -30,9 +33,9 @@ test.times <- function(expr) {
 ts <- ts + test.times(
 test_that("actel inputs are working as expected", {
 	aux <- system.file(package = "RSP")[1]
-	water <<- suppressWarnings(actel::loadShape(path = aux, shape = "example_shape_geo.shp", size = 0.0001))
-	water.large <<- suppressWarnings(actel::loadShape(path = aux, shape = "example_shape_geo.shp", size = 0.0001, buffer = 0.05))
-	tl <<- suppressWarnings(actel::transitionLayer(water))
+	water <<- actel::loadShape(path = aux, shape = "example_shape_geo.shp", size = 0.0001)
+	water.large <<- actel::loadShape(path = aux, shape = "example_shape_geo.shp", size = 0.0001, buffer = 0.05)
+	tl <<- actel::transitionLayer(water)
 
 	# Subset actel results to speed up testing:
 	input <- actel::example.results
