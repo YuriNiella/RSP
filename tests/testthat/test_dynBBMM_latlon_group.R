@@ -34,14 +34,14 @@ ts <- ts + test.times(
 test_that("actel inputs are working as expected", {
 	aux <- system.file(package = "RSP")[1]
 	water <<- actel::loadShape(path = aux, shape = "example_shape_geo.shp", size = 0.0001)
-	water.large <<- actel::loadShape(path = aux, shape = "example_shape_geo.shp", size = 0.0001, buffer = 0.08)
+	water.large <<- actel::loadShape(path = aux, shape = "example_shape_geo.shp", size = 0.0001, buffer = 0.05)
 	tl <<- actel::transitionLayer(water)
 
 	# Subset actel results to speed up testing:
 	input <- actel::example.results
-	input$valid.detections <- input$valid.detections[c(1, 52)]
+	input$valid.detections <- input$valid.detections[c(1, 45)]
 	input$valid.detections[[1]] <- input$valid.detections[[1]][c(1:15, 60:75), ] # Select 2 track
-	input$valid.detections[[2]] <- input$valid.detections[[2]][c(1:7, 116:130), ] # Select 2 tracks (1 not valid)
+	input$valid.detections[[2]] <- input$valid.detections[[2]][c(47:52, 370:375), ] # Select 2 tracks (1 not valid)
 
 	input <<- input # export input too
 })
@@ -284,7 +284,7 @@ test_that("plotContours issues warning if base raster and dynBBMM output are on 
 
 ts <- ts + test.times(
 test_that("plotContours issues warning if track is set but only one track is available", {
-	expect_warning(plotContours(dbbmm.all, tag = "R64K-4545", track = "1"),
+	expect_warning(plotContours(dbbmm.all, tag = "R64K-4526", track = "1"),
 		"'track' was set but target tag only has one track. Disregarding", fixed = TRUE)
 })
 )
@@ -497,12 +497,12 @@ test_that("suggestSize works", {
 # addStations
 ts <- ts + test.times(
 test_that("addStations works", {
-	output <- suppressWarnings(plotTracks(rsp.data, base.raster = water.large, tag = "R64K-4545", track = "Track_1")) 
+	output <- suppressWarnings(plotTracks(rsp.data, base.raster = water.large, tag = "R64K-4526", track = "Track_1")) 
 	output.station <- output + addStations(rsp.data)
 	expect_that(output.station, is_a("ggplot"))
 })
 )
-if(getOption("RSP.tests.show.time", default = FALSE))
-	message("Total time elapsed: ", ts, " seconds\n")
+# if(getOption("RSP.tests.show.time", default = FALSE))
+# 	message("Total time elapsed: ", ts, " seconds\n")
 
 rm(list = ls())
