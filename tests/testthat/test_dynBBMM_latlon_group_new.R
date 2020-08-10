@@ -34,7 +34,7 @@
 # test_that("actel inputs are working as expected", {
 # 	aux <- system.file(package = "RSP")[1]
 # 	water <<- actel::loadShape(path = aux, shape = "example_shape_geo.shp", size = 0.0001)
-# 	water.large <<- actel::loadShape(path = aux, shape = "example_shape_geo.shp", size = 0.0001, buffer = 0.02)
+# 	water.large <<- actel::loadShape(path = aux, shape = "example_shape_geo.shp", size = 0.0001, buffer = 0.05)
 # 	tl <<- actel::transitionLayer(water)
 # 	load("actel_output.RData") # Load output from actel explore()
 # })
