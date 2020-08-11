@@ -6,6 +6,10 @@ services:
 
 warnings_are_errors: false
 
+os:
+  - macos
+  - windows
+
 script: 
   - |
     R CMD build .

@@ -506,6 +506,7 @@ test_that("addStations works", {
 # 	message("Total time elapsed: ", ts, " seconds\n")
 
 rm(dbbmm.all, output1.group, output1.track, overlap)
+gc()
 
 
 #=============================#
