@@ -7,12 +7,12 @@ services:
 warnings_are_errors: false
 
 # Run tests in parallel
-env:
-  - TEST_SUITE=units
-  - TEST_SUITE=integration
+# env:
+#   - TEST_SUITE=units
+#   - TEST_SUITE=integration
   
 script: 
-  - "bundle exec rake test:$TEST_SUITE"
+  # - "bundle exec rake test:$TEST_SUITE"
   - |
     R CMD build .
     travis_wait 50 R CMD check RSP*tar.gz
@@ -32,8 +32,8 @@ before_install:
   - sudo apt-get --yes --force-yes update -qq
   - sudo apt-get install libgdal-dev libgeos-dev libproj-dev libudunits2-dev libv8-dev libprotobuf-dev protobuf-compiler libjq-dev
   - R -e 'install.packages("rgdal", repos=c("http://R-Forge.R-project.org", "http://cran.rstudio.com"))'      
-  - sudo add-apt-repository ppa:ubuntugis/ppa --yes
-  - sudo apt-get update
+  # - sudo add-apt-repository ppa:ubuntugis/ppa --yes
+  # - sudo apt-get update
   
 r_packages:
   - sp
