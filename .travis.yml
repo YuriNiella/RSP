@@ -4,20 +4,12 @@ cache: packages
 services:
   - docker
 
-# r:
-#   - release
-#   - devel
-
 warnings_are_errors: false
-
-env:
-  global:
-  - _R_CHECK_FORCE_SUGGESTS_=false
 
 script: 
   - |
     R CMD build .
-    travis_wait 50 R CMD check RSP*tar.gz
+    travis_wait 30 R CMD check RSP*tar.gz
 addons:
   apt:
     sources:
@@ -30,25 +22,20 @@ addons:
 before_install:
   - "docker pull ubuntu:16.04"
   - sudo add-apt-repository ppa:ubuntugis/ubuntugis-unstable -y
-  - sudo apt-get install libgdal-dev libgeos-dev libproj-dev libudunits2-dev libv8-dev libprotobuf-dev protobuf-compiler libjq-dev
   - sudo apt-get --yes --force-yes update -qq
-  - R -e 'install.packages("rgdal", repos=c("http://R-Forge.R-project.org", "http://cran.rstudio.com"))'      
-  # - sudo add-apt-repository ppa:ubuntugis/ppa --yes
-  # - sudo apt-get install libgdal-dev libgeos-dev libproj-dev libudunits2-dev libv8-dev libprotobuf-dev protobuf-compiler libjq-dev
-  # - sudo apt-get update 
+  - sudo apt-get install libgdal-dev libgeos-dev libproj-dev libudunits2-dev libv8-dev libprotobuf-dev protobuf-compiler libjq-dev
+  - sudo add-apt-repository ppa:ubuntugis/ppa --yes
+  - sudo apt-get update
+  - R -e 'install.packages("rgdal", repos=c("http://R-Forge.R-project.org"))' 
   
 r_packages:
   - sp
   - rgdal
   - rgeos
-  # - raster
-  # - gdistance
-  # - igraph
-  
+
+# Activate covr
 r_github_packages: 
-  # - r-lib/testthat
   - r-lib/covr
 
 after_success:
   - travis_wait 40 Rscript -e 'covr::codecov()'
-  
