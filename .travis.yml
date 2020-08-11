@@ -10,14 +10,14 @@ script:
   - |
     R CMD build .
     travis_wait 50 R CMD check RSP*tar.gz
-# addons:
-#   apt:
-#     sources:
-#       - sourceline: 'ppa:ubuntugis/ubuntugis-unstable'
-#     packages:
-#       - libudunits2-dev
-#       - libgdal-dev
-#       - libproj-dev
+addons:
+  apt:
+    sources:
+      - sourceline: 'ppa:ubuntugis/ubuntugis-unstable'
+    packages:
+      - libudunits2-dev
+      - libgdal-dev
+      - libproj-dev
 
 before_install:
   - "docker pull ubuntu:16.04"
