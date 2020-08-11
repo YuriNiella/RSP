@@ -5,7 +5,7 @@
 # Set skips
 # skip_on_travis()
 
-Load example files
+# Load example files
 test_that("actel inputs are working as expected", {
 	aux <- system.file(package = "RSP")[1]
 	water <<- actel::loadShape(path = aux, shape = "example_shape_geo.shp", size = 0.0001)
