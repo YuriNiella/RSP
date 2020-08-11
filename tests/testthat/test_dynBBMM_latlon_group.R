@@ -505,8 +505,8 @@ test_that("addStations works", {
 # if(getOption("RSP.tests.show.time", default = FALSE))
 # 	message("Total time elapsed: ", ts, " seconds\n")
 
-# rm(dbbmm.all, output1.group, output1.track, overlap)
-# gc()
+rm(dbbmm.all, output1.group, output1.track, overlap)
+gc()
 
 
 #=============================#
