@@ -20,8 +20,8 @@ input$valid.detections[[2]] <- input$valid.detections[[2]][c(47:52, 370:375), ] 
 
 
 # Save RSP objects per group:
-rsp.data <- runRSP(input = input, t.layer = tl, coord.x = "x", coord.y = "y")
-dbbmm.all <- dynBBMM(input = rsp.data, base.raster = water.large) # Total
+# rsp.data <- runRSP(input = input, t.layer = tl, coord.x = "x", coord.y = "y")
+# dbbmm.all <- dynBBMM(input = rsp.data, base.raster = water.large) # Total
 
 	## RUN THESE LINES ONLY TO REPLACE THE REFERENCES!
 	# reference_runRSP_metric_group <- rsp.data
@@ -53,14 +53,12 @@ test_that("runRSP with metric system is working for group", {
 	expect_equivalent(rsp.data, reference_runRSP_metric_group) 
 })
 
-test_that("debug mode is working for runRSP", {
-	
+test_that("debug mode is working for runRSP", {	
 	p <- tryCatch(suppressWarnings(runRSP(input = input, t.layer = tl, coord.x = "x", coord.y = "y", 
 		debug = TRUE)), 
 		warning = function(w)
  	stop("A warning was issued in dynBBMM with debug!\n", w))
 	expect_that(p, is_a("list"))
-
 	aux <- list.files(path = ".", pattern = "debug.RData", full.names = TRUE, recursive = TRUE)
 	unlink(aux, recursive = TRUE)	
 })
@@ -85,14 +83,14 @@ test_that("dynBBMM with metric system is working for group", {
 	expect_equivalent(dbbmm.all, reference_dynBBMM_metric_group) 
 })
 
-test_that("There is not enought data from a particular group to fit dBBMMs", {
-	rsp.data2 <- rsp.data
-	rsp.data2$tracks[[2]] <- rsp.data2$tracks[[2]][2, ]
-	rsp.data2$detections[[2]] <- rsp.data2$detections[[2]][which(rsp.data2$detections[[2]]$Track == "Track_2"), ]
+# test_that("There is not enought data from a particular group to fit dBBMMs", {
+# 	rsp.data2 <- rsp.data
+# 	rsp.data2$tracks[[2]] <- rsp.data2$tracks[[2]][2, ]
+# 	rsp.data2$detections[[2]] <- rsp.data2$detections[[2]][which(rsp.data2$detections[[2]]$Track == "Track_2"), ]
 	
-	expect_warning(dynBBMM(input = rsp.data2, base.raster = water.large),
-		"ALL tracks in group B are shorter than 30 minutes. Removing group from analysis.", fixed = TRUE)
-})
+# 	expect_warning(dynBBMM(input = rsp.data2, base.raster = water.large),
+# 		"ALL tracks in group B are shorter than 30 minutes. Removing group from analysis.", fixed = TRUE)
+# })
 
 
 test_that("There is not enought data to fit dBBMMs at all", {
@@ -121,19 +119,19 @@ test_that("Simultaneous detections at two receivers can be excluded", {
 })
 
 
-test_that("raster size is enought for dBBMM", {
-	input <- actel::example.results
-	input$valid.detections <- input$valid.detections[1]
-	input$valid.detections[[1]] <- input$valid.detections[[1]][1, ]	
-	aux <- input$valid.detections[[1]][1, ]	
-	aux$Timestamp <- aux$Timestamp + 64800
-	input$valid.detections[[1]] <- rbind(input$valid.detections[[1]][1, ], aux)
-	rsp.input <- runRSP(input = input, t.layer = tl, coord.x = "x", coord.y = "y")
+# test_that("raster size is enought for dBBMM", {
+# 	input <- actel::example.results
+# 	input$valid.detections <- input$valid.detections[1]
+# 	input$valid.detections[[1]] <- input$valid.detections[[1]][1, ]	
+# 	aux <- input$valid.detections[[1]][1, ]	
+# 	aux$Timestamp <- aux$Timestamp + 64800
+# 	input$valid.detections[[1]] <- rbind(input$valid.detections[[1]][1, ], aux)
+# 	rsp.input <- runRSP(input = input, t.layer = tl, coord.x = "x", coord.y = "y")
 
-	expect_error(dynBBMM(input = rsp.input, base.raster = water),
-		"The brownian bridge model needs a larger raster to work on. This could happen because some of the detections are too close to the raster's edge. 
-You can create a larger raster by using the argument 'buffer' in loadShape. If the error persists, increase the buffer size further.", fixed = TRUE)
-})
+# 	expect_error(dynBBMM(input = rsp.input, base.raster = water),
+# 		"The brownian bridge model needs a larger raster to work on. This could happen because some of the detections are too close to the raster's edge. 
+# You can create a larger raster by using the argument 'buffer' in loadShape. If the error persists, increase the buffer size further.", fixed = TRUE)
+# })
 
 
 test_that("debug mode is working for dynBBMM", {
