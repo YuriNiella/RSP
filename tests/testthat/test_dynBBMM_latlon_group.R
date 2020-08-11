@@ -9,7 +9,7 @@
 	aux <- system.file(package = "RSP")[1]
 	water <<- actel::loadShape(path = aux, shape = "example_shape_geo.shp", size = 0.0001)
 	tl <<- actel::transitionLayer(water)
-	water.large <<- actel::loadShape(path = aux, shape = "example_shape_geo.shp", size = 0.0001, buffer = 0.05)
+	water.large <<- actel::loadShape(path = aux, shape = "example_shape_geo.shp", size = 0.0001, buffer = 0.08)
 	
 	# Subset actel results to speed up testing:
 	input <- actel::example.results
