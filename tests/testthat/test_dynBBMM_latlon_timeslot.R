@@ -21,9 +21,9 @@ test_that("actel inputs are working as expected", {
 	input <<- input # export input too
 })
 
-# #===============================================#
-# #				TESTING STARTS					#
-# #===============================================#
+#===============================================#
+#				TESTING STARTS					#
+#===============================================#
 
 # ## 1) Testing runRSP:
 test_that("runRSP with latlon system is working for timeslot", {
