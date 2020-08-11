@@ -3,7 +3,7 @@
 #===============================================#
 
 # Load example data
-# test_that("actel inputs are working as expected", {
+test_that("actel inputs are working as expected", {
 	aux <- system.file(package = "RSP")[1]
 	water <<- actel::loadShape(path = aux, shape = "example_shape_geo.shp", size = 0.0001)
 	tl <<- actel::transitionLayer(water)
@@ -17,7 +17,7 @@
 	input$valid.detections[[2]] <- input$valid.detections[[2]][c(47:52, 370:375), ] # Select 2 tracks (1 not valid)
 
 	input <<- input # export input too
-# })
+})
 # load("actel_latlon.RData")
 
 #===============================================#
