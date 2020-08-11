@@ -5,17 +5,11 @@ services:
   - docker
 
 warnings_are_errors: false
-
-# Run tests in parallel
-env:
-  - TESTFOLDER=latlon/test_dynBBMM_latlon_group
-  - TESTFOLDER=latlon/test_dynBBMM_latlon_timeslot
   
 script: 
-  script: "bundle exec rspec $TESTFOLDER"
-  # - |
-  #   R CMD build .
-  #   travis_wait 50 R CMD check RSP*tar.gz
+  - |
+    R CMD build .
+    travis_wait 50 R CMD check RSP*tar.gz
 
 addons:
   apt:
