@@ -505,8 +505,8 @@ test_that("addStations works", {
 # if(getOption("RSP.tests.show.time", default = FALSE))
 # 	message("Total time elapsed: ", ts, " seconds\n")
 
-rm(dbbmm.all, output1.group, output1.track, overlap)
-gc()
+# rm(dbbmm.all, output1.group, output1.track, overlap)
+# gc()
 
 
 #=============================#
@@ -548,5 +548,4 @@ gc()
 # # output2.group <- getAreas(dbbmm.time, type = "group")
 # # output2.track <- getAreas(dbbmm.time, type = "track")
 
-# rm(list = ls())
-# gc()
+rm(list = ls())
