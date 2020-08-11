@@ -5,12 +5,12 @@
 # Set skips
 # skip_on_travis()
 
-test_that("actel inputs are working as expected", {
+# test_that("actel inputs are working as expected", {
 	aux <- system.file(package = "RSP")[1]
 	water <<- actel::loadShape(path = aux, shape = "example_shape_geo.shp", size = 0.0001)
-	water.large <<- actel::loadShape(path = aux, shape = "example_shape_geo.shp", size = 0.0001, buffer = 0.08)
 	tl <<- actel::transitionLayer(water)
-
+	water.large <<- actel::loadShape(path = aux, shape = "example_shape_geo.shp", size = 0.0001, buffer = 0.05)
+	
 	# Subset actel results to speed up testing:
 	input <- actel::example.results
 	input$valid.detections <- input$valid.detections[c(1, 45)]
@@ -18,7 +18,8 @@ test_that("actel inputs are working as expected", {
 	input$valid.detections[[2]] <- input$valid.detections[[2]][c(47:52, 370:375), ] # Select 2 tracks (1 not valid)
 
 	input <<- input # export input too
-})
+# })
+rm(water)
 
 
 #===============================================#
@@ -26,7 +27,6 @@ test_that("actel inputs are working as expected", {
 #===============================================#
 
 ## 1) Testing runRSP:
-# ts <- ts + test.times(
 test_that("input for runRSP is an actel analysis result", {
 	aux <- input
 	aux$rsp.info <- NULL
@@ -34,9 +34,7 @@ test_that("input for runRSP is an actel analysis result", {
 	expect_error(runRSP(input = aux, t.layer = tl, coord.x = "Longitude", coord.y = "Latitude"),
 		"'input' could not be recognised as an actel analysis result.", fixed = TRUE)
 })
-# )
 
-# ts <- ts + test.times(
 test_that("runRSP with latlon system is working for group", {
 	rsp.data <<- runRSP(input = input, t.layer = tl, coord.x = "Longitude", coord.y = "Latitude")
 	## RUN THESE LINES ONLY TO REPLACE THE REFERENCES!
@@ -45,10 +43,8 @@ test_that("runRSP with latlon system is working for group", {
 	load("runRSP_latlon_group.RData")
 	expect_equivalent(rsp.data, reference_runRSP_latlon_group) 
 })
-# )
 
 ## 2) Testing dynBBMM:
-# ts <- ts + test.times(
 test_that("dynBBMM with latlon system is working for group", {
 	dbbmm.all <<- dynBBMM(input = rsp.data, base.raster = water.large, UTM = 32) # Total
 	## RUN THESE LINES ONLY TO REPLACE THE REFERENCES!
@@ -57,7 +53,7 @@ test_that("dynBBMM with latlon system is working for group", {
 	load("dynBBMM_latlon_group.RData")
 	expect_equivalent(dbbmm.all, reference_dynBBMM_latlon_group) 
 })
-# )
+
 
 # # ts <- ts + test.times(
 # test_that("dynBBMM latlong stops if no UTM zone is provided", {
