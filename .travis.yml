@@ -6,14 +6,17 @@ services:
 
 warnings_are_errors: false
 
-# os:
-#   - macos
-#   - windows
-
+# Run tests in parallel
+env:
+  - TEST_SUITE=units
+  - TEST_SUITE=integration
+  
 script: 
+  - "bundle exec rake test:$TEST_SUITE"
   - |
     R CMD build .
     travis_wait 50 R CMD check RSP*tar.gz
+
 addons:
   apt:
     sources:
