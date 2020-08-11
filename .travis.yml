@@ -46,7 +46,7 @@ r_packages:
   - igraph
   
 r_github_packages: 
-  - r-lib/testthat
+  # - r-lib/testthat
   - r-lib/covr
 
 after_success:
