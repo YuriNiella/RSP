@@ -1,53 +1,33 @@
 language: r
-sudo: true
-cache:
-  - packages
-
+sudo: required
+cache: packages
 services:
   - docker
 
 warnings_are_errors: false
-  
+
 script: 
   - |
     R CMD build .
     travis_wait 50 R CMD check RSP*tar.gz
-
-env:
-  global:
-    - BIOC_USE_DEVEL="FALSE"  ## Use the current release version
-    - R_BUILD_ARGS="--no-build-vignettes --no-manual"
-    - R_CHECK_ARGS="--no-build-vignettes --no-manual --timings"  ## do not build vignettes or manual
-    - _R_CHECK_TIMINGS_="0"  ## get the timing information for the examples for all of your functions
-
-r_build_args: --no-build-vignettes --no-manual
-r_check_args: --no-build-vignettes --no-manual --timings
-
 addons:
   apt:
     sources:
       - sourceline: 'ppa:ubuntugis/ubuntugis-unstable'
     packages:
-      - ccache
       - libudunits2-dev
       - libgdal-dev
       - libproj-dev
 
 before_install:
-  # - mkdir $HOME/.R && echo -e 'CXX_STD = CXX14\n\nVER=\nCCACHE=ccache\nCC=$(CCACHE) gcc$(VER) -std=gnu99\nCXX=$(CCACHE) g++$(VER)\nC11=$(CCACHE) g++$(VER)\nC14=$(CCACHE) g++$(VER)\nFC=$(CCACHE) gfortran$(VER)\nF77=$(CCACHE) gfortran$(VER)' > $HOME/.R/Makevars
-  # - echo -e 'max_size = 5.0G\nsloppiness = include_file_ctime\nhash_dir=false' > $HOME/.ccache/ccache.conf
-  # - echo "options(repos = c(CRAN = 'https://packagemanager.rstudio.com/all/__linux__/xenial/latest'))" >> ~/.Rprofile.site
-  # - echo "options(HTTPUserAgent = paste0('R/', getRversion(), ' R (',
-  #      paste(getRversion(), R.version['platform'], R.version['arch'], R.version['os']),
-  #      ')'))" >> ~/.Rprofile.site
-  # - "docker pull ubuntu:16.04"
+  - echo "memory_limit=2G" >> ~/.phpenv/versions/$(phpenv version-name)/etc/conf.d/travis.ini 
+  - "docker pull ubuntu:16.04"
   - sudo add-apt-repository ppa:ubuntugis/ubuntugis-unstable -y
   - sudo apt-get --yes --force-yes update -qq
   - sudo apt-get install libgdal-dev libgeos-dev libproj-dev libudunits2-dev libv8-dev libprotobuf-dev protobuf-compiler libjq-dev
   - R -e 'install.packages("rgdal", repos=c("http://R-Forge.R-project.org", "http://cran.rstudio.com"))'      
   - sudo add-apt-repository ppa:ubuntugis/ppa --yes
   - sudo apt-get update
-
   
 r_packages:
   - sp
