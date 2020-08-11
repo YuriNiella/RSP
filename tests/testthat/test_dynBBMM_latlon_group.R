@@ -512,40 +512,40 @@ rm(dbbmm.all, output1.group, output1.track, overlap)
 # Tests for timeslot analysis #
 #=============================#
 
-# ## 2) Testing dynBBMM:
-test_that("dynBBMM with latlon system is working for timeslot", {
-	dbbmm.time <<- dynBBMM(input = rsp.data, base.raster = water.large, timeframe = 24, UTM = 32) 
-	## RUN THESE LINES ONLY TO REPLACE THE REFERENCES!
-	# reference_dynBBMM_latlon_timeslot <- dbbmm.time
-	# save(reference_dynBBMM_latlon_timeslot, file = "dynBBMM_latlon_timeslot.RData")
-	load("dynBBMM_latlon_timeslot.RData")
-	expect_equivalent(dbbmm.time, reference_dynBBMM_latlon_timeslot) 
-})
+# # ## 2) Testing dynBBMM:
+# test_that("dynBBMM with latlon system is working for timeslot", {
+# 	dbbmm.time <<- dynBBMM(input = rsp.data, base.raster = water.large, timeframe = 24, UTM = 32) 
+# 	## RUN THESE LINES ONLY TO REPLACE THE REFERENCES!
+# 	# reference_dynBBMM_latlon_timeslot <- dbbmm.time
+# 	# save(reference_dynBBMM_latlon_timeslot, file = "dynBBMM_latlon_timeslot.RData")
+# 	load("dynBBMM_latlon_timeslot.RData")
+# 	expect_equivalent(dbbmm.time, reference_dynBBMM_latlon_timeslot) 
+# })
 
-# #============================================#
-# # Test plot functions for latlon coordinates #
-# #============================================#
+# # #============================================#
+# # # Test plot functions for latlon coordinates #
+# # #============================================#
 
-# # plotContours:
-test_that("plotContours is set with only one timeslot", {
-	expect_error(plotContours(dbbmm.time, tag = "R64K-4451", track = "Track_1", timeslot = c(1, 2)),
-		"Please select only one timeslot.", fixed = TRUE)
-})
+# # # plotContours:
+# test_that("plotContours is set with only one timeslot", {
+# 	expect_error(plotContours(dbbmm.time, tag = "R64K-4451", track = "Track_1", timeslot = c(1, 2)),
+# 		"Please select only one timeslot.", fixed = TRUE)
+# })
 
 
-test_that("plotContours tag was found on the selected timeslot", {
-	expect_error(plotContours(dbbmm.time, tag = "R64K-4451", track = "Track_1", timeslot = 100),
-		"Could not find the required tag in the selected timeslot", fixed = TRUE)
-})
+# test_that("plotContours tag was found on the selected timeslot", {
+# 	expect_error(plotContours(dbbmm.time, tag = "R64K-4451", track = "Track_1", timeslot = 100),
+# 		"Could not find the required tag in the selected timeslot", fixed = TRUE)
+# })
 
-test_that("plotContours timeslot is set when necessary", {
-	expect_error(plotContours(dbbmm.time, tag = "R64K-4451", track = "Track_1"),
-		"The dbbmm is of type 'timeslot', but no timeslot was selected.", fixed = TRUE)
-})
+# test_that("plotContours timeslot is set when necessary", {
+# 	expect_error(plotContours(dbbmm.time, tag = "R64K-4451", track = "Track_1"),
+# 		"The dbbmm is of type 'timeslot', but no timeslot was selected.", fixed = TRUE)
+# })
 
-# Get areas:
-# output2.group <- getAreas(dbbmm.time, type = "group")
-# output2.track <- getAreas(dbbmm.time, type = "track")
-
+# # Get areas:
+# # output2.group <- getAreas(dbbmm.time, type = "group")
+# # output2.track <- getAreas(dbbmm.time, type = "track")
 
 rm(list = ls())
+gc()
