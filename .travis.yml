@@ -4,15 +4,14 @@ cache: packages
 services:
   - docker
 
-r:
-  - release
-  - devel
+# r:
+#   - release
+#   - devel
 
 warnings_are_errors: false
 
 env:
   global:
-  # don't treat missing suggested packages as error
   - _R_CHECK_FORCE_SUGGESTS_=false
 
 script: 
