@@ -41,9 +41,9 @@ r_packages:
   - sp
   - rgdal
   - rgeos
-  - raster
-  - gdistance
-  - igraph
+  # - raster
+  # - gdistance
+  # - igraph
   
 r_github_packages: 
   # - r-lib/testthat
