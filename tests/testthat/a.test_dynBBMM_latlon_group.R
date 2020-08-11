@@ -548,5 +548,5 @@ gc()
 # # output2.group <- getAreas(dbbmm.time, type = "group")
 # # output2.track <- getAreas(dbbmm.time, type = "track")
 
-rm(list = ls())
-gc()
+# rm(list = ls())
+# gc()

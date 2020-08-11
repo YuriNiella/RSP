@@ -6,9 +6,9 @@ services:
 
 warnings_are_errors: false
 
-os:
-  - macos
-  - windows
+# os:
+#   - macos
+#   - windows
 
 script: 
   - |
