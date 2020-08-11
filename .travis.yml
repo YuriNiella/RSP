@@ -1,8 +1,8 @@
 language: r
 sudo: required
 cache: packages
-services:
-  - docker
+# services:
+#   - docker
 
 os:
   - macos
