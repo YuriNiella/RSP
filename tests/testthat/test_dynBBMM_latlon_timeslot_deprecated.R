@@ -6,55 +6,55 @@
 # skip_on_travis()
 
 # Load example files
-test_that("actel inputs are working as expected", {
-	aux <- system.file(package = "RSP")[1]
-	water <<- actel::loadShape(path = aux, shape = "example_shape_geo.shp", size = 0.0001)
-	water.large <<- actel::loadShape(path = aux, shape = "example_shape_geo.shp", size = 0.0001, buffer = 0.08)
-	tl <<- actel::transitionLayer(water)
+# test_that("actel inputs are working as expected", {
+# 	aux <- system.file(package = "RSP")[1]
+# 	water <<- actel::loadShape(path = aux, shape = "example_shape_geo.shp", size = 0.0001)
+# 	water.large <<- actel::loadShape(path = aux, shape = "example_shape_geo.shp", size = 0.0001, buffer = 0.08)
+# 	tl <<- actel::transitionLayer(water)
 
-	# Subset actel results to speed up testing:
-	input <- actel::example.results
-	input$valid.detections <- input$valid.detections[c(1, 45)]
-	input$valid.detections[[1]] <- input$valid.detections[[1]][c(1:15, 60:75), ] # Select 2 track
-	input$valid.detections[[2]] <- input$valid.detections[[2]][c(47:52, 370:375), ] # Select 2 tracks (1 not valid)
+# 	# Subset actel results to speed up testing:
+# 	input <- actel::example.results
+# 	input$valid.detections <- input$valid.detections[c(1, 45)]
+# 	input$valid.detections[[1]] <- input$valid.detections[[1]][c(1:15, 60:75), ] # Select 2 track
+# 	input$valid.detections[[2]] <- input$valid.detections[[2]][c(47:52, 370:375), ] # Select 2 tracks (1 not valid)
 
-	input <<- input # export input too
-})
+# 	input <<- input # export input too
+# })
 
-#===============================================#
-#				TESTING STARTS					#
-#===============================================#
+# #===============================================#
+# #				TESTING STARTS					#
+# #===============================================#
 
-## 1) Testing runRSP:
-test_that("runRSP with latlon system is working for timeslot", {
-	rsp.data <<- runRSP(input = input, t.layer = tl, coord.x = "Longitude", coord.y = "Latitude")
-	## RUN THESE LINES ONLY TO REPLACE THE REFERENCES!
-	# reference_runRSP_latlon_timeslot <- rsp.data
-	# save(reference_runRSP_latlon_timeslot, file = "runRSP_latlon_timeslot.RData")
-	load("runRSP_latlon_timeslot.RData")
-	expect_equivalent(rsp.data, reference_runRSP_latlon_timeslot) 
-})
+# ## 1) Testing runRSP:
+# test_that("runRSP with latlon system is working for timeslot", {
+# 	rsp.data <<- runRSP(input = input, t.layer = tl, coord.x = "Longitude", coord.y = "Latitude")
+# 	## RUN THESE LINES ONLY TO REPLACE THE REFERENCES!
+# 	# reference_runRSP_latlon_timeslot <- rsp.data
+# 	# save(reference_runRSP_latlon_timeslot, file = "runRSP_latlon_timeslot.RData")
+# 	load("runRSP_latlon_timeslot.RData")
+# 	expect_equivalent(rsp.data, reference_runRSP_latlon_timeslot) 
+# })
 
 
-## 2) Testing dynBBMM:
-test_that("dynBBMM with latlon system is working for timeslot", {
-	dbbmm.time <<- dynBBMM(input = rsp.data, base.raster = water.large, timeframe = 24, UTM = 32) 
-	## RUN THESE LINES ONLY TO REPLACE THE REFERENCES!
-	# reference_dynBBMM_latlon_timeslot <- dbbmm.time
-	# save(reference_dynBBMM_latlon_timeslot, file = "dynBBMM_latlon_timeslot.RData")
-	load("dynBBMM_latlon_timeslot.RData")
-	expect_equivalent(dbbmm.time, reference_dynBBMM_latlon_timeslot) 
-})
+# ## 2) Testing dynBBMM:
+# test_that("dynBBMM with latlon system is working for timeslot", {
+# 	dbbmm.time <<- dynBBMM(input = rsp.data, base.raster = water.large, timeframe = 24, UTM = 32) 
+# 	## RUN THESE LINES ONLY TO REPLACE THE REFERENCES!
+# 	# reference_dynBBMM_latlon_timeslot <- dbbmm.time
+# 	# save(reference_dynBBMM_latlon_timeslot, file = "dynBBMM_latlon_timeslot.RData")
+# 	load("dynBBMM_latlon_timeslot.RData")
+# 	expect_equivalent(dbbmm.time, reference_dynBBMM_latlon_timeslot) 
+# })
 
-test_that("dynBBMM: UTM zone is correctly provided when latlon CRS is used", {
-	expect_error(dynBBMM(input = rsp.data, base.raster = water.large, timeframe = 24),
-		"The data are in a latitude-longitude coordinate system, which is incompatible with the dynamic brownian bridge model.\nPlease supply a 'UTM' zone for coordinate conversion.", fixed = TRUE)
-})
+# test_that("dynBBMM: UTM zone is correctly provided when latlon CRS is used", {
+# 	expect_error(dynBBMM(input = rsp.data, base.raster = water.large, timeframe = 24),
+# 		"The data are in a latitude-longitude coordinate system, which is incompatible with the dynamic brownian bridge model.\nPlease supply a 'UTM' zone for coordinate conversion.", fixed = TRUE)
+# })
 
-test_that("dynBBMM: UTM zone is provided when latlon CRS is used", {
-	expect_error(dynBBMM(input = rsp.data, base.raster = water.large, UTM = c(32, 31), timeframe = 24),
-		"Please supply only one UTM zone", fixed = TRUE)
-})
+# test_that("dynBBMM: UTM zone is provided when latlon CRS is used", {
+# 	expect_error(dynBBMM(input = rsp.data, base.raster = water.large, UTM = c(32, 31), timeframe = 24),
+# 		"Please supply only one UTM zone", fixed = TRUE)
+# })
 
 #============================================#
 # Test plot functions for latlon coordinates #
