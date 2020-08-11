@@ -1,7 +1,7 @@
 language: r
 sudo: required
 cache:
-  - $HOME/.ccache
+  - packages
 
 services:
   - docker
@@ -24,7 +24,7 @@ addons:
       - libproj-dev
 
 before_install:
-  - mkdir $HOME/.R && echo -e 'CXX_STD = CXX14\n\nVER=\nCCACHE=ccache\nCC=$(CCACHE) gcc$(VER) -std=gnu99\nCXX=$(CCACHE) g++$(VER)\nC11=$(CCACHE) g++$(VER)\nC14=$(CCACHE) g++$(VER)\nFC=$(CCACHE) gfortran$(VER)\nF77=$(CCACHE) gfortran$(VER)' > $HOME/.R/Makevars
+  # - mkdir $HOME/.R && echo -e 'CXX_STD = CXX14\n\nVER=\nCCACHE=ccache\nCC=$(CCACHE) gcc$(VER) -std=gnu99\nCXX=$(CCACHE) g++$(VER)\nC11=$(CCACHE) g++$(VER)\nC14=$(CCACHE) g++$(VER)\nFC=$(CCACHE) gfortran$(VER)\nF77=$(CCACHE) gfortran$(VER)' > $HOME/.R/Makevars
   - echo -e 'max_size = 5.0G\nsloppiness = include_file_ctime\nhash_dir=false' > $HOME/.ccache/ccache.conf
   - echo "options(repos = c(CRAN = 'https://packagemanager.rstudio.com/all/__linux__/xenial/latest'))" >> ~/.Rprofile.site
   - echo "options(HTTPUserAgent = paste0('R/', getRversion(), ' R (',
@@ -35,8 +35,8 @@ before_install:
   - sudo apt-get --yes --force-yes update -qq
   - sudo apt-get install libgdal-dev libgeos-dev libproj-dev libudunits2-dev libv8-dev libprotobuf-dev protobuf-compiler libjq-dev
   - R -e 'install.packages("rgdal", repos=c("http://R-Forge.R-project.org", "http://cran.rstudio.com"))'      
-  - sudo add-apt-repository ppa:ubuntugis/ppa --yes
-  - sudo apt-get update
+  # - sudo add-apt-repository ppa:ubuntugis/ppa --yes
+  # - sudo apt-get update
 
   
 r_packages:
