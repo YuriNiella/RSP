@@ -33,6 +33,8 @@ r_packages:
   - sp
   - rgdal
   - rgeos
+  - raster
+  - igraph
 
 r_github_packages: 
   - r-lib/covr
