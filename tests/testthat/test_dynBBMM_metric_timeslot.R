@@ -3,7 +3,7 @@
 #===================================================#
 
 # Set skips
-# skip_on_travis()
+skip_on_travis()
 
 # Load example files
 test_that("actel inputs are working as expected", {
@@ -153,8 +153,6 @@ test_that("getAreas works for timeslot and track", {
 
 
 # Skip from this part of the timeslot testing
-skip_on_travis()
-
 # plotAreas:
 test_that("getAreas is working", {
 	output2.group <<- getAreas(dbbmm.time, type = "group")	
@@ -226,17 +224,10 @@ test_that("getOverlaps only takes type = 'group'", {
 
 # plotOverlaps:
 test_that("The artificial group C can be set properly", {
-	## RUN THESE LINES ONLY TO REPLACE THE REFERENCES!
 	output2.group$areas["C"] <- output2.group$areas[1] 
 	output2.group$rasters$C <- output2.group$rasters$A
-	overlap2 <<- suppressWarnings(getOverlaps(output2.group))
 	output2.group <<- output2.group
-	# save(overlap2, file = "reference_overlap2.RData")
-	# save(output2.group, file = "reference_output2.group.RData")
-	# load("reference_overlap2.RData")
-	# load("reference_output2.group.RData")
-	# overlap2 <<- overlap2
-	# output2.group <<- output2.group
+	overlap2 <<- suppressWarnings(getOverlaps(output2.group))
 })
 
 test_that("plotOverlaps works for group and returns the plot for metric timeslot", {
