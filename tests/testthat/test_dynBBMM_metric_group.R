@@ -150,7 +150,6 @@ test_that("debug mode is working for dynBBMM", {
 	unlink(aux, recursive = TRUE)	
 })
 
-
 test_that("verbose mode is working for dynBBMM", {
 	rsp.data2 <- rsp.data
 	rsp.data2$tracks[[2]] <- rsp.data2$tracks[[2]][2, ]
@@ -370,9 +369,10 @@ test_that("getAreas works for track", {
 
 
 # plotAreas:
-output1.group <- getAreas(dbbmm.all, type = "group")
-output1.track <- getAreas(dbbmm.all, type = "track")
-
+test_that("getAreas is working", {
+output1.group <<- getAreas(dbbmm.all, type = "group")
+output1.track <<- getAreas(dbbmm.all, type = "track")
+})
 
 test_that("plotAreas does not work when getAreas is run for track", {
 	expect_error(plotAreas(output1.track),
@@ -437,7 +437,9 @@ test_that("getOverlaps only takes type = 'group'", {
 
 
 # plotOverlaps:
-overlap <- suppressWarnings(getOverlaps(output1.group)) 
+test_that("getOverlaps works for groups", {
+overlap <<- getOverlaps(output1.group)
+})
 
 
 test_that("plotOverlaps works for group and returns the plot", {
