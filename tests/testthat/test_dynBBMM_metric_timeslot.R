@@ -131,7 +131,7 @@ test_that("plotContours add title works", {
 })
 
 # plotAreas: but first getAreas has to work!
-getAreas:
+# getAreas:
 test_that("getAreas breaks are in right format", {
 	expect_error(getAreas(dbbmm.time, type = "group", breaks = c(0.5, 2.5)),
 		"breaks must be between 0 and 1 (both exclusive).", fixed = TRUE)
