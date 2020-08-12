@@ -1,9 +1,11 @@
 language: r
+r: '4.0.2'
 sudo: required
 cache: packages
 
-os: macos
-osx_image: xcode12u
+os: macOS-latest
+# osx_image: xcode12u
+
 disable_homebrew: true
   
 latex: false # Disables vignette to speed up build
