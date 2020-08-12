@@ -151,6 +151,10 @@ test_that("getAreas works for timeslot and track", {
 	expect_that(p, is_a("list"))
 })
 
+
+# Skip from this part of the timeslot testing
+skip_on_travis()
+
 # plotAreas:
 test_that("getAreas is working", {
 	output2.group <<- getAreas(dbbmm.time, type = "group")	
