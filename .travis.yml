@@ -15,15 +15,15 @@ script:
   - |
     R CMD build .
     travis_wait 50 R CMD check RSP*tar.gz
-addons:
-  apt:
-    packages:
-      - libudunits2-dev
-      - libgdal-dev
-      - libproj-dev
+# addons:
+#   apt:
+#     packages:
+#       - libudunits2-dev
+#       - libgdal-dev
+#       - libproj-dev
 
-before_install:
-  - R -e 'install.packages("rgdal", repos=c("http://R-Forge.R-project.org", "http://cran.rstudio.com"))'      
+# before_install:
+#   - R -e 'install.packages("rgdal", repos=c("http://R-Forge.R-project.org", "http://cran.rstudio.com"))'      
   
 r_packages:
   - sp
