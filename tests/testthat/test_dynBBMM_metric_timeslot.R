@@ -123,15 +123,15 @@ test_that("plotContours timeslot is set when necessary", {
 		"The dbbmm is of type 'timeslot', but no timeslot was selected.", fixed = TRUE)
 })
 
-# test_that("plotContours add title works", {
-# 	p <- tryCatch(suppressWarnings(plotContours(dbbmm.time, tag = "R64K-4451", timeslot = 1, track = "1", title = "Test")), 
-# 		warning = function(w)
-#  	stop("A warning was issued in plotAreas!", w))
-# 	expect_that(p, is_a("ggplot"))
-# })
+test_that("plotContours add title works", {
+	p <- tryCatch(suppressWarnings(plotContours(dbbmm.time, tag = "R64K-4451", timeslot = 1, track = "1", title = "Test")), 
+		warning = function(w)
+ 	stop("A warning was issued in plotAreas!", w))
+	expect_that(p, is_a("ggplot"))
+})
 
-## plotAreas: but first getAreas has to work!
-# getAreas:
+# plotAreas: but first getAreas has to work!
+getAreas:
 test_that("getAreas breaks are in right format", {
 	expect_error(getAreas(dbbmm.time, type = "group", breaks = c(0.5, 2.5)),
 		"breaks must be between 0 and 1 (both exclusive).", fixed = TRUE)
@@ -153,8 +153,8 @@ test_that("getAreas works for timeslot and track", {
 
 # plotAreas:
 test_that("getAreas is working", {
-output2.group <<- getAreas(dbbmm.time, type = "group")
-output2.track <<- getAreas(dbbmm.time, type = "track")
+	output2.group <<- getAreas(dbbmm.time, type = "group")	
+	output2.track <<- getAreas(dbbmm.time, type = "track")
 })
 
 test_that("plotAreas does not work when getAreas is run for track", {
@@ -222,9 +222,16 @@ test_that("getOverlaps only takes type = 'group'", {
 
 # plotOverlaps:
 test_that("The artificial group C can be set properly", {
-	output2.group$areas["C"] <- output2.group$areas[1] 
-	output2.group$rasters$C <- output2.group$rasters$A
-	overlap2 <<- suppressWarnings(getOverlaps(output2.group))
+	## RUN THESE LINES ONLY TO REPLACE THE REFERENCES!
+	# output2.group$areas["C"] <- output2.group$areas[1] 
+	# output2.group$rasters$C <- output2.group$rasters$A
+	# overlap2 <- suppressWarnings(getOverlaps(output2.group))
+	# output2.group <- output2.group
+	# save(overlap2, file = "reference_overlap2.RData")
+	# save(output2.group, file = "reference_output2.group.RData")
+	load("reference_overlap2.RData")
+	load("reference_output2.group.RData")
+	overlap2 <<- overlap2
 	output2.group <<- output2.group
 })
 
