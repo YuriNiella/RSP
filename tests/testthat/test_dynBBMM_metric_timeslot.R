@@ -3,7 +3,6 @@
 #===================================================#
 
 # Set skips
-# skip_on_travis()
 
 # Load example files
 test_that("actel inputs are working as expected", {
@@ -152,143 +151,145 @@ test_that("getAreas works for timeslot and track", {
 })
 
 
-# # Skip from this part of the timeslot testing
-# # plotAreas:
-# test_that("getAreas is working", {
-# 	output2.group <<- getAreas(dbbmm.time, type = "group")	
-# 	output2.track <<- getAreas(dbbmm.time, type = "track")
-# })
+# Skip from this part of the timeslot testing
+skip_on_travis()
 
-# test_that("plotAreas does not work when getAreas is run for track", {
-# 	expect_error(plotAreas(output2.track),
-# 		"plotAreas currently only works for 'group' areas. Please re-run getAreas with type = 'group'.", fixed = TRUE)
-# })
+# plotAreas:
+test_that("getAreas is working", {
+	output2.group <<- getAreas(dbbmm.time, type = "group")	
+	output2.track <<- getAreas(dbbmm.time, type = "track")
+})
 
-# test_that("plotAreas the correct group is provided", {
-# 	expect_error(plotAreas(output2.group, group = "bananas"),
-# 		"Could not find the specified group in the input data", fixed = TRUE)
-# })
+test_that("plotAreas does not work when getAreas is run for track", {
+	expect_error(plotAreas(output2.track),
+		"plotAreas currently only works for 'group' areas. Please re-run getAreas with type = 'group'.", fixed = TRUE)
+})
 
-# test_that("plotAreas is working for timeslot", {
-# 	p <- tryCatch(suppressWarnings(plotAreas(output2.group, group = "A", base.raster = water.large, timeslot = 1)), 
-# 		warning = function(w)
-#  	stop("A warning was issued in plotAreas!", w))
-# 	expect_that(p, is_a("ggplot"))
-# })
+test_that("plotAreas the correct group is provided", {
+	expect_error(plotAreas(output2.group, group = "bananas"),
+		"Could not find the specified group in the input data", fixed = TRUE)
+})
 
-# test_that("plotAreas add title works for timeslot", {
-# 	p <- tryCatch(suppressWarnings(plotAreas(output2.group, group = "A", base.raster = water.large, timeslot = 1,
-# 		title = "Test")), 
-# 		warning = function(w)
-#  	stop("A warning was issued in plotAreas!", w))
-# 	expect_that(p, is_a("ggplot"))
-# })
+test_that("plotAreas is working for timeslot", {
+	p <- tryCatch(suppressWarnings(plotAreas(output2.group, group = "A", base.raster = water.large, timeslot = 1)), 
+		warning = function(w)
+ 	stop("A warning was issued in plotAreas!", w))
+	expect_that(p, is_a("ggplot"))
+})
 
-# test_that("plotAreas a timeslot is set", {
-# 	expect_error(plotAreas(output2.group, base.raster = water.large, group = "A"),
-# 		"The data have timeslots but 'timeslot' was not set.", fixed = TRUE)
-# })
+test_that("plotAreas add title works for timeslot", {
+	p <- tryCatch(suppressWarnings(plotAreas(output2.group, group = "A", base.raster = water.large, timeslot = 1,
+		title = "Test")), 
+		warning = function(w)
+ 	stop("A warning was issued in plotAreas!", w))
+	expect_that(p, is_a("ggplot"))
+})
 
-# test_that("plotAreas only one timeslot is selected", {
-# 	expect_error(plotAreas(output2.group, base.raster = water.large, group = "A", timeslot = c(1, 2)),
-# 		"Please select only one timeslot.", fixed = TRUE)
-# })
+test_that("plotAreas a timeslot is set", {
+	expect_error(plotAreas(output2.group, base.raster = water.large, group = "A"),
+		"The data have timeslots but 'timeslot' was not set.", fixed = TRUE)
+})
 
-# test_that("plotAreas timeslot is found for specified group", {
-# 	expect_error(plotAreas(output2.group, base.raster = water.large, group = "A", timeslot = 6),
-# 		"Could not find the required timeslot in the specified group.", fixed = TRUE)
-# })
+test_that("plotAreas only one timeslot is selected", {
+	expect_error(plotAreas(output2.group, base.raster = water.large, group = "A", timeslot = c(1, 2)),
+		"Please select only one timeslot.", fixed = TRUE)
+})
 
-# ## plotOverlaps: but first getOverlaps has to work!
-# # getOverlaps:
-# test_that("getOverlaps works for timeslot", {
-# 	p <- tryCatch(suppressWarnings(getOverlaps(output2.group)), 
-# 		warning = function(w)
-#  	stop("A warning was issued in getOverlaps!", w))
-# 	expect_that(p, is_a("list"))
-# })
+test_that("plotAreas timeslot is found for specified group", {
+	expect_error(plotAreas(output2.group, base.raster = water.large, group = "A", timeslot = 6),
+		"Could not find the required timeslot in the specified group.", fixed = TRUE)
+})
 
-# test_that("getOverlaps only works for multiple groups", {
-# 	input <- output2.group
-# 	input$areas <- input$areas[1]
-# 	input$rasters <- input$rasters[-2]	
-# 	expect_error(getOverlaps(input),
-# 		"Only one group found, overlap calculations cannot be performed.", fixed = TRUE)
-# })
+## plotOverlaps: but first getOverlaps has to work!
+# getOverlaps:
+test_that("getOverlaps works for timeslot", {
+	p <- tryCatch(suppressWarnings(getOverlaps(output2.group)), 
+		warning = function(w)
+ 	stop("A warning was issued in getOverlaps!", w))
+	expect_that(p, is_a("list"))
+})
 
-# test_that("getOverlaps only takes type = 'group'", {
-# 	expect_error(getOverlaps(output2.track),
-# 		"Overlaps can only be calculated for 'group' areas. Please re-run getAreas with type = 'group'.", fixed = TRUE)
-# })
+test_that("getOverlaps only works for multiple groups", {
+	input <- output2.group
+	input$areas <- input$areas[1]
+	input$rasters <- input$rasters[-2]	
+	expect_error(getOverlaps(input),
+		"Only one group found, overlap calculations cannot be performed.", fixed = TRUE)
+})
+
+test_that("getOverlaps only takes type = 'group'", {
+	expect_error(getOverlaps(output2.track),
+		"Overlaps can only be calculated for 'group' areas. Please re-run getAreas with type = 'group'.", fixed = TRUE)
+})
 
 
-# # plotOverlaps:
-# test_that("The artificial group C can be set properly", {
-# 	output2.group$areas["C"] <- output2.group$areas[1] 
-# 	output2.group$rasters$C <- output2.group$rasters$A
-# 	output2.group <<- output2.group
-# 	overlap2 <<- suppressWarnings(getOverlaps(output2.group))
-# })
+# plotOverlaps:
+test_that("The artificial group C can be set properly", {
+	output2.group$areas["C"] <- output2.group$areas[1] 
+	output2.group$rasters$C <- output2.group$rasters$A
+	output2.group <<- output2.group
+	overlap2 <<- suppressWarnings(getOverlaps(output2.group))
+})
 
-# test_that("plotOverlaps works for group and returns the plot for metric timeslot", {
-# 	p <- tryCatch(plotOverlaps(overlaps = overlap2, areas = output2.group, base.raster = water.large, groups = c("A", "C"), level = 0.95, timeslot = 1), 
-# 		warning = function(w)
-#  	stop("A warning was issued in plotOverlaps!", w))
-# 	expect_that(p, is_a("ggplot"))
-# })
+test_that("plotOverlaps works for group and returns the plot for metric timeslot", {
+	p <- tryCatch(plotOverlaps(overlaps = overlap2, areas = output2.group, base.raster = water.large, groups = c("A", "C"), level = 0.95, timeslot = 1), 
+		warning = function(w)
+ 	stop("A warning was issued in plotOverlaps!", w))
+	expect_that(p, is_a("ggplot"))
+})
 
-# test_that("plotOverlaps crashes when multiple timeslots are set", {
-# 	expect_error(plotOverlaps(overlaps = overlap2, areas = output2.group, base.raster = water.large, groups = c("A", "C"), level = 0.95, timeslot = c(1, 2)),
-# 		"Please select only one timeslot.", fixed = TRUE)
-# })
+test_that("plotOverlaps crashes when multiple timeslots are set", {
+	expect_error(plotOverlaps(overlaps = overlap2, areas = output2.group, base.raster = water.large, groups = c("A", "C"), level = 0.95, timeslot = c(1, 2)),
+		"Please select only one timeslot.", fixed = TRUE)
+})
 
-# test_that("plotOverlaps crashes for timeslot if track areas are provided", {
-# 	expect_error(suppressWarnings(plotOverlaps(overlaps = overlap2, areas = output2.track, base.raster = water.large, groups = c("A", "C"), level = 0.95, timeslot = 1)),
-# 		"The areas object must be of type 'group' to be compatible with the overlaps.", fixed = TRUE)
-# })
+test_that("plotOverlaps crashes for timeslot if track areas are provided", {
+	expect_error(suppressWarnings(plotOverlaps(overlaps = overlap2, areas = output2.track, base.raster = water.large, groups = c("A", "C"), level = 0.95, timeslot = 1)),
+		"The areas object must be of type 'group' to be compatible with the overlaps.", fixed = TRUE)
+})
 
-# test_that("plotOverlaps crashes for timeslot when multiple levels are set", {
-# 	expect_error(suppressWarnings(plotOverlaps(overlaps = overlap2, areas = output2.group, base.raster = water.large, groups = c("A", "C"), level = c(0.5, 0.95))),
-# 		"Please choose only one level.", fixed = TRUE)
-# })
+test_that("plotOverlaps crashes for timeslot when multiple levels are set", {
+	expect_error(suppressWarnings(plotOverlaps(overlaps = overlap2, areas = output2.group, base.raster = water.large, groups = c("A", "C"), level = c(0.5, 0.95))),
+		"Please choose only one level.", fixed = TRUE)
+})
 
-# test_that("plotOverlaps timeslot the correct level is not present in the overlaps object", {
-# 	expect_error(suppressWarnings(plotOverlaps(overlaps = overlap2, areas = output2.group, base.raster = water.large, groups = c("A", "C"), level = 0.7, timeslot = 1)),
-# 		"The requested level is not present in the overlaps object.", fixed = TRUE)
-# })
+test_that("plotOverlaps timeslot the correct level is not present in the overlaps object", {
+	expect_error(suppressWarnings(plotOverlaps(overlaps = overlap2, areas = output2.group, base.raster = water.large, groups = c("A", "C"), level = 0.7, timeslot = 1)),
+		"The requested level is not present in the overlaps object.", fixed = TRUE)
+})
 
-# test_that("plotOverlaps timeslot the correct level is not present in the areas object", {
-# 	output <- getAreas(dbbmm.time, type = "group", breaks = 0.6)
+test_that("plotOverlaps timeslot the correct level is not present in the areas object", {
+	output <- getAreas(dbbmm.time, type = "group", breaks = 0.6)
 
-# 	expect_error(plotOverlaps(overlaps = overlap2, areas = output, base.raster = water.large, groups = c("A", "B"), level = 0.5),
-# 		"The requested level is not present in the areas object.", fixed = TRUE)
-# })
+	expect_error(plotOverlaps(overlaps = overlap2, areas = output, base.raster = water.large, groups = c("A", "B"), level = 0.5),
+		"The requested level is not present in the areas object.", fixed = TRUE)
+})
 
-# test_that("plotOverlaps timeslot is set when necessary", {
-# 	expect_error(plotOverlaps(overlaps = overlap2, areas = output2.group, base.raster = water.large, groups = c("A", "B"), level = 0.95),
-# 		"The data have timeslots but 'timeslot' was not set.", fixed = TRUE)
-# })
+test_that("plotOverlaps timeslot is set when necessary", {
+	expect_error(plotOverlaps(overlaps = overlap2, areas = output2.group, base.raster = water.large, groups = c("A", "B"), level = 0.95),
+		"The data have timeslots but 'timeslot' was not set.", fixed = TRUE)
+})
 
-# test_that("plotOverlaps timeslot is set correctly", {
-# 	expect_error(plotOverlaps(overlaps = overlap2, areas = output2.group, base.raster = water.large, groups = c("A", "B"), level = 0.95, timeslot = 200),
-# 		"Could not find the required timeslot in the input data.", fixed = TRUE)
-# })
+test_that("plotOverlaps timeslot is set correctly", {
+	expect_error(plotOverlaps(overlaps = overlap2, areas = output2.group, base.raster = water.large, groups = c("A", "B"), level = 0.95, timeslot = 200),
+		"Could not find the required timeslot in the input data.", fixed = TRUE)
+})
 
-# test_that("plotOverlaps timeslot only two groups are specified", {
-# 	expect_error(plotOverlaps(overlaps = overlap2, areas = output2.group, base.raster = water.large, groups = c("A", "B", "C"), level = 0.95, timeslot = 1),
-# 		"please specify two groups.", fixed = TRUE)
-# })
+test_that("plotOverlaps timeslot only two groups are specified", {
+	expect_error(plotOverlaps(overlaps = overlap2, areas = output2.group, base.raster = water.large, groups = c("A", "B", "C"), level = 0.95, timeslot = 1),
+		"please specify two groups.", fixed = TRUE)
+})
 
-# test_that("plotOverlaps timeslot correct group names are specified", {
-# 	expect_error(plotOverlaps(overlaps = overlap2, areas = output2.group, base.raster = water.large, groups = c("A", "banana"), level = 0.95, timeslot = 1),
-# 		"One or both groups requested do not exist in the input data.", fixed = TRUE)
-# })
+test_that("plotOverlaps timeslot correct group names are specified", {
+	expect_error(plotOverlaps(overlaps = overlap2, areas = output2.group, base.raster = water.large, groups = c("A", "banana"), level = 0.95, timeslot = 1),
+		"One or both groups requested do not exist in the input data.", fixed = TRUE)
+})
 
-# test_that("plotOverlaps timeslot correct number of colors is set", {
-# 	col <- c("blue", "red")
-# 	expect_error(plotOverlaps(overlaps = overlap2, areas = output2.group, base.raster = water.large, groups = c("A", "C"), level = 0.95, col = col, timeslot = 1),
-# 		"Please provide three colours in 'col'.", fixed = TRUE)
-# })
+test_that("plotOverlaps timeslot correct number of colors is set", {
+	col <- c("blue", "red")
+	expect_error(plotOverlaps(overlaps = overlap2, areas = output2.group, base.raster = water.large, groups = c("A", "C"), level = 0.95, col = col, timeslot = 1),
+		"Please provide three colours in 'col'.", fixed = TRUE)
+})
 
 
 rm(list = ls())
