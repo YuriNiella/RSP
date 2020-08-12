@@ -2,9 +2,11 @@ language: r
 sudo: required
 cache: packages
 
-os:
-  - macos
-  # - windows # not suported!
+os: macos
+osx_image: xcode12u
+disable_homebrew: true
+  
+latex: false # Disables vignette to speed up build
 
 warnings_are_errors: false
 
