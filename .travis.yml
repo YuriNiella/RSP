@@ -1,12 +1,10 @@
 language: r
 sudo: required
 cache: packages
-# services:
-#   - docker
 
 os:
   - macos
-  # - windows # not suported!
+  # - windows # not suported yet!
 
 warnings_are_errors: false
 
@@ -16,33 +14,21 @@ script:
     travis_wait 50 R CMD check RSP*tar.gz
 addons:
   apt:
-    # sources:
-    #   - sourceline: 'ppa:ubuntugis/ubuntugis-unstable'
     packages:
       - libudunits2-dev
       - libgdal-dev
       - libproj-dev
 
 before_install:
-  # - "docker pull ubuntu:16.04"
-  # - sudo add-apt-repository ppa:ubuntugis/ubuntugis-unstable -y
-  # - sudo apt-get install libgdal-dev libgeos-dev libproj-dev libudunits2-dev libv8-dev libprotobuf-dev protobuf-compiler libjq-dev
-  # - sudo apt-get --yes --force-yes update -qq
-  # - sudo add-apt-repository ppa:ubuntugis/ppa --yes
-  # - sudo apt-get install libgdal-dev libgeos-dev libproj-dev libudunits2-dev libv8-dev libprotobuf-dev protobuf-compiler libjq-dev
-  # - sudo apt-get update
   - R -e 'install.packages("rgdal", repos=c("http://R-Forge.R-project.org", "http://cran.rstudio.com"))'      
   
 r_packages:
   - sp
   - rgdal
   - rgeos
-  # - raster
-  # - igraph
 
 r_github_packages: 
   - r-lib/covr
 
 after_success:
   - travis_wait 40 Rscript -e 'covr::codecov()'
-  
