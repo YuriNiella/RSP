@@ -4,6 +4,8 @@
 [![R-CMD-check](https://github.com/YuriNiella/RSP/workflows/R-CMD-check--as-cran/badge.svg)](https://github.com/YuriNiella/RSP/actions)
 [![Travis Build Status](https://travis-ci.com/YuriNiella/RSP.svg?branch=master)](https://travis-ci.com/github/YuriNiella/RSP)
 [![codecov](https://codecov.io/github/YuriNiella/RSP/branch/master/graphs/badge.svg)](https://codecov.io/github/YuriNiella/RSP)
+[![DOI](https://zenodo.org/badge/200786116.svg)](https://zenodo.org/badge/latestdoi/200786116)
+
 
 Refining the Shortest Paths (RSP) of animals tracked with acoustic
 transmitters in estuarine regions
