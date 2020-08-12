@@ -6,9 +6,14 @@ os:
   - macos
   # - windows # not suported yet!
 
+env:
+  - TEST_SUITE=units
+  - TEST_SUITE=integration
+
 warnings_are_errors: false
 
-script: 
+script:
+  - "bundle exec rake test:$TEST_SUITE" 
   - |
     R CMD build .
     travis_wait 50 R CMD check RSP*tar.gz
