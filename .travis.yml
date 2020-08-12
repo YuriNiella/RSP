@@ -1,17 +1,10 @@
 language: r
 sudo: required
+cache: packages
 
 os:
   - macos
   # - windows # not suported yet!
-
-cache:
-  directories:
-    - $HOME/Library/Caches/Homebrew
-    - /usr/local/Homebrew
-
-before_cache:
-  - brew cleanup
 
 warnings_are_errors: false
 
@@ -22,14 +15,11 @@ script:
 addons:
   apt:
     packages:
-      - ccache
       - libudunits2-dev
       - libgdal-dev
       - libproj-dev
 
 before_install:
-  - mkdir $HOME/.R && echo -e 'CXX_STD = CXX14\n\nVER=\nCCACHE=ccache\nCC=$(CCACHE) gcc$(VER) -std=gnu99\nCXX=$(CCACHE) g++$(VER)\nC11=$(CCACHE) g++$(VER)\nC14=$(CCACHE) g++$(VER)\nFC=$(CCACHE) gfortran$(VER)\nF77=$(CCACHE) gfortran$(VER)' > $HOME/.R/Makevars
-  - echo -e 'max_size = 5.0G\nsloppiness = include_file_ctime\nhash_dir=false' > $HOME/.ccache/ccache.conf
   - R -e 'install.packages("rgdal", repos=c("http://R-Forge.R-project.org", "http://cran.rstudio.com"))'      
   
 r_packages:
