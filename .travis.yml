@@ -5,6 +5,8 @@ cache: packages
 os:
   - macos
 
+osx_image: xcode11.4
+
 warnings_are_errors: false
 
 script: 
