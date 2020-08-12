@@ -21,18 +21,6 @@ test_that("actel inputs are working as expected", {
 	input <<- input # export input too
 })
 
-# Save RSP objects per group:
-# rsp.data <- runRSP(input = input, t.layer = tl, coord.x = "x", coord.y = "y")
-# dbbmm.all <- dynBBMM(input = rsp.data, base.raster = water.large) # Total
-
-	## RUN THESE LINES ONLY TO REPLACE THE REFERENCES!
-	# reference_runRSP_metric_group <- rsp.data
-	# save(reference_runRSP_metric_group, file = "runRSP_metric_group.RData")
-
-	# reference_dynBBMM_metric_group <- dbbmm.all
-	# save(reference_dynBBMM_metric_group, file = "dynBBMM_metric_group.RData")
-	#######
-
 
 #===============================================#
 #				TESTING STARTS					#
