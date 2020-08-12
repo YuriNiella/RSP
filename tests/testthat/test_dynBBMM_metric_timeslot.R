@@ -37,7 +37,7 @@ test_that("runRSP with metric system is working for timeslot", {
 })
 
 ## 2) Testing dynBBMM:
-test_that("dynBBMM with metric system is working for group", {
+test_that("dynBBMM with metric system is working for timeslot", {
 	dbbmm.time <<- dynBBMM(input = rsp.data, base.raster = water.large, timeframe = 24) # Total
 	## RUN THESE LINES ONLY TO REPLACE THE REFERENCES!
 	# reference_dynBBMM_metric_timeslot <- dbbmm.time
