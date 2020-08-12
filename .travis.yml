@@ -11,8 +11,7 @@ cache:
     - /usr/local/Homebrew
 
 before_cache:
-  - if [ "${TRAVIS_OS_NAME}" = "osx" ]; then brew cleanup; fi
-  - if [ "${TRAVIS_OS_NAME}" = "osx" ]; then find /usr/local/Homebrew \! -regex ".+\.git.+" -delete; fi
+  - brew cleanup
 
 warnings_are_errors: false
 
