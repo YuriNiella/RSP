@@ -6,18 +6,20 @@
 # skip_on_traxvis()
 
 # Load example files
-aux <- system.file(package = "RSP")[1]
-water <- actel::loadShape(path = aux, shape = "example_shape_metric.shp", size = 10)
-tl <<- actel::transitionLayer(water)
-rm(water)
-water.large <- actel::loadShape(path = aux, shape = "example_shape_metric.shp", size = 10, buffer = 2000)
-	
-# Subset actel results to speed up testing:
-input <- actel::example.results
-input$valid.detections <- input$valid.detections[c(1, 45)]
-input$valid.detections[[1]] <- input$valid.detections[[1]][c(1:15, 148:160), ] # Select 2 valid tracks
-input$valid.detections[[2]] <- input$valid.detections[[2]][c(47:52, 370:375), ] # Select 2 tracks (1 not valid)
+test_that("actel inputs are working as expected", {
+	aux <- system.file(package = "RSP")[1]
+	water <- actel::loadShape(path = aux, shape = "example_shape_metric.shp", size = 10)
+	tl <<- actel::transitionLayer(water)
+	water.large <<- actel::loadShape(path = aux, shape = "example_shape_metric.shp", size = 10, buffer = 2000)
+		
+	# Subset actel results to speed up testing:
+	input <- actel::example.results
+	input$valid.detections <- input$valid.detections[c(1, 45)]
+	input$valid.detections[[1]] <- input$valid.detections[[1]][c(1:15, 148:160), ] # Select 2 valid tracks
+	input$valid.detections[[2]] <- input$valid.detections[[2]][c(47:52, 370:375), ] # Select 2 tracks (1 not valid)
 
+	input <<- input # export input too
+})
 
 # Save RSP objects per group:
 # rsp.data <- runRSP(input = input, t.layer = tl, coord.x = "x", coord.y = "y")
