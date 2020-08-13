@@ -152,7 +152,7 @@ test_that("getAreas works for timeslot and track", {
 
 
 # Skip from this part of the timeslot testing
-skip_on_travis()
+# skip_on_travis()
 
 # plotAreas:
 test_that("getAreas is working", {
@@ -199,6 +199,8 @@ test_that("plotAreas timeslot is found for specified group", {
 	expect_error(plotAreas(output2.group, base.raster = water.large, group = "A", timeslot = 6),
 		"Could not find the required timeslot in the specified group.", fixed = TRUE)
 })
+
+skip_on_travis()
 
 ## plotOverlaps: but first getOverlaps has to work!
 # getOverlaps:
