@@ -222,6 +222,7 @@ test_that("plotAreas timeslot is found for specified group", {
 # 		"Overlaps can only be calculated for 'group' areas. Please re-run getAreas with type = 'group'.", fixed = TRUE)
 # })
 
+skip_on_travis()
 
 # plotOverlaps:
 test_that("The artificial group C can be set properly", {
