@@ -129,7 +129,6 @@ test_that("plotContours add title works", {
 	expect_that(p, is_a("ggplot"))
 })
 
-# plotAreas: but first getAreas has to work!
 # getAreas:
 test_that("getAreas breaks are in right format", {
 	expect_error(getAreas(dbbmm.time, type = "group", breaks = c(0.5, 2.5)),
@@ -151,7 +150,7 @@ test_that("getAreas works for timeslot and track", {
 })
 
 
-# Skip from this part of the timeslot testing
+# Skip from this part of the timeslot testing: killing build time on Travis
 skip_on_travis()
 
 # plotAreas:
