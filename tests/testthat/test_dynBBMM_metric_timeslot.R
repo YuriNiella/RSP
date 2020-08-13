@@ -160,30 +160,30 @@ test_that("getAreas is working", {
 	output2.track <<- getAreas(dbbmm.time, type = "track")
 })
 
-test_that("plotAreas does not work when getAreas is run for track", {
-	expect_error(plotAreas(output2.track),
-		"plotAreas currently only works for 'group' areas. Please re-run getAreas with type = 'group'.", fixed = TRUE)
-})
+# test_that("plotAreas does not work when getAreas is run for track", {
+# 	expect_error(plotAreas(output2.track),
+# 		"plotAreas currently only works for 'group' areas. Please re-run getAreas with type = 'group'.", fixed = TRUE)
+# })
 
-test_that("plotAreas the correct group is provided", {
-	expect_error(plotAreas(output2.group, group = "bananas"),
-		"Could not find the specified group in the input data", fixed = TRUE)
-})
+# test_that("plotAreas the correct group is provided", {
+# 	expect_error(plotAreas(output2.group, group = "bananas"),
+# 		"Could not find the specified group in the input data", fixed = TRUE)
+# })
 
-test_that("plotAreas is working for timeslot", {
-	p <- tryCatch(suppressWarnings(plotAreas(output2.group, group = "A", base.raster = water.large, timeslot = 1)), 
-		warning = function(w)
- 	stop("A warning was issued in plotAreas!", w))
-	expect_that(p, is_a("ggplot"))
-})
+# test_that("plotAreas is working for timeslot", {
+# 	p <- tryCatch(suppressWarnings(plotAreas(output2.group, group = "A", base.raster = water.large, timeslot = 1)), 
+# 		warning = function(w)
+#  	stop("A warning was issued in plotAreas!", w))
+# 	expect_that(p, is_a("ggplot"))
+# })
 
-test_that("plotAreas add title works for timeslot", {
-	p <- tryCatch(suppressWarnings(plotAreas(output2.group, group = "A", base.raster = water.large, timeslot = 1,
-		title = "Test")), 
-		warning = function(w)
- 	stop("A warning was issued in plotAreas!", w))
-	expect_that(p, is_a("ggplot"))
-})
+# test_that("plotAreas add title works for timeslot", {
+# 	p <- tryCatch(suppressWarnings(plotAreas(output2.group, group = "A", base.raster = water.large, timeslot = 1,
+# 		title = "Test")), 
+# 		warning = function(w)
+#  	stop("A warning was issued in plotAreas!", w))
+# 	expect_that(p, is_a("ggplot"))
+# })
 
 test_that("plotAreas a timeslot is set", {
 	expect_error(plotAreas(output2.group, base.raster = water.large, group = "A"),
@@ -200,29 +200,27 @@ test_that("plotAreas timeslot is found for specified group", {
 		"Could not find the required timeslot in the specified group.", fixed = TRUE)
 })
 
-skip_on_travis()
-
 ## plotOverlaps: but first getOverlaps has to work!
 # getOverlaps:
-test_that("getOverlaps works for timeslot", {
-	p <- tryCatch(suppressWarnings(getOverlaps(output2.group)), 
-		warning = function(w)
- 	stop("A warning was issued in getOverlaps!", w))
-	expect_that(p, is_a("list"))
-})
+# test_that("getOverlaps works for timeslot", {
+# 	p <- tryCatch(suppressWarnings(getOverlaps(output2.group)), 
+# 		warning = function(w)
+#  	stop("A warning was issued in getOverlaps!", w))
+# 	expect_that(p, is_a("list"))
+# })
 
-test_that("getOverlaps only works for multiple groups", {
-	input <- output2.group
-	input$areas <- input$areas[1]
-	input$rasters <- input$rasters[-2]	
-	expect_error(getOverlaps(input),
-		"Only one group found, overlap calculations cannot be performed.", fixed = TRUE)
-})
+# test_that("getOverlaps only works for multiple groups", {
+# 	input <- output2.group
+# 	input$areas <- input$areas[1]
+# 	input$rasters <- input$rasters[-2]	
+# 	expect_error(getOverlaps(input),
+# 		"Only one group found, overlap calculations cannot be performed.", fixed = TRUE)
+# })
 
-test_that("getOverlaps only takes type = 'group'", {
-	expect_error(getOverlaps(output2.track),
-		"Overlaps can only be calculated for 'group' areas. Please re-run getAreas with type = 'group'.", fixed = TRUE)
-})
+# test_that("getOverlaps only takes type = 'group'", {
+# 	expect_error(getOverlaps(output2.track),
+# 		"Overlaps can only be calculated for 'group' areas. Please re-run getAreas with type = 'group'.", fixed = TRUE)
+# })
 
 
 # plotOverlaps:
