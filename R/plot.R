@@ -721,7 +721,7 @@ plotRaster <- function(input, base.raster, coord.x, coord.y, size = 1, land.col 
   if (is.na(match(coord.y, colnames(stations))))
     stop("Could not find column '", coord.y, "' in the spatial data frame", call. = FALSE)
   
-  on.land <- raster::extract(x = base.raster, y = sp::SpatialPoints(data.frame(y = stations[, coord.y], x = stations[, coord.x])))
+  on.land <- raster::extract(x = base.raster, y = as.matrix(stations[, c(coord.x, coord.y)]))
 
   data.stations <- data.frame(Check = on.land, 
     Longitude = stations[, coord.x],
