@@ -728,6 +728,9 @@ plotRaster <- function(input, base.raster, coord.x, coord.y, size = 1, land.col 
     Latitude = stations[, coord.y])
   data.stations$Check[is.na(data.stations$Check)] <- "Water"
   data.stations$Check[data.stations$Check == 1] <- "Land"
+  data.stations$Check <- factor(data.stations$Check, levels = c("Land", "Water"))
+
+  legend_labels <- c(paste0("On land (", sum(data.stations$Check == "Land"), ")"), paste0("On water (", sum(data.stations$Check == "Water"), ")"))
 
   p <- ggplot2::ggplot()
   p <- p + ggplot2::geom_raster(data = df, ggplot2::aes(y = Latitude, x = Longitude), fill = land.col, show.legend = FALSE)  
@@ -736,6 +739,7 @@ plotRaster <- function(input, base.raster, coord.x, coord.y, size = 1, land.col 
   p <- p + ggplot2::scale_x_continuous(expand = c(0, 0))
   p <- p + ggplot2::scale_y_continuous(expand = c(0, 0))
   p <- p + ggplot2::geom_point(data = data.stations, ggplot2::aes(x = Longitude, y = Latitude, color = Check), size = size)
+  p <- p + ggplot2::scale_colour_manual(values = c("#fc4800", "#56B4E9"), labels = legend_labels, drop = FALSE)
   p <- p + ggplot2::labs(color = "")
   
   return(p)
