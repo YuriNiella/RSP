@@ -1,0 +1,12 @@
+bibentry(bibtype = "Article",
+         title = "Refined Shortest Paths (RSP): incorporation of topography in space use estimation from node‐based telemetry data",
+         author = c(person("Yuri", "Niella"),
+                    person("Hugo", "Flávio"),
+                    person("Amy", "Smoothey"),
+                    person("Kim", "Aarestrup"),
+                    person("Matthew", "Taylor"),
+		    person("Victor", "Peddemors"),
+    	            person("Robert", "Harcourt")),
+         year = 2020,
+         journal = "Methods in Ecology and Evolution",
+         url = "https://doi.org/10.1111/2041-210X.13484")
