@@ -101,7 +101,8 @@ plotAreas <- function(areas, base.raster, group, timeslot,
   contours <- lapply(rev(sort(breaks)), function(i) {
     the.contour <- the.rasters[[i]]
     if (reproject)
-      the.contour <- suppressWarnings(raster::projectRaster(the.contour, base.raster))
+      the.contour <- suppressWarnings(raster::projectRaster(the.contour, crs = as.character(raster::crs(base.raster))))
+
     # raster::extent(the.contour) <- raster::extent(base.raster)
     output <- raster::rasterToPoints(the.contour)
     output <- data.frame(output)
@@ -263,7 +264,7 @@ plotContours <- function(input, tag, track = NULL, timeslot, breaks = c(0.95, 0.
   if (as.character(raster::crs(base.raster)) != as.character(raster::crs(tag_track.raster))) {
     warning("The dbbmm output and the base raster are not in the same coordinate system. Attempting to re-project the dbbmm output.", call. = FALSE, immediate. = TRUE)
     flush.console()
-    tag_track.raster <- suppressWarnings(raster::projectRaster(tag_track.raster, base.raster))
+    tag_track.raster <- suppressWarnings(raster::projectRaster(tag_track.raster, crs = as.character(raster::crs(base.raster))))
   }
 
   # Convert map raster to points
@@ -581,7 +582,8 @@ plotOverlaps <- function(overlaps, areas, base.raster, groups, timeslot,
     else
       the.contour <- areas$rasters[[i]][[timeslot]][[level]]
     if (reproject)
-      the.contour <- suppressWarnings(raster::projectRaster(the.contour, base.raster))
+      the.contour <- suppressWarnings(raster::projectRaster(the.contour, crs = as.character(raster::crs(base.raster))))
+
     # raster::extent(the.contour) <- raster::extent(base.raster)
     output <- raster::rasterToPoints(the.contour)
     output <- data.frame(output)
@@ -604,7 +606,8 @@ plotOverlaps <- function(overlaps, areas, base.raster, groups, timeslot,
   # prepare the overlap
   if (class(overlap.raster) == "RasterLayer") {
     if (reproject)
-      overlap.raster <- suppressWarnings(raster::projectRaster(overlap.raster, base.raster))
+      overlap.raster <- suppressWarnings(raster::projectRaster(overlap.raster, crs = as.character(raster::crs(base.raster))))
+
     # raster::extent(overlap.raster) <- raster::extent(base.raster)
     overlap.contours <- raster::rasterToPoints(overlap.raster)
     overlap.contours <- data.frame(overlap.contours)

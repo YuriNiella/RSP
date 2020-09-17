@@ -61,7 +61,8 @@ dynBBMM <- function(input, base.raster, tags = NULL, start.time, stop.time,
     message("M: Converting coordinates to UTM. Original latitude/longitude values for the detections will be stored in columns 'O.LAT' and 'O.LON'.")
     flush.console()
     detections <- lapply(detections, function(x) toUTM(x, crs = crs, UTM = UTM))
-    base.raster <- suppressWarnings(raster::projectRaster(base.raster, crs = raster::crs(paste0("+proj=utm +zone=", UTM, " +datum=WGS84 +units=m +no_defs")))) # HF: suppressed rgdal complaints about using a proj string. Output seems to be correct.
+    suppressWarnings(raster::crs(base.raster) <- "+proj=longlat +datum=WGS84 +ellps=WGS84 +towgs84=0,0,0")
+    base.raster <- suppressWarnings(raster::projectRaster(base.raster, crs = raster::crs(paste0("+proj=utm +zone=", UTM, " +datum=WGS84 +units=m +no_defs")))) 
     crs <- raster::crs(paste0("+proj=utm +zone=", UTM, " +datum=WGS84 +units=m +no_defs"))
   } else {
     if (!missing(UTM))
