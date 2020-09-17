@@ -2,8 +2,6 @@
 # 		Testing RSP in metric CRS: timeslot 		#
 #===================================================#
 
-# Set skips
-
 # Load example files
 test_that("actel inputs are working as expected", {
 	aux <- system.file(package = "RSP")[1]
