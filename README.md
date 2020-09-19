@@ -101,7 +101,7 @@ biological groups** occurred:
 
 ## Installation
 
-Current version: **0.0.1**
+Current version: **1.0.0**
 
 You will need the **remotes** package **to install RSP**:
 
