@@ -257,6 +257,25 @@ getAreas <- function(input, type = c("group", "track"), breaks = c(0.5, 0.95)) {
 #' 
 #' @return A dataframe containing the total distances travelled during each RSP track.  
 #' 
+#' @examples 
+#' \donttest{
+#' # Import river shapefile
+#' water <- actel::loadShape(path = system.file(package = "RSP"), 
+#'  shape = "River_latlon.shp", size = 0.0001, buffer = 0.05) 
+#' 
+#' # Create a transition layer with 8 directions
+#' tl <- actel::transitionLayer(x = water, directions = 8)
+#' 
+#' # Import example output from actel::explore() 
+#' data(input.example) 
+#' 
+#' # Run RSP analysis
+#' rsp.data <- runRSP(input = input.example, t.layer = tl, coord.x = "Longitude", coord.y = "Latitude")
+#' 
+#' # Calculate distances travelled
+#' distance.data <- getDistances(rsp.data)
+#' }
+#' 
 #' @export
 #' 
 getDistances <- function(input) {
