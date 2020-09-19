@@ -19,3 +19,23 @@ Generates a density plot for inspecting the distribution of elapsed times (in ho
 acustic detections. By default the plot is created including all monitored groups and transmitters. Alternatively,
 can be set to be performed at group level using the type argument.
 }
+\examples{
+\donttest{
+# Import river shapefile
+water <- actel::loadShape(path = system.file(package = "RSP"), 
+ shape = "River_latlon.shp", size = 0.0001, buffer = 0.05) 
+
+# Create a transition layer with 8 directions
+tl <- actel::transitionLayer(x = water, directions = 8)
+
+# Import example output from actel::explore() 
+data(input.example) 
+
+# Run RSP analysis
+rsp.data <- runRSP(input = input.example, t.layer = tl, coord.x = "Longitude", coord.y = "Latitude")
+
+# Plot distribution of acoustic detections
+plotDensities(rsp.data, group = "G1")
+}
+
+}

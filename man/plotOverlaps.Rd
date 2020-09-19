@@ -50,3 +50,33 @@ Warning message: Raster pixels are placed at uneven horizontal intervals and wil
 This is simply because empty cells are cleared out to improve plotting efficiency, which means there will be an empty space between the multiple areas to be drawn. 
 Please be aware that this has no effect on the plot itself.
 }
+\examples{
+\donttest{
+# Import river shapefile
+water <- actel::loadShape(path = system.file(package = "RSP"), 
+ shape = "River_latlon.shp", size = 0.0001, buffer = 0.05) 
+
+# Create a transition layer with 8 directions
+tl <- actel::transitionLayer(x = water, directions = 8)
+
+# Import example output from actel::explore() 
+data(input.example) 
+
+# Run RSP analysis
+rsp.data <- runRSP(input = input.example, t.layer = tl, coord.x = "Longitude", coord.y = "Latitude")
+
+# Run dynamic Brownian Bridge Movement Model (dBBMM)
+dbbmm.data <- dynBBMM(input = rsp.data, base.raster = water, UTM = 56)
+
+# Get dBBMM areas at group level
+areas.group <- getAreas(dbbmm.data, type = "group", breaks = c(0.5, 0.95))
+
+# Get overlaps between groups
+overlap.data <- getOverlaps(areas.group)
+
+# Plot overlaps
+plotOverlaps(overlaps = overlap.data, areas = areas.group, base.raster = water, 
+ groups = c("G1", "G2"), level = 0.95)
+}
+
+}

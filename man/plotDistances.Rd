@@ -22,3 +22,26 @@ Compare the outputs of total distances travelled (in kilometres) for the tracked
 receiver locations and adding the RSP positions. Data on the total distances travelled are stored in the 
 'distances' objtect.
 }
+\examples{
+\donttest{
+# Import river shapefile
+water <- actel::loadShape(path = system.file(package = "RSP"), 
+ shape = "River_latlon.shp", size = 0.0001, buffer = 0.05) 
+
+# Create a transition layer with 8 directions
+tl <- actel::transitionLayer(x = water, directions = 8)
+
+# Import example output from actel::explore() 
+data(input.example) 
+
+# Run RSP analysis
+rsp.data <- runRSP(input = input.example, t.layer = tl, coord.x = "Longitude", coord.y = "Latitude")
+
+# Calculate distances travelled
+distance.data <- getDistances(rsp.data)
+
+# Plot distances travelled
+plotDistances(distance.data, group = "G1")
+}
+
+}

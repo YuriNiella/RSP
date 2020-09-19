@@ -36,3 +36,21 @@ If you are reading this it's because RSP failed to detect all of your receivers 
 or any of your receiver location was found to be in land. This function allows you to visually identify the station(s) 
 with problem. Please either extend your raster to include all stations or fix receiver locations to be in-water.
 }
+\examples{
+\donttest{
+# Import river shapefile
+water <- actel::loadShape(path = system.file(package = "RSP"), 
+ shape = "River_latlon.shp", size = 0.0001, buffer = 0.05) 
+
+# Create a transition layer with 8 directions
+tl <- actel::transitionLayer(x = water, directions = 8)
+
+# Import example output from actel::explore() 
+data(input.example) 
+
+# Plot raster and acoustic stations
+plotRaster(input.example, base.raster = water, coord.x = "Longitude", 
+ coord.y = "Latitude", size = 1)
+}
+
+}

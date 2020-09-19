@@ -8,6 +8,28 @@
 #' 
 #' @return A ggplot with stations
 #' 
+#' @examples 
+#' \donttest{
+#' # Import river shapefile
+#' water <- actel::loadShape(path = system.file(package = "RSP"), 
+#'  shape = "River_latlon.shp", size = 0.0001, buffer = 0.05) 
+#' 
+#' # Create a transition layer with 8 directions
+#' tl <- actel::transitionLayer(x = water, directions = 8)
+#' 
+#' # Import example output from actel::explore() 
+#' data(input.example) 
+#' 
+#' # Run RSP analysis
+#' rsp.data <- runRSP(input = input.example, t.layer = tl, coord.x = "Longitude", coord.y = "Latitude")
+#' 
+#' # Run dynamic Brownian Bridge Movement Model (dBBMM)
+#' dbbmm.data <- dynBBMM(input = rsp.data, base.raster = water, UTM = 56)
+#' 
+#' # Plot example dBBMM with acoustic stations
+#' plotContours(dbbmm.data, tag = "A69-9001-1111", track = 1) + addStations(rsp.data)
+#' }
+#' 
 #' @export
 #' 
 addStations <- function(input, shape = 21, size = 1.5, colour = "white", fill = "black") {
@@ -32,6 +54,31 @@ addStations <- function(input, shape = 21, size = 1.5, colour = "white", fill = 
 #' @param land.col Colour of the land masses. Defaults to semi-transparent grey.
 #' 
 #' @return A plot of the overlapping areas between two groups.
+#' 
+#' @examples 
+#' \donttest{
+#' # Import river shapefile
+#' water <- actel::loadShape(path = system.file(package = "RSP"), 
+#'  shape = "River_latlon.shp", size = 0.0001, buffer = 0.05) 
+#' 
+#' # Create a transition layer with 8 directions
+#' tl <- actel::transitionLayer(x = water, directions = 8)
+#' 
+#' # Import example output from actel::explore() 
+#' data(input.example) 
+#' 
+#' # Run RSP analysis
+#' rsp.data <- runRSP(input = input.example, t.layer = tl, coord.x = "Longitude", coord.y = "Latitude")
+#' 
+#' # Run dynamic Brownian Bridge Movement Model (dBBMM)
+#' dbbmm.data <- dynBBMM(input = rsp.data, base.raster = water, UTM = 56)
+#' 
+#' # Get dBBMM areas at group level
+#' areas.group <- getAreas(dbbmm.data, type = "group", breaks = c(0.5, 0.95))
+#' 
+#' # Plot areas at group level
+#' plotAreas(areas.group, group = "G1", base.raster = water)
+#' }
 #' 
 #' @export
 #' 
@@ -158,6 +205,28 @@ plotAreas <- function(areas, base.raster, group, timeslot,
 #' @param col The colours to be used. Must match the number of breaks.
 #' 
 #' @return dynamic Brownian Bridge Movement Model plot.
+#' 
+#' @examples 
+#' \donttest{
+#' # Import river shapefile
+#' water <- actel::loadShape(path = system.file(package = "RSP"), 
+#'  shape = "River_latlon.shp", size = 0.0001, buffer = 0.05) 
+#' 
+#' # Create a transition layer with 8 directions
+#' tl <- actel::transitionLayer(x = water, directions = 8)
+#' 
+#' # Import example output from actel::explore() 
+#' data(input.example) 
+#' 
+#' # Run RSP analysis
+#' rsp.data <- runRSP(input = input.example, t.layer = tl, coord.x = "Longitude", coord.y = "Latitude")
+#' 
+#' # Run dynamic Brownian Bridge Movement Model (dBBMM)
+#' dbbmm.data <- dynBBMM(input = rsp.data, base.raster = water, UTM = 56)
+#' 
+#' # Plot example dBBMM
+#' plotContours(dbbmm.data, tag = "A69-9001-1111", track = 1)
+#' }
 #' 
 #' @export
 #' 
@@ -326,6 +395,25 @@ plotContours <- function(input, tag, track = NULL, timeslot, breaks = c(0.95, 0.
 #' 
 #' @return Density plots of hours elapsed between consecutive acoustic detections. 
 #' 
+#' @examples 
+#' \donttest{
+#' # Import river shapefile
+#' water <- actel::loadShape(path = system.file(package = "RSP"), 
+#'  shape = "River_latlon.shp", size = 0.0001, buffer = 0.05) 
+#' 
+#' # Create a transition layer with 8 directions
+#' tl <- actel::transitionLayer(x = water, directions = 8)
+#' 
+#' # Import example output from actel::explore() 
+#' data(input.example) 
+#' 
+#' # Run RSP analysis
+#' rsp.data <- runRSP(input = input.example, t.layer = tl, coord.x = "Longitude", coord.y = "Latitude")
+#' 
+#' # Plot distribution of acoustic detections
+#' plotDensities(rsp.data, group = "G1")
+#' }
+#' 
 #' @export
 #' 
 plotDensities <- function(input, group) {
@@ -404,6 +492,28 @@ plotDensities <- function(input, group) {
 #' types. If FALSE, only the RSP total distances travelled will be returned.
 #' 
 #' @return A barplot of total distances travelled as a function of location type (Loc.type) and the distances travelled during each RSP track.  
+#' 
+#' @examples 
+#' \donttest{
+#' # Import river shapefile
+#' water <- actel::loadShape(path = system.file(package = "RSP"), 
+#'  shape = "River_latlon.shp", size = 0.0001, buffer = 0.05) 
+#' 
+#' # Create a transition layer with 8 directions
+#' tl <- actel::transitionLayer(x = water, directions = 8)
+#' 
+#' # Import example output from actel::explore() 
+#' data(input.example) 
+#' 
+#' # Run RSP analysis
+#' rsp.data <- runRSP(input = input.example, t.layer = tl, coord.x = "Longitude", coord.y = "Latitude")
+#' 
+#' # Calculate distances travelled
+#' distance.data <- getDistances(rsp.data)
+#' 
+#' # Plot distances travelled
+#' plotDistances(distance.data, group = "G1")
+#' }
 #' 
 #' @export
 #' 
@@ -486,6 +596,35 @@ plotDistances <- function(input, group, compare = TRUE) {
 #' @param land.col Colour of the land masses. Defaults to semi-transparent grey.
 #'  
 #' @return A plot of the overlapping areas between two groups.
+#'
+#' @examples 
+#' \donttest{
+#' # Import river shapefile
+#' water <- actel::loadShape(path = system.file(package = "RSP"), 
+#'  shape = "River_latlon.shp", size = 0.0001, buffer = 0.05) 
+#' 
+#' # Create a transition layer with 8 directions
+#' tl <- actel::transitionLayer(x = water, directions = 8)
+#' 
+#' # Import example output from actel::explore() 
+#' data(input.example) 
+#' 
+#' # Run RSP analysis
+#' rsp.data <- runRSP(input = input.example, t.layer = tl, coord.x = "Longitude", coord.y = "Latitude")
+#' 
+#' # Run dynamic Brownian Bridge Movement Model (dBBMM)
+#' dbbmm.data <- dynBBMM(input = rsp.data, base.raster = water, UTM = 56)
+#' 
+#' # Get dBBMM areas at group level
+#' areas.group <- getAreas(dbbmm.data, type = "group", breaks = c(0.5, 0.95))
+#' 
+#' # Get overlaps between groups
+#' overlap.data <- getOverlaps(areas.group)
+#' 
+#' # Plot overlaps
+#' plotOverlaps(overlaps = overlap.data, areas = areas.group, base.raster = water, 
+#'  groups = c("G1", "G2"), level = 0.95)
+#' }
 #' 
 #' @export
 #' 
@@ -683,6 +822,23 @@ plotOverlaps <- function(overlaps, areas, base.raster, groups, timeslot,
 #' 
 #' @return A plot of your base raster extent and the receiver locations.
 #' 
+#' @examples 
+#' \donttest{
+#' # Import river shapefile
+#' water <- actel::loadShape(path = system.file(package = "RSP"), 
+#'  shape = "River_latlon.shp", size = 0.0001, buffer = 0.05) 
+#' 
+#' # Create a transition layer with 8 directions
+#' tl <- actel::transitionLayer(x = water, directions = 8)
+#' 
+#' # Import example output from actel::explore() 
+#' data(input.example) 
+#' 
+#' # Plot raster and acoustic stations
+#' plotRaster(input.example, base.raster = water, coord.x = "Longitude", 
+#'  coord.y = "Latitude", size = 1)
+#' }
+#' 
 #' @export
 #' 
 plotRaster <- function(input, base.raster, coord.x, coord.y, size = 1, land.col = "#BABCBF80") {
@@ -765,6 +921,25 @@ plotRaster <- function(input, base.raster, coord.x, coord.y, size = 1, land.col 
 #' @param alpha One or two transparency values (for points and lines, respectively). For no transparency, alpha = 1.
 #' 
 #' @return A plot showing the RSP track locations.
+#' 
+#' @examples 
+#' \donttest{
+#' # Import river shapefile
+#' water <- actel::loadShape(path = system.file(package = "RSP"), 
+#'  shape = "River_latlon.shp", size = 0.0001, buffer = 0.05) 
+#' 
+#' # Create a transition layer with 8 directions
+#' tl <- actel::transitionLayer(x = water, directions = 8)
+#' 
+#' # Import example output from actel::explore() 
+#' data(input.example) 
+#' 
+#' # Run RSP analysis
+#' rsp.data <- runRSP(input = input.example, t.layer = tl, coord.x = "Longitude", coord.y = "Latitude")
+#' 
+#' # Plot a specific RSP track
+#' plotTracks(rsp.data, base.raster = water, tag = "A69-9001-1111", track = "Track_1")
+#' }
 #' 
 #' @export
 #' 
@@ -859,6 +1034,16 @@ plotTracks <- function(input, base.raster, type = c("both", "points", "lines"),
 #' @param max the desired size for the longest edge
 #' 
 #' @return A width/height vector (rounded)
+#' 
+#' @examples 
+#' \donttest{
+#' # Import river shapefile
+#' water <- actel::loadShape(path = system.file(package = "RSP"), 
+#'  shape = "River_latlon.shp", size = 0.0001, buffer = 0.05) 
+#' 
+#' # Find suggested size to save projected map 
+#' suggestSize(water, max = 10)
+#' }
 #' 
 #' @export
 #' 

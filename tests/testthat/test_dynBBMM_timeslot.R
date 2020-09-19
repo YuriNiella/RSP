@@ -135,9 +135,6 @@ test_that("getAreas works for timeslot and track", {
 })
 
 
-# Skip from this part of the timeslot testing: killing build time on Travis
-# skip_on_travis()
-
 # plotAreas:
 test_that("getAreas is working", {
 	output2.group <<- getAreas(dbbmm.time, type = "group")	

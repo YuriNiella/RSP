@@ -53,3 +53,20 @@ the animal moves away from the first detection, and decreases as it approaches t
 the animal is not detected for a long time (default is a daily absence), the detections are broken into a 
 new track (argument \code{max.time}).
 }
+\examples{
+\donttest{
+# Import river shapefile
+water <- actel::loadShape(path = system.file(package = "RSP"), 
+ shape = "River_latlon.shp", size = 0.0001, buffer = 0.05) 
+
+# Create a transition layer with 8 directions
+tl <- actel::transitionLayer(x = water, directions = 8)
+
+# Import example output from actel::explore() 
+data(input.example) 
+
+# Run RSP analysis
+rsp.data <- runRSP(input = input.example, t.layer = tl, coord.x = "Longitude", coord.y = "Latitude")
+}
+
+}

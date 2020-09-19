@@ -43,3 +43,23 @@ A plot showing the RSP track locations.
 \description{
 This function can be used to plot a map of a particular RSP track of interest.
 }
+\examples{
+\donttest{
+# Import river shapefile
+water <- actel::loadShape(path = system.file(package = "RSP"), 
+ shape = "River_latlon.shp", size = 0.0001, buffer = 0.05) 
+
+# Create a transition layer with 8 directions
+tl <- actel::transitionLayer(x = water, directions = 8)
+
+# Import example output from actel::explore() 
+data(input.example) 
+
+# Run RSP analysis
+rsp.data <- runRSP(input = input.example, t.layer = tl, coord.x = "Longitude", coord.y = "Latitude")
+
+# Plot a specific RSP track
+plotTracks(rsp.data, base.raster = water, tag = "A69-9001-1111", track = "Track_1")
+}
+
+}

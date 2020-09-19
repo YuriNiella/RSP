@@ -19,3 +19,26 @@ A list of areas per track, per group
 \description{
 Calculate water areas per group or track
 }
+\examples{
+\donttest{
+# Import river shapefile
+water <- actel::loadShape(path = system.file(package = "RSP"), 
+ shape = "River_latlon.shp", size = 0.0001, buffer = 0.05) 
+
+# Create a transition layer with 8 directions
+tl <- actel::transitionLayer(x = water, directions = 8)
+
+# Import example output from actel::explore() 
+data(input.example) 
+
+# Run RSP analysis
+rsp.data <- runRSP(input = input.example, t.layer = tl, coord.x = "Longitude", coord.y = "Latitude")
+
+# Run dynamic Brownian Bridge Movement Model (dBBMM)
+dbbmm.data <- dynBBMM(input = rsp.data, base.raster = water, UTM = 56)
+
+# Get dBBMM areas at group level
+areas.group <- getAreas(dbbmm.data, type = "group", breaks = c(0.5, 0.95))
+}
+
+}

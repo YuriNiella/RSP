@@ -37,3 +37,29 @@ Plot areas for a specific group and, if relevant, track and timeslot.
 If the base raster is in a geographic coordinate system, plotAreas will attempt to convert the dbbmm results
 to that same geographic system, so everything falls in place.
 }
+\examples{
+\donttest{
+# Import river shapefile
+water <- actel::loadShape(path = system.file(package = "RSP"), 
+ shape = "River_latlon.shp", size = 0.0001, buffer = 0.05) 
+
+# Create a transition layer with 8 directions
+tl <- actel::transitionLayer(x = water, directions = 8)
+
+# Import example output from actel::explore() 
+data(input.example) 
+
+# Run RSP analysis
+rsp.data <- runRSP(input = input.example, t.layer = tl, coord.x = "Longitude", coord.y = "Latitude")
+
+# Run dynamic Brownian Bridge Movement Model (dBBMM)
+dbbmm.data <- dynBBMM(input = rsp.data, base.raster = water, UTM = 56)
+
+# Get dBBMM areas at group level
+areas.group <- getAreas(dbbmm.data, type = "group", breaks = c(0.5, 0.95))
+
+# Plot areas at group level
+plotAreas(areas.group, group = "G1", base.raster = water)
+}
+
+}

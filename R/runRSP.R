@@ -25,7 +25,24 @@ NULL
 #' @param debug Logical: If TRUE, the function progress is saved to an RData file.
 #' @param verbose Logical: If TRUE, detailed messages and progression are displayed. Otherwise, a single progress bar is shown.
 #' @param tags Vector of transmitters for which to calculate RSP. By default all transmitters will be analysed.
+#' 
 #' @return Returns a list of RSP tracks for each transmitter detected, as well as auxiliary information.
+#' 
+#' @examples 
+#' \donttest{
+#' # Import river shapefile
+#' water <- actel::loadShape(path = system.file(package = "RSP"), 
+#'  shape = "River_latlon.shp", size = 0.0001, buffer = 0.05) 
+#' 
+#' # Create a transition layer with 8 directions
+#' tl <- actel::transitionLayer(x = water, directions = 8)
+#' 
+#' # Import example output from actel::explore() 
+#' data(input.example) 
+#' 
+#' # Run RSP analysis
+#' rsp.data <- runRSP(input = input.example, t.layer = tl, coord.x = "Longitude", coord.y = "Latitude")
+#' }
 #' 
 #' @export
 #' 
