@@ -72,7 +72,7 @@ runRSP <- function(input, t.layer, coord.x, coord.y, distance = 250, tags,
 
   if (!missing(tags)) {
     if(any(link <- is.na(match(tags, names(detections)))))
-      stop("Could not find tag(s) ", paste(tags[link], collapse = ", ") , " in the detection data.", call = FALSE)
+      stop("Could not find tag(s) ", paste(tags[link], collapse = ", ") , " in the detection data.", call. = FALSE)
 
     detections <- detections[match(tags, names(detections))]
   }

@@ -7,14 +7,8 @@
 
 # Load example files
 test_that("actel load functions are working as expected", {
-	aux <- system.file(package = "RSP")[1]
-	## LATLON
-	water <<- actel::loadShape(path = aux, shape = "River_latlon.shp", size = 0.0001) # Small raster
-	water.large <<- actel::loadShape(path = aux, shape = "River_latlon.shp", size = 0.0001, buffer = 0.05) 
-	## METRIC
-	# water <<- actel::loadShape(path = aux, shape = "River_metric.shp", size = 10) # Small raster
-	# water.large <<- actel::loadShape(path = aux, shape = "River_metric.shp", size = 10, buffer = 2000) 
-	
+	water <<- actel::loadShape(path = system.file(package = "RSP")[1], shape = "River_latlon.shp", size = 0.0001) # Small raster
+	water.large <<- actel::loadShape(path = system.file(package = "RSP")[1], shape = "River_latlon.shp", size = 0.0001, buffer = 0.05) 
 	tl <<- actel::transitionLayer(x = water, directions = 8)
 })
 
@@ -44,6 +38,22 @@ test_that("runRSP with metric system is working for group", {
 	expect_equivalent(rsp.data, reference_runRSP_latlon_group) 
 })
 
+test_that("Specified tag for runRSP is present in the data", {
+	input <- RSP::input.example
+	expect_error(runRSP(input = input, t.layer = tl, 
+		coord.x = "Longitude", coord.y = "Latitude", 
+		er.ad = 5, max.time = 1, tags = "banana"),
+		"Could not find tag(s) banana in the detection data.", fixed = TRUE)
+})
+
+test_that("Specified time.step is not larger than min.time", {
+	input <- RSP::input.example
+	expect_warning(runRSP(input = input, t.layer = tl, 
+		coord.x = "Longitude", coord.y = "Latitude", 
+		er.ad = 5, time.step = 20, min.time = 10),
+		"'time.step' should not be larger than 'min.time'.", fixed = TRUE)
+})
+
 test_that("debug mode is working for runRSP", {	
 	input <- RSP::input.example
 	p <- tryCatch(suppressWarnings(runRSP(input = input, t.layer = tl, coord.x = "Longitude", coord.y = "Latitude", 
@@ -65,13 +75,29 @@ test_that("verbose mode is working for runRSP", {
 })
 
 ## 2) Testing dynBBMM:
-test_that("dynBBMM with metric system is working for group", {
+test_that("dynBBMM with latlon system is working for group", {
 	dbbmm.all <<- dynBBMM(input = rsp.data, base.raster = water.large, UTM = 56) 
 	## RUN THESE LINES ONLY TO REPLACE THE REFERENCES!
 	# reference_dynBBMM_latlon_group <- dbbmm.all
 	# save(reference_dynBBMM_latlon_group, file = "dynBBMM_latlon_group.RData")
 	load("dynBBMM_latlon_group.RData")
 	expect_equivalent(dbbmm.all, reference_dynBBMM_latlon_group) 
+})
+
+test_that("The UTM zone is set for dynBBMM when necessary", {
+	expect_error(suppressWarnings(dynBBMM(input = rsp.data, base.raster = water.large)),
+		"The data are in a latitude-longitude coordinate system, which is incompatible with the dynamic brownian bridge model.\nPlease supply a 'UTM' zone for coordinate conversion.", fixed = TRUE)
+})
+
+test_that("Only one UTM zone is set for dynBBMM when necessary", {
+	expect_error(suppressWarnings(dynBBMM(input = rsp.data, base.raster = water.large, UTM = c(1, 2))),
+		"Please supply only one UTM zone", fixed = TRUE)
+})
+
+test_that("Base raster and data are in the same coordinate system for dynBBMM", {
+	water.metric <- actel::loadShape(path = system.file(package = "RSP")[1], shape = "River_metric.shp", size = 20, buffer = 200) 
+	expect_error(suppressWarnings(dynBBMM(input = rsp.data, base.raster = water.metric, UTM = 56)),
+		"The base raster and the input data are not in the came coordinate system!", fixed = TRUE)
 })
 
 test_that("There is not enought data to fit dBBMMs at all", {
@@ -109,7 +135,7 @@ test_that("verbose mode is working for dynBBMM", {
 
 
 #============================================#
-# Test plot functions for metric coordinates #
+# Test plot functions for latlon coordinates #
 #============================================#
 
 # plotRasters:
