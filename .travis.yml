@@ -3,7 +3,7 @@ sudo: required
 cache: packages
 
 os:
-  - macos
+  - osx
   osx_image: xcode11.3
 
 warnings_are_errors: false
