@@ -4,6 +4,7 @@ cache: packages
 
 os:
   - macos
+  osx_image: xcode11.3
 
 warnings_are_errors: false
 
