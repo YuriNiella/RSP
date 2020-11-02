@@ -624,3 +624,89 @@ getOverlaps <- function(input) {
 }
 
 
+#' Obtain overlapping data per timeslots
+#' 
+#' When a timeslot analysis is performed the overlaps between pairs of tracked groups can be obtained 
+#' according to the respective timeslots.
+#' 
+#' @param input The output of \code{\link{getAreas}} using type = "group".
+#' @param dbbmm The timeslot output of \code{\link{dynBBMM}}.
+#' @param groups Character vector specifying two groups for obtaining the overlapping data.
+#' @param level The corresponding contour level for obtaining the overlapping data. 
+#' 
+#' @return A list of areas per track, per group
+#' 
+#' @examples 
+#' \donttest{
+#' # Import river shapefile
+#' water <- actel::loadShape(path = system.file(package = "RSP"), 
+#'  shape = "River_latlon.shp", size = 0.0001, buffer = 0.05) 
+#' 
+#' # Create a transition layer with 8 directions
+#' tl <- actel::transitionLayer(x = water, directions = 8)
+#' 
+#' # Import example output from actel::explore() 
+#' data(input.example) 
+#' 
+#' # Run RSP analysis
+#' rsp.data <- runRSP(input = input.example, t.layer = tl, coord.x = "Longitude", coord.y = "Latitude")
+#' 
+#' # Run a timeslot dynamic Brownian Bridge Movement Model (dBBMM) 
+#' dbbmm.data <- dynBBMM(input = rsp.data, base.raster = water, UTM = 56, timeframe = 12)
+#'
+#' # Get dBBMM areas at group level
+#' areas.group <- getAreas(dbbmm.data, type = "group", breaks = c(0.5, 0.95))
+#' 
+#' # Get overlaps between groups
+#' overlap.data <- getOverlaps(areas.group)
+#' 
+#' # Obtain overlap data at the 50% contour 
+#' df.overlap <- getOverlapData(input = overlap.data, dbbmm = dbbmm.data, 
+#'  groups = c("G1", "G2"), level = 0.5)
+#' }
+#' 
+#' @export
+#' 
+getOverlapData <- function(input, dbbmm, groups, level) {
+
+  if (length(groups) != 2)
+    stop("Please specify two groups for obtaining the overlapping data.", call. = FALSE)
+
+  if (length(which(names(input$areas) == level)) == 0)
+    stop("The contour level specified was not found in the overlap object.", call. = FALSE)
+
+  group1 <- groups[1]
+  group2 <- groups[2]
+  input <- input$areas[[which(names(input$areas) == level)]]
+
+  # Absolute overlaps:
+  input.abs <- input[[1]]
+  save.abs <- NULL
+  save.slot <- NULL
+  for (i in 1:length(input.abs)) {
+    save.slot <- c(save.slot, names(input.abs)[[i]])
+    aux <- input.abs[[i]]
+    aux <- aux[which(colnames(aux) == group1), which(row.names(aux) == group2)]
+    save.abs <- c(save.abs, aux)
+  }
+
+  # Percentage overlaps:
+  input.per <- input[[2]]
+  save.per <- NULL
+  for (i in 1:length(input.per)) {
+    aux <- input.per[[i]]
+    aux <- aux[which(colnames(aux) == group1), which(row.names(aux) == group2)]
+    save.per <- c(save.per, aux)
+  }
+
+  # Save final dataset:
+  df.save <- dbbmm$timeslots
+  df.save <- df.save[df.save$slot %in% save.slot, ]
+  df.save$Absolute <- save.abs
+  df.save$Percentage <- save.per
+  names(df.save)[4] <- paste0("Absolute_", group1, "_", group2)
+  names(df.save)[5] <- paste0("Percentage_", group1, "_", group2)
+
+  return(df.save)
+}
+
