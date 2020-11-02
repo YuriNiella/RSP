@@ -245,4 +245,21 @@ test_that("plotOverlaps timeslot correct number of colors is set", {
 		"Please provide three colours in 'col'.", fixed = TRUE)
 })
 
+test_that("getOverlapData does not work when more than 2 groups are specified", {
+	expect_error(getOverlapData(input = overlap2, dbbmm = dbbmm.time, groups = c("A", "B", "C"), level = 0.5),
+		"Please specify two groups for obtaining the overlapping data.", fixed = TRUE)
+})
+
+test_that("getOverlapData the correct contour level was set", {
+	expect_error(getOverlapData(input = overlap2, dbbmm = dbbmm.time, groups = c("A", "B"), level = 0.7),
+		"The contour level specified was not found in the overlap object.", fixed = TRUE)
+})
+
+test_that("getOverlapData works", {
+	p <- tryCatch(getOverlapData(input = overlap2, dbbmm = dbbmm.time, groups = c("G1", "G2"), level = 0.5), 
+		warning = function(w)
+ 	stop("A warning was issued in getOverlaps!", w))
+	expect_that(p, is_a("data.frame"))
+})
+
 rm(list = ls())
