@@ -115,6 +115,20 @@ Note that if the two groups don't overlap, the following message will be issued:
 M: No overlap found between 'Bream' and 'Tarwhine'. Plotting only the separate areas.
 ```
 
+### 4.2.1. Obtain overlap data from timeslot dBBMM for applying further statistical analysis
+
+Maybe you are interested in better understanding the potential factors influencing the  **overlapping areas between different biological groups**. If that's your case, and you have ran a timeslot dBBMM analysis, the function `getOverlapData()` is what you are looking for. You'll need to provide the outputs from `getOverlaps()` (input) and `dynBBMM()` (dbbmm), and select the two biological groups of interest (groups) together with the desired level of the dBBMM contour to extract the overlaping data for (level). Overlaps for each timeslot will then be returned at both **absolute** and **percentage** values.
+
+```
+df.overlap <- getOverlapData(input = overlap.data, dbbmm = dbbmm.data, 
+	groups = c("G1", "G2"), level = 0.5) 
+df.overlap
+```
+| slot|               start|                stop| Absolute_G1_G2| Percentage_G1_G2|
+|:----|-------------------:|-------------------:|--------------:|----------------:|
+|    1| 2020-01-04 00:00:00| 2020-01-04 11:59:59|       79761.94|        1.0000000|
+|    2| 2020-01-04 12:00:00| 2020-01-04 23:59:59|       25182.57|        0.9496124|
+
 
 ## The end
 

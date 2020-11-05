@@ -7,7 +7,7 @@
 getOverlapData(input, dbbmm, groups, level)
 }
 \arguments{
-\item{input}{The output of \code{\link{getAreas}} using type = "group".}
+\item{input}{The output of \code{\link{getOverlaps}}.}
 
 \item{dbbmm}{The timeslot output of \code{\link{dynBBMM}}.}
 

@@ -629,7 +629,7 @@ getOverlaps <- function(input) {
 #' When a timeslot analysis is performed the overlaps between pairs of tracked groups can be obtained 
 #' according to the respective timeslots.
 #' 
-#' @param input The output of \code{\link{getAreas}} using type = "group".
+#' @param input The output of \code{\link{getOverlaps}}.
 #' @param dbbmm The timeslot output of \code{\link{dynBBMM}}.
 #' @param groups Character vector specifying two groups for obtaining the overlapping data.
 #' @param level The corresponding contour level for obtaining the overlapping data. 
