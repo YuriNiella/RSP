@@ -169,7 +169,7 @@ dynBBMM <- function(input, base.raster, tags = NULL, start.time, stop.time,
                      to = aux[2],
                      by = 3600 * timeframe)
     timeslots <- data.frame(
-      slot = 1:(length(timebreaks)),
+      slot = 1:(length(timebreaks) - 1),
       start = timebreaks[-length(timebreaks)],
       stop = timebreaks[-1])
 

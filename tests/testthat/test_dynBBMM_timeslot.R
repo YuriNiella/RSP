@@ -32,8 +32,8 @@ test_that("dynBBMM with metric system is working for timeslot", {
 	## RUN THESE LINES ONLY TO REPLACE THE REFERENCES!
 	# reference_dynBBMM_latlon_timeslot <- dbbmm.time
 	# save(reference_dynBBMM_latlon_timeslot, file = "dynBBMM_latlon_timeslot.RData")
-	# load("dynBBMM_latlon_timeslot.RData")
-	# expect_equivalent(dbbmm.time, reference_dynBBMM_latlon_timeslot) 
+	load("dynBBMM_latlon_timeslot.RData")
+	expect_equivalent(dbbmm.time, reference_dynBBMM_latlon_timeslot) 
 })
 
 test_that("Timeframe is numeric for timeslot dBBMM", {
