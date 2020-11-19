@@ -1014,8 +1014,6 @@ plotTracks <- function(input, base.raster, type = c("both", "points", "lines"),
   if (type == "points" | type == "both")
     p <- p + ggplot2::geom_point(data = detections, ggplot2::aes(x = Longitude, y = Latitude, colour = Transmitter), alpha = alpha[1], size = size[1])
   if (type == "lines" | type == "both") {
-    # if (alpha[2] < 1)
-    #   warning("A known bug prevents R from showing lines with alpha on the ggplot's caption.\nHowever, this only happens in the visualisation window.\nIf you save the plot using ggsave(), the caption will be displayed correctly.", call. = FALSE)
     p <- p + ggplot2::geom_path(data = detections, ggplot2::aes(x = Longitude, y = Latitude, colour = Transmitter, group = temp.col), alpha = alpha[2], size = size[2])
   }
 
