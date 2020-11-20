@@ -145,12 +145,12 @@ calcRSP <- function(df.track, tz, distance, min.time, time.step, transition, er.
       } else {
         # definitive AtoB's
         AtoB <- gdistance::shortestPath(transition, A, B, output = "SpatialLines")
-        AtoB.spdf <- methods::as(AtoB, "SpatialPointsDataFrame")
-        AtoB.df <- methods::as(AtoB.spdf, "data.frame")[, c(4, 5)]
+        AtoB.spdf <- suppressWarnings(methods::as(AtoB, "SpatialPointsDataFrame"))
+        AtoB.df <- suppressWarnings(methods::as(AtoB.spdf, "data.frame")[, c(4, 5)]) 
         # wgs84 version just for distance calcs
         AtoB.wgs84 <- sp::spTransform(AtoB, "+init=epsg:4326")
-        AtoB.wgs84.spdf <- methods::as(AtoB.wgs84, "SpatialPointsDataFrame")
-        AtoB.wgs84.df <- methods::as(AtoB.wgs84.spdf, "data.frame")[, c(4, 5)]
+        AtoB.wgs84.spdf <- suppressWarnings(methods::as(AtoB.wgs84, "SpatialPointsDataFrame")) 
+        AtoB.wgs84.df <- suppressWarnings(methods::as(AtoB.wgs84.spdf, "data.frame")[, c(4, 5)]) 
         colnames(AtoB.wgs84.df) <- c("x", "y")
         # Prepare to calculate distance between coordinate pairs
         start <- AtoB.wgs84.df[-nrow(AtoB.df), ]

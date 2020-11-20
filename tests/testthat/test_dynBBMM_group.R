@@ -76,7 +76,7 @@ test_that("verbose mode is working for runRSP", {
 
 ## 2) Testing dynBBMM:
 test_that("dynBBMM with latlon system is working for group", {
-	dbbmm.all <<- dynBBMM(input = rsp.data, base.raster = water.large, UTM = 56) 
+	dbbmm.all <<- suppressWarnings(suppressMessages(dynBBMM(input = rsp.data, base.raster = water.large, UTM = 56))) 
 	## RUN THESE LINES ONLY TO REPLACE THE REFERENCES!
 	# reference_dynBBMM_latlon_group <- dbbmm.all
 	# save(reference_dynBBMM_latlon_group, file = "dynBBMM_latlon_group.RData")
@@ -313,8 +313,11 @@ test_that("getAreas works for track", {
 
 # plotAreas:
 test_that("getAreas is working", {
-output1.group <<- getAreas(dbbmm.all, type = "group")
-output1.track <<- getAreas(dbbmm.all, type = "track")
+	output1.group <<- getAreas(dbbmm.all, type = "group")
+	output1.track <<- getAreas(dbbmm.all, type = "track")
+
+	expect_that(output1.group, is_a("list"))
+	expect_that(output1.track, is_a("list"))
 })
 
 test_that("plotAreas does not work when getAreas is run for track", {

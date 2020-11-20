@@ -28,12 +28,12 @@ test_that("runRSP with metric system is working for timeslot", {
 
 ## 2) Testing dynBBMM:
 test_that("dynBBMM with metric system is working for timeslot", {
-	dbbmm.time <<- dynBBMM(input = rsp.data, base.raster = water.large, UTM = 56, timeframe = 2) 
+	dbbmm.time <<- suppressWarnings(suppressMessages(dynBBMM(input = rsp.data, base.raster = water.large, UTM = 56, timeframe = 2))) 
 	## RUN THESE LINES ONLY TO REPLACE THE REFERENCES!
 	# reference_dynBBMM_latlon_timeslot <- dbbmm.time
 	# save(reference_dynBBMM_latlon_timeslot, file = "dynBBMM_latlon_timeslot.RData")
-	# load("dynBBMM_latlon_timeslot.RData")
-	# expect_equivalent(dbbmm.time, reference_dynBBMM_latlon_timeslot) 
+	load("dynBBMM_latlon_timeslot.RData")
+	expect_equivalent(dbbmm.time, reference_dynBBMM_latlon_timeslot) 
 })
 
 test_that("Timeframe is numeric for timeslot dBBMM", {
@@ -72,24 +72,24 @@ test_that("start.time is different than stopt.time", {
 
 test_that("start.time works", {
 	start.time <- "2018-04-18 22:52:43"
-	expect_message(dynBBMM(input = rsp.data, base.raster = water.large, timeframe = 24, UTM = 56,
-		start.time = start.time),
-		"M: Discarding detection data previous to ", start.time," per user command.", fixed = TRUE)
+	aux <- capture_messages(suppressWarnings(dynBBMM(input = rsp.data, base.raster = water.large, timeframe = 24, UTM = 56,
+		start.time = start.time)))
+	expect_that(aux[2], equals("M: Discarding detection data previous to 2018-04-18 22:52:43 per user command.\n"))
 })
 
 test_that("stop.time works", {
 	stop.time <- "2020-02-01 00:00:34"
-	expect_message(dynBBMM(input = rsp.data, base.raster = water.large, timeframe = 24, UTM = 56,
-		stop.time = stop.time),
-		"M: Discarding detection data posterior to ", stop.time," per user command.", fixed = TRUE)
+	aux <- capture_messages(suppressWarnings(dynBBMM(input = rsp.data, base.raster = water.large, timeframe = 24, UTM = 56,
+		stop.time = stop.time)))
+	expect_that(aux[2], equals("M: Discarding detection data posterior to 2020-02-01 00:00:34 per user command.\n"))
 })
 
 test_that("both start.time and stop.time work", {
 	start.time <- "2018-04-18 22:52:43"
 	stop.time <- "2020-02-01 00:00:34"
-	expect_message(dynBBMM(input = rsp.data, base.raster = water.large, timeframe = 24, UTM = 56,
-		start.time = start.time, stop.time = stop.time),
-		paste0("M: Discarding detection data previous to ", start.time," and posterior to ", stop.time," per user command."), fixed = TRUE)
+	aux <- capture_messages(suppressWarnings(dynBBMM(input = rsp.data, base.raster = water.large, timeframe = 24, UTM = 56,
+		start.time = start.time, stop.time = stop.time)))
+	expect_that(aux[2], equals("M: Discarding detection data previous to 2018-04-18 22:52:43 and posterior to 2020-02-01 00:00:34 per user command.\n"))
 })
 
 
@@ -138,6 +138,9 @@ test_that("getAreas works for timeslot and track", {
 test_that("getAreas is working", {
 	output2.group <<- getAreas(dbbmm.time, type = "group")	
 	output2.track <<- getAreas(dbbmm.time, type = "track")
+
+	expect_that(output2.group, is_a("list"))
+	expect_that(output2.track, is_a("list"))
 })
 
 test_that("plotAreas does not work when getAreas is run for track", {
