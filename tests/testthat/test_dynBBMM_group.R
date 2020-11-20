@@ -374,6 +374,7 @@ test_that("getOverlaps only takes type = 'group'", {
 # plotOverlaps:
 test_that("getOverlaps works for groups", {
 	overlap <<- getOverlaps(output1.group)
+	expect_that(overlap, is_a("list"))
 })
 
 test_that("plotOverlaps works for group and returns the plot", {
