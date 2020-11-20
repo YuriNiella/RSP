@@ -71,33 +71,33 @@ test_that("start.time is different than stopt.time", {
 		"'stop.time' and 'stop.time' are equal. Continuing would erase all detection data", fixed = TRUE)
 })
 
-test_that("start.time works", {
-	start.time <- "2018-04-18 22:52:43"
-	p <- tryCatch(suppressWarnings(suppressMessages(dynBBMM(input = rsp.data, base.raster = water.large, timeframe = 24, UTM = 56,
-		start.time = start.time))), 
-		warning = function(w)
- 	stop("A warning was issued when start.time is set!", w))
-	expect_that(p, is_a("list"))
-})
+# test_that("start.time works", {
+# 	start.time <- "2018-04-18 22:52:43"
+# 	p <- tryCatch(suppressWarnings(suppressMessages(dynBBMM(input = rsp.data, base.raster = water.large, timeframe = 24, UTM = 56,
+# 		start.time = start.time))), 
+# 		warning = function(w)
+#  	stop("A warning was issued when start.time is set!", w))
+# 	expect_that(p, is_a("list"))
+# })
 
-test_that("stop.time works", {
-	stop.time <- "2020-02-01 00:00:34"
-	p <- tryCatch(suppressWarnings(suppressMessages(dynBBMM(input = rsp.data, base.raster = water.large, timeframe = 24, UTM = 56,
-		stop.time = stop.time))), 
-		warning = function(w)
- 	stop("A warning was issued when stop.time is set!", w))
-	expect_that(p, is_a("list"))
-})
+# test_that("stop.time works", {
+# 	stop.time <- "2020-02-01 00:00:34"
+# 	p <- tryCatch(suppressWarnings(suppressMessages(dynBBMM(input = rsp.data, base.raster = water.large, timeframe = 24, UTM = 56,
+# 		stop.time = stop.time))), 
+# 		warning = function(w)
+#  	stop("A warning was issued when stop.time is set!", w))
+# 	expect_that(p, is_a("list"))
+# })
 
-test_that("both start.time and stop.time work", {
-	start.time <- "2018-04-18 22:52:43"
-	stop.time <- "2020-02-01 00:00:34"
-	p <- tryCatch(suppressWarnings(suppressMessages(dynBBMM(input = rsp.data, base.raster = water.large, timeframe = 24, UTM = 56,
-		start.time = start.time, stop.time = stop.time))), 
-		warning = function(w)
- 	stop("A warning was issued when start.time and stop.time are set!", w))
-	expect_that(p, is_a("list"))
-})
+# test_that("both start.time and stop.time work", {
+# 	start.time <- "2018-04-18 22:52:43"
+# 	stop.time <- "2020-02-01 00:00:34"
+# 	p <- tryCatch(suppressWarnings(suppressMessages(dynBBMM(input = rsp.data, base.raster = water.large, timeframe = 24, UTM = 56,
+# 		start.time = start.time, stop.time = stop.time))), 
+# 		warning = function(w)
+#  	stop("A warning was issued when start.time and stop.time are set!", w))
+# 	expect_that(p, is_a("list"))
+# })
 
 
 #============================================#
