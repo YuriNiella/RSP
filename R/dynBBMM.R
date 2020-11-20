@@ -162,19 +162,19 @@ dynBBMM <- function(input, base.raster, tags = NULL, start.time, stop.time,
 
   if (attributes(mod_dbbmm)$type == "timeslot"){
     # make timeslot data frame before finishing
-    aux <- range(do.call(c, lapply(detections, function(x) x$Timestamp)))
-    aux[1] <- round.POSIXt(x = (aux[1] - 43200), units = "days") 
-    aux[2] <- round.POSIXt(x = (aux[2] + 43200), units = "days")
+    aux <- do.call(rbind.data.frame, detections)
+    aux <- range(aux$Timestamp)
+    aux[1] <- round.POSIXt(x = (aux[1]), units = "days") 
+    aux[2] <- round.POSIXt(x = (aux[2]), units = "days")
     timebreaks <- seq(from = aux[1], 
                      to = aux[2],
                      by = 3600 * timeframe)
-    timeslots <- data.frame(
-      slot = 1:(length(timebreaks)),
-      start = timebreaks,
-      stop = timebreaks + ((3600 * timeframe) - 1))
-    timeslots <- timeslots[-c(1, nrow(timeslots)), ]
-    timeslots$slot <- 1:nrow(timeslots)
 
+    timeslots <- data.frame(
+      slot = 1:(length(timebreaks) - 1),
+      start = timebreaks[-length(timebreaks)],
+      stop = timebreaks[-1])
+    
     return(list(dbbmm = mod_dbbmm, base.raster = original.base.raster, valid.tracks = valid.tracks,
       group.rasters = dbbmm.rasters, timeslots = timeslots, spatial = spatial)) 
   }
