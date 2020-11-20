@@ -73,24 +73,30 @@ test_that("start.time is different than stopt.time", {
 
 test_that("start.time works", {
 	start.time <- "2018-04-18 22:52:43"
-	aux <- suppressWarnings(capture_messages(dynBBMM(input = rsp.data, base.raster = water.large, timeframe = 24, UTM = 56,
-		start.time = start.time)))
-	expect_equivalent(aux[2], "M: Discarding detection data previous to 2018-04-18 22:52:43 per user command.\n")
+	p <- tryCatch(suppressWarnings(suppressMessages(dynBBMM(input = rsp.data, base.raster = water.large, timeframe = 24, UTM = 56,
+		start.time = start.time))), 
+		warning = function(w)
+ 	stop("A warning was issued when start.time is set!", w))
+	expect_that(p, is_a("list"))
 })
 
 test_that("stop.time works", {
 	stop.time <- "2020-02-01 00:00:34"
-	aux <- suppressWarnings(capture_messages(dynBBMM(input = rsp.data, base.raster = water.large, timeframe = 24, UTM = 56,
-		stop.time = stop.time)))
-	expect_equivalent(aux[2], "M: Discarding detection data posterior to 2020-02-01 00:00:34 per user command.\n")
+	p <- tryCatch(suppressWarnings(suppressMessages(dynBBMM(input = rsp.data, base.raster = water.large, timeframe = 24, UTM = 56,
+		stop.time = stop.time))), 
+		warning = function(w)
+ 	stop("A warning was issued when stop.time is set!", w))
+	expect_that(p, is_a("list"))
 })
 
 test_that("both start.time and stop.time work", {
 	start.time <- "2018-04-18 22:52:43"
 	stop.time <- "2020-02-01 00:00:34"
-	aux <- suppressWarnings(capture_messages(dynBBMM(input = rsp.data, base.raster = water.large, timeframe = 24, UTM = 56,
-		start.time = start.time, stop.time = stop.time)))
-	expect_equivalent(aux[2], "M: Discarding detection data previous to 2018-04-18 22:52:43 and posterior to 2020-02-01 00:00:34 per user command.\n")
+	p <- tryCatch(suppressWarnings(suppressMessages(dynBBMM(input = rsp.data, base.raster = water.large, timeframe = 24, UTM = 56,
+		start.time = start.time, stop.time = stop.time))), 
+		warning = function(w)
+ 	stop("A warning was issued when start.time and stop.time are set!", w))
+	expect_that(p, is_a("list"))
 })
 
 
