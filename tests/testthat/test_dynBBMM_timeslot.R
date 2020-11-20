@@ -74,22 +74,22 @@ test_that("start.time works", {
 	start.time <- "2018-04-18 22:52:43"
 	expect_message(dynBBMM(input = rsp.data, base.raster = water.large, timeframe = 24, UTM = 56,
 		start.time = start.time),
-		"M: Discarding detection data previous to ",start.time," per user command.", fixed = TRUE)
+		"M: Discarding detection data previous to ", start.time," per user command.", fixed = TRUE)
 })
 
 test_that("stop.time works", {
 	stop.time <- "2020-02-01 00:00:34"
 	expect_message(dynBBMM(input = rsp.data, base.raster = water.large, timeframe = 24, UTM = 56,
 		stop.time = stop.time),
-		"M: Discarding detection data posterior to ",stop.time," per user command.", fixed = TRUE)
+		"M: Discarding detection data posterior to ", stop.time," per user command.", fixed = TRUE)
 })
 
-test_that("both star.time and stop.time works", {
+test_that("both start.time and stop.time work", {
 	start.time <- "2018-04-18 22:52:43"
 	stop.time <- "2020-02-01 00:00:34"
 	expect_message(dynBBMM(input = rsp.data, base.raster = water.large, timeframe = 24, UTM = 56,
 		start.time = start.time, stop.time = stop.time),
-		paste0("M: Discarding detection data previous to ",start.time," and posterior to ",stop.time," per user command."), fixed = TRUE)
+		paste0("M: Discarding detection data previous to ", start.time," and posterior to ", stop.time," per user command."), fixed = TRUE)
 })
 
 
