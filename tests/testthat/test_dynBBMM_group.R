@@ -284,7 +284,14 @@ test_that("plotContours track is set but only one track is available", {
 test_that("plotContours add title works", {
 	p <- tryCatch(suppressWarnings(plotContours(dbbmm.all, tag = "A69-9001-1111", track = 1, title = "Test")), 
 		warning = function(w)
- 	stop("A warning was issued in plotAreas!", w))
+ 	stop("A warning was issued in plotContours!", w))
+	expect_that(p, is_a("ggplot"))
+})
+
+test_that("plotContours works with continuous scale", {
+	p <- tryCatch(suppressWarnings(plotContours(dbbmm.all, tag = "A69-9001-1111", track = 1, scale.type = "continuous")), 
+		warning = function(w)
+ 	stop("A warning was issued in plotContours!", w))
 	expect_that(p, is_a("ggplot"))
 })
 

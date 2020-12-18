@@ -37,13 +37,19 @@ test_that("runRSP with metric system is working for timeslot", {
 # 	expect_equivalent(dbbmm.time, reference_dynBBMM_latlon_timeslot) 
 # })
 
+test_that("Start and stop time warnings are returned", {
+	aux.messages <- capture_messages(suppressWarnings(dynBBMM(input = rsp.data, base.raster = water.large, UTM = 56, timeframe = 2,
+		start.time = "2020-01-05 00:00:00", stop.time = "2020-01-05 23:59:59")))
+	expect_equivalent(aux.messages[2], "M: Discarding detection data previous to 2020-01-05 00:00:00 and posterior to 2020-01-05 23:59:59 per user command.\n")
+})
+
 test_that("Timeframe is numeric for timeslot dBBMM", {
-	expect_error(dynBBMM(input = rsp.data, base.raster = water.large, timeframe = "banana", UTM = 56,),
+	expect_error(dynBBMM(input = rsp.data, base.raster = water.large, timeframe = "banana", UTM = 56),
 		"'timeframe' must be either NULL or numeric", fixed = TRUE)
 })
 
 test_that("Timeframe is numeric for timeslot dBBMM", {
-	expect_error(dynBBMM(input = rsp.data, base.raster = water.large, timeframe = 0.2, UTM = 56,),
+	expect_error(dynBBMM(input = rsp.data, base.raster = water.large, timeframe = 0.2, UTM = 56),
 		"'timeframe' must be larger than 0.5.", fixed = TRUE)
 })
 

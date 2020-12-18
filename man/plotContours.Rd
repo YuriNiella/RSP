@@ -9,6 +9,7 @@ plotContours(
   tag,
   track = NULL,
   timeslot,
+  scale.type = "categorical",
   breaks = c(0.95, 0.75, 0.5, 0.25),
   col,
   title,
@@ -24,9 +25,11 @@ plotContours(
 
 \item{timeslot}{The timeslot to be plotted. Only relevant for timeslot dbbmms.}
 
-\item{breaks}{Numeric vector of use areas to plot. By default, the 99\%, 95\%, 75\%, 50\% and 25\% areas will be returned.}
+\item{scale.type}{Character vector selecting the type of scale to plot space use areas. By default a "categorical" scale is set, but alternatively can be set to "continuous" to return the space use areas with a continuous scale.}
 
-\item{col}{The colours to be used. Must match the number of breaks.}
+\item{breaks}{When scale.type = "categorical", this is a numeric vector selecting the use areas to plot. By default, the 99\%, 95\%, 75\%, 50\% and 25\% areas will be returned.}
+
+\item{col}{The colours to be used when scale.type = "categorical". Must match the number of breaks.}
 
 \item{title}{The title of the plot.}
 

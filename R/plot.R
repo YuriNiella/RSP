@@ -199,10 +199,11 @@ plotAreas <- function(areas, base.raster, group, timeslot,
 #' @param input The dbbmm object as returned by \code{\link{dynBBMM}}.
 #' @inheritParams plotTracks
 #' @param timeslot The timeslot to be plotted. Only relevant for timeslot dbbmms.
-#' @param breaks Numeric vector of use areas to plot. By default, the 99\%, 95\%, 75\%, 50\% and 25\% areas will be returned.
+#' @param scale.type Character vector selecting the type of scale to plot space use areas. By default a "categorical" scale is set, but alternatively can be set to "continuous" to return the space use areas with a continuous scale.
+#' @param breaks When scale.type = "categorical", this is a numeric vector selecting the use areas to plot. By default, the 99\%, 95\%, 75\%, 50\% and 25\% areas will be returned.
 #' @param title The title of the plot.
 #' @param land.col Colour of the land mass. 
-#' @param col The colours to be used. Must match the number of breaks.
+#' @param col The colours to be used when scale.type = "categorical". Must match the number of breaks.
 #' 
 #' @return dynamic Brownian Bridge Movement Model plot.
 #' 
@@ -230,8 +231,8 @@ plotAreas <- function(areas, base.raster, group, timeslot,
 #' 
 #' @export
 #' 
-plotContours <- function(input, tag, track = NULL, timeslot, breaks = c(0.95, 0.75, 0.50, 0.25), 
-  col, title, land.col = "#BABCBF80") {
+plotContours <- function(input, tag, track = NULL, timeslot, scale.type = "categorical",
+  breaks = c(0.95, 0.75, 0.50, 0.25), col, title, land.col = "#BABCBF80") {
 
   Latitude <- NULL
   Longitude <- NULL
@@ -341,47 +342,82 @@ plotContours <- function(input, tag, track = NULL, timeslot, breaks = c(0.95, 0.
   base.map <- data.frame(base.map)
   colnames(base.map) <- c("x", "y", "MAP")
   
-  # Get desired contours:
-  aux <- lapply(breaks, function(i) {
-    contour <- tag_track.raster <= i
-    output <- raster::rasterToPoints(contour)
-    output <- data.frame(output)
-    names(output) <- c("x", "y", "layer")
-    output <- subset(output, layer > 0)
-    output$Contour <- paste0((i * 100), "%")
-    return(output)
-  })
-  contours <- do.call(rbind.data.frame, aux)
-  contours$Contour <- as.factor(contours$Contour)
+  # Plot dBBMM
+  if (scale.type == "continuous") {
+    raster.df <- raster::as.data.frame(tag_track.raster, xy = TRUE) # Convert raster to a dataframe
+    names(raster.df) <- c("x", "y", "Contour")
+    raster.df <- raster.df[-which(is.na(raster.df$Contour) == TRUE), ] # Remove empty values
+    raster.df <- raster.df[which(raster.df$Contour <= 0.99), ]
 
-  # get contour colours
-  if (missing(col))
-    col <- rev(cmocean::cmocean('matter')(length(breaks) + 1)[-1]) # Colour palette
-  
-  if (missing(title)) {
-    if (is.null(timeslot)) {
-      if (is.null(track))
-        title <- gsub(".", "-", tag, fixed = TRUE)
-      else
-        title <- paste(gsub(".", "-", tag, fixed = TRUE), "-", sub("_", " ", track, fixed = TRUE))
-    } else {
-      if (is.null(track))
-        title <- paste(gsub(".", "-", tag, fixed = TRUE), "-", "Slot", timeslot)
-      else
-        title <- paste(gsub(".", "-", tag, fixed = TRUE), "-", "Slot", timeslot, "-", sub("_", " ", track, fixed = TRUE))
-    }
+    if (missing(title)) {
+        if (is.null(timeslot)) {
+          if (is.null(track))
+            title <- gsub(".", "-", tag, fixed = TRUE)
+          else
+            title <- paste(gsub(".", "-", tag, fixed = TRUE), "-", sub("_", " ", track, fixed = TRUE))
+        } else {
+          if (is.null(track))
+            title <- paste(gsub(".", "-", tag, fixed = TRUE), "-", "Slot", timeslot)
+          else
+            title <- paste(gsub(".", "-", tag, fixed = TRUE), "-", "Slot", timeslot, "-", sub("_", " ", track, fixed = TRUE))
+        }
+      }
+
+    # Save the plot with a continuous scale
+    p <- ggplot2::ggplot() 
+    p <- p + ggplot2::geom_raster(data = raster.df, ggplot2::aes(x = x, y = y, fill = Contour)) 
+    p <- p + ggplot2::scale_fill_gradientn(colors = rev(cmocean::cmocean('thermal')(100))) 
+    p <- p + ggplot2::geom_raster(data = base.map, ggplot2::aes(x = x, y = y), fill = land.col) 
+    p <- p + ggplot2::theme_bw() 
+    p <- p + ggplot2::scale_x_continuous(expand = c(0, 0))
+    p <- p + ggplot2::scale_y_continuous(expand = c(0, 0))
+    p <- p + ggplot2::labs(x = "Longitude", y = "Latitude", fill = "Space use", title = title)
+    return(p)
   }
 
-  # Plot
-  p <- ggplot2::ggplot()
-  p <- p + ggplot2::geom_raster(data = contours, ggplot2::aes(x = x, y = y, fill = Contour))
-  p <- p + ggplot2::scale_fill_manual(values = col)
-  p <- p + ggplot2::geom_raster(data = base.map, ggplot2::aes(x = x, y = y), fill = land.col) 
-  p <- p + ggplot2::theme_bw() 
-  p <- p + ggplot2::scale_x_continuous(expand = c(0, 0))
-  p <- p + ggplot2::scale_y_continuous(expand = c(0, 0))
-  p <- p + ggplot2::labs(x = "Longitude", y = "Latitude", fill = "Space use", title = title)
-  return(p)
+  if (scale.type == "categorical") {
+    # Get desired contours:
+    aux <- lapply(breaks, function(i) {
+      contour <- tag_track.raster <= i
+      output <- raster::rasterToPoints(contour)
+      output <- data.frame(output)
+      names(output) <- c("x", "y", "layer")
+      output <- subset(output, layer > 0)
+      output$Contour <- paste0((i * 100), "%")
+      return(output)
+    })
+    contours <- do.call(rbind.data.frame, aux)
+    contours$Contour <- as.factor(contours$Contour)
+
+    # get contour colours
+    if (missing(col))
+      col <- rev(cmocean::cmocean('matter')(length(breaks) + 1)[-1]) # Colour palette
+    
+    if (missing(title)) {
+      if (is.null(timeslot)) {
+        if (is.null(track))
+          title <- gsub(".", "-", tag, fixed = TRUE)
+        else
+          title <- paste(gsub(".", "-", tag, fixed = TRUE), "-", sub("_", " ", track, fixed = TRUE))
+      } else {
+        if (is.null(track))
+          title <- paste(gsub(".", "-", tag, fixed = TRUE), "-", "Slot", timeslot)
+        else
+          title <- paste(gsub(".", "-", tag, fixed = TRUE), "-", "Slot", timeslot, "-", sub("_", " ", track, fixed = TRUE))
+      }
+    }
+
+    # Save the plot with a categorical scale
+    p <- ggplot2::ggplot()
+    p <- p + ggplot2::geom_raster(data = contours, ggplot2::aes(x = x, y = y, fill = Contour))
+    p <- p + ggplot2::scale_fill_manual(values = col)
+    p <- p + ggplot2::geom_raster(data = base.map, ggplot2::aes(x = x, y = y), fill = land.col) 
+    p <- p + ggplot2::theme_bw() 
+    p <- p + ggplot2::scale_x_continuous(expand = c(0, 0))
+    p <- p + ggplot2::scale_y_continuous(expand = c(0, 0))
+    p <- p + ggplot2::labs(x = "Longitude", y = "Latitude", fill = "Space use", title = title)
+    return(p)
+  }
 }
 
 #' Density plot of elapsed times between consecutive acoustic detections
