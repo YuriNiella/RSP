@@ -12,7 +12,6 @@ test_that("actel load functions are working as expected", {
 	tl <<- actel::transitionLayer(x = water, directions = 8)
 })
 
-
 #===============================================#
 #				TESTING STARTS					#
 #===============================================#
