@@ -73,6 +73,25 @@ Note how the **distances between consecutive RSP positions** (points) vary aroun
 
 The **dynamic Brownian Bridge Movement Model** accounts for the **speed** at which animals move between consecutive detections to **expand/contract the UD areas**. Consequently, depending on your array configuration, estuary shape and species being tracked, you may find useful to adjust the `distance` and `time.lapse` arguments for recreating the most plausible movement patterns of the monitored animals. 
 
+<br/>
+
+**Note:** If your tracked animals were recaptured during the monitoring period you may want to provide these aditional locations to `runRSP()`. To do so, please provide the following dataset named **recaptures.csv**:
+
+|     Recapture.date| Signal| Length_mm| Weight_kg|  Latitude| Longitude| Returned|
+|:------------------|------:|---------:|---------:|---------:|---------:|--------:|
+|2014-10-17 17:10:34|    485|       481|       2.1| -33.13151|  151.5974|     TRUE|
+|2014-10-31 18:02:39|    485|       481|       2.1| -33.08676|  151.6002|     TRUE|
+
+Please make sure you provide the **Recapture.date** timezone at local time. To include the respective recapture locations in the estimations of refined shortest paths, make sure to set `recaptures = TRUE` in `runRSP()`. The recapture locations will be used to start a **new RSP track** begining at the recapture location:
+
+|          Timestamp|  Receiver|  Transmitter| Longitude|  Latitude|  Position|    Track|
+|:------------------|---------:|------------:|---------:|---------:|---------:|--------:|
+|2014-10-10 10:23:24|    115409| A69-9004-485|  151.6093| -33.09295|  Receiver| Track_01|
+|2014-10-10 10:38:15|    115409| A69-9004-485|  151.6093| -33.09295|  Receiver| Track_01|
+|2014-10-17 17:10:34|        NA| A69-9004-485|  151.5974| -33.13151| Recapture| Track_02|
+|2014-10-17 18:00:22|        NA| A69-9004-485|  151.5992| -33.12971|       RSP| Track_02|
+|2014-10-17 18:50:11|        NA| A69-9004-485|  151.6008| -33.12811|       RSP| Track_02|
+
 
 ## 2.1. Exploring the runRSP results
 
@@ -157,14 +176,22 @@ plotTracks(rsp.data1, base.raster = water.shape1, type = "both", tag = "R64K-412
 plotTracks(rsp.data2, base.raster = water.shape2, type = "both", tag = "R64K-4545", track = "Track_9")
 ```
 
-<!-- ![](plotTrack2.png){#id .class width=550}  -->
+![](plotTrack2.png){#id .class width=550} 
 
-You can use the function `suggestSize()` in your base raster (shapefile) file to get suggested dimensions for a projected plot, and easily change the colour of the land mass using `land.col`. Lastly, you can use the function `addStations()` can be used to **add the station locations** to your plot.:
+You can use the function `suggestSize()` in your base raster (shapefile) file to get suggested dimensions for a projected plot, and easily change the colour of the land mass using `land.col`. The function `addStations()` can be used to **add the station locations** to your plot.:
 
-<!-- ![You can easily change the colour of the land mass using `land.col`.](plotTrack3.png){#id .class width=550}  -->
+![You can easily change the colour of the land mass using `land.col`.](plotTrack3.png){#id .class width=550} 
 
 
 ![](plotTrack4.png){#id .class width=100%} 
+
+If the animal you want to plot was recaptured and you want to include the recapture locations, you can use `addRecaptures()`:
+
+```
+plotTracks(input = rsp.data, base.raster = water, tag = "A69-9004-485", track = 3) + 
+  addStations(rsp.data) + addRecaptures(tag = "A69-9004-485")
+```
+![](addRecaptures.png){#id .class width=75%} 
 
 <br/>
 

@@ -4,12 +4,16 @@
 \alias{nameTracks}
 \title{Identify potential fine-scale data for analysis}
 \usage{
-nameTracks(detections, max.time = 24)
+nameTracks(detections, max.time = 24, recaptures, tz)
 }
 \arguments{
 \item{detections}{Detections data frame}
 
 \item{max.time}{Temporal lag in hours to be considered for the fine-scale tracking. Default is to consider 1-day intervals.}
+
+\item{recaptures}{If the recapture locations will be included in the analysis.}
+
+\item{tz}{Time zone of the study area.}
 }
 \value{
 A dataframe with identified and named individual tracks for RSP estimation.

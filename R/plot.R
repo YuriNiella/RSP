@@ -39,6 +39,27 @@ addStations <- function(input, shape = 21, size = 1.5, colour = "white", fill = 
     color = colour, fill = fill, shape = shape, size = size)
 }
 
+
+#' Add recapture locations to an existing plot
+#' 
+#' @param tag The transmitter of interest
+#' @param shape The shape of the points
+#' @param size The size of the points
+#' @param colour The colour of the points
+#' @param fill The fill of the points
+#' 
+#' @return A ggplot with the recapture locations
+#' 
+#' @export
+#' 
+addRecaptures <- function(tag, shape = 21, size = 1.5, colour = "white", fill = "dodgerblue") {
+  recap <- read.csv("recaptures.csv")
+  recap <- recap[which(recap$Serial_nr == tag), ] 
+  ggplot2::geom_point(data = recap, ggplot2::aes(x = recap[, 8], y = recap[, 7]), 
+    color = colour, fill = fill, shape = shape, size = size)
+}
+
+
 #' Plot areas
 #'
 #' Plot areas for a specific group and, if relevant, track and timeslot.

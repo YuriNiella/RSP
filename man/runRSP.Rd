@@ -11,6 +11,7 @@ runRSP(
   coord.y,
   distance = 250,
   tags,
+  recaptures = FALSE,
   time.step = 10,
   min.time = 10,
   max.time = 24,
@@ -29,6 +30,8 @@ runRSP(
 \item{distance}{Distance (in metres) by which RSP point should be spaced (between detections at different stations). Defaults to 250 metres.}
 
 \item{tags}{Vector of transmitters for which to calculate RSP. By default all transmitters will be analysed.}
+
+\item{recaptures}{Logical: if TRUE, a recapture.csv dataset containing the recapture locations of tracked animals will be included in the analysis.}
 
 \item{time.step}{Time lapse (in minutes) between RSP points added between detections at the same station. Defaults to 10 minutes. Must not be larger than \code{min.time}.}
 

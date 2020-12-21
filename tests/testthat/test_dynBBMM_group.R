@@ -37,6 +37,18 @@ test_that("runRSP with metric system is working for group", {
 	expect_equivalent(rsp.data, reference_runRSP_latlon_group) 
 })
 
+test_that("runRSP including recaptures is working", {
+	input <- RSP::input.example
+	rsp.data.recap <<- runRSP(input = input, t.layer = tl, 
+		coord.x = "Longitude", coord.y = "Latitude", 
+		er.ad = 5, max.time = 1, recaptures = TRUE)
+	## RUN THESE LINES ONLY TO REPLACE THE REFERENCES!
+	# reference_runRSP_latlon_group.recap <- rsp.data
+	# save(reference_runRSP_latlon_group.recap, file = "runRSP_latlon_group.recap.RData")
+	load("runRSP_latlon_group.recap.RData")
+	expect_equivalent(rsp.data.recap, reference_runRSP_latlon_group.recap) 
+})
+
 test_that("Specified tag for runRSP is present in the data", {
 	input <- RSP::input.example
 	expect_error(runRSP(input = input, t.layer = tl, 
@@ -447,6 +459,13 @@ test_that("addStations works", {
 	output <- suppressWarnings(plotTracks(rsp.data, base.raster = water.large, tag = "A69-9001-1111", track = 1)) 
 	output.stations <- output + addStations(rsp.data)
 	expect_that(output.stations, is_a("ggplot"))
+})
+
+# addRecaptures
+test_that("addRecaptures works", {
+	output <- suppressWarnings(plotTracks(rsp.data.recap, base.raster = water.large, tag = "A69-9001-1111", track = 1)) 
+	output.recaps <- output + addStations(rsp.data.recap) + addRecaptures(tag =  "A69-9001-1111")
+	expect_that(output.recaps, is_a("ggplot"))
 })
 
 rm(list = ls())

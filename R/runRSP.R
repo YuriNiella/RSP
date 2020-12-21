@@ -18,6 +18,7 @@ NULL
 #' @param t.layer A transition layer. Can be calculated using the function \code{\link[actel]{transitionLayer}}.
 #' @param coord.x,coord.y The names of the columns containing the x and y positions of the stations in the spatial object. 
 #' @param distance Distance (in metres) by which RSP point should be spaced (between detections at different stations). Defaults to 250 metres.
+#' @param recaptures Logical: if TRUE, a recapture.csv dataset containing the recapture locations of tracked animals will be included in the analysis.
 #' @param time.step Time lapse (in minutes) between RSP points added between detections at the same station. Defaults to 10 minutes. Must not be larger than \code{min.time}.
 #' @param er.ad Increment rate of the position errors for the estimated locations (in metres). If left unset, defaults to 5\% of the \code{distance} argument.
 #' @param min.time Minimum time required between receiver detections (in minutes) for RSP to be calculated. Default to 10 minutes.
@@ -46,7 +47,7 @@ NULL
 #' 
 #' @export
 #' 
-runRSP <- function(input, t.layer, coord.x, coord.y, distance = 250, tags,
+runRSP <- function(input, t.layer, coord.x, coord.y, distance = 250, tags, recaptures = FALSE,
   time.step = 10, min.time = 10, max.time = 24, er.ad, verbose = FALSE, debug = FALSE) {
 
   if (debug) {
@@ -62,6 +63,14 @@ runRSP <- function(input, t.layer, coord.x, coord.y, distance = 250, tags,
 
   if (time.step > min.time)
     warning("'time.step' should not be larger than 'min.time'.", call. = FALSE, immediate. = TRUE)
+
+  if (recaptures == TRUE) {
+    if ("recaptures.csv" %in% list.files()){
+      recap <- read.csv("recaptures.csv")
+    } else {
+      stop("Missing 'recaptures.csv' file. Please provide the data or set recaptures = FALSE")
+    }
+  }
 
   message("M: Calculating RSP for the '", input$rsp.info$analysis.type, "' data compiled on ", input$rsp.info$analysis.time)
 
@@ -81,7 +90,7 @@ runRSP <- function(input, t.layer, coord.x, coord.y, distance = 250, tags,
   detections <- prepareDetections(detections = detections, 
     spatial = spatial, coord.x = coord.x, coord.y = coord.y)
 
-  RSP.time <- system.time(recipient <- includeRSP(detections = detections, transition = t.layer, max.time = max.time, min.time = min.time,
+  RSP.time <- system.time(recipient <- includeRSP(detections = detections, transition = t.layer, max.time = max.time, min.time = min.time, recaptures = recaptures,
                                            tz = tz, distance = distance, time.step = time.step, er.ad = er.ad, verbose = verbose, debug = debug))
   rsp.detections <- recipient$output
   tracks <- recipient$tracks
@@ -272,11 +281,12 @@ calcRSP <- function(df.track, tz, distance, min.time, time.step, transition, er.
 #' @param detections Detection data for that individual as imported using RSPete.
 #' @param transition TransitionLayer object as returned by LTDpath.
 #' @param tz Timezone of the study area.
+#' @param recaptures If the recapture locations will be included in the analysis.
 #' @inheritParams runRSP
 #' 
 #' @return A list with the RSP estimations of individual tracks per transmitter.
 #' 
-includeRSP <- function(detections, transition, tz, distance, time.step, er.ad, min.time, max.time, verbose, debug = FALSE) {
+includeRSP <- function(detections, transition, tz, distance, time.step, er.ad, min.time, max.time, verbose, debug = FALSE, recaptures) {
   if (debug)
     on.exit(save(list = ls(), file = "includeRSP_debug.RData"), add = TRUE)
   
@@ -291,7 +301,7 @@ includeRSP <- function(detections, transition, tz, distance, time.step, er.ad, m
     if (verbose)
       message(crayon::bold(crayon::green((paste("Analysing:", names(detections)[i])))))
     flush.console()
-    recipient <- nameTracks(detections = detections[[i]], max.time = max.time) # Fine-scale tracking
+    recipient <- nameTracks(detections = detections[[i]], max.time = max.time, recaptures = recaptures, tz = tz) # Fine-scale tracking
     detections[[i]] <<- recipient$detections
     tracks <- recipient$tracks
     

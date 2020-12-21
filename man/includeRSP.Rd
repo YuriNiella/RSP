@@ -14,7 +14,8 @@ includeRSP(
   min.time,
   max.time,
   verbose,
-  debug = FALSE
+  debug = FALSE,
+  recaptures
 )
 }
 \arguments{
@@ -37,6 +38,8 @@ includeRSP(
 \item{verbose}{Logical: If TRUE, detailed messages and progression are displayed. Otherwise, a single progress bar is shown.}
 
 \item{debug}{Logical: If TRUE, the function progress is saved to an RData file.}
+
+\item{recaptures}{If the recapture locations will be included in the analysis.}
 }
 \value{
 A list with the RSP estimations of individual tracks per transmitter.

@@ -5,12 +5,46 @@
 #'
 #' @param detections Detections data frame
 #' @param max.time Temporal lag in hours to be considered for the fine-scale tracking. Default is to consider 1-day intervals.
+#' @param recaptures If the recapture locations will be included in the analysis.
+#' @param tz Time zone of the study area.
 #' 
 #' @return A dataframe with identified and named individual tracks for RSP estimation.
 #' 
-nameTracks <- function(detections, max.time = 24) {
+nameTracks <- function(detections, max.time = 24, recaptures, tz) {
   # Assign tracks to detections
-  breaks <- which(detections$Time.lapse.min > max.time * 60)
+  if (recaptures == FALSE)
+      breaks <- which(detections$Time.lapse.min > max.time * 60)
+
+  if (recaptures == TRUE) {
+    recap <- read.csv("recaptures.csv")
+    if (detections$Signal[1] %in% recap$Signal) {
+      aux.recap <- recap[which(recap$Signal == detections$Signal[1]), ] 
+      detections.aux <- detections[1:nrow(aux.recap), ] # Auxiliar to merge recaptures to detection data!
+      detections.aux$Receiver <- NA
+      detections.aux$Standard.name <- "Recapture"
+      detections.aux$Position <- "Recapture"
+      detections.aux$Error <- 500 # Reset to default 500 m error
+      detections.aux$Array <- NA
+      detections.aux$Time.lapse.min <- NA
+      detections.aux$Latitude <- aux.recap$Latitude
+      detections.aux$Longitude <- aux.recap$Longitude
+      detections.aux$Timestamp <- as.POSIXct(aux.recap$Recapture.date, format = "%Y-%m-%d %H:%M:%S", tz = tz) 
+      detections.aux$Date <- as.Date(detections.aux$Timestamp)
+      detections <- rbind(detections, detections.aux)
+      detections <- detections[order(detections$Timestamp), ]
+
+      # Fill missing timelapses:
+      index <- which(is.na(detections$Time.lapse.min) == TRUE)
+      for (missing in 1:length(index)) {
+        detections$Time.lapse.min[index[missing]] <- as.numeric(difftime(detections$Timestamp[index[missing]], 
+          detections$Timestamp[index[missing] - 1], units = "mins"))
+      }
+      breaks <- which(detections$Time.lapse.min > max.time * 60 | detections$Position == "Recapture")
+    } else {
+      breaks <- which(detections$Time.lapse.min > max.time * 60)
+    }
+  }
+    
   starts <- c(1, breaks)
   stops  <- c(breaks, nrow(detections) + 1)
   n <- (stops - starts)
