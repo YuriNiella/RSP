@@ -43,7 +43,7 @@ test_that("runRSP including recaptures is working", {
 		coord.x = "Longitude", coord.y = "Latitude", 
 		er.ad = 5, max.time = 1, recaptures = TRUE)
 	## RUN THESE LINES ONLY TO REPLACE THE REFERENCES!
-	# reference_runRSP_latlon_group.recap <- rsp.data
+	# reference_runRSP_latlon_group.recap <- rsp.data.recap
 	# save(reference_runRSP_latlon_group.recap, file = "runRSP_latlon_group.recap.RData")
 	load("runRSP_latlon_group.recap.RData")
 	expect_equivalent(rsp.data.recap, reference_runRSP_latlon_group.recap) 

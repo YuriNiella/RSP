@@ -189,7 +189,7 @@ If the animal you want to plot was recaptured and you want to include the recapt
 
 ```
 plotTracks(input = rsp.data, base.raster = water, tag = "A69-9004-485", track = 3) + 
-  addStations(rsp.data) + addRecaptures(tag = "A69-9004-485")
+  addStations(rsp.data) + addRecaptures(Signal = "485")
 ```
 ![](addRecaptures.png){#id .class width=75%} 
 

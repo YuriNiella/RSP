@@ -42,7 +42,7 @@ addStations <- function(input, shape = 21, size = 1.5, colour = "white", fill = 
 
 #' Add recapture locations to an existing plot
 #' 
-#' @param tag The transmitter of interest
+#' @param Signal The signal of the transmitter of interest
 #' @param shape The shape of the points
 #' @param size The size of the points
 #' @param colour The colour of the points
@@ -52,10 +52,10 @@ addStations <- function(input, shape = 21, size = 1.5, colour = "white", fill = 
 #' 
 #' @export
 #' 
-addRecaptures <- function(tag, shape = 21, size = 1.5, colour = "white", fill = "dodgerblue") {
+addRecaptures <- function(Signal, shape = 21, size = 1.5, colour = "white", fill = "dodgerblue") {
   recap <- read.csv("recaptures.csv")
-  recap <- recap[which(recap$Serial_nr == tag), ] 
-  ggplot2::geom_point(data = recap, ggplot2::aes(x = recap[, 8], y = recap[, 7]), 
+  recap <- recap[which(recap$Signal == Signal), ] 
+  ggplot2::geom_point(data = recap, ggplot2::aes(x = recap[, 6], y = recap[, 5]), 
     color = colour, fill = fill, shape = shape, size = size)
 }
 

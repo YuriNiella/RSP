@@ -5,7 +5,7 @@
 \title{Add recapture locations to an existing plot}
 \usage{
 addRecaptures(
-  tag,
+  Signal,
   shape = 21,
   size = 1.5,
   colour = "white",
@@ -13,7 +13,7 @@ addRecaptures(
 )
 }
 \arguments{
-\item{tag}{The transmitter of interest}
+\item{Signal}{The signal of the transmitter of interest}
 
 \item{shape}{The shape of the points}
 
