@@ -11,7 +11,7 @@ Refining the Shortest Paths (RSP) of animals tracked with acoustic
 transmitters in estuarine regions
 
 ## Overview
-
+ 
 The RSP toolkit is a method for analyzing the fine scale movements of
 aquatic animals tracked with passive acoustic telemetry in estuarine
 environments, that accounts for the surrounding land masses. The animal
