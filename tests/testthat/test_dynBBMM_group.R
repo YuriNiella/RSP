@@ -464,7 +464,7 @@ test_that("addStations works", {
 # addRecaptures
 test_that("addRecaptures works", {
 	output <- suppressWarnings(plotTracks(rsp.data.recap, base.raster = water.large, tag = "A69-9001-1111", track = 1)) 
-	output.recaps <- output + addStations(rsp.data.recap) + addRecaptures(tag =  "A69-9001-1111")
+	output.recaps <- output + addStations(rsp.data.recap) + addRecaptures(Signal =  "1111")
 	expect_that(output.recaps, is_a("ggplot"))
 })
 
