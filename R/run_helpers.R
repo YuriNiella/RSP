@@ -23,22 +23,16 @@ nameTracks <- function(detections, max.time = 24, recaptures, tz) {
       detections.aux$Receiver <- NA
       detections.aux$Standard.name <- "Recapture"
       detections.aux$Position <- "Recapture"
-      detections.aux$Error <- 500 # Reset to default 500 m error
+      detections.aux$Error <- min(detections$Error) # Reset to minimum default error!
       detections.aux$Array <- NA
-      detections.aux$Time.lapse.min <- NA
       detections.aux$Latitude <- aux.recap$Latitude
       detections.aux$Longitude <- aux.recap$Longitude
       detections.aux$Timestamp <- as.POSIXct(aux.recap$Recapture.date, format = "%Y-%m-%d %H:%M:%S", tz = tz) 
       detections.aux$Date <- as.Date(detections.aux$Timestamp)
       detections <- rbind(detections, detections.aux)
       detections <- detections[order(detections$Timestamp), ]
-
-      # Fill missing timelapses:
-      index <- which(is.na(detections$Time.lapse.min) == TRUE)
-      for (missing in 1:length(index)) {
-        detections$Time.lapse.min[index[missing]] <- as.numeric(difftime(detections$Timestamp[index[missing]], 
-          detections$Timestamp[index[missing] - 1], units = "mins"))
-      }
+      detections$Time.lapse.min <- c(0, as.numeric(difftime(detections$Timestamp[-1], detections$Timestamp[-nrow(detections)], units = "mins")))
+      
       breaks <- which(detections$Time.lapse.min > max.time * 60 | detections$Position == "Recapture")
     } else {
       breaks <- which(detections$Time.lapse.min > max.time * 60)

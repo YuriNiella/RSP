@@ -200,16 +200,25 @@ calcRSP <- function(df.track, tz, distance, min.time, time.step, transition, er.
       mat.aux <- as.data.frame(df.track[-(1:.N)])
       
       # Add intermediate timeframe
-      time.step <- df.track$Time.lapse.min[i] * 60 / (intermediate.points + 1)
+      time.increment <- df.track$Time.lapse.min[i] * 60 / (intermediate.points + 1)
       
       baseline <- df.track$Timestamp[i - 1] # Base timeframe
       incremented.baseline <- baseline
       
-      for (pos2 in 1:intermediate.points) {
-        incremented.baseline <- incremented.baseline + time.step
-        mat.aux[pos2, "Timestamp"] <- incremented.baseline
-      }
-      
+      if (intermediate.points == 1) {
+          incremented.baseline <- baseline + (as.numeric(difftime(df.track$Timestamp[i], df.track$Timestamp[i - 1], units = "secs"))/ 2)
+          mat.aux[1, "Timestamp"] <- incremented.baseline
+        }
+
+      if (intermediate.points > 1) {
+        for (pos2 in 1:intermediate.points) {
+          incremented.baseline <- incremented.baseline + time.increment
+          mat.aux[pos2, "Timestamp"] <- incremented.baseline
+        }
+        if (mat.aux$Timestamp[nrow(mat.aux)] == df.track$Timestamp[i])
+        mat.aux <- mat.aux[-nrow(mat.aux), ]
+      } 
+
       # Add timelapse for RSP
       mat.aux$Time.lapse.min[1] <- as.numeric(difftime(mat.aux$Timestamp[1], df.track$Timestamp[i - 1], units = "mins"))
       if(nrow(mat.aux) > 1)
@@ -270,7 +279,11 @@ calcRSP <- function(df.track, tz, distance, min.time, time.step, transition, er.
   }
   if (verbose)
     close(pb)
-  return(list(output = rbind(aux.RSP, df.track), path.list = path.list))
+
+  tracks.save <- rbind(aux.RSP, df.track)
+  tracks.save <- tracks.save[order(tracks.save$Timestamp), ]
+  row.names(tracks.save) <- 1:nrow(tracks.save)
+  return(list(output = tracks.save, path.list = path.list))
 }
 
 
@@ -312,7 +325,9 @@ includeRSP <- function(detections, transition, tz, distance, time.step, er.ad, m
         message("Estimating ", names(detections)[i], " RSP: ", names(track.aux)[j])
       flush.console()
       # Recreate RSP
-      function.recipient <- calcRSP(df.track = track.aux[[j]], tz = tz, distance = distance, verbose = verbose, min.time = min.time,
+      df.track <- track.aux[[j]]
+      df.track$Time.lapse.min <- c(0, as.numeric(difftime(df.track$Timestamp[-1], df.track$Timestamp[-nrow(df.track)], units = "mins")))
+      function.recipient <- calcRSP(df.track = df.track, tz = tz, distance = distance, verbose = verbose, min.time = min.time,
                                     time.step = time.step, transition = transition, er.ad = er.ad, path.list = path.list)
       # return path.list directly to environment above
       path.list <<- function.recipient$path.list
