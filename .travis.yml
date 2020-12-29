@@ -3,13 +3,14 @@ sudo: required
 cache: packages
 
 os: 
-  - macos
+  - windows
 
 warnings_are_errors: false
 
 script: 
   - |
     R CMD build .
+    travis_wait 50 R CMD check RSP*tar.gz
 addons:
   apt:
     packages:
