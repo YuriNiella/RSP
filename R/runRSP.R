@@ -283,6 +283,9 @@ calcRSP <- function(df.track, tz, distance, min.time, time.step, transition, er.
   tracks.save <- rbind(aux.RSP, df.track)
   tracks.save <- tracks.save[order(tracks.save$Timestamp), ]
   row.names(tracks.save) <- 1:nrow(tracks.save)
+  if ("Recapture" %in% tracks.save$Position)
+    tracks.save$Section[which(as.character(tracks.save$Position) == "Recapture")] <- NA
+
   return(list(output = tracks.save, path.list = path.list))
 }
 
