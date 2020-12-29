@@ -3,7 +3,7 @@ sudo: required
 cache: packages
 
 os: 
-  - windows
+  - macos
 
 warnings_are_errors: false
 
