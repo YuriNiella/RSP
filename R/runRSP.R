@@ -283,9 +283,6 @@ calcRSP <- function(df.track, tz, distance, min.time, time.step, transition, er.
   tracks.save <- rbind(aux.RSP, df.track)
   tracks.save <- tracks.save[order(tracks.save$Timestamp), ]
   row.names(tracks.save) <- 1:nrow(tracks.save)
-  if ("Recapture" %in% tracks.save$Position)
-    tracks.save$Section[which(as.character(tracks.save$Position) == "Recapture")] <- NA
-
   return(list(output = tracks.save, path.list = path.list))
 }
 
@@ -332,6 +329,10 @@ includeRSP <- function(detections, transition, tz, distance, time.step, er.ad, m
       df.track$Time.lapse.min <- c(0, as.numeric(difftime(df.track$Timestamp[-1], df.track$Timestamp[-nrow(df.track)], units = "mins")))
       function.recipient <- calcRSP(df.track = df.track, tz = tz, distance = distance, verbose = verbose, min.time = min.time,
                                     time.step = time.step, transition = transition, er.ad = er.ad, path.list = path.list)
+    
+      if ("Recapture" %in% function.recipient$Position)
+        function.recipient$Section[which(as.character(function.recipient$Position) == "Recapture")] <- NA
+
       # return path.list directly to environment above
       path.list <<- function.recipient$path.list
 
