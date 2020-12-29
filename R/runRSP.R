@@ -330,9 +330,6 @@ includeRSP <- function(detections, transition, tz, distance, time.step, er.ad, m
       function.recipient <- calcRSP(df.track = df.track, tz = tz, distance = distance, verbose = verbose, min.time = min.time,
                                     time.step = time.step, transition = transition, er.ad = er.ad, path.list = path.list)
     
-      if ("Recapture" %in% function.recipient$Position)
-        function.recipient$Section[which(as.character(function.recipient$Position) == "Recapture")] <- NA
-
       # return path.list directly to environment above
       path.list <<- function.recipient$path.list
 
