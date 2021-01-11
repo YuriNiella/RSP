@@ -217,7 +217,32 @@ plotAreas(areas.group, base.raster = water.shape, group = "Tarwhine", timeslot =
 ![](plotAreas.png){#id .class width=100%} 
 
 Note:
-  : plotAreas() can only plot group areas (i.e. run with `type = group`).
+  : plotAreas() can only plot group areas (i.e. run with `type = "group"`).
+
+Also, when a **timeslot dBBMM** is run, and `getAreas()` is set to `type = "group"`, you might be interested in obtaining representative coordinate locations of the dBBMM utilization distribution areas of your tracked animals. This can be done using the `getCentroids()` function, which will extract centroid **latitude** and **longitude** locations of a particular group of animals, using all contours of a defined level of the dBBMM for each timeslot:
+
+```
+df.centroid.B <- getCentroids(input = dbbmm.daily, areas = areas.daily, level = 0.5, 
+  group = "B", UTM = 56)
+df.centroid.B
+```
+
+|slot|     start|               stop|Group|Level|Centroid.lat|Centroid.lon|
+|:---|---------:|------------------:|----:|----:|-----------:|-----------:|
+|   1|2014-11-01|2014-11-01 23:59:59|    B|  50%|   -33.08446|    151.5696|
+|   2|2014-11-02|2014-11-02 23:59:59|    B|  50%|   -33.09270|    151.5656|
+|   3|2014-11-03|2014-11-03 23:59:59|    B|  50%|   -33.08210|    151.5586|
+|   4|2014-11-04|2014-11-04 23:59:59|    B|  50%|   -33.08507|    151.5833|
+
+
+The centroid location can then be added to a plot using the `addCentroids()` function:
+
+```
+plotAreas(areas.daily, base.raster = water, group = "B", timeslot = 1, title = "Group B (2014-11-01)") +
+		addCentroids(input = df.centroid.B, timeslot = 1)
+```
+![](getCentroids.png){#id .class width=70%} 
+
 
 
 ### 3.3.2. Track areas

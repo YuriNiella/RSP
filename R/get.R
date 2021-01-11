@@ -1,5 +1,5 @@
 #' Calculate water areas per group or track
-#' 
+#'
 #' @param input The output of \code{\link{dynBBMM}}
 #' @param breaks The contours for calculating usage areas in squared metres. By default the 95\% and 50\% contours are used. 
 #' @param type one of "group" or "track". If set to "track", UD rasters for each track are also supplied.
@@ -245,6 +245,84 @@ getAreas <- function(input, type = c("group", "track"), breaks = c(0.5, 0.95)) {
   attributes(output)$area <- type
   attributes(output)$breaks <- breaks
   return(output)
+}
+
+
+#' Get centroid locations of dBBMM
+#' 
+#' When a timeslot dBBMM analysis is conducted, this function can be used to obtain 
+#' centroid latitude and longitude locations between all utilization distribution
+#' contours at group level. Please make sure to set type = "group" in getAreas().
+#'
+#' @param input The output of \code{\link{dynBBMM}}.
+#' @param areas The output of \code{\link{getAreas}} using type = "group".
+#' @param level Numeric vector defining the contour level of dBBMM of interest to extract the centroid positions. 
+#' @param group Character vector defining the group of interest for the analysis.
+#' @param UTM Numeric vector representing the UTM zone of the study area. 
+#'
+#' @return A dataframe containing the centroid positions per each timeslot
+#' 
+#' @examples 
+#' \donttest{
+#' # Import river shapefile
+#' water <- actel::loadShape(path = system.file(package = "RSP"), 
+#'  shape = "River_latlon.shp", size = 0.0001, buffer = 0.05) 
+#' 
+#' # Create a transition layer with 8 directions
+#' tl <- actel::transitionLayer(x = water, directions = 8)
+#' 
+#' # Import example output from actel::explore() 
+#' data(input.example) 
+#' 
+#' # Run RSP analysis
+#' rsp.data <- runRSP(input = input.example, t.layer = tl, coord.x = "Longitude", coord.y = "Latitude")
+#' 
+#' # Run dynamic Brownian Bridge Movement Model (dBBMM) with timeslots:
+#' dbbmm.data <- dynBBMM(input = rsp.data, base.raster = water, UTM = 56, timeframe = 2)
+#' 
+#' # Get dBBMM areas at group level
+#' areas.group <- getAreas(dbbmm.data, type = "group", breaks = c(0.5, 0.95))
+#' 
+#' # Obtaing centroid coordinate locations of dBBMM:
+#' df.centroid <- getCentroids(input = dbbmm.data, areas = areas.group, 
+#'    level = 0.95, group = "G1", UTM = 56)
+#' }
+#' 
+#' @export
+#' 
+getCentroids <- function(input, areas, level, group, UTM) {
+  if (length(which(colnames(areas$areas[[1]]) == paste0("area.", stringr::str_remove(level, pattern = "0.")))) == 0)      
+    stop("The level specified was not found in the input object.", call. = FALSE)
+  if (length(which(names(areas$areas) == group)) == 0)
+    stop("The group specified was not found in the areas object.", call. = FALSE)
+  
+  slots <- input$timeslots$slot
+  aux.areas <- areas$areas[[which(names(areas$areas) == group)]]
+  aux.rasters <- areas$rasters[[which(names(areas$areas) == group)]]
+  slots.aux <- aux.areas$Slot
+  lat.save <- NULL
+  lon.save <- NULL
+
+  suppressWarnings(for (i in 1:length(slots.aux)) {
+    aux <- aux.rasters[[which(names(aux.rasters) == slots.aux[i])]]
+    aux <- aux[[which(names(aux) == as.character(level))]]
+    aux1 <- colMeans(raster::xyFromCell(aux, which(aux[] == 1)))
+    xy <- data.frame(X = aux1[1], Y = aux1[2])
+    sp::coordinates(xy) <- c("X", "Y")
+    sp::proj4string(xy) <- sp::CRS(paste0("+proj=utm +zone=", UTM, "+datum=WGS84 +units=m +no_defs +ellps=WGS84 +towgs84=0,0,0"))
+    trans.xy <- sp::spTransform(xy, sp::CRS("+proj=longlat +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +no_defs"))
+    lat.save <- c(lat.save, raster::extent(trans.xy)[3])
+    lon.save <- c(lon.save, raster::extent(trans.xy)[1])
+  })
+  aux.centroid <- data.frame(slots = slots.aux, lat = lat.save, lon = lon.save)
+
+  df.centroid <- input$timeslots
+  df.centroid$Group <- group
+  df.centroid$Level <- paste0(level * 100, "%")
+  df.centroid$Centroid.lat <- aux.centroid$lat[match(df.centroid$slot, aux.centroid$slots)]
+  df.centroid$Centroid.lon <- aux.centroid$lon[match(df.centroid$slot, aux.centroid$slots)]
+
+  return(df.centroid)        
 }
 
 
