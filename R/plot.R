@@ -104,7 +104,7 @@ addRecaptures <- function(Signal, shape = 21, size = 1.5, colour = "white", fill
 #' @export
 #' 
 addCentroids <- function(input, timeslot = NULL, shape = 21, size = 1.5, colour = "white", fill = "cyan") {
-  input <- input[which(input[1, ] == timeslot), ]
+  input <- input[which(input[, 1] == timeslot), ]
   ggplot2::geom_point(data = input, ggplot2::aes(x = input[, 7], y = input[, 6]), 
     color = colour, fill = fill, shape = shape, size = size)
 }
