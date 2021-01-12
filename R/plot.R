@@ -668,14 +668,18 @@ plotDistances <- function(input, group, compare = TRUE) {
     p <- p + ggplot2::labs(x = "Animal tracked", y = "Total distance travelled (metres by default)", fill = "")
     p <- p + ggplot2::scale_fill_brewer(palette = "Paired")
     p <- p + ggplot2::guides(fill = ggplot2::guide_legend(reverse = TRUE))
+    p <- p + ggplot2::theme_bw()
+    p <- p + ggplot2::coord_flip(ylim = c(0, max(plot.save$Dist.travel) * 1.05), expand = FALSE)
+    p <- p + ggplot2::labs(title = group)
   } else {
     p <- p + ggplot2::labs(x = "Animal tracked", y = "RSP total distance travelled (metres by default)", fill = "")
     p <- p + ggplot2::scale_fill_manual(values = c("#1b63a5"))
+    p <- p + ggplot2::theme_bw()
+    p <- p + ggplot2::coord_flip(ylim = c(0, max(plot.save$Dist.travel) * 1.05), expand = FALSE)
+    p <- p + ggplot2::labs(title = group) 
     p <- p + ggplot2::theme(legend.position = "none")
   }
-  p <- p + ggplot2::theme_bw()
-  p <- p + ggplot2::coord_flip(ylim = c(0, max(plot.save$Dist.travel) * 1.05), expand = FALSE)
-  p <- p + ggplot2::labs(title = group)
+  
 
   return(p)
 }

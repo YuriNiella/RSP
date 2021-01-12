@@ -333,16 +333,16 @@ getCentroids <- function(input, areas, type, level, group, UTM) {
     groups.save <- NULL
     track.save <- NULL
     slots.save <- NULL
+    lat.save <- NULL
+    lon.save <- NULL  
     for (i in 1:length(groups)) {
       aux.areas <- areas$areas[[which(names(areas$areas) == groups[i])]]
       aux.rasters <- areas$rasters[[which(names(areas$areas) == groups[i])]]
-      slots.aux <- aux.areas$Slot
-      lat.save <- NULL
-      lon.save <- NULL
-      suppressWarnings(for (ii in 1:length(slots.aux)) {
-        slots.save <- c(slots.save, slots.aux[ii])
+      slots.aux <- unique(aux.areas$Slot)
+      for (ii in 1:length(slots.aux)) {
         aux <- aux.rasters[[which(names(aux.rasters) == slots.aux[ii])]]
-        for (iii in 1:length(names(aux))) {
+        suppressWarnings(for (iii in 1:length(names(aux))) {
+          slots.save <- c(slots.save, slots.aux[ii])
           groups.save <- c(groups.save, groups[i])
           track.save <- c(track.save, names(aux)[iii])
           aux.file <- aux[[iii]][[which(names(aux[[iii]]) == as.character(level))]]
@@ -353,13 +353,14 @@ getCentroids <- function(input, areas, type, level, group, UTM) {
           trans.xy <- sp::spTransform(xy, sp::CRS("+proj=longlat +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +no_defs"))
           lat.save <- c(lat.save, raster::extent(trans.xy)[3])
           lon.save <- c(lon.save, raster::extent(trans.xy)[1])
-        }
-      })
+        })
+      }
     }
-    aux.centroid <- data.frame(Group = groups.save, Track = track.save, slot = slots.save, Controid.lat = lat.save, Centroid.lon = lon.save)
+    aux.centroid <- data.frame(Group = groups.save, Track = track.save, slot = slots.save,
+      Centroid.lat = lat.save, Centroid.lon = lon.save, Level = paste0(level * 100, "%"))
     aux.centroid$start <- input$timeslots$start[match(aux.centroid$slot, input$timeslots$slot)]
     aux.centroid$stop <- input$timeslots$stop[match(aux.centroid$slot, input$timeslots$slot)]
-    aux.centroid <- aux.centroid[, c(3, 6, 7, 1, 2, 4, 5)]
+    aux.centroid <- aux.centroid[, c(3, 7, 8, 1, 2, 6, 4, 5)]
     return(aux.centroid)  
   }
 }
