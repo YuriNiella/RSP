@@ -60,7 +60,7 @@ addRecaptures <- function(Signal, shape = 21, size = 1.5, colour = "white", fill
 }
 
 
-#' Add centroid location to an existing plot
+#' Add group centroid location to an existing plot
 #' 
 #' @param input The output of \code{\link{getCentroids}}
 #' @param timeslot The timeslot of interest to plot the centroid location
@@ -93,10 +93,10 @@ addRecaptures <- function(Signal, shape = 21, size = 1.5, colour = "white", fill
 #' areas.group <- getAreas(dbbmm.data, type = "group", breaks = c(0.5, 0.95))
 #'
 #' # Obtaing centroid coordinate locations of dBBMM:
-#' df.centroid <- getCentroids(input = dbbmm.data, areas = areas.group, 
+#' df.centroid <- getCentroids(input = dbbmm.data, type = "group", areas = areas.group, 
 #'    level = 0.95, group = "G1", UTM = 56)
 #'
-#' # Plot centroid location:
+#' # Plot group centroid location:
 #' plotAreas(areas.group, base.raster = water, group = "G1", timeslot = 7) +
 #'    addCentroids(input = df.centroid, timeslot = 7)
 #' }

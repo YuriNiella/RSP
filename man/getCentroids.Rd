@@ -4,16 +4,18 @@
 \alias{getCentroids}
 \title{Get centroid locations of dBBMM}
 \usage{
-getCentroids(input, areas, level, group, UTM)
+getCentroids(input, areas, type, level, group, UTM)
 }
 \arguments{
 \item{input}{The output of \code{\link{dynBBMM}}.}
 
-\item{areas}{The output of \code{\link{getAreas}} using type = "group".}
+\item{areas}{The output of \code{\link{getAreas}}.}
+
+\item{type}{Character vector specifying the type of getAreas analysis performed: "group" or "track".}
 
 \item{level}{Numeric vector defining the contour level of dBBMM of interest to extract the centroid positions.}
 
-\item{group}{Character vector defining the group of interest for the analysis.}
+\item{group}{Character vector defining the group of interest for the analysis, when getAreas is of type "group".}
 
 \item{UTM}{Numeric vector representing the UTM zone of the study area.}
 }
@@ -23,7 +25,7 @@ A dataframe containing the centroid positions per each timeslot
 \description{
 When a timeslot dBBMM analysis is conducted, this function can be used to obtain 
 centroid latitude and longitude locations between all utilization distribution
-contours at group level. Please make sure to set type = "group" in getAreas().
+contours at group or track level.
 }
 \examples{
 \donttest{
@@ -47,7 +49,7 @@ dbbmm.data <- dynBBMM(input = rsp.data, base.raster = water, UTM = 56, timeframe
 areas.group <- getAreas(dbbmm.data, type = "group", breaks = c(0.5, 0.95))
 
 # Obtaing centroid coordinate locations of dBBMM:
-df.centroid <- getCentroids(input = dbbmm.data, areas = areas.group, 
+df.centroid <- getCentroids(input = dbbmm.data, areas = areas.group, type = "group",
    level = 0.95, group = "G1", UTM = 56)
 }
 

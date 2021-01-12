@@ -100,31 +100,31 @@ test_that("both start.time and stop.time work", {
 
 test_that("The correct level is set for getCentroids", {
 	areas.group <- getAreas(dbbmm.time, type = "group", breaks = c(0.5, 0.95))
-	expect_error(getCentroids(input = dbbmm.time, areas = areas.group, level = 0.3, group = "G1", UTM = 56),
+	expect_error(getCentroids(input = dbbmm.time, type = "group", areas = areas.group, level = 0.3, group = "G1", UTM = 56),
 		"The level specified was not found in the input object.", fixed = TRUE)
 }) 
 
 test_that("The correct group is set for getCentroids", {
 	areas.group <- getAreas(dbbmm.time, type = "group", breaks = c(0.5, 0.95))
-	expect_error(getCentroids(input = dbbmm.time, areas = areas.group, level = 0.95, group = "banana", UTM = 56),
+	expect_error(getCentroids(input = dbbmm.time, type = "group", areas = areas.group, level = 0.95, group = "banana", UTM = 56),
 		"The group specified was not found in the areas object.", fixed = TRUE)
 }) 
 
-test_that("getCentroids is working for timeslot analysis", {
+test_that("getCentroids is working for timeslot analysis of type = group", {
 	areas.group <- getAreas(dbbmm.time, type = "group", breaks = c(0.5, 0.95))
-	aux <- getCentroids(input = dbbmm.time, areas = areas.group, level = 0.95, group = "G1", UTM = 56)
+	aux <- getCentroids(input = dbbmm.time, type = "group", areas = areas.group, level = 0.95, group = "G1", UTM = 56)
 	expect_that(aux, is_a("data.frame"))
 }) 
 
-test_that("getCentroids is working for timeslot analysis", {
-	areas.group <- getAreas(dbbmm.time, type = "group", breaks = c(0.5, 0.95))
-	aux <- getCentroids(input = dbbmm.time, areas = areas.group, level = 0.95, group = "G1", UTM = 56)
+test_that("getCentroids is working for timeslot analysis of type = track", {
+	areas.group <- getAreas(dbbmm.time, type = "track", breaks = c(0.5, 0.95))
+	aux <- getCentroids(input = dbbmm.time, type = "track", areas = areas.group, level = 0.95, group = "G1", UTM = 56)
 	expect_that(aux, is_a("data.frame"))
 }) 
 
-test_that("addCentroids is working", {
+test_that("addCentroids is working for type = group", {
 	areas.group <- getAreas(dbbmm.time, type = "group", breaks = c(0.5, 0.95))
-	aux <- getCentroids(input = dbbmm.time, areas = areas.group, level = 0.95, group = "G1", UTM = 56)
+	aux <- getCentroids(input = dbbmm.time, type = "group", areas = areas.group, level = 0.95, group = "G1", UTM = 56)
 	aux.plot <- suppressWarnings(plotAreas(areas.group, base.raster = water, group = "G1", timeslot = 6) +
 	    addCentroids(input = aux, timeslot = 6))
 	expect_that(aux.plot, is_a("ggplot"))

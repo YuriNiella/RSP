@@ -252,12 +252,13 @@ getAreas <- function(input, type = c("group", "track"), breaks = c(0.5, 0.95)) {
 #' 
 #' When a timeslot dBBMM analysis is conducted, this function can be used to obtain 
 #' centroid latitude and longitude locations between all utilization distribution
-#' contours at group level. Please make sure to set type = "group" in getAreas().
+#' contours at group or track level. 
 #'
 #' @param input The output of \code{\link{dynBBMM}}.
-#' @param areas The output of \code{\link{getAreas}} using type = "group".
+#' @param areas The output of \code{\link{getAreas}}.
+#' @param type Character vector specifying the type of getAreas analysis performed: "group" or "track".
 #' @param level Numeric vector defining the contour level of dBBMM of interest to extract the centroid positions. 
-#' @param group Character vector defining the group of interest for the analysis.
+#' @param group Character vector defining the group of interest for the analysis, when getAreas is of type "group".
 #' @param UTM Numeric vector representing the UTM zone of the study area. 
 #'
 #' @return A dataframe containing the centroid positions per each timeslot
@@ -284,47 +285,85 @@ getAreas <- function(input, type = c("group", "track"), breaks = c(0.5, 0.95)) {
 #' areas.group <- getAreas(dbbmm.data, type = "group", breaks = c(0.5, 0.95))
 #' 
 #' # Obtaing centroid coordinate locations of dBBMM:
-#' df.centroid <- getCentroids(input = dbbmm.data, areas = areas.group, 
+#' df.centroid <- getCentroids(input = dbbmm.data, areas = areas.group, type = "group",
 #'    level = 0.95, group = "G1", UTM = 56)
 #' }
 #' 
 #' @export
 #' 
-getCentroids <- function(input, areas, level, group, UTM) {
-  if (length(which(colnames(areas$areas[[1]]) == paste0("area.", stringr::str_remove(level, pattern = "0.")))) == 0)      
-    stop("The level specified was not found in the input object.", call. = FALSE)
-  if (length(which(names(areas$areas) == group)) == 0)
-    stop("The group specified was not found in the areas object.", call. = FALSE)
-  
-  slots <- input$timeslots$slot
-  aux.areas <- areas$areas[[which(names(areas$areas) == group)]]
-  aux.rasters <- areas$rasters[[which(names(areas$areas) == group)]]
-  slots.aux <- aux.areas$Slot
-  lat.save <- NULL
-  lon.save <- NULL
+getCentroids <- function(input, areas, type, level, group, UTM) {
+  if (type == "group") {
+    if (length(which(colnames(areas$areas[[1]]) == paste0("area.", stringr::str_remove(level, pattern = "0.")))) == 0)      
+      stop("The level specified was not found in the input object.", call. = FALSE)
+    if (length(which(names(areas$areas) == group)) == 0)
+      stop("The group specified was not found in the areas object.", call. = FALSE)
+    
+    slots <- input$timeslots$slot
+    aux.areas <- areas$areas[[which(names(areas$areas) == group)]]
+    aux.rasters <- areas$rasters[[which(names(areas$areas) == group)]]
+    slots.aux <- aux.areas$Slot
+    lat.save <- NULL
+    lon.save <- NULL
+    suppressWarnings(for (i in 1:length(slots.aux)) {
+      aux <- aux.rasters[[which(names(aux.rasters) == slots.aux[i])]]
+      aux <- aux[[which(names(aux) == as.character(level))]]
+      aux1 <- colMeans(raster::xyFromCell(aux, which(aux[] == 1)))
+      xy <- data.frame(X = aux1[1], Y = aux1[2])
+      sp::coordinates(xy) <- c("X", "Y")
+      sp::proj4string(xy) <- sp::CRS(paste0("+proj=utm +zone=", UTM, "+datum=WGS84 +units=m +no_defs +ellps=WGS84 +towgs84=0,0,0"))
+      trans.xy <- sp::spTransform(xy, sp::CRS("+proj=longlat +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +no_defs"))
+      lat.save <- c(lat.save, raster::extent(trans.xy)[3])
+      lon.save <- c(lon.save, raster::extent(trans.xy)[1])
+    })
+    aux.centroid <- data.frame(slots = slots.aux, lat = lat.save, lon = lon.save)
+    df.centroid <- input$timeslots
+    df.centroid$Group <- group
+    df.centroid$Level <- paste0(level * 100, "%")
+    df.centroid$Centroid.lat <- aux.centroid$lat[match(df.centroid$slot, aux.centroid$slots)]
+    df.centroid$Centroid.lon <- aux.centroid$lon[match(df.centroid$slot, aux.centroid$slots)]
+    return(df.centroid)        
+  }
 
-  suppressWarnings(for (i in 1:length(slots.aux)) {
-    aux <- aux.rasters[[which(names(aux.rasters) == slots.aux[i])]]
-    aux <- aux[[which(names(aux) == as.character(level))]]
-    aux1 <- colMeans(raster::xyFromCell(aux, which(aux[] == 1)))
-    xy <- data.frame(X = aux1[1], Y = aux1[2])
-    sp::coordinates(xy) <- c("X", "Y")
-    sp::proj4string(xy) <- sp::CRS(paste0("+proj=utm +zone=", UTM, "+datum=WGS84 +units=m +no_defs +ellps=WGS84 +towgs84=0,0,0"))
-    trans.xy <- sp::spTransform(xy, sp::CRS("+proj=longlat +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +no_defs"))
-    lat.save <- c(lat.save, raster::extent(trans.xy)[3])
-    lon.save <- c(lon.save, raster::extent(trans.xy)[1])
-  })
-  aux.centroid <- data.frame(slots = slots.aux, lat = lat.save, lon = lon.save)
-
-  df.centroid <- input$timeslots
-  df.centroid$Group <- group
-  df.centroid$Level <- paste0(level * 100, "%")
-  df.centroid$Centroid.lat <- aux.centroid$lat[match(df.centroid$slot, aux.centroid$slots)]
-  df.centroid$Centroid.lon <- aux.centroid$lon[match(df.centroid$slot, aux.centroid$slots)]
-
-  return(df.centroid)        
+  if (type == "track") {
+    if (length(which(colnames(areas$areas[[1]]) == paste0("area.", stringr::str_remove(level, pattern = "0.")))) == 0)      
+      stop("The level specified was not found in the input object.", call. = FALSE)
+    
+    groups <- names(areas$areas)
+    slots <- input$timeslots$slot
+    groups.save <- NULL
+    track.save <- NULL
+    slots.save <- NULL
+    for (i in 1:length(groups)) {
+      aux.areas <- areas$areas[[which(names(areas$areas) == groups[i])]]
+      aux.rasters <- areas$rasters[[which(names(areas$areas) == groups[i])]]
+      slots.aux <- aux.areas$Slot
+      lat.save <- NULL
+      lon.save <- NULL
+      suppressWarnings(for (ii in 1:length(slots.aux)) {
+        slots.save <- c(slots.save, slots.aux[ii])
+        aux <- aux.rasters[[which(names(aux.rasters) == slots.aux[ii])]]
+        for (iii in 1:length(names(aux))) {
+          groups.save <- c(groups.save, groups[i])
+          track.save <- c(track.save, names(aux)[iii])
+          aux.file <- aux[[iii]][[which(names(aux[[iii]]) == as.character(level))]]
+          aux1 <- colMeans(raster::xyFromCell(aux.file, which(aux.file[] == 1)))
+          xy <- data.frame(X = aux1[1], Y = aux1[2])
+          sp::coordinates(xy) <- c("X", "Y")
+          sp::proj4string(xy) <- sp::CRS(paste0("+proj=utm +zone=", UTM, "+datum=WGS84 +units=m +no_defs +ellps=WGS84 +towgs84=0,0,0"))
+          trans.xy <- sp::spTransform(xy, sp::CRS("+proj=longlat +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +no_defs"))
+          lat.save <- c(lat.save, raster::extent(trans.xy)[3])
+          lon.save <- c(lon.save, raster::extent(trans.xy)[1])
+        }
+      })
+    }
+    aux.centroid <- data.frame(Group = groups.save, Track = track.save, slot = slots.save, Controid.lat = lat.save, Centroid.lon = lon.save)
+    aux.centroid$start <- input$timeslots$start[match(aux.centroid$slot, input$timeslots$slot)]
+    aux.centroid$stop <- input$timeslots$stop[match(aux.centroid$slot, input$timeslots$slot)]
+    aux.centroid <- aux.centroid[, c(3, 6, 7, 1, 2, 4, 5)]
+    return(aux.centroid)  
+  }
 }
-
+  
 
 #' Get total distances travelled 
 #' 
