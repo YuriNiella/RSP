@@ -17,6 +17,10 @@ addons:
       - libudunits2-dev
       - libgdal-dev
       - libproj-dev
+  homebrew:
+    casks:
+    - dotnet-sdk
+
 
 before_install:
   - R -e 'install.packages("rgdal", repos=c("http://R-Forge.R-project.org", "http://cran.rstudio.com"))'      
