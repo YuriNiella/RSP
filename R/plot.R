@@ -1082,7 +1082,7 @@ plotTracks <- function(input, base.raster, type = c("both", "points", "lines"),
       stop("The requested group is not present in the dataset. Available groups: ", 
         paste(unique(input$bio$Group), collapse =", "), call. = FALSE)
     to.keep <- input$bio$Signal[!is.na(match(input$bio$Group, group))]
-    link <- match(actel::extractSignals(names(input$detections)), to.keep)
+    link <- match(to.keep, actel::extractSignals(names(input$detections)))
     link <- link[!is.na(link)]
     detections <- do.call(rbind.data.frame, input$detections[link])
   }
