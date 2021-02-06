@@ -2,8 +2,7 @@ language: r
 sudo: required
 cache: packages
 
-os: osx
-  osx_image: xcode12.2
+os: windows
 
 warnings_are_errors: false
 
@@ -20,7 +19,7 @@ addons:
 
 before_install:
   - R -e 'install.packages("rgdal", repos=c("http://R-Forge.R-project.org", "http://cran.rstudio.com"))'      
-  - brew install --cask
+  - brew cask install virtualbox
   
 r_packages:
   - sp
