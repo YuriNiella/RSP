@@ -2,14 +2,14 @@ language: r
 sudo: required
 cache: packages
 
-os: macos
-
+os: macos  
 warnings_are_errors: false
 
 script: 
   - |
     R CMD build .
     travis_wait 50 R CMD check RSP*tar.gz
+
 addons:
   apt:
     packages:
@@ -19,7 +19,6 @@ addons:
 
 before_install:
   - R -e 'install.packages("rgdal", repos=c("http://R-Forge.R-project.org", "http://cran.rstudio.com"))'      
-  - brew install --cask 
   
 r_packages:
   - sp
