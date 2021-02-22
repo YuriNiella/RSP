@@ -99,6 +99,13 @@ biological groups** occurred:
 
 <img src="vignettes/plotOverlaps2.png" width="850"  />
 
+
+**animateTracks()**
+
+This function can be used to create an **animation** of the **RSP tracks**:
+
+![](vignettes/Sydney_anim.gif)
+
 ## Installation
 
 Current version: **1.0.2**
