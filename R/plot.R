@@ -1170,3 +1170,173 @@ suggestSize <- function(input, max) {
     return(round(c("width" = max / ratio, "height" = max), 0))
   }
 }
+
+#' Animate the RSP tracks
+#' 
+#' This function can be used to generate an animated plot of the RSP tracks. 
+#'
+#' @param input The output of runRSP.
+#' @param base.raster The raster used to generate the transition layer used in runRSP.
+#' @param tags Character vector specifying which tags to include in the animation.
+#' @param drop.groups Character vector specifying any group(s) to the be removed from the animation. 
+#' @param by.group Logical, if TRUE one facet will be plotted for each tracked group. Defauly is FALSE.
+#' @param start.time Character vector of the start point (format = "Y-m-d H:M:S") for the animation.
+#' @param stop.time Character vector of the stop point (format = "Y-m-d H:M:S") for the animation.
+#' @param land.col Colour of the land masses. Defaults to semi-transparent grey.
+#' @param add.legend Logical, if TRUE (default) a colour legend representing the monitored tags will be included. 
+#' @param add.stations Logical, if TRUE the stations will be added to the animaltion. Default is FALSE. Only works 
+#' if by.group = FALSE.
+#' @param xlim Numeric vector defining the horizontal limits of the map.
+#' @param ylim Numeric vector defining the vertical limits of the map.
+#' @param save.gif Logical defining if the animation should be saved. 
+#' @param gif.name If save.gif = TRUE, character vector for the GIF name.
+#' @param height If save.gif = TRUE, number of pixels for the GIF height.
+#' @param width If save.gif = TRUE, number of pixels for the GIF width.
+#' @param nframes The number of frames to render (default 100).
+#' @param fps The framerate of the animation in frames/sec (default 10). 
+#'
+#' @return An animation of the RSP tracks.
+#' 
+#' @examples 
+#' \donttest{
+#' # Import river shapefile
+#' water <- actel::loadShape(path = system.file(package = "RSP"), 
+#'  shape = "River_latlon.shp", size = 0.0001, buffer = 0.05) 
+#' 
+#' # Create a transition layer with 8 directions
+#' tl <- actel::transitionLayer(x = water, directions = 8)
+#' 
+#' # Import example output from actel::explore() 
+#' data(input.example) 
+#' 
+#' # Run RSP analysis
+#' rsp.data <- runRSP(input = input.example, t.layer = tl, coord.x = "Longitude", coord.y = "Latitude")
+#' 
+#' # Animate and RSP track:
+#' animateTracks(input = rsp.data, base.raster = water, tags = "A69-9001-1111", add.stations = TRUE)
+#' }
+#' 
+#' @export
+#' 
+animateTracks <- function(input, base.raster, tags = NULL, drop.groups = NULL, by.group = FALSE, start.time, stop.time, land.col = "#BABCBF80", 
+    add.legend = TRUE, add.stations = FALSE, save.gif = FALSE, gif.name = "Animation.gif", height = 720, width = 720,
+    xlim = NULL, ylim = NULL, nframes = 100, fps = 10) {
+
+    message("Preparing RSP data for the animation...")
+    detections <- do.call(rbind.data.frame, input$detections)
+    detections$Group <- input$bio$Group[match(detections$Transmitter, input$bio$Transmitter)]
+    detections$Signal_Track <- paste(detections$Signal, detections$Track, sep = "_")
+
+    if (!is.null(drop.groups)) {
+        if (length(unique((drop.groups %in% unique(detections$Group)))) > 1) {
+            stop("One or more 'drop.groups' selected could not be found in the RSP input.\n", call. = FALSE)
+        } else {
+            detections <- detections[-which(detections$Group %in% drop.groups), ]    
+        }
+    }  
+    if (!is.null(tags)) {
+        if (length(unique((tags %in% unique(detections$Transmitter)))) > 1) {
+            stop("One or more tags selected could not be found in the RSP input.\n", call. = FALSE)
+        } else {
+            detections <- detections[which(detections$Transmitter %in% tags), ]
+        }
+    }
+    
+    if (!missing(start.time) && !grepl("^[1-2][0-9][0-9][0-9]-[0-1][0-9]-[0-3][0-9] [0-2][0-9]:[0-5][0-9]:[0-5][0-9]", start.time))
+      stop("'start.time' must be in 'yyyy-mm-dd hh:mm:ss' format.\n", call. = FALSE)
+    if (!missing(stop.time) && !grepl("^[1-2][0-9][0-9][0-9]-[0-1][0-9]-[0-3][0-9] [0-2][0-9]:[0-5][0-9]:[0-5][0-9]", stop.time))
+      stop("'stop.time' must be in 'yyyy-mm-dd hh:mm:ss' format.\n", call. = FALSE)
+  
+     if (!missing(start.time) & missing(stop.time))
+        message("M: Discarding detection data previous to ",start.time," per user command.")
+
+      if (missing(start.time) & !missing(stop.time))
+        message("M: Discarding detection data posterior to ",stop.time," per user command.")
+
+      if (!missing(start.time) & !missing(stop.time)) {
+        if (stop.time < start.time)
+          stop("'stop.time' must be after 'start.time'.", call. = FALSE)
+        if (stop.time == start.time) 
+          stop("'stop.time' and 'stop.time' are equal. Continuing would erase all detection data", call. = FALSE)
+        
+        message(paste0("M: Discarding detection data previous to ",start.time," and posterior to ",stop.time," per user command."))
+        # Crop data for the period of interest:
+        detections <- detections[which(detections$Timestamp >= as.POSIXct(start.time, format = "%Y-%m-%d %H:%M:%S", tz = attr(detections$Timestamp, "tzone")) &
+        detections$Timestamp <= as.POSIXct(stop.time, format = "%Y-%m-%d %H:%M:%S", tz = attr(detections$Timestamp, "tzone"))), ]
+      }    
+    
+    # Check track quality: remove single-station tracks
+    tracks <- unique(detections$Signal_Track)
+    track.save <- NULL
+    for (i in 1:length(tracks)) {
+        aux <- detections[which(detections$Signal_Track == tracks[i]), ]
+        if (length(unique(aux$Latitude)) == 1)
+            track.save <- c(track.save, tracks[i])
+    }
+    if (length(track.save) > 0)
+        detections <- detections[-which(detections$Signal_Track %in% track.save), ]
+
+    # Convert base raster for plotting
+    base.raster[is.na(base.raster)] <- 2
+    base.raster[base.raster == 1] <- NA
+    base.raster[base.raster == 2] <- 1
+    base.raster_df <- raster::rasterToPoints(base.raster)
+    df <- data.frame(base.raster_df)
+    colnames(df) <- c("Longitude", "Latitude", "MAP")
+    df$MAP[df$MAP == 0] <- NA
+
+    # start plotting
+    p <- ggplot2::ggplot()
+      
+    # draw the base map
+    p <- p + ggplot2::geom_raster(data = df, ggplot2::aes(y = Latitude, x = Longitude), fill = land.col, show.legend = FALSE)
+     
+    # Plot locations  
+    if (by.group) {
+        detections <- 
+            detections %>% 
+                plyr::mutate(alpha = 1) %>%
+                tidyr::complete(Timestamp, Group, Transmitter, Signal_Track, fill = list(alpha = 0)) %>%
+                dplyr::group_by(Group, Signal_Track) %>%
+                plyr::arrange(Timestamp) %>%
+                tidyr::fill(Longitude, Latitude, .direction = "up") %>%
+                dplyr::ungroup()
+        detections <- detections[-which(is.na(detections$Latitude)), ] 
+
+        p <- p + suppressWarnings(ggplot2::geom_point(data = detections, ggplot2::aes(x = Longitude, y = Latitude, colour = Transmitter, group = interaction(Signal_Track, Group), alpha = alpha), size = 1)) 
+        p <- p + suppressWarnings(ggplot2::facet_wrap(~ Group))
+        p <- p + ggplot2::scale_alpha_identity()
+
+        } else {
+            p <- p + suppressWarnings(ggplot2::geom_point(data = detections, ggplot2::aes(x = Longitude, y = Latitude, colour = Transmitter, group = Signal_Track), size = 1)) 
+            # Add stations
+            if (add.stations)
+                p <- p + addStations(input)
+        }
+
+    # Graphic details
+    p <- p + ggplot2::theme_bw()
+    if (add.legend) {
+        p <- p + ggplot2::theme(legend.position = "bottom")
+    } else {
+        p <- p + ggplot2::theme(legend.position = "none")
+    }
+    p <- p + ggplot2::scale_x_continuous(expand = c(0, 0))
+    p <- p + ggplot2::scale_y_continuous(expand = c(0, 0))
+    p <- p + ggplot2::labs(title = "{frame_time}")
+        
+    if (!is.null(xlim) & !is.null(ylim)) {
+        p <- p + suppressWarnings(ggplot2::coord_cartesian(xlim = xlim, ylim = ylim, expand = FALSE))
+    }
+ 
+    # Animate:
+    p <- p + gganimate::transition_time(Timestamp) 
+    p <- p + gganimate::shadow_wake(wake_length = 0.2, alpha = TRUE)
+   
+    if (save.gif == "TRUE") {
+        return(gganimate::anim_save(filename = gif.name, 
+            animation = gganimate::animate(p, height = height, width = width, nframes = nframes, fps = fps)))
+    } else {
+        return(p)
+    }
+}
