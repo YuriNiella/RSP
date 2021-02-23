@@ -10,6 +10,9 @@
 #' @param stop.time Sets the stop point for analysis (format = "Y-m-d H:M:S").
 #' @param UTM The UTM zone of the study area. Only relevant if a latlon-to-metric conversion is required.
 #' @param timeframe Temporal window size for fine-scale dBBMM in hours. If left NULL, a single dBBMM is calculated for the whole period.
+#' @param window.size The size of the moving window along the track. Larger windows provide more stable/accurate estimates of the 
+#' brownian motion variance but are less well able to capture more frequent changes in behavior. This number has to be odd.
+#' @param margin The margin used for the behavioral change point analysis. This number has to be odd.
 #' @param verbose Logical: If TRUE, detailed check messages are displayed. Otherwise, only a summary is displayed.
 #' @param debug Logical: If TRUE, the function progress is saved to an RData file.
 #' 
@@ -36,8 +39,8 @@
 #' 
 #' @export
 #' 
-dynBBMM <- function(input, base.raster, tags = NULL, start.time, stop.time, 
-  timeframe = NULL, UTM, debug = FALSE, verbose = TRUE) {
+dynBBMM <- function(input, base.raster, tags = NULL, start.time, stop.time, timeframe = NULL, UTM, 
+  debug = FALSE, verbose = TRUE, window.size = 7, margin = 3) {
   Timestamp <- NULL
   
   if (debug) {
@@ -149,7 +152,8 @@ dynBBMM <- function(input, base.raster, tags = NULL, start.time, stop.time,
   valid.tracks <- compileTrackInfo(group.list = group.list)
 
   # Calculate dBBMM
-  mod_dbbmm <- calculateDBBMM(input = group.list, crs = crs, base.raster = base.raster)
+  mod_dbbmm <- calculateDBBMM(input = group.list, crs = crs, base.raster = base.raster, 
+    window.size = window.size, margin = margin)
 
   # Remove land areas
   message("M: Subtracting land areas from output.")
@@ -184,20 +188,22 @@ dynBBMM <- function(input, base.raster, tags = NULL, start.time, stop.time,
 #' 
 #' @param input The detections to be used as input for the model
 #' @inheritParams groupDetections
+#' @param window.size The window size
+#' @param margin The margin
 #' @param base.raster The raster object
 #' 
 #' @return A list of dBBMM's per group
 #' 
 #' @keywords internal
 #' 
-calculateDBBMM <- function(input, crs, base.raster) {
+calculateDBBMM <- function(input, crs, base.raster, window.size, margin) {
 
-  the.dbbmm.call <- function(x, rst, err) {
+  the.dbbmm.call <- function(x, rst, err, window.size, margin) {
     output <- move::brownian.bridge.dyn(
       object = x,
       raster = rst,  
-      window.size = 7, 
-      margin = 3,
+      window.size = window.size,
+      margin = margin,
       location.error = err)
     return(output)
   }
@@ -219,7 +225,9 @@ calculateDBBMM <- function(input, crs, base.raster) {
           callr::r(func = the.dbbmm.call, 
                    args = list(x = loc[[i]], 
                                rst = base.raster, 
-                               err = input[[i]]$Error), 
+                               window.size = window.size,
+                               margin = margin,
+                               err = input[[i]]$Error),
                    spinner = TRUE),
           error = function(e) {
             if (grepl("consider extending the raster", e))
@@ -265,7 +273,9 @@ You can create a larger raster by using the argument 'buffer' in loadShape. If t
             callr::r(func = the.dbbmm.call, 
                      args = list(x = loc[[g]][[i]], 
                                  rst = base.raster, 
-                                 err = input[[g]][[i]]$Error), 
+                                 window.size = window.size,
+                                 margin = margin,
+                                 err = input[[g]][[i]]$Error),                              
                      spinner = TRUE),
             error = function(e) {
               if (grepl("consider extending the raster", e))

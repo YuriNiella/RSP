@@ -13,7 +13,9 @@ dynBBMM(
   timeframe = NULL,
   UTM,
   debug = FALSE,
-  verbose = TRUE
+  verbose = TRUE,
+  window.size = 7,
+  margin = 3
 )
 }
 \arguments{
@@ -34,6 +36,11 @@ dynBBMM(
 \item{debug}{Logical: If TRUE, the function progress is saved to an RData file.}
 
 \item{verbose}{Logical: If TRUE, detailed check messages are displayed. Otherwise, only a summary is displayed.}
+
+\item{window.size}{The size of the moving window along the track. Larger windows provide more stable/accurate estimates of the 
+brownian motion variance but are less well able to capture more frequent changes in behavior. This number has to be odd.}
+
+\item{margin}{The margin used for the behavioral change point analysis. This number has to be odd.}
 }
 \value{
 List of calculated dBBMMs and metadata on each track used for the modelling.

@@ -4,12 +4,16 @@
 \alias{calculateDBBMM}
 \title{Calculate the dBBMM for each group}
 \usage{
-calculateDBBMM(input, crs, base.raster)
+calculateDBBMM(input, crs, base.raster, window.size, margin)
 }
 \arguments{
 \item{input}{The detections to be used as input for the model}
 
 \item{base.raster}{The raster object}
+
+\item{window.size}{The window size}
+
+\item{margin}{The margin}
 }
 \value{
 A list of dBBMM's per group
