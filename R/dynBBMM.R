@@ -43,6 +43,13 @@ dynBBMM <- function(input, base.raster, tags = NULL, start.time, stop.time, time
   debug = FALSE, verbose = TRUE, window.size = 7, margin = 3) {
   Timestamp <- NULL
   
+  if ((window.size %% 2) == 0) {
+    stop("'window.size' must be an odd number", call. = FALSE)
+  }
+  if ((margin %% 2) == 0) {
+    stop("'margin' must be an odd number", call. = FALSE)
+  }
+  
   if (debug) {
     on.exit(save(list = ls(), file = "dynBBMM_debug.RData"), add = TRUE)
     message("!!!--- Debug mode has been activated ---!!!")
