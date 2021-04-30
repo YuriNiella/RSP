@@ -38,6 +38,7 @@ Imports:
     callr
 Suggests:
     testthat
+    rmarkdown
 VignetteBuilder: knitr
 URL: https://github.com/YuriNiella/RSP
 BugReports: https://github.com/YuriNiella/RSP/issues
