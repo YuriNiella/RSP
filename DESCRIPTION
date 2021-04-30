@@ -37,7 +37,7 @@ Imports:
     reshape2,
     callr
 Suggests:
-    testthat
+    testthat,
     rmarkdown
 VignetteBuilder: knitr
 URL: https://github.com/YuriNiella/RSP
