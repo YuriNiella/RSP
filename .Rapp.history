@@ -1,0 +1,6 @@
+getwd()
+setwd(..)
+setwd("..")
+getwd()
+devtools::check()
+devtools::check()
