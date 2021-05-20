@@ -2,12 +2,12 @@ on:
   push:
     branches:
       - main
-      - to_cran
+      - master
 
   pull_request:
     branches:
       - main
-      - to_cran
+      - master
 
 name: R-CMD-check
 
