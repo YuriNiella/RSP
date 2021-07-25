@@ -1,6 +1,6 @@
 Package: RSP
 Title: Refined Shortest Paths
-Version: 1.0.2.9003
+Version: 1.0.2.9004
 Authors@R: c(
     person("Yuri", "Niella", role = c("aut", "cre"), email = "yuri.niella@gmail.com", comment = c(ORCID = "0000-0003-1878-6091")),
     person("Hugo", "Flávio", role = c("aut"), email = "hdmfla@aqua.dtu.dk", comment = c(ORCID = "0000-0002-5174-1197"))
@@ -38,7 +38,8 @@ Imports:
     callr
 Suggests:
     testthat,
-    rmarkdown
+    rmarkdown,
+    markdown
 VignetteBuilder: knitr
 URL: https://github.com/YuriNiella/RSP
 BugReports: https://github.com/YuriNiella/RSP/issues
