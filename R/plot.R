@@ -978,12 +978,12 @@ plotRaster <- function(input, base.raster, coord.x, coord.y, size = 1, land.col 
   # Find stations in land:
 
   if (any(names(input) == "rsp.info"))
-    stations <- as.data.frame(input$spatial$stations)
+    stations <- input$spatial$stations
   else
     stations <- input
 
-  if (!is.data.frame(stations))
-    stop("Could not recognise the station data as a data frame.", call. = FALSE)
+  # if (!is.data.frame(stations))
+  #   stop("Could not recognise the station data as a data frame.", call. = FALSE)
 
   if (is.na(match(coord.x, colnames(stations))))
     stop("Could not find column '", coord.x, "' in the spatial data frame", call. = FALSE)
