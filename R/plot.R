@@ -854,7 +854,7 @@ plotOverlaps <- function(overlaps, areas, base.raster, groups, timeslot,
     overlap.raster <- overlaps$rasters[[level]][[timeslot]][[the.overlap]]
   
   # prepare the overlap
-  if (class(overlap.raster) == "RasterLayer") {
+  if (methods::is(overlap.raster, "RasterLayer")) {
     if (reproject)
       overlap.raster <- suppressWarnings(raster::projectRaster(overlap.raster, crs = as.character(raster::crs(base.raster))))
 

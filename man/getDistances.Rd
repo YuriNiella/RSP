@@ -13,7 +13,7 @@ getDistances(input)
 A dataframe containing the total distances travelled during each RSP track.
 }
 \description{
-Obtain the total distances travelled (in kilometres) for the tracked animals, using only the 
+Obtain the total distances travelled (in metres) for the tracked animals, using only the 
 receiver locations and also adding the RSP positions.
 }
 \examples{

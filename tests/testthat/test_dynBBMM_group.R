@@ -108,7 +108,7 @@ test_that("Only one UTM zone is set for dynBBMM when necessary", {
 test_that("Base raster and data are in the same coordinate system for dynBBMM", {
 	water.metric <- actel::loadShape(path = system.file(package = "RSP")[1], shape = "River_metric.shp", size = 20, buffer = 200) 
 	expect_error(suppressWarnings(dynBBMM(input = rsp.data, base.raster = water.metric, UTM = 56)),
-		"The base raster and the input data are not in the came coordinate system!", fixed = TRUE)
+		"The base raster and the input data are not in the same coordinate system!", fixed = TRUE)
 })
 
 test_that("There is not enought data to fit dBBMMs at all", {

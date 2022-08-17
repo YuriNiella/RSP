@@ -310,7 +310,7 @@ getCentroids <- function(input, areas, type, level, group, UTM) {
       aux1 <- colMeans(raster::xyFromCell(aux, which(aux[] == 1)))
       xy <- data.frame(X = aux1[1], Y = aux1[2])
       sp::coordinates(xy) <- c("X", "Y")
-      sp::proj4string(xy) <- sp::CRS(paste0("+proj=utm +zone=", UTM, "+datum=WGS84 +units=m +no_defs +ellps=WGS84 +towgs84=0,0,0"))
+      sp::proj4string(xy) <- sp::CRS(paste0("+proj=utm +zone=", UTM, " +datum=WGS84 +units=m +no_defs +ellps=WGS84 +towgs84=0,0,0"))
       trans.xy <- sp::spTransform(xy, sp::CRS("+proj=longlat +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +no_defs"))
       lat.save <- c(lat.save, raster::extent(trans.xy)[3])
       lon.save <- c(lon.save, raster::extent(trans.xy)[1])
@@ -349,7 +349,7 @@ getCentroids <- function(input, areas, type, level, group, UTM) {
           aux1 <- colMeans(raster::xyFromCell(aux.file, which(aux.file[] == 1)))
           xy <- data.frame(X = aux1[1], Y = aux1[2])
           sp::coordinates(xy) <- c("X", "Y")
-          sp::proj4string(xy) <- sp::CRS(paste0("+proj=utm +zone=", UTM, "+datum=WGS84 +units=m +no_defs +ellps=WGS84 +towgs84=0,0,0"))
+          sp::proj4string(xy) <- sp::CRS(paste0("+proj=utm +zone=", UTM, " +datum=WGS84 +units=m +no_defs +ellps=WGS84 +towgs84=0,0,0"))
           trans.xy <- sp::spTransform(xy, sp::CRS("+proj=longlat +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +no_defs"))
           lat.save <- c(lat.save, raster::extent(trans.xy)[3])
           lon.save <- c(lon.save, raster::extent(trans.xy)[1])
@@ -368,7 +368,7 @@ getCentroids <- function(input, areas, type, level, group, UTM) {
 
 #' Get total distances travelled 
 #' 
-#' Obtain the total distances travelled (in kilometres) for the tracked animals, using only the 
+#' Obtain the total distances travelled (in metres) for the tracked animals, using only the 
 #' receiver locations and also adding the RSP positions. 
 #'
 #' @param input RSP dataset as returned by RSP.
@@ -424,7 +424,6 @@ getDistances <- function(input) {
       
       receiver.distances <- apply(receiver.combined.coords.wgs84, 1, 
         function(r) geosphere::distm(x = c(r[1], r[2]), y = c(r[3], r[4])))
-
       receiver.total.distance <- sum(receiver.distances)
           
       # Receiver + RSP distances
@@ -446,7 +445,6 @@ getDistances <- function(input) {
       
       combined.distances <- apply(combined.combined.coords.wgs84, 1, 
         function(r) geosphere::distm(x = c(r[1], r[2]), y = c(r[3], r[4])))
-
       combined.total.distance <- sum(combined.distances)
   
       # Save output:

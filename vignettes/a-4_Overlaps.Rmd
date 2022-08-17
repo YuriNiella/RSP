@@ -31,7 +31,7 @@ If your study comprises **multiple biological groups** (e.g. different species, 
 When utilization distribution areas are calculated for **group dBBMM**, models are calculated at the track level for each monitored animal. This analysis does not provide standardized tracks, and start and end times vary among tracked individuals depending on when they were present within the study area. Consequently, this option will simply calculate the general overlapping areas among the groups of interest:
 
 ```
-overlap.save <- geOverlaps(areas.group)
+overlap.save <- getOverlaps(areas.group)
 overlap.save$areas$`0.95`$absolute
 ```
 

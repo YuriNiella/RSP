@@ -80,7 +80,7 @@ dynBBMM <- function(input, base.raster, tags = NULL, start.time, stop.time, time
   bio <- input$bio
 
   if (as.character(crs) != as.character(raster::crs(base.raster))) # HF: This should never happen (unless the user screwed up), but I am leaving it here as a tester
-    stop("The base raster and the input data are not in the came coordinate system!", call. = FALSE)
+    stop("The base raster and the input data are not in the same coordinate system!", call. = FALSE)
 
   if (raster::isLonLat(base.raster)) {
     if (missing(UTM))
