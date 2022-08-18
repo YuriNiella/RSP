@@ -27,6 +27,7 @@ Imports:
     move,
     plyr,
     raster,
+    rgdal,
     sp,
     stats,
     stringr,
@@ -37,7 +38,6 @@ Imports:
 Suggests:
     knitr,
     rmarkdown,
-    rgdal,
     testthat
 VignetteBuilder: knitr
 URL: https://github.com/YuriNiella/RSP
