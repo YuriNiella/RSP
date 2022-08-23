@@ -49,7 +49,7 @@ jobs:
 
       - uses: r-lib/actions/setup-pandoc@master
 
-      - name: Install system dependencies on MacOS (X11, gdal)
+      - name: Install system dependencies on MacOS (gdal)
         if: runner.os == 'macOS'
         run: |
           brew install gdal
