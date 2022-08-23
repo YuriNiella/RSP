@@ -32,6 +32,7 @@ jobs:
       CRAN: ${{ matrix.config.cran }}
       # don't treat missing suggested packages as error
       _R_CHECK_FORCE_SUGGESTS_: false
+      
       RSPM: ${{ matrix.config.rspm }}
       GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
       
