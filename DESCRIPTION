@@ -26,7 +26,6 @@ Imports:
     methods,
     move,
     plyr,
-    raster,
     sp,
     stats,
     stringr,
