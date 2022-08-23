@@ -108,7 +108,7 @@ This function can be used to create an **animation** of the **RSP tracks**:
 
 ## Installation
 
-Current version: **1.0.2**
+Current version: **1.0.3**
 
 You will need the **remotes** package **to install RSP**:
 
