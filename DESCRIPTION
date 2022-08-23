@@ -26,6 +26,8 @@ Imports:
     methods,
     move,
     plyr,
+    raster,
+    rgdal,
     sp,
     stats,
     stringr,
@@ -35,8 +37,6 @@ Imports:
     callr
 Suggests:
     knitr,
-    raster,
-    rgdal,
     rmarkdown,
     testthat
 VignetteBuilder: knitr
