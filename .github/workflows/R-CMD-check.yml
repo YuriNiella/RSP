@@ -49,6 +49,14 @@ jobs:
 
       - uses: r-lib/actions/setup-pandoc@master
 
+      - name: Install system dependencies on MacOS (X11, gdal)
+        if: runner.os == 'macOS'
+        run: |
+          brew install --cask xquartz
+          brew install pkg-config
+          brew install proj@9
+          brew install gdal
+
       - name: Query dependencies
         run: |
           install.packages('remotes')
