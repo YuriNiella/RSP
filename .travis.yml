@@ -23,8 +23,6 @@ before_install:
   
 r_packages:
   - sp
-  - rgdal
-  - raster
   - rgeos
 
 r_github_packages: 
