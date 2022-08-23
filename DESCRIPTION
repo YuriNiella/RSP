@@ -27,7 +27,6 @@ Imports:
     move,
     plyr,
     sp,
-    rgdal,
     raster,
     stats,
     stringr,
