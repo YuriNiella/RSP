@@ -55,11 +55,6 @@ jobs:
           saveRDS(remotes::dev_package_deps(dependencies = TRUE), "depends.Rds", version = 2)
         shell: Rscript {0}
     
-        if: runner.os == 'macOS'
-          brew install pkg-config
-          brew install proj@9
-          brew install gdal
-
       - name: Cache R packages
         if: runner.os != 'Windows'
         uses: actions/cache@v1
