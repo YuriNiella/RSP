@@ -28,7 +28,6 @@ Imports:
     plyr,
     sp,
     raster,
-    terra,
     stats,
     stringr,
     tidyr,
