@@ -52,6 +52,8 @@ jobs:
       - name: Query dependencies
         run: |
           install.packages('remotes')
+          install.packages('rgdal', configure.args = "--with-gdal-lib=/Applications/Postgres.app/Contents/Versions/latest/lib/")
+          install.packages('raster', configure.args = "--with-gdal-lib=/Applications/Postgres.app/Contents/Versions/latest/lib/")
           saveRDS(remotes::dev_package_deps(dependencies = TRUE), "depends.Rds", version = 2)
         shell: Rscript {0}
 
