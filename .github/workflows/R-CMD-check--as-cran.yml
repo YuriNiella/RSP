@@ -52,7 +52,6 @@ jobs:
       - name: Query dependencies
         run: |
           install.packages('remotes')
-          install.packages('terra')
           saveRDS(remotes::dev_package_deps(dependencies = TRUE), "depends.Rds", version = 2)
         shell: Rscript {0}
 
@@ -63,6 +62,12 @@ jobs:
           path: ${{ env.R_LIBS_USER }}
           key: ${{ env.cache-version }}-${{ runner.os }}-r-${{ matrix.config.r }}-${{ hashFiles('depends.Rds') }}
           restore-keys: ${{ env.cache-version }}-${{ runner.os }}-r-${{ matrix.config.r }}-
+
+      - name: Install system dependencies on MacOS (X11, gdal)
+        if: runner.os == 'macOS'
+          brew install pkg-config
+          brew install proj@9
+          brew install gdal
 
       # - name: Install system dependencies
       #   if: runner.os == 'Linux'
