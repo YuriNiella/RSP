@@ -22,6 +22,7 @@ Imports:
     gganimate,
     ggplot2,
     graphics,
+    lubridate,
     magrittr,
     methods,
     move,

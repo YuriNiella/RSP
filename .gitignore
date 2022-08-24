@@ -3,3 +3,4 @@
 .RData
 .DS_Store
 tests/.DS_Store
+.Rapp.history

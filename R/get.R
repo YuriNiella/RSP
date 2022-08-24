@@ -740,17 +740,27 @@ getOverlaps <- function(input) {
 }
 
 
-#' Obtain overlapping data per timeslots
+#' Calculate dBBMM and overlapping areas in steps
 #' 
-#' When a timeslot analysis is performed the overlaps between pairs of tracked groups can be obtained 
-#' according to the respective timeslots.
+#' When a long study period is analysed the dBBMM can crash R since they are computationally 
+#' heavy. You can use this function to calculate the dBBMMs and overlapping areas (between pairs of 
+#' groups) according to a fixed step (i.e. timeframe in number of days), and export the output to disk 
+#' as it goes. If your computer runs out of memory and kills R, you can then resume the calculations
+#' by setting a new output name (name.new) and specifying the previous one already stored in disk (name.file),
+#' and defining the new start date to resume the calculations (start.time). It currently only works 
+#' with the 50% and 95% contours. 
 #' 
-#' @param input The output of \code{\link{getOverlaps}}.
-#' @param dbbmm The timeslot output of \code{\link{dynBBMM}}.
-#' @param groups Character vector specifying two groups for obtaining the overlapping data.
-#' @param level The corresponding contour level for obtaining the overlapping data. 
+#' @param input The output of \code{\link{runRSP}}.
+#' @param base.raster The water raster of the study area. For example the output of \code{\link[actel]{loadShape}}.
+#' @param UTM The UTM zone of the study area. Only relevant if a latlon-to-metric conversion is required.
+#' @param timeframe The intended temporal interval of interest (in number of days) to perform the calculations. Default is 1 day.
+#' @param start.time Character vector identifying the initial date (format = "Y-m-d") to start the calculations.
+#' @param save Logical (default is TRUE). Do you want to save the calculated areas to disk?
+#' @param name.new File name (character) to save calculations output to disk. 
+#' @param name.file File name (character) of previous calculations output to be imported (if any). 
+#' @param groups Vector of group names (character) of interest to perform calculations.
 #' 
-#' @return A list of areas per track, per group
+#' @return A dataframe of dBBMM areas per group and the corresponding overlaps
 #' 
 #' @examples 
 #' \donttest{
@@ -767,62 +777,101 @@ getOverlaps <- function(input) {
 #' # Run RSP analysis
 #' rsp.data <- runRSP(input = input.example, t.layer = tl, coord.x = "Longitude", coord.y = "Latitude")
 #' 
-#' # Run a timeslot dynamic Brownian Bridge Movement Model (dBBMM) 
-#' dbbmm.data <- dynBBMM(input = rsp.data, base.raster = water, UTM = 56, timeframe = 12)
-#'
-#' # Get dBBMM areas at group level
-#' areas.group <- getAreas(dbbmm.data, type = "group", breaks = c(0.5, 0.95))
-#' 
-#' # Get overlaps between groups
-#' overlap.data <- getOverlaps(areas.group)
-#' 
-#' # Obtain overlap data at the 50% contour 
-#' df.overlap <- getOverlapData(input = overlap.data, dbbmm = dbbmm.data, 
-#'  groups = c("G1", "G2"), level = 0.5)
+#' # Calculate dBBMM and overlaps in steps:
+#' df.areas <- getAreaStep(input = rsp.data, base.raster = water, UTM = 56, timeframe = 1, 
+#'  name.new = "save.csv", groups = c("G1", "G2")) 
 #' }
 #' 
 #' @export
 #' 
-getOverlapData <- function(input, dbbmm, groups, level) {
+getAreaStep <- function(input, base.raster, UTM, timeframe = 1, start.time = NULL, 
+  save = TRUE, name.new = NULL, name.file = NULL, groups = NULL) {
 
-  if (length(groups) != 2)
-    stop("Please specify two groups for obtaining the overlapping data.", call. = FALSE)
+  if (is.null(name.new))
+    stop("Please define the 'name.new' argument.")
+  if (is.null(groups))
+    stop("Please define the groups of interest to perfom calculations.")
 
-  if (length(which(names(input$areas) == level)) == 0)
-    stop("The contour level specified was not found in the overlap object.", call. = FALSE)
-
-  group1 <- groups[1]
-  group2 <- groups[2]
-  input <- input$areas[[which(names(input$areas) == level)]]
-
-  # Absolute overlaps:
-  input.abs <- input[[1]]
-  save.abs <- NULL
-  save.slot <- NULL
-  for (i in 1:length(input.abs)) {
-    save.slot <- c(save.slot, names(input.abs)[[i]])
-    aux <- input.abs[[i]]
-    aux <- aux[which(colnames(aux) == group1), which(row.names(aux) == group2)]
-    save.abs <- c(save.abs, aux)
+  # Find dates to run daily dBBMM
+  aux.detec <- do.call(rbind.data.frame, input$detections)
+  dates <- seq(as.Date(min(aux.detec$Timestamp)), 
+    as.Date(max(aux.detec$Timestamp)), 
+    timeframe)
+  # Filter initial date to resume analysis
+  if (is.null(start.time)) {
+    dates <- dates
+  } else {
+    dates <- dates[dates >= start.time]
   }
-
-  # Percentage overlaps:
-  input.per <- input[[2]]
-  save.per <- NULL
-  for (i in 1:length(input.per)) {
-    aux <- input.per[[i]]
-    aux <- aux[which(colnames(aux) == group1), which(row.names(aux) == group2)]
-    save.per <- c(save.per, aux)
+  # Find previous data on file  
+  if (is.null(name.file)) {
+    df.save <- NULL
+  } else {
+    df.save <- read.csv(name.file)
   }
-
-  # Save final dataset:
-  df.save <- dbbmm$timeslots
-  df.save <- df.save[df.save$slot %in% save.slot, ]
-  df.save$Absolute <- save.abs
-  df.save$Percentage <- save.per
-  names(df.save)[4] <- paste0("Absolute_", group1, "_", group2)
-  names(df.save)[5] <- paste0("Percentage_", group1, "_", group2)
-
+  # Start calculations
+  for (i in 1:length(dates)) {
+    cat(paste("Date:", paste(dates[i])), fill = 1)
+    # Find number of animals detected per group:
+    aux.day <- aux.detec[which(as.Date(aux.detec$Timestamp, 
+      tz = lubridate::tz(aux.detec$Timestamp)) == lubridate::force_tz(dates[i], 
+      tzone = lubridate::tz(aux.detec$Timestamp))),]
+    aux.day$Group <- input$bio$Group[match(aux.day$Transmitter, input$bio$Transmitter)]
+    aux.group <- aux.day %>%
+      dplyr::group_by(Transmitter) %>%
+      dplyr::summarise(Group_is = unique(Group))
+    Aux1_n <- length(which(aux.group$Group_is == groups[1]))
+    Aux2_n <- length(which(aux.group$Group_is == groups[2]))
+    # Run the model
+    cat("Calculating dBBMM...", fill = 1)
+    dbbmm.results <- invisible(suppressWarnings(suppressMessages(dynBBMM(input = input, UTM = UTM, base.raster = base.raster, verbose = TRUE,
+      start.time = paste(dates[i], "00:00:00"),
+      stop.time = paste(dates[i], "23:59:59")))))
+    # Calculate areas per group 
+    cat("Calculating space use areas and overlap...", fill = 1)
+    areas.group <- invisible(suppressWarnings(suppressMessages(getAreas(input = dbbmm.results, type = "group", breaks = c(0.5, 0.95)))))
+    if (nrow(areas.group$areas) == 1) {
+      cat("Only one group detected, overlaps won't be calculated...", fill = 1)
+      over.50.tot <- NA
+      over.50.freq <- NA
+      over.95.tot <- NA
+      over.95.freq <- NA
+      if (areas.group$areas$ID == groups[1]) {
+        aux.area.1.50 <- round(areas.group$areas$area.5[areas.group$areas$ID == groups[1]], 2)
+        aux.area.1.95 <- round(areas.group$areas$area.95[areas.group$areas$ID == groups[1]], 2)
+        aux.area.2.50 <- NA
+        aux.area.2.95 <- NA
+      }
+      if (areas.group$areas$ID == groups[2]) {
+        aux.area.1.50 <- NA
+        aux.area.1.95 <- NA
+        aux.area.2.50 <- round(areas.group$areas$area.5[areas.group$areas$ID == groups[2]], 2)
+        aux.area.2.95 <- round(areas.group$areas$area.95[areas.group$areas$ID == groups[2]], 2)
+      }
+    } else {
+      overlap.save <- invisible(suppressWarnings(suppressMessages(getOverlaps(areas.group))))
+      over.50.tot <- round(unique(as.numeric(overlap.save$areas$`0.5`$absolute))[-which(is.na(unique(as.numeric(overlap.save$areas$`0.5`$absolute))))], 2)
+      over.50.freq <- round(unique(as.numeric(overlap.save$areas$`0.5`$percentage))[-which(is.na(unique(as.numeric(overlap.save$areas$`0.5`$percentage))))], 2)
+      over.95.tot <- round(unique(as.numeric(overlap.save$areas$`0.95`$absolute))[-which(is.na(unique(as.numeric(overlap.save$areas$`0.95`$absolute))))], 2)
+      over.95.freq <- round(unique(as.numeric(overlap.save$areas$`0.95`$percentage))[-which(is.na(unique(as.numeric(overlap.save$areas$`0.95`$percentage))))], 2) 
+      aux.area.1.50 <- round(areas.group$areas$area.5[areas.group$areas$ID == groups[1]], 2)
+      aux.area.1.95 <- round(areas.group$areas$area.95[areas.group$areas$ID == groups[1]], 2)
+      aux.area.2.50 <- round(areas.group$areas$area.5[areas.group$areas$ID == groups[2]], 2)
+      aux.area.2.95 <- round(areas.group$areas$area.95[areas.group$areas$ID == groups[2]], 2)
+    }
+    # Save outputs:
+    df.aux <- data.frame(Start.time = paste(dates[i], "00:00:00"), Stop.time = paste(dates[i], "23:59:59"), 
+      M_n = Aux1_n, Area.M.50 = aux.area.1.50, Area.M.95 = aux.area.1.95, 
+      F_n = Aux2_n, Area.F.50 = aux.area.2.50, Area.F.95 = aux.area.2.95,
+      Overlap.50.tot = over.50.tot, Overlap.50.freq = over.50.freq,
+      Overlap.95.tot = over.95.tot, Overlap.95.freq = over.95.freq)
+    names(df.aux) <- c("Start.time", "Stop.time", 
+      paste0(groups[1],"_n"), paste0("Area.",groups[1],".50"), paste0("Area.",groups[1],".95"),
+      paste0(groups[2],"_n"), paste0("Area.",groups[2],".50"), paste0("Area.",groups[2],".95"),
+      "Overlap.50.tot", "Overlap.50.freq", "Overlap.95.tot", "Overlap.95.freq")
+    df.save <- rbind(df.save, df.aux)
+    if (save)
+      write.csv(df.save, name.new, row.names = FALSE)
+  }
   return(df.save)
 }
-

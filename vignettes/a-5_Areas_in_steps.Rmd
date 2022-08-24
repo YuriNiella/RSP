@@ -1,0 +1,32 @@
+---
+title: 5. Calculating areas in steps
+subtitle: "Refining the Shortest Paths (RSP) of animals tracked with acoustic transmitters in estuarine regions"
+author: "Yuri Niella & Hugo Flávio"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{5. Calculating areas in steps}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+	echo = TRUE)
+```
+
+## Index
+
+1. [Preparing the data](a-1_Preparing_the_data.html)
+2. [Refining the Shortest Paths in-water](a-2_Refining_Shortest_paths.html)
+3. [Calculating utilization distribution](a-3_dBBMM.html)
+4. [Calculating overlaps](a-4_Overlaps.html)
+5. [Calculating areas in steps](a-5_Areas_in_steps.html)
+
+***
+
+### 5.1. Calculating dBBMM areas and overlaps between pairs of groups in time steps
+
+Please be aware that The dBBMM are **computationally heavy** models. This means that they may kill your R session if you try to perform these calculations for **very long** study periods (e.g. 1 year of data across several individuals tracked). To overcome this issue we developed the function `getAreaStep()`, which allows RSP users to calculate the **dBBMM areas** for **pairs of groups tracked**, together with their corresponding **overlapping areas** (in absolute values and relative frequencies). This function currently only works with the **50% and 95% contours** (RSP default), and the calculations are performed according to 1-day time steps (but can be defined using the `timeframe` argument). The number of individuals detected from each group of interest in each time step are also obtained.
+
+Another issue with running the dBBMM is **losing your progress** when the R session dies. To avoid this, `getAreaStep()` will export the calculated areas to your disk by default (`save = TRUE`) as it goes, and you can choose the name and directory of the output file using the argument `name.new`. In case your computer/R dies for any reason (bad memory, power, etc.), you can always come back to where it stopped by setting the previously exported ouput file (using the `name.file` argument), setting another output name for the new calculations (`name.new`), and defining the start date from where to resume the area calculations (`start.time` argument). For more details, see the example in `?getAreaStep`.

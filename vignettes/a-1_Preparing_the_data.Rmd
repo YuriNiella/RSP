@@ -21,6 +21,7 @@ knitr::opts_chunk$set(
 2. [Refining the Shortest Paths in-water](a-2_Refining_Shortest_paths.html)
 3. [Calculating utilization distribution](a-3_dBBMM.html)
 4. [Calculating overlaps](a-4_Overlaps.html)
+5. [Calculating areas in steps](a-5_Areas_in_steps.html)
 
 ***
 
