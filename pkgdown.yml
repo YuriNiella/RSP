@@ -1,0 +1,11 @@
+pandoc: 2.19.2
+pkgdown: 2.0.7
+pkgdown_sha: ~
+articles:
+  a-1_Preparing_the_data: a-1_Preparing_the_data.html
+  a-2_Refining_Shortest_paths: a-2_Refining_Shortest_paths.html
+  a-3_dBBMM: a-3_dBBMM.html
+  a-4_Overlaps: a-4_Overlaps.html
+  a-5_Areas_in_steps: a-5_Areas_in_steps.html
+last_built: 2023-08-08T07:42Z
+
