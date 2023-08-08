@@ -10,7 +10,7 @@ runRSP(
   coord.x,
   coord.y,
   distance = 250,
-  tags,
+  tags = NULL,
   recaptures = FALSE,
   time.step = 10,
   min.time = 10,

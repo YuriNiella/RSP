@@ -292,13 +292,10 @@ toUTM <- function(input, UTM, crs) {
   input$O.LAT <- input$Latitude
   input$O.LON <- input$Longitude
   xy <- data.frame(ID = 1:nrow(input), X = input$Longitude, Y = input$Latitude)
-  sp::coordinates(xy) <- c("X", "Y")
-  sp::proj4string(xy) <- sp::CRS(as.character(crs))
-  metric.coords <- as.data.frame(sp::spTransform(xy, 
-    sp::CRS(paste0("+proj=utm +zone=", UTM, " +datum=WGS84 +units=m +no_defs"))))
-
-  input$Longitude <- metric.coords[, 2]
-  input$Latitude <- metric.coords[, 3]
+  xy.utm <- terra::project(as.matrix(xy[,c('X', 'Y')]), 
+        "+proj=longlat", paste0("+proj=utm +zone=", UTM, " +units=m"))
+  input$Longitude <- xy.utm[,1]
+  input$Latitude <- xy.utm[,2]
   return(input)
 }
 

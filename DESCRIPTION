@@ -1,6 +1,6 @@
 Package: RSP
 Title: Refined Shortest Paths
-Version: 1.0.3.9005
+Version: 1.0.4
 Authors@R: c(
     person("Yuri", "Niella", role = c("aut", "cre"), email = "yuri.niella@gmail.com", comment = c(ORCID = "0000-0003-1878-6091")),
     person("Hugo", "Flávio", role = c("aut"), email = "hdmfla@aqua.dtu.dk", comment = c(ORCID = "0000-0002-5174-1197"))
@@ -9,7 +9,7 @@ Description: The RSP toolkit is a method for analysing the fine scale movements 
 License: GPL-3 + file LICENSE
 Encoding: UTF-8
 LazyData: true
-RoxygenNote: 7.2.0
+RoxygenNote: 7.2.3
 Depends: R (>= 4.0)
 Imports:
     actel,
@@ -27,10 +27,11 @@ Imports:
     methods,
     move,
     plyr,
-    sp,
     raster,
     stats,
     stringr,
+    sf,
+    terra,
     tidyr,
     utils,
     reshape2,

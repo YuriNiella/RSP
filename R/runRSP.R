@@ -47,7 +47,7 @@ NULL
 #' 
 #' @export
 #' 
-runRSP <- function(input, t.layer, coord.x, coord.y, distance = 250, tags, recaptures = FALSE,
+runRSP <- function(input, t.layer, coord.x, coord.y, distance = 250, tags = NULL, recaptures = FALSE,
   time.step = 10, min.time = 10, max.time = 24, er.ad, verbose = FALSE, debug = FALSE) {
 
   if (debug) {
@@ -82,7 +82,6 @@ runRSP <- function(input, t.layer, coord.x, coord.y, distance = 250, tags, recap
   if (!missing(tags)) {
     if(any(link <- is.na(match(tags, names(detections)))))
       stop("Could not find tag(s) ", paste(tags[link], collapse = ", ") , " in the detection data.", call. = FALSE)
-
     detections <- detections[match(tags, names(detections))]
   }
 
@@ -102,7 +101,7 @@ runRSP <- function(input, t.layer, coord.x, coord.y, distance = 250, tags, recap
     round(sum(unlist(lapply(rsp.detections, function(x) sum(x$Position == "Receiver")))) / sum(unlist(lapply(detections, nrow))) * 100, 1), "%")
   
   attributes(spatial)$spatial_columns <- c(coord.x, coord.y)
-  return(list(detections = rsp.detections, tracks = tracks, spatial = spatial, bio = input$rsp.info$bio, tz = tz, crs = raster::crs(t.layer)))
+  return(list(detections = rsp.detections, tracks = tracks, spatial = spatial, bio = input$rsp.info$bio, tz = tz, crs = terra::crs(t.layer)))
 }
 
 
@@ -157,8 +156,7 @@ calcRSP <- function(df.track, tz, distance, min.time, time.step, transition, er.
         AtoB.spdf <- suppressWarnings(methods::as(AtoB, "SpatialPointsDataFrame"))
         AtoB.df <- suppressWarnings(methods::as(AtoB.spdf, "data.frame")[, c(4, 5)]) 
         # wgs84 version just for distance calcs
-        AtoB.wgs84 <- sp::spTransform(AtoB, "+init=epsg:4326")
-        AtoB.wgs84.spdf <- suppressWarnings(methods::as(AtoB.wgs84, "SpatialPointsDataFrame")) 
+        AtoB.wgs84.spdf <- suppressWarnings(methods::as(AtoB, "SpatialPointsDataFrame")) 
         AtoB.wgs84.df <- suppressWarnings(methods::as(AtoB.wgs84.spdf, "data.frame")[, c(4, 5)]) 
         colnames(AtoB.wgs84.df) <- c("x", "y")
         # Prepare to calculate distance between coordinate pairs
@@ -167,12 +165,12 @@ calcRSP <- function(df.track, tz, distance, min.time, time.step, transition, er.
         aux <- cbind(start, stop)
         # Distance in meters
         AtoB.df$Distance <- c(0, apply(aux, 1, function(m) geosphere::distm(x = m[1:2], y = m[3:4])))
-        rm(AtoB.wgs84, AtoB.wgs84.df, AtoB.wgs84.spdf)
+        rm(AtoB.wgs84.df, AtoB.wgs84.spdf)
         # Cumulative distance
         AtoB.df$cumSum <- cumsum(AtoB.df$Distance)
         AtoB.dist <- sum(AtoB.df$Distance)
         # Prepare to find points to keep
-        n.points <- roundDown(AtoB.dist / distance, to = 1)
+        n.points <- round(AtoB.dist / distance, 0)
         if (n.points == 0) {
           if (verbose) {
             message("")
@@ -230,7 +228,7 @@ calcRSP <- function(df.track, tz, distance, min.time, time.step, transition, er.
       if (nrow(mat.aux) <= 2) {
         mat.aux$Error <- base + er.ad 
       } else {
-        med.point <- roundUp(nrow(mat.aux) / 2, to = 1)          
+        med.point <- round(nrow(mat.aux) / 2, 0)          
         incremented.base <- base
         # Increasing error
         for (pos2 in 1:med.point) { 
@@ -317,9 +315,7 @@ includeRSP <- function(detections, transition, tz, distance, time.step, er.ad, m
     recipient <- nameTracks(detections = detections[[i]], max.time = max.time, recaptures = recaptures, tz = tz) # Fine-scale tracking
     detections[[i]] <<- recipient$detections
     tracks <- recipient$tracks
-    
     track.aux <- split(detections[[i]], detections[[i]]$Track)
-
     tag.aux <- lapply(which(tracks$Valid), function(j) {
       if (verbose)
         message("Estimating ", names(detections)[i], " RSP: ", names(track.aux)[j])

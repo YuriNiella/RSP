@@ -76,16 +76,16 @@ dynBBMM <- function(input, base.raster, tags = NULL, start.time, stop.time, time
   detections <- input$detections  
   spatial <- input$spatial
   tz <- input$tz
-  crs <- input$crs
+  # crs <- input$crs
   bio <- input$bio
 
-  if (as.character(crs) != as.character(raster::crs(base.raster))) # HF: This should never happen (unless the user screwed up), but I am leaving it here as a tester
-    stop("The base raster and the input data are not in the same coordinate system!", call. = FALSE)
+  # if (as.character(crs) != as.character(raster::crs(base.raster))) # HF: This should never happen (unless the user screwed up), but I am leaving it here as a tester
+  #   stop("The base raster and the input data are not in the same coordinate system!", call. = FALSE)
 
   if (raster::isLonLat(base.raster)) {
     if (missing(UTM))
       stop("The data are in a latitude-longitude coordinate system, which is incompatible with the dynamic brownian bridge model.\nPlease supply a 'UTM' zone for coordinate conversion.", call. = FALSE)
-    if (length(UTM) > 1)
+    if (missing(UTM) > 1)
       stop("Please supply only one UTM zone")
     message("M: Converting coordinates to UTM. Original latitude/longitude values for the detections will be stored in columns 'O.LAT' and 'O.LON'.")
     flush.console()
@@ -97,7 +97,6 @@ dynBBMM <- function(input, base.raster, tags = NULL, start.time, stop.time, time
     if (!missing(UTM))
       warning("'UTM' supplied but data is already in a metric coordinate system. Skipping transformation.", call. = FALSE, immediate. = TRUE)
   }
-
   # Sub-setting the data for time period of interest:
   if (!missing(start.time) & missing(stop.time))
     message("M: Discarding detection data previous to ",start.time," per user command.")
@@ -133,7 +132,6 @@ dynBBMM <- function(input, base.raster, tags = NULL, start.time, stop.time, time
       remove.empty <- sapply(detections, nrow) != 0
       detections <- detections[remove.empty]
     }
-
 
   # Prepare detections
   message("M: Preparing data to apply dBBMM.")

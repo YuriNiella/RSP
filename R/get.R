@@ -308,12 +308,16 @@ getCentroids <- function(input, areas, type, level, group, UTM) {
       aux <- aux.rasters[[which(names(aux.rasters) == slots.aux[i])]]
       aux <- aux[[which(names(aux) == as.character(level))]]
       aux1 <- colMeans(raster::xyFromCell(aux, which(aux[] == 1)))
-      xy <- data.frame(X = aux1[1], Y = aux1[2])
-      sp::coordinates(xy) <- c("X", "Y")
-      sp::proj4string(xy) <- sp::CRS(paste0("+proj=utm +zone=", UTM, " +datum=WGS84 +units=m +no_defs +ellps=WGS84 +towgs84=0,0,0"))
-      trans.xy <- sp::spTransform(xy, sp::CRS("+proj=longlat +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +no_defs"))
-      lat.save <- c(lat.save, raster::extent(trans.xy)[3])
-      lon.save <- c(lon.save, raster::extent(trans.xy)[1])
+      # xy <- data.frame(X = aux1[1], Y = aux1[2])
+      xy <- data.frame(lon = aux1[1], lat = aux1[2]) # just to add some value that is plotable
+      projcrs <- paste0("+proj=utm +zone=", UTM, " +datum=WGS84 +units=m +no_defs +ellps=WGS84 +towgs84=0,0,0")
+      xy <- sf::st_as_sf(x = xy,                         
+                 coords = c("lon", "lat"),
+                 crs = projcrs)
+      xy.latlon <- sf::st_transform(xy, 
+        crs = "+proj=longlat +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +no_defs")
+      lat.save <- c(lat.save, sf::st_coordinates(xy.latlon)[2])
+      lon.save <- c(lon.save, sf::st_coordinates(xy.latlon)[1])
     })
     aux.centroid <- data.frame(slots = slots.aux, lat = lat.save, lon = lon.save)
     df.centroid <- input$timeslots
@@ -406,44 +410,36 @@ getDistances <- function(input) {
       df.rec <- subset(df.aux[[j]], Position == "Receiver")
 
       # Receiver distances only
-      receiver.from.coords <- sp::SpatialPoints(data.frame(
+      receiver.from.coords <- data.frame(
         x = df.rec$Longitude[-nrow(df.rec)],
-        y = df.rec$Latitude[-nrow(df.rec)]))
-      raster::crs(receiver.from.coords) <- input$crs
-      receiver.from.coords.wgs84 <- as.data.frame(sp::spTransform(receiver.from.coords, "+init=epsg:4326"))
-
-      receiver.to.coords  <- sp::SpatialPoints(data.frame(
-        x = df.rec$Longitude[-1],
-        y = df.rec$Latitude[-1]))
-      raster::crs(receiver.to.coords) <- input$crs
-      receiver.to.coords.wgs84 <- as.data.frame(sp::spTransform(receiver.to.coords, "+init=epsg:4326"))
-
-      receiver.combined.coords.wgs84 <- cbind(
-        receiver.from.coords.wgs84,
-        receiver.to.coords.wgs84)
+        y = df.rec$Latitude[-nrow(df.rec)])
       
-      receiver.distances <- apply(receiver.combined.coords.wgs84, 1, 
+      receiver.to.coords  <- data.frame(
+        x = df.rec$Longitude[-1],
+        y = df.rec$Latitude[-1])
+      
+      receiver.combined.coords <- cbind(
+        receiver.from.coords,
+        receiver.to.coords)
+      
+      receiver.distances <- apply(receiver.combined.coords, 1, 
         function(r) geosphere::distm(x = c(r[1], r[2]), y = c(r[3], r[4])))
       receiver.total.distance <- sum(receiver.distances)
           
       # Receiver + RSP distances
-      combined.from.coords <- sp::SpatialPoints(data.frame(
+      combined.from.coords <- data.frame(
         x = df.aux[[j]]$Longitude[-nrow(df.aux[[j]])],
-        y = df.aux[[j]]$Latitude[-nrow(df.aux[[j]])]))
-      raster::crs(combined.from.coords) <- input$crs
-      combined.from.coords.wgs84 <- as.data.frame(sp::spTransform(combined.from.coords, "+init=epsg:4326"))
-
-      combined.to.coords  <- sp::SpatialPoints(data.frame(
-        x = df.aux[[j]]$Longitude[-1],
-        y = df.aux[[j]]$Latitude[-1]))
-      raster::crs(combined.to.coords) <- input$crs
-      combined.to.coords.wgs84 <- as.data.frame(sp::spTransform(combined.to.coords, "+init=epsg:4326"))
-
-      combined.combined.coords.wgs84 <- cbind(
-        combined.from.coords.wgs84,
-        combined.to.coords.wgs84)
+        y = df.aux[[j]]$Latitude[-nrow(df.aux[[j]])])
       
-      combined.distances <- apply(combined.combined.coords.wgs84, 1, 
+      combined.to.coords  <- data.frame(
+        x = df.aux[[j]]$Longitude[-1],
+        y = df.aux[[j]]$Latitude[-1])
+      
+      combined.combined.coords <- cbind(
+        combined.from.coords,
+        combined.to.coords)
+      
+      combined.distances <- apply(combined.combined.coords, 1, 
         function(r) geosphere::distm(x = c(r[1], r[2]), y = c(r[3], r[4])))
       combined.total.distance <- sum(combined.distances)
   
@@ -811,7 +807,7 @@ getAreaStep <- function(input, base.raster, UTM, timeframe = 1, start.time = NUL
   }
   # Start calculations
   for (i in 1:length(dates)) {
-    cat(paste("Date:", paste(dates[i])), fill = 1)
+    message(paste("Date:", paste(dates[i])))
     # Find number of animals detected per group:
     aux.day <- aux.detec[which(as.Date(aux.detec$Timestamp, 
       tz = lubridate::tz(aux.detec$Timestamp)) == lubridate::force_tz(dates[i], 
@@ -823,15 +819,32 @@ getAreaStep <- function(input, base.raster, UTM, timeframe = 1, start.time = NUL
     Aux1_n <- length(which(aux.group$Group_is == groups[1]))
     Aux2_n <- length(which(aux.group$Group_is == groups[2]))
     # Run the model
-    cat("Calculating dBBMM...", fill = 1)
+    message("Calculating dBBMM for each group")
+    dbbmm.results <- invisible(suppressWarnings(suppressMessages(dynBBMM(input = input, UTM = UTM, base.raster = base.raster, verbose = TRUE,
+      start.time = paste(dates[i], "00:00:00"),
+      stop.time = paste(dates[i], "23:59:59"),
+      timeframe = 24))))
+    # Calculate areas per group 
+    message("Obtaining centroid locations")
+    areas.group <- invisible(suppressWarnings(suppressMessages(getAreas(input = dbbmm.results, type = "group", breaks = c(0.5, 0.95)))))
+    # Obtain area centroids
+    cent1 <- getCentroids(input = dbbmm.results, areas = areas.group, group = groups[1],
+      type = "group", level = 0.5, UTM = 56)
+    cent2 <- getCentroids(input = dbbmm.results, areas = areas.group, group = groups[1],
+      type = "group", level = 0.95, UTM = 56)
+    cent3 <- getCentroids(input = dbbmm.results, areas = areas.group, group = groups[2],
+      type = "group", level = 0.5, UTM = 56)
+    cent4 <- getCentroids(input = dbbmm.results, areas = areas.group, group = groups[2],
+      type = "group", level = 0.95, UTM = 56)
+
+    # Calculate overlaps between groups
+    message("Calculating overlaps between groups")
     dbbmm.results <- invisible(suppressWarnings(suppressMessages(dynBBMM(input = input, UTM = UTM, base.raster = base.raster, verbose = TRUE,
       start.time = paste(dates[i], "00:00:00"),
       stop.time = paste(dates[i], "23:59:59")))))
-    # Calculate areas per group 
-    cat("Calculating space use areas and overlap...", fill = 1)
     areas.group <- invisible(suppressWarnings(suppressMessages(getAreas(input = dbbmm.results, type = "group", breaks = c(0.5, 0.95)))))
     if (nrow(areas.group$areas) == 1) {
-      cat("Only one group detected, overlaps won't be calculated...", fill = 1)
+      cat("Only one group detected, overlaps won't be calculated", fill = 1)
       over.50.tot <- NA
       over.50.freq <- NA
       over.95.tot <- NA
@@ -859,16 +872,26 @@ getAreaStep <- function(input, base.raster, UTM, timeframe = 1, start.time = NUL
       aux.area.2.50 <- round(areas.group$areas$area.5[areas.group$areas$ID == groups[2]], 2)
       aux.area.2.95 <- round(areas.group$areas$area.95[areas.group$areas$ID == groups[2]], 2)
     }
+
     # Save outputs:
     df.aux <- data.frame(Start.time = paste(dates[i], "00:00:00"), Stop.time = paste(dates[i], "23:59:59"), 
       M_n = Aux1_n, Area.M.50 = aux.area.1.50, Area.M.95 = aux.area.1.95, 
       F_n = Aux2_n, Area.F.50 = aux.area.2.50, Area.F.95 = aux.area.2.95,
       Overlap.50.tot = over.50.tot, Overlap.50.freq = over.50.freq,
-      Overlap.95.tot = over.95.tot, Overlap.95.freq = over.95.freq)
+      Overlap.95.tot = over.95.tot, Overlap.95.freq = over.95.freq,
+      lon1 = cent1$Centroid.lon, lat1 = cent1$Centroid.lat, 
+      lon2 = cent2$Centroid.lon, lat2 = cent2$Centroid.lat, 
+      lon3 = cent3$Centroid.lon, lat3 = cent3$Centroid.lat, 
+      lon4 = cent4$Centroid.lon, lat4 = cent4$Centroid.lat)
     names(df.aux) <- c("Start.time", "Stop.time", 
       paste0(groups[1],"_n"), paste0("Area.",groups[1],".50"), paste0("Area.",groups[1],".95"),
       paste0(groups[2],"_n"), paste0("Area.",groups[2],".50"), paste0("Area.",groups[2],".95"),
-      "Overlap.50.tot", "Overlap.50.freq", "Overlap.95.tot", "Overlap.95.freq")
+      "Overlap.50.tot", "Overlap.50.freq", "Overlap.95.tot", "Overlap.95.freq",
+      paste0(groups[1], ".centroid.lon.50"), paste0(groups[1], ".centroid.lat.50"),
+      paste0(groups[1], ".centroid.lon.95"), paste0(groups[1], ".centroid.lat.95"),
+        paste0(groups[2], ".centroid.lon.50"), paste0(groups[2], ".centroid.lat.50"),
+      paste0(groups[2], ".centroid.lon.95"), paste0(groups[2], ".centroid.lat.95")
+      )
     df.save <- rbind(df.save, df.aux)
     if (save)
       write.csv(df.save, name.new, row.names = FALSE)

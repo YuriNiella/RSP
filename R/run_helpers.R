@@ -103,8 +103,7 @@ prepareDetections <- function(detections, spatial, coord.x, coord.y) {
     x$Position <- "Receiver"
     return(x)
   })
-  names(output) <- names(detections)
-  
+  names(output) <- names(detections)  
   return(output)
 }
 

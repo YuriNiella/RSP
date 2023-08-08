@@ -119,9 +119,11 @@ library("remotes")
 
 Now you can install RSP using:
 
-    remotes::install_github("YuriNiella/RSP", build_opts = c("--no-resave-data", "--no-manual"), build_vignettes = TRUE)
+```
+install_github("YuriNiella/RSP", build_opts = c("--no-resave-data", "--no-manual"), build_vignettes = TRUE)
+```
 
 All the information you need on how to perform the RSP analysis can be
 found in the package vignettes:
 
-    browseVignettes("RSP")
+`browseVignettes("RSP")`

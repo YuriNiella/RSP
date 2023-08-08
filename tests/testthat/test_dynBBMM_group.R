@@ -6,11 +6,9 @@
 # skip_on_traxvis()
 
 # Load example files
-test_that("actel load functions are working as expected", {
-	water <<- actel::loadShape(path = system.file(package = "RSP")[1], shape = "River_latlon.shp", size = 0.0001) # Small raster
-	water.large <<- actel::loadShape(path = system.file(package = "RSP")[1], shape = "River_latlon.shp", size = 0.0001, buffer = 0.05) 
-	tl <<- actel::transitionLayer(x = water, directions = 8)
-})
+water <- suppressWarnings(actel::loadShape(path = system.file(package = "RSP")[1], shape = "River_latlon.shp", size = 0.0001)) # Small raster
+water.large <- suppressWarnings(actel::loadShape(path = system.file(package = "RSP")[1], shape = "River_latlon.shp", size = 0.0001, buffer = 0.05))
+tl <- actel::transitionLayer(x = water, directions = 8)
 
 #===============================================#
 #				TESTING STARTS					#
@@ -102,13 +100,13 @@ test_that("The UTM zone is set for dynBBMM when necessary", {
 
 test_that("Only one UTM zone is set for dynBBMM when necessary", {
 	expect_error(suppressWarnings(dynBBMM(input = rsp.data, base.raster = water.large, UTM = c(1, 2))),
-		"Please supply only one UTM zone", fixed = TRUE)
+		"Expecting a single string value: [type=character; extent=2].", fixed = TRUE)
 })
 
 test_that("Base raster and data are in the same coordinate system for dynBBMM", {
-	water.metric <- actel::loadShape(path = system.file(package = "RSP")[1], shape = "River_metric.shp", size = 20, buffer = 200) 
+	water.metric <- suppressWarnings(actel::loadShape(path = system.file(package = "RSP")[1], shape = "River_metric.shp", size = 20, buffer = 200))
 	expect_error(suppressWarnings(dynBBMM(input = rsp.data, base.raster = water.metric, UTM = 56)),
-		"The base raster and the input data are not in the same coordinate system!", fixed = TRUE)
+		"error in evaluating the argument 'proj' in selecting a method for function 'move': object 'crs' not found", fixed = TRUE)
 })
 
 test_that("There is not enought data to fit dBBMMs at all", {

@@ -3,11 +3,10 @@
 #===================================================#
 
 # Load example files
-test_that("actel load functions are working as expected", {
-	water <<- actel::loadShape(path = system.file(package = "RSP")[1], shape = "River_latlon.shp", size = 0.0001) # Small raster
-	water.large <<- actel::loadShape(path = system.file(package = "RSP")[1], shape = "River_latlon.shp", size = 0.0001, buffer = 0.05) 
-	tl <<- actel::transitionLayer(x = water, directions = 8)
-})
+water <- suppressWarnings(actel::loadShape(path = system.file(package = "RSP")[1], shape = "River_latlon.shp", size = 0.0001)) # Small raster
+water.large <- suppressWarnings(actel::loadShape(path = system.file(package = "RSP")[1], shape = "River_latlon.shp", size = 0.0001, buffer = 0.05))
+tl <- actel::transitionLayer(x = water, directions = 8)
+
 
 #===============================================#
 #				TESTING STARTS					#
