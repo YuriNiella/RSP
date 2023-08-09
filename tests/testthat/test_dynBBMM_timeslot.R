@@ -3,10 +3,10 @@
 #===================================================#
 
 # Load example files
-water <- suppressWarnings(actel::loadShape(path = system.file(package = "RSP")[1], shape = "River_latlon.shp", size = 0.0001)) # Small raster
-water.large <- suppressWarnings(actel::loadShape(path = system.file(package = "RSP")[1], shape = "River_latlon.shp", size = 0.0001, buffer = 0.05))
-tl <- actel::transitionLayer(x = water, directions = 8)
-
+# water <- suppressWarnings(actel::loadShape(path = system.file(package = "RSP")[1], shape = "River_latlon.shp", size = 0.0001)) # Small raster
+# water.large <- suppressWarnings(actel::loadShape(path = system.file(package = "RSP")[1], shape = "River_latlon.shp", size = 0.0001, buffer = 0.05))
+# tl <- actel::transitionLayer(x = water, directions = 8)
+load("actel_files.RData")
 
 #===============================================#
 #				TESTING STARTS					#
@@ -115,10 +115,10 @@ test_that("getCentroids is working for timeslot analysis of type = group", {
 	expect_that(aux, is_a("data.frame"))
 }) 
 
-test_that("getCentroids is working for timeslot analysis of type = track", {
+test_that("getCentroids is not yet working for timeslot analysis of type = track", {
 	areas.group <- getAreas(dbbmm.time, type = "track", breaks = c(0.5, 0.95))
-	aux <- getCentroids(input = dbbmm.time, type = "track", areas = areas.group, level = 0.95, group = "G1", UTM = 56)
-	expect_that(aux, is_a("data.frame"))
+	expect_error(getCentroids(input = dbbmm.time, type = "track", areas = areas.group, level = 0.95, group = "banana", UTM = 56),
+		"Option not currently supported. Please run getAreas again with the option type = 'group'.", fixed = TRUE)
 }) 
 
 test_that("addCentroids is working for type = group", {

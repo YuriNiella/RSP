@@ -38,7 +38,7 @@ rsp.data <- runRSP(input = input.example, t.layer = tl, coord.x = "Longitude", c
 dbbmm.data <- dynBBMM(input = rsp.data, base.raster = water, UTM = 56)
 
 # Get dBBMM areas at group level
-areas.group <- getAreas(dbbmm.data, type = "group", breaks = c(0.5, 0.95))
+areas.group <- getAreas(input = dbbmm.data, type = "group", breaks = c(0.5, 0.95))
 }
 
 }

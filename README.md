@@ -111,19 +111,18 @@ This function can be used to create an **animation** of the **RSP tracks**:
 Current version: **1.0.3**
 
 You will need the **remotes** package **to install RSP**:
-
 ``` 
 install.packages("remotes")
 library("remotes")     
 ```
 
 Now you can install RSP using:
-
 ```
 install_github("YuriNiella/RSP", build_opts = c("--no-resave-data", "--no-manual"), build_vignettes = TRUE)
 ```
 
 All the information you need on how to perform the RSP analysis can be
 found in the package vignettes:
-
-`browseVignettes("RSP")`
+```
+browseVignettes("RSP")
+```

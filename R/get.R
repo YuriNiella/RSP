@@ -25,7 +25,7 @@
 #' dbbmm.data <- dynBBMM(input = rsp.data, base.raster = water, UTM = 56)
 #' 
 #' # Get dBBMM areas at group level
-#' areas.group <- getAreas(dbbmm.data, type = "group", breaks = c(0.5, 0.95))
+#' areas.group <- getAreas(input = dbbmm.data, type = "group", breaks = c(0.5, 0.95))
 #' }
 #' 
 #' @export
@@ -329,43 +329,7 @@ getCentroids <- function(input, areas, type, level, group, UTM) {
   }
 
   if (type == "track") {
-    if (length(which(colnames(areas$areas[[1]]) == paste0("area.", stringr::str_remove(level, pattern = "0.")))) == 0)      
-      stop("The level specified was not found in the input object.", call. = FALSE)
-    
-    groups <- names(areas$areas)
-    slots <- input$timeslots$slot
-    groups.save <- NULL
-    track.save <- NULL
-    slots.save <- NULL
-    lat.save <- NULL
-    lon.save <- NULL  
-    for (i in 1:length(groups)) {
-      aux.areas <- areas$areas[[which(names(areas$areas) == groups[i])]]
-      aux.rasters <- areas$rasters[[which(names(areas$areas) == groups[i])]]
-      slots.aux <- unique(aux.areas$Slot)
-      for (ii in 1:length(slots.aux)) {
-        aux <- aux.rasters[[which(names(aux.rasters) == slots.aux[ii])]]
-        suppressWarnings(for (iii in 1:length(names(aux))) {
-          slots.save <- c(slots.save, slots.aux[ii])
-          groups.save <- c(groups.save, groups[i])
-          track.save <- c(track.save, names(aux)[iii])
-          aux.file <- aux[[iii]][[which(names(aux[[iii]]) == as.character(level))]]
-          aux1 <- colMeans(raster::xyFromCell(aux.file, which(aux.file[] == 1)))
-          xy <- data.frame(X = aux1[1], Y = aux1[2])
-          sp::coordinates(xy) <- c("X", "Y")
-          sp::proj4string(xy) <- sp::CRS(paste0("+proj=utm +zone=", UTM, " +datum=WGS84 +units=m +no_defs +ellps=WGS84 +towgs84=0,0,0"))
-          trans.xy <- sp::spTransform(xy, sp::CRS("+proj=longlat +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +no_defs"))
-          lat.save <- c(lat.save, raster::extent(trans.xy)[3])
-          lon.save <- c(lon.save, raster::extent(trans.xy)[1])
-        })
-      }
-    }
-    aux.centroid <- data.frame(Group = groups.save, Track = track.save, slot = slots.save,
-      Centroid.lat = lat.save, Centroid.lon = lon.save, Level = paste0(level * 100, "%"))
-    aux.centroid$start <- input$timeslots$start[match(aux.centroid$slot, input$timeslots$slot)]
-    aux.centroid$stop <- input$timeslots$stop[match(aux.centroid$slot, input$timeslots$slot)]
-    aux.centroid <- aux.centroid[, c(3, 7, 8, 1, 2, 6, 4, 5)]
-    return(aux.centroid)  
+    stop("Option not currently supported. Please run getAreas again with the option type = 'group'.")
   }
 }
   

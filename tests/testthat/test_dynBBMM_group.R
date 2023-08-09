@@ -6,9 +6,10 @@
 # skip_on_traxvis()
 
 # Load example files
-water <- suppressWarnings(actel::loadShape(path = system.file(package = "RSP")[1], shape = "River_latlon.shp", size = 0.0001)) # Small raster
-water.large <- suppressWarnings(actel::loadShape(path = system.file(package = "RSP")[1], shape = "River_latlon.shp", size = 0.0001, buffer = 0.05))
-tl <- actel::transitionLayer(x = water, directions = 8)
+# water <- suppressWarnings(actel::loadShape(path = system.file(package = "RSP")[1], shape = "River_latlon.shp", size = 0.0001)) # Small raster
+# water.large <- suppressWarnings(actel::loadShape(path = system.file(package = "RSP")[1], shape = "River_latlon.shp", size = 0.0001, buffer = 0.05))
+# tl <- actel::transitionLayer(x = water, directions = 8)
+load("actel_files.RData")
 
 #===============================================#
 #				TESTING STARTS					#
