@@ -1,7 +1,7 @@
 
 # RSP<img src="vignettes/RSP_logo.png" align="right" width="120" />
 
-![R-CMD-check](https://github.com/YuriNierlla/RSP/actions/workflows/R-CMD-check--as-cran.yml/badge.svg?branch=master)
+[![R-CMD-check](https://github.com/YuriNiella/RSP/workflows/R-CMD-check--as-cran/badge.svg)](https://github.com/YuriNiella/RSP/actions)
 [![codecov](https://codecov.io/github/YuriNiella/RSP/branch/master/graphs/badge.svg)](https://codecov.io/github/YuriNiella/RSP)
 [![DOI](https://zenodo.org/badge/200786116.svg)](https://zenodo.org/badge/latestdoi/200786116)
 
