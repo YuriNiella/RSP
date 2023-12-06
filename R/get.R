@@ -1,3 +1,86 @@
+#' Calculate in-water distances from RSP locations to a point of reference
+#' @param input The output of \code{\link{runRSP}}
+#' @param point Point of reference (lon, lat) to where distances will be calculated. 
+#' @param t.layer A transition layer. Can be calculated using the function \code{\link[actel]{transitionLayer}}.
+#' @param transmitter The animal(s) of interest for calculating distances. If not specified, by default, distances will be calculated for all animals in the dataset.
+#' 
+#' @return The RSP detections object with a distance (in metres) column appended. 
+#' 
+#' @examples 
+#' \donttest{
+#' # Import river shapefile
+#' water <- actel::loadShape(path = system.file(package = "RSP"), 
+#'  shape = "River_latlon.shp", size = 0.0001, buffer = 0.05) 
+#' 
+#' # Create a transition layer with 8 directions
+#' tl <- actel::transitionLayer(x = water, directions = 8)
+#' 
+#' # Import example output from actel::explore() 
+#' data(input.example) 
+#' 
+#' # Run RSP analysis
+#' rsp.data <- runRSP(input = input.example, t.layer = tl, coord.x = "Longitude", coord.y = "Latitude")
+#' 
+#' # Calculate distances to a point of reference
+#' df.dist <- getDistPoint(input = rsp.data, point = c(151.0291, -33.81771), t.layer = tl)
+#' }
+#' 
+#' @export
+#' 
+getDistPoint <- function(input, point, t.layer, transmitter = NULL) {
+  # input = rsp.data
+  # t.layer = tl
+  # point = c(151.0291, -33.81771)
+  tags <- unique(names(input$detections))
+  if (is.null(transmitter) == FALSE)
+    tags <- tags[which(tags %in% transmitter)]
+  
+  if (length(tags) > 1) {
+    df.save <- list()
+  } else {
+    df.save <- NULL
+  }
+  for (i in 1:length(tags)) {
+    df <- input$detections[[tags[i]]]
+    dist.save <- NULL
+    message(paste("Calculating distances to reference point:", tags[i]))
+    pb <-  txtProgressBar(min = 0, max = nrow(df), initial = 0, style = 3, width = 60)
+    for (ii in 1:nrow(df)) {
+      A <- point
+      B <- with(df, c(Longitude[ii], Latitude[ii]))
+      # definitive AtoB's
+      AtoB <- gdistance::shortestPath(t.layer, A, B, output = "SpatialLines")
+      AtoB.spdf <- suppressWarnings(methods::as(AtoB, "SpatialPointsDataFrame"))
+      AtoB.df <- suppressWarnings(methods::as(AtoB.spdf, "data.frame")[, c(4, 5)]) 
+      # wgs84 version just for distance calcs
+      AtoB.wgs84.spdf <- suppressWarnings(methods::as(AtoB, "SpatialPointsDataFrame")) 
+      AtoB.wgs84.df <- suppressWarnings(methods::as(AtoB.wgs84.spdf, "data.frame")[, c(4, 5)]) 
+      colnames(AtoB.wgs84.df) <- c("x", "y")
+      # Prepare to calculate distance between coordinate pairs
+      start <- AtoB.wgs84.df[-nrow(AtoB.df), ]
+      stop <- AtoB.wgs84.df[-1, ]
+      aux <- cbind(start, stop)
+        # Distance in meters
+        AtoB.df$Distance <- c(0, apply(aux, 1, function(m) geosphere::distm(x = m[1:2], y = m[3:4])))
+        AtoB.dist <- sum(AtoB.df$Distance)
+        dist.save <- c(dist.save, round(AtoB.dist, 1))
+        setTxtProgressBar(pb, ii) # Progress bar  
+    }
+    close(pb)
+    df$Dist.ref.m <- dist.save
+    if (length(tags) > 1) {
+      df.save[[i]] <- df
+    } else {
+      df.save <- df
+    }
+  }
+  if (length(tags) > 1) {
+    names(df.save) <- tags
+  }
+  return(df.save)
+}
+
+
 #' Calculate water areas per group or track
 #'
 #' @param input The output of \code{\link{dynBBMM}}
