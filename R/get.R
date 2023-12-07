@@ -375,12 +375,12 @@ getAreas <- function(input, type = c("group", "track"), breaks = c(0.5, 0.95)) {
 #' @export
 #' 
 getCentroids <- function(input, areas, type, level, group, UTM) {
-  if (type == "group") {
-    if (length(which(colnames(areas$areas[[1]]) == paste0("area.", stringr::str_remove(level, pattern = "0.")))) == 0)      
+  if (length(which(colnames(areas$areas[[1]]) == paste0("area.", stringr::str_remove(level, pattern = "0.")))) == 0)      
       stop("The level specified was not found in the input object.", call. = FALSE)
+
+  if (type == "group") {    
     if (length(which(names(areas$areas) == group)) == 0)
-      stop("The group specified was not found in the areas object.", call. = FALSE)
-    
+      stop("The group specified was not found in the areas object.", call. = FALSE)  
     slots <- input$timeslots$slot
     aux.areas <- areas$areas[[which(names(areas$areas) == group)]]
     aux.rasters <- areas$rasters[[which(names(areas$areas) == group)]]
@@ -412,8 +412,47 @@ getCentroids <- function(input, areas, type, level, group, UTM) {
   }
 
   if (type == "track") {
-    stop("Option not currently supported. Please run getAreas again with the option type = 'group'.")
-  }
+    slots <- input$timeslots$slot   
+    groups <- names(areas$areas)
+    df.track <- NULL
+    for (i in 1:length(groups)) {
+      aux.areas <- areas$areas[[which(names(areas$areas) == groups[i])]]
+      aux.rasters <- areas$rasters[[which(names(areas$areas) == groups[i])]]
+      slots.aux <- aux.areas$Slot   
+      id.save <- NULL
+      slot.save <- NULL
+      lat.save <- NULL
+      lon.save <- NULL
+      suppressWarnings(for (ii in 1:length(slots.aux)) {
+        aux <- aux.rasters[[which(names(aux.rasters) == slots.aux[ii])]]
+        aux.tags <- names(aux)
+        for (tags in 1:length(aux.tags)) {
+          aux.rast <- aux[[which(names(aux) == aux.tags[tags])]]
+          aux.rast <- aux.rast[[which(names(aux.rast) == as.character(level))]]
+          aux1 <- colMeans(raster::xyFromCell(aux.rast, which(aux.rast[] == 1)))
+          # xy <- data.frame(X = aux1[1], Y = aux1[2])
+          xy <- data.frame(lon = aux1[1], lat = aux1[2]) # just to add some value that is plotable
+          projcrs <- paste0("+proj=utm +zone=", UTM, " +datum=WGS84 +units=m +no_defs +ellps=WGS84 +towgs84=0,0,0")
+          xy <- sf::st_as_sf(x = xy,                         
+                     coords = c("lon", "lat"),
+                     crs = projcrs)
+          xy.latlon <- sf::st_transform(xy, 
+            crs = "+proj=longlat +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +no_defs")
+          lat.save <- c(lat.save, sf::st_coordinates(xy.latlon)[2])
+          lon.save <- c(lon.save, sf::st_coordinates(xy.latlon)[1])
+          slot.save <- c(slot.save, slots.aux[ii])
+          id.save <- c(id.save, aux.tags[tags])
+          }
+      })
+      aux.centroid <- data.frame(ID = id.save, Slot = slot.save, 
+        Group = groups[i], 
+        Level = paste0(level * 100, "%"),
+        Centroid.lat = lat.save, 
+        Centroid.lon = lon.save)
+      df.track <- rbind(df.track, aux.centroid)
+    }
+    return(df.track)        
+  } 
 }
   
 
@@ -423,6 +462,7 @@ getCentroids <- function(input, areas, type, level, group, UTM) {
 #' receiver locations and also adding the RSP positions. 
 #'
 #' @param input RSP dataset as returned by RSP.
+#' @param t.layer A transition layer. Can be calculated using the function \code{\link[actel]{transitionLayer}}.
 #' 
 #' @return A dataframe containing the total distances travelled during each RSP track.  
 #' 
@@ -442,13 +482,14 @@ getCentroids <- function(input, areas, type, level, group, UTM) {
 #' rsp.data <- runRSP(input = input.example, t.layer = tl, coord.x = "Longitude", coord.y = "Latitude")
 #' 
 #' # Calculate distances travelled
-#' distance.data <- getDistances(rsp.data)
+#' distance.data <- getDistances(rsp.data, t.layer = tl)
 #' }
 #' 
 #' @export
 #' 
-getDistances <- function(input) {
+getDistances <- function(input, t.layer) {
   detections <- input$detections
+  tags <- names(input$detections)
 
   df.diag <- lapply(seq_along(detections), function(i) {
     df.aux <- split(detections[[i]], detections[[i]]$Track)
@@ -456,40 +497,62 @@ getDistances <- function(input) {
     aux <- lapply(seq_along(df.aux), function(j) {
       df.rec <- subset(df.aux[[j]], Position == "Receiver")
 
+      # Calculate distance from release to very first detection
+      if (j == 1) {
+        release.point <- subset(input$spatial$release.sites,
+          Station.name == input$bio$Release.site[input$bio$Transmitter == tags[i]],
+          select = c("Longitude", "Latitude"))
+        A <- c(release.point[,1], release.point[,2])
+        B <- with(df.rec, c(Longitude[1], Latitude[1]))
+        # definitive AtoB's
+        AtoB <- gdistance::shortestPath(t.layer, A, B, output = "SpatialLines")
+        AtoB.spdf <- suppressWarnings(methods::as(AtoB, "SpatialPointsDataFrame"))
+        AtoB.df <- suppressWarnings(methods::as(AtoB.spdf, "data.frame")[, c(4, 5)]) 
+        # wgs84 version just for distance calcs
+        AtoB.wgs84.spdf <- suppressWarnings(methods::as(AtoB, "SpatialPointsDataFrame")) 
+        AtoB.wgs84.df <- suppressWarnings(methods::as(AtoB.wgs84.spdf, "data.frame")[, c(4, 5)]) 
+        colnames(AtoB.wgs84.df) <- c("x", "y")
+        # Prepare to calculate distance between coordinate pairs
+        start <- AtoB.wgs84.df[-nrow(AtoB.df), ]
+        stop <- AtoB.wgs84.df[-1, ]
+        aux <- cbind(start, stop)
+          # Distance in meters
+          AtoB.df$Distance <- c(0, apply(aux, 1, function(m) geosphere::distm(x = m[1:2], y = m[3:4])))
+          dist1 <- sum(AtoB.df$Distance)
+      }
+
       # Receiver distances only
       receiver.from.coords <- data.frame(
         x = df.rec$Longitude[-nrow(df.rec)],
         y = df.rec$Latitude[-nrow(df.rec)])
-      
       receiver.to.coords  <- data.frame(
         x = df.rec$Longitude[-1],
-        y = df.rec$Latitude[-1])
-      
+        y = df.rec$Latitude[-1])    
       receiver.combined.coords <- cbind(
         receiver.from.coords,
         receiver.to.coords)
-      
       receiver.distances <- apply(receiver.combined.coords, 1, 
         function(r) geosphere::distm(x = c(r[1], r[2]), y = c(r[3], r[4])))
       receiver.total.distance <- sum(receiver.distances)
+      if (j == 1)
+        receiver.total.distance <- receiver.total.distance + dist1
           
       # Receiver + RSP distances
       combined.from.coords <- data.frame(
         x = df.aux[[j]]$Longitude[-nrow(df.aux[[j]])],
-        y = df.aux[[j]]$Latitude[-nrow(df.aux[[j]])])
-      
+        y = df.aux[[j]]$Latitude[-nrow(df.aux[[j]])])   
       combined.to.coords  <- data.frame(
         x = df.aux[[j]]$Longitude[-1],
-        y = df.aux[[j]]$Latitude[-1])
-      
+        y = df.aux[[j]]$Latitude[-1])    
       combined.combined.coords <- cbind(
         combined.from.coords,
-        combined.to.coords)
-      
+        combined.to.coords)   
       combined.distances <- apply(combined.combined.coords, 1, 
         function(r) geosphere::distm(x = c(r[1], r[2]), y = c(r[3], r[4])))
       combined.total.distance <- sum(combined.distances)
-  
+      if (j == 1)
+        combined.total.distance <- combined.total.distance + dist1
+         
       # Save output:
       recipient <- data.frame(
         Animal.tracked = rep(names(detections)[i], 2),

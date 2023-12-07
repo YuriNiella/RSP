@@ -4,10 +4,12 @@
 \alias{getDistances}
 \title{Get total distances travelled}
 \usage{
-getDistances(input)
+getDistances(input, t.layer)
 }
 \arguments{
 \item{input}{RSP dataset as returned by RSP.}
+
+\item{t.layer}{A transition layer. Can be calculated using the function \code{\link[actel]{transitionLayer}}.}
 }
 \value{
 A dataframe containing the total distances travelled during each RSP track.
@@ -32,7 +34,7 @@ data(input.example)
 rsp.data <- runRSP(input = input.example, t.layer = tl, coord.x = "Longitude", coord.y = "Latitude")
 
 # Calculate distances travelled
-distance.data <- getDistances(rsp.data)
+distance.data <- getDistances(rsp.data, t.layer = tl)
 }
 
 }

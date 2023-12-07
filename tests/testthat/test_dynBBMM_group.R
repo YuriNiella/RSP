@@ -210,14 +210,14 @@ test_that("plotDensities is working properly for group plot", {
 
 # plotDistances: but first getDistances has to work!
 test_that("getDistances is working properly", {
-	p <- tryCatch(getDistances(rsp.data), 
+	p <- tryCatch(getDistances(rsp.data, t.layer = tl), 
 		warning = function(w)
  	stop("A warning was issued in getDistances!", w))
 	expect_that(p, is_a("data.frame"))
 })
 
 test_that("plotDistances is working properly", {
-	output <- getDistances(rsp.data)
+	output <- getDistances(rsp.data, t.layer = tl)
 	p <- tryCatch(plotDistances(output, group = "G1"), 
 		warning = function(w)
  	stop("A warning was issued in plotDistances!", w))
@@ -225,7 +225,7 @@ test_that("plotDistances is working properly", {
 })
 
 test_that("plotDistances is working properly for only RSP locations", {
-	output <- getDistances(rsp.data)
+	output <- getDistances(rsp.data, t.layer = tl)
 	p <- tryCatch(plotDistances(output, group = "G1", compare = FALSE), 
 		warning = function(w)
  	stop("A warning was issued in plotDistances!", w))
@@ -233,7 +233,7 @@ test_that("plotDistances is working properly for only RSP locations", {
 })
 
 test_that("plotDistances is working properly for only RSP locations and by group", {
-	output <- getDistances(rsp.data)
+	output <- getDistances(rsp.data, t.layer = tl)
 	p <- tryCatch(plotDistances(output, compare = FALSE, group = "G1"), 
 		warning = function(w)
  	stop("A warning was issued in plotDistances!", w))
@@ -241,7 +241,7 @@ test_that("plotDistances is working properly for only RSP locations and by group
 })
 
 test_that("plotDistances by group is working properly", {
-	output <- getDistances(rsp.data)
+	output <- getDistances(rsp.data, t.layer = tl)
 	p <- tryCatch(plotDistances(output, group = "G1"), 
 		warning = function(w)
  	stop("A warning was issued in plotDistances!", w))
