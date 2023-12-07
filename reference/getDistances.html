@@ -74,13 +74,17 @@ receiver locations and also adding the RSP positions.</p>
     </div>
 
     <div id="ref-usage">
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">getDistances</span><span class="op">(</span><span class="va">input</span><span class="op">)</span></span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">getDistances</span><span class="op">(</span><span class="va">input</span>, <span class="va">t.layer</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div id="arguments">
     <h2>Arguments</h2>
     <dl><dt>input</dt>
 <dd><p>RSP dataset as returned by RSP.</p></dd>
+
+
+<dt>t.layer</dt>
+<dd><p>A transition layer. Can be calculated using the function <code><a href="https://rdrr.io/pkg/actel/man/transitionLayer.html" class="external-link">transitionLayer</a></code>.</p></dd>
 
 </dl></div>
     <div id="value">
@@ -111,10 +115,10 @@ receiver locations and also adding the RSP positions.</p>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> M: Calculating RSP for the 'explore' data compiled on 2020-09-17 12:14:48.354614</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   |                                                                    |                                                            |   0%</span>
 <span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in h(simpleError(msg, call)):</span> error in evaluating the argument 'x' in selecting a method for function 'shortestPath': object 'tl' not found</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Timing stopped at: 0.003 0.001 0.003</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Timing stopped at: 0.003 0 0.003</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Calculate distances travelled</span></span></span>
-<span class="r-in"><span><span class="va">distance.data</span> <span class="op">&lt;-</span> <span class="fu">getDistances</span><span class="op">(</span><span class="va">rsp.data</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">distance.data</span> <span class="op">&lt;-</span> <span class="fu">getDistances</span><span class="op">(</span><span class="va">rsp.data</span>, t.layer <span class="op">=</span> <span class="va">tl</span><span class="op">)</span></span></span>
 <span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in eval(expr, envir, enclos):</span> object 'rsp.data' not found</span>
 <span class="r-in"><span><span class="co"># }</span></span></span>
 <span class="r-in"><span></span></span>
