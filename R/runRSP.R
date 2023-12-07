@@ -262,15 +262,13 @@ calcRSP <- function(df.track, tz, distance, min.time, time.step, transition, er.
       } else {
         mat.aux$Latitude <- AtoB.df$y
         mat.aux$Longitude <- AtoB.df$x
-        if (exists("AtoB"))
-          rm(AtoB.df, AtoB, AtoB.spdf)
-        else
-          rm(AtoB.df)
-      }
-      
+        # if (exists("AtoB"))
+        #   rm(AtoB.df, AtoB, AtoB.spdf)
+        # else
+        #   rm(AtoB.df)
+      } 
       mat.aux$Date <- as.Date(mat.aux$Timestamp, tz = tz)
-      mat.aux$Position <- "RSP"
-      
+      mat.aux$Position <- "RSP"     
       aux.RSP <- rbind(aux.RSP, mat.aux) # Save RSP
       rm(intermediate.points)
     }
