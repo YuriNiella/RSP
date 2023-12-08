@@ -499,9 +499,13 @@ getDistances <- function(input, t.layer) {
 
       # Calculate distance from release to very first detection
       if (j == 1) {
-        release.point <- subset(input$spatial$release.sites,
-          Station.name == input$bio$Release.site[input$bio$Transmitter == tags[i]],
-          select = c("Longitude", "Latitude"))
+        # release.point <- subset(input$spatial$release.sites,
+        #   Station.name == input$bio$Release.site[input$bio$Transmitter == tags[i]],
+        #   select = c("Longitude", "Latitude"))
+
+          index <- which(input$spatial$release.sites[,"Station.name"] == 
+            input$bio$Release.site[input$bio$Transmitter == tags[i]])
+          release.point <- input$spatial$release.sites[index, c("Longitude", "Latitude")]
 
         if (nrow(release.point) > 0) {
           A <- c(release.point[,1], release.point[,2])
