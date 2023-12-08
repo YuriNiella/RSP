@@ -6,6 +6,9 @@
 \usage{
 addCentroids(
   input,
+  type,
+  tag = NULL,
+  track = NULL,
   timeslot = NULL,
   shape = 21,
   size = 1.5,
@@ -15,6 +18,8 @@ addCentroids(
 }
 \arguments{
 \item{input}{The output of \code{\link{getCentroids}}}
+
+\item{type}{one of "group" or "track".}
 
 \item{timeslot}{The timeslot of interest to plot the centroid location}
 
@@ -59,7 +64,7 @@ df.centroid <- getCentroids(input = dbbmm.data, type = "group", areas = areas.gr
 
 # Plot group centroid location:
 plotAreas(areas.group, base.raster = water, group = "G1", timeslot = 7) +
-   addCentroids(input = df.centroid, timeslot = 7)
+   addCentroids(input = df.centroid, type = "group", timeslot = 7)
 }
 
 }

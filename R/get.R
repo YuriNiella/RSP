@@ -502,25 +502,32 @@ getDistances <- function(input, t.layer) {
         release.point <- subset(input$spatial$release.sites,
           Station.name == input$bio$Release.site[input$bio$Transmitter == tags[i]],
           select = c("Longitude", "Latitude"))
-        A <- c(release.point[,1], release.point[,2])
-        B <- with(df.rec, c(Longitude[1], Latitude[1]))
-        # definitive AtoB's
-        AtoB <- gdistance::shortestPath(t.layer, A, B, output = "SpatialLines")
-        AtoB.spdf <- suppressWarnings(methods::as(AtoB, "SpatialPointsDataFrame"))
-        AtoB.df <- suppressWarnings(methods::as(AtoB.spdf, "data.frame")[, c(4, 5)]) 
-        # wgs84 version just for distance calcs
-        AtoB.wgs84.spdf <- suppressWarnings(methods::as(AtoB, "SpatialPointsDataFrame")) 
-        AtoB.wgs84.df <- suppressWarnings(methods::as(AtoB.wgs84.spdf, "data.frame")[, c(4, 5)]) 
-        colnames(AtoB.wgs84.df) <- c("x", "y")
-        # Prepare to calculate distance between coordinate pairs
-        start <- AtoB.wgs84.df[-nrow(AtoB.df), ]
-        stop <- AtoB.wgs84.df[-1, ]
-        aux <- cbind(start, stop)
-          # Distance in meters
-          AtoB.df$Distance <- c(0, apply(aux, 1, function(m) geosphere::distm(x = m[1:2], y = m[3:4])))
-          dist1 <- sum(AtoB.df$Distance)
-      }
 
+        if (nrow(release.point) > 0) {
+          A <- c(release.point[,1], release.point[,2])
+          B <- with(df.rec, c(Longitude[1], Latitude[1]))
+          # definitive AtoB's
+          AtoB <- gdistance::shortestPath(t.layer, A, B, output = "SpatialLines")
+          AtoB.spdf <- suppressWarnings(methods::as(AtoB, "SpatialPointsDataFrame"))
+          AtoB.df <- suppressWarnings(methods::as(AtoB.spdf, "data.frame")[, c(4, 5)]) 
+          # wgs84 version just for distance calcs
+          AtoB.wgs84.spdf <- suppressWarnings(methods::as(AtoB, "SpatialPointsDataFrame")) 
+          AtoB.wgs84.df <- suppressWarnings(methods::as(AtoB.wgs84.spdf, "data.frame")[, c(4, 5)]) 
+          colnames(AtoB.wgs84.df) <- c("x", "y")
+          # Prepare to calculate distance between coordinate pairs
+          start <- AtoB.wgs84.df[-nrow(AtoB.df), ]
+          stop <- AtoB.wgs84.df[-1, ]
+          aux <- cbind(start, stop)
+            # Distance in meters
+            AtoB.df$Distance <- c(0, apply(aux, 1, function(m) geosphere::distm(x = m[1:2], y = m[3:4])))
+            dist1 <- sum(AtoB.df$Distance)
+        } else {
+          warning(paste0(
+            "Release location not found for ", names(detections)[i], ". The first track distance may be underestimated.")
+          )
+          dist1 <- 0
+        }
+      }
       # Receiver distances only
       receiver.from.coords <- data.frame(
         x = df.rec$Longitude[-nrow(df.rec)],
@@ -535,8 +542,7 @@ getDistances <- function(input, t.layer) {
         function(r) geosphere::distm(x = c(r[1], r[2]), y = c(r[3], r[4])))
       receiver.total.distance <- sum(receiver.distances)
       if (j == 1)
-        receiver.total.distance <- receiver.total.distance + dist1
-          
+        receiver.total.distance <- receiver.total.distance + dist1        
       # Receiver + RSP distances
       combined.from.coords <- data.frame(
         x = df.aux[[j]]$Longitude[-nrow(df.aux[[j]])],
@@ -551,8 +557,7 @@ getDistances <- function(input, t.layer) {
         function(r) geosphere::distm(x = c(r[1], r[2]), y = c(r[3], r[4])))
       combined.total.distance <- sum(combined.distances)
       if (j == 1)
-        combined.total.distance <- combined.total.distance + dist1
-         
+        combined.total.distance <- combined.total.distance + dist1       
       # Save output:
       recipient <- data.frame(
         Animal.tracked = rep(names(detections)[i], 2),
@@ -561,7 +566,6 @@ getDistances <- function(input, t.layer) {
         Loc.type = c("Receiver", "RSP"),
         Dist.travel = c(receiver.total.distance, combined.total.distance)
         )
-
       return(recipient)
     })
     return(as.data.frame(data.table::rbindlist(aux)))

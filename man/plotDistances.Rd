@@ -38,7 +38,7 @@ data(input.example)
 rsp.data <- runRSP(input = input.example, t.layer = tl, coord.x = "Longitude", coord.y = "Latitude")
 
 # Calculate distances travelled
-distance.data <- getDistances(rsp.data)
+distance.data <- getDistances(rsp.data, t.layer = tl)
 
 # Plot distances travelled
 plotDistances(distance.data, group = "G1")

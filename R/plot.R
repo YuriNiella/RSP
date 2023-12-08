@@ -63,6 +63,7 @@ addRecaptures <- function(Signal, shape = 21, size = 1.5, colour = "white", fill
 #' Add group centroid location to an existing plot
 #' 
 #' @param input The output of \code{\link{getCentroids}}
+#' @param type one of "group" or "track".
 #' @param timeslot The timeslot of interest to plot the centroid location
 #' @param shape The shape of the points
 #' @param size The size of the points
@@ -98,15 +99,30 @@ addRecaptures <- function(Signal, shape = 21, size = 1.5, colour = "white", fill
 #'
 #' # Plot group centroid location:
 #' plotAreas(areas.group, base.raster = water, group = "G1", timeslot = 7) +
-#'    addCentroids(input = df.centroid, timeslot = 7)
+#'    addCentroids(input = df.centroid, type = "group", timeslot = 7)
 #' }
 #' 
 #' @export
 #' 
-addCentroids <- function(input, timeslot = NULL, shape = 21, size = 1.5, colour = "white", fill = "cyan") {
-  input <- input[which(input[, 1] == timeslot), ]
-  ggplot2::geom_point(data = input, ggplot2::aes(x = input[, 7], y = input[, 6]), 
-    color = colour, fill = fill, shape = shape, size = size)
+addCentroids <- function(input, type, tag = NULL, track = NULL, timeslot = NULL, shape = 21, size = 1.5, colour = "white", fill = "cyan") {
+  if (type == "group") {
+    input <- input[which(input[, 1] == timeslot), ]
+    ggplot2::geom_point(data = input, ggplot2::aes(x = input[, "Centroid.lon"], y = input[, "Centroid.lat"]), 
+      color = colour, fill = fill, shape = shape, size = size)
+  }
+  if (type == "track") {
+    if (is.null(tag))
+      stop("Plese provide a 'tag' of interest for plotting")
+    if (is.null(track))
+      stop("Plese provide a 'track' of interest for plotting")
+    aux.tag <- stringr::str_split(tag, pattern = "-")
+    aux.tag <- paste(aux.tag[[1]], collapse = ".")
+    aux.tag <- paste0(aux.tag, "_Track_", track)
+    input <- input[which(input[, "Track"] == aux.tag), ]
+    input <- input[which(input[, 1] == timeslot), ]
+    ggplot2::geom_point(data = input, ggplot2::aes(x = input[, "Centroid.lon"], y = input[, "Centroid.lat"]), 
+      color = colour, fill = fill, shape = shape, size = size)
+  } 
 }
 
 
@@ -164,7 +180,7 @@ plotAreas <- function(areas, base.raster, group, timeslot,
   Contour <- NULL
 
   if (attributes(areas)$area != "group")
-    stop("plotAreas currently only works for 'group' areas. Please re-run getAreas with type = 'group'.", call. = FALSE)
+    stop("plotAreas currently only works for 'group' areas. If you want to plot the individual dBBMMs, please use plotContours instead.", call. = FALSE)
 
   if (!missing(timeslot) && length(timeslot) != 1)
     stop("Please select only one timeslot.\n", call. = FALSE)
@@ -237,10 +253,13 @@ plotAreas <- function(areas, base.raster, group, timeslot,
   # plot individual contours
   for (i in breaks) {
     if (!is.null(contours[[i]]))
-      p <- p + ggplot2::geom_raster(data = contours[[i]], ggplot2::aes(x = x, y = y, fill = Contour))
+      p <- p + 
+        ggplot2::geom_raster(data = contours[[i]], ggplot2::aes(x = x, y = y, fill = Contour))
   }
   # overlay the map
-  p <- p + ggplot2::geom_raster(data = base.map, ggplot2::aes(x = x, y = y), fill = land.col) 
+  p <- p + 
+    ggplot2::geom_raster(data = base.map, ggplot2::aes(x = x, y = y), 
+      fill = land.col, interpolate = TRUE)
 
   # graphic details
   p <- p + ggplot2::scale_fill_manual(values = col)
@@ -261,7 +280,7 @@ plotAreas <- function(areas, base.raster, group, timeslot,
   else
     p <- p + ggplot2::labs(title = title)
 
-  return(p)
+  return(suppressWarnings(print(p)))
 }
 
 
@@ -443,7 +462,7 @@ plotContours <- function(input, tag, track = NULL, timeslot, scale.type = "categ
     p <- p + ggplot2::scale_x_continuous(expand = c(0, 0))
     p <- p + ggplot2::scale_y_continuous(expand = c(0, 0))
     p <- p + ggplot2::labs(x = "Longitude", y = "Latitude", fill = "Space use", title = title)
-    return(p)
+    return(suppressWarnings(print(p)))
   }
 
   if (scale.type == "categorical") {
@@ -487,7 +506,7 @@ plotContours <- function(input, tag, track = NULL, timeslot, scale.type = "categ
     p <- p + ggplot2::scale_x_continuous(expand = c(0, 0))
     p <- p + ggplot2::scale_y_continuous(expand = c(0, 0))
     p <- p + ggplot2::labs(x = "Longitude", y = "Latitude", fill = "Space use", title = title)
-    return(p)
+    return(suppressWarnings(print(p)))
   }
 }
 
@@ -584,7 +603,7 @@ plotDensities <- function(input, group) {
       color = cmocean::cmocean('matter')(3)[3], linetype="dashed", size=1)
   }
 
-  return(p)
+  return(suppressWarnings(print(p)))
 }
 
 #' Plot total distances travelled 
@@ -616,7 +635,7 @@ plotDensities <- function(input, group) {
 #' rsp.data <- runRSP(input = input.example, t.layer = tl, coord.x = "Longitude", coord.y = "Latitude")
 #' 
 #' # Calculate distances travelled
-#' distance.data <- getDistances(rsp.data)
+#' distance.data <- getDistances(rsp.data, t.layer = tl)
 #' 
 #' # Plot distances travelled
 #' plotDistances(distance.data, group = "G1")
@@ -681,7 +700,7 @@ plotDistances <- function(input, group, compare = TRUE) {
   }
   
 
-  return(p)
+  return(suppressWarnings(print(p)))
 }
 
 #' Plot overlapping contours 
@@ -913,7 +932,7 @@ plotOverlaps <- function(overlaps, areas, base.raster, groups, timeslot,
   else
     p <- p + ggplot2::labs(title = paste(groups, collapse = " and "))
 
-  return(p)
+  return(suppressWarnings(print(p)))
 }
 
 #' Check input data quality for the RSP analysis
@@ -1012,7 +1031,7 @@ plotRaster <- function(input, base.raster, coord.x, coord.y, size = 1, land.col 
   p <- p + ggplot2::scale_colour_manual(values = c("#fc4800", "#56B4E9"), labels = legend_labels, drop = FALSE)
   p <- p + ggplot2::labs(color = "")
   
-  return(p)
+  return(suppressWarnings(print(p)))
 }
 
 #' Plot the RSP tracks
@@ -1134,7 +1153,7 @@ plotTracks <- function(input, base.raster, type = c("both", "points", "lines"),
   p <- p + ggplot2::scale_x_continuous(expand = c(0, 0))
   p <- p + ggplot2::scale_y_continuous(expand = c(0, 0)) 
  
-  return(p)
+  return(suppressWarnings(print(p)))
 }
 
 #' Suggest plot dimensions for a given raster
@@ -1337,6 +1356,6 @@ animateTracks <- function(input, base.raster, tags = NULL, drop.groups = NULL, b
         return(gganimate::anim_save(filename = gif.name, 
             animation = gganimate::animate(p, height = height, width = width, nframes = nframes, fps = fps)))
     } else {
-        return(p)
+        return(suppressWarnings(print(p)))
     }
 }
