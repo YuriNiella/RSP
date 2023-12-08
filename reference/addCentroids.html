@@ -74,6 +74,9 @@
     <div id="ref-usage">
     <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">addCentroids</span><span class="op">(</span></span>
 <span>  <span class="va">input</span>,</span>
+<span>  <span class="va">type</span>,</span>
+<span>  tag <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  track <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  timeslot <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  shape <span class="op">=</span> <span class="fl">21</span>,</span>
 <span>  size <span class="op">=</span> <span class="fl">1.5</span>,</span>
@@ -86,6 +89,10 @@
     <h2>Arguments</h2>
     <dl><dt>input</dt>
 <dd><p>The output of <code><a href="getCentroids.html">getCentroids</a></code></p></dd>
+
+
+<dt>type</dt>
+<dd><p>one of "group" or "track".</p></dd>
 
 
 <dt>timeslot</dt>
@@ -136,7 +143,7 @@
 <span class="r-msg co"><span class="r-pr">#&gt;</span> M: Calculating RSP for the 'explore' data compiled on 2020-09-17 12:14:48.354614</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   |                                                                    |                                                            |   0%</span>
 <span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in h(simpleError(msg, call)):</span> error in evaluating the argument 'x' in selecting a method for function 'shortestPath': object 'tl' not found</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Timing stopped at: 0.024 0 0.025</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Timing stopped at: 0.023 0 0.045</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Run dynamic Brownian Bridge Movement Model (dBBMM) with timeslots:</span></span></span>
 <span class="r-in"><span><span class="va">dbbmm.data</span> <span class="op">&lt;-</span> <span class="fu"><a href="dynBBMM.html">dynBBMM</a></span><span class="op">(</span>input <span class="op">=</span> <span class="va">rsp.data</span>, base.raster <span class="op">=</span> <span class="va">water</span>, UTM <span class="op">=</span> <span class="fl">56</span>, timeframe <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span></span>
@@ -153,7 +160,7 @@
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Plot group centroid location:</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="plotAreas.html">plotAreas</a></span><span class="op">(</span><span class="va">areas.group</span>, base.raster <span class="op">=</span> <span class="va">water</span>, group <span class="op">=</span> <span class="st">"G1"</span>, timeslot <span class="op">=</span> <span class="fl">7</span><span class="op">)</span> <span class="op">+</span></span></span>
-<span class="r-in"><span>   <span class="fu">addCentroids</span><span class="op">(</span>input <span class="op">=</span> <span class="va">df.centroid</span>, timeslot <span class="op">=</span> <span class="fl">7</span><span class="op">)</span></span></span>
+<span class="r-in"><span>   <span class="fu">addCentroids</span><span class="op">(</span>input <span class="op">=</span> <span class="va">df.centroid</span>, type <span class="op">=</span> <span class="st">"group"</span>, timeslot <span class="op">=</span> <span class="fl">7</span><span class="op">)</span></span></span>
 <span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in eval(expr, envir, enclos):</span> object 'areas.group' not found</span>
 <span class="r-in"><span><span class="co"># }</span></span></span>
 <span class="r-in"><span></span></span>
