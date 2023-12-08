@@ -63,7 +63,9 @@ addRecaptures <- function(Signal, shape = 21, size = 1.5, colour = "white", fill
 #' Add group centroid location to an existing plot
 #' 
 #' @param input The output of \code{\link{getCentroids}}
-#' @param type one of "group" or "track".
+#' @param type One of "group" or "track".
+#' @param tag Animal of interest, when type = "track".
+#' @param track Track of interest, when type = "track".
 #' @param timeslot The timeslot of interest to plot the centroid location
 #' @param shape The shape of the points
 #' @param size The size of the points

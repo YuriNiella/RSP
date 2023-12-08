@@ -124,7 +124,7 @@ test_that("addCentroids is working for type = group", {
 	areas.group <- getAreas(dbbmm.time, type = "group", breaks = c(0.5, 0.95))
 	aux <- getCentroids(input = dbbmm.time, type = "group", areas = areas.group, level = 0.95, group = "G1", UTM = 56)
 	aux.plot <- suppressWarnings(plotAreas(areas.group, base.raster = water, group = "G1", timeslot = 6) +
-	    addCentroids(input = aux, timeslot = 6))
+	    addCentroids(input = aux, type = "group", timeslot = 6))
 	expect_that(aux.plot, is_a("ggplot"))
 }) 
 
@@ -180,7 +180,7 @@ test_that("getAreas is working", {
 
 test_that("plotAreas does not work when getAreas is run for track", {
 	expect_error(plotAreas(output2.track),
-		"plotAreas currently only works for 'group' areas. Please re-run getAreas with type = 'group'.", fixed = TRUE)
+		"plotAreas currently only works for 'group' areas. If you want to plot the individual dBBMMs, please use plotContours instead.", fixed = TRUE)
 })
 
 test_that("plotAreas the correct group is provided", {

@@ -19,7 +19,11 @@ addCentroids(
 \arguments{
 \item{input}{The output of \code{\link{getCentroids}}}
 
-\item{type}{one of "group" or "track".}
+\item{type}{One of "group" or "track".}
+
+\item{tag}{Animal of interest, when type = "track".}
+
+\item{track}{Track of interest, when type = "track".}
 
 \item{timeslot}{The timeslot of interest to plot the centroid location}
 

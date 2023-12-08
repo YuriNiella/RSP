@@ -339,7 +339,7 @@ test_that("getAreas is working", {
 
 test_that("plotAreas does not work when getAreas is run for track", {
 	expect_error(plotAreas(output1.track),
-		"plotAreas currently only works for 'group' areas. Please re-run getAreas with type = 'group'.", fixed = TRUE)
+		"plotAreas currently only works for 'group' areas. If you want to plot the individual dBBMMs, please use plotContours instead.", fixed = TRUE)
 })
 
 test_that("plotAreas the correct group is provided", {
