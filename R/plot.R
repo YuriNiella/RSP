@@ -985,19 +985,11 @@ plotRaster <- function(input, base.raster, coord.x, coord.y, size = 1, land.col 
     stop("Please indicate the latitude column with 'coord.y'.\n", call. = FALSE)
   
   # paint land rather than water
-  base.raster[is.na(base.raster)] <- 2
-  base.raster[base.raster == 1] <- NA
-  base.raster[base.raster == 2] <- 1
+  base.raster <- terra::as.factor(water)
+  base.raster <- terra::subst(base.raster, from = 1, to = NA, others = 1)
 
-  # Convert raster to points:
-  base.raster_df <- raster::rasterToPoints(base.raster)
-  
-  # Make the points a dataframe for ggplot
-  df <- data.frame(base.raster_df)
-  colnames(df) <- c("Longitude", "Latitude", "MAP")
-  
+
   # Find stations in land:
-
   if (any(names(input) == "rsp.info"))
     stations <- input$spatial$stations
   else
@@ -1011,10 +1003,10 @@ plotRaster <- function(input, base.raster, coord.x, coord.y, size = 1, land.col 
 
   if (is.na(match(coord.y, colnames(stations))))
     stop("Could not find column '", coord.y, "' in the spatial data frame", call. = FALSE)
-  
+
   on.land <- raster::extract(x = base.raster, y = as.matrix(stations[, c(coord.x, coord.y)]))
 
-  data.stations <- data.frame(Check = on.land, 
+  data.stations <- data.frame(Check = as.character(on.land[,1]), 
     Longitude = stations[, coord.x],
     Latitude = stations[, coord.y])
   data.stations$Check[is.na(data.stations$Check)] <- "Water"
@@ -1024,7 +1016,8 @@ plotRaster <- function(input, base.raster, coord.x, coord.y, size = 1, land.col 
   legend_labels <- c(paste0("On land (", sum(data.stations$Check == "Land"), ")"), paste0("On water (", sum(data.stations$Check == "Water"), ")"))
 
   p <- ggplot2::ggplot()
-  p <- p + ggplot2::geom_raster(data = df, ggplot2::aes(y = Latitude, x = Longitude), fill = land.col, show.legend = FALSE)  
+  p <- p + tidyterra::geom_spatraster(data = base.raster, ggplot2::aes(fill = layer), show.legend = FALSE)  
+  p <- p + ggplot2::scale_fill_manual(values = land.col, na.value = "transparent")
   p <- p + ggplot2::theme_bw()
   p <- p + ggplot2::theme(legend.position = "bottom")
   p <- p + ggplot2::scale_x_continuous(expand = c(0, 0))
