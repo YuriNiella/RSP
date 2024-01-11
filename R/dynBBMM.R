@@ -4,7 +4,7 @@
 #' are automatically identified and not included in the analysis.
 #'
 #' @param input The output of runRSP.
-#' @param base.raster The water raster of the study area. For example the output of \code{\link[actel]{loadShape}}.
+#' @param base.raster The water raster of the study area. For example the output of \code{\link[actel]{shapeToRaster}}.
 #' @param tags Vector of transmitters to be analysed. By default all transmitters from runRSP will be analysed.
 #' @param start.time Sets the start point for analysis (format = "Y-m-d H:M:S").
 #' @param stop.time Sets the stop point for analysis (format = "Y-m-d H:M:S").
@@ -21,8 +21,8 @@
 #' @examples 
 #' \donttest{
 #' # Import river shapefile
-#' water <- actel::loadShape(path = system.file(package = "RSP"), 
-#'  shape = "River_latlon.shp", size = 0.0001, buffer = 0.05) 
+#' water <- actel::shapeToRaster(shape = paste0(system.file(package = "RSP"), "/River_latlon.shp"), 
+#' size = 0.0001, buffer = 0.05) 
 #' 
 #' # Create a transition layer with 8 directions
 #' tl <- actel::transitionLayer(x = water, directions = 8)
@@ -41,6 +41,9 @@
 #' 
 dynBBMM <- function(input, base.raster, tags = NULL, start.time, stop.time, timeframe = NULL, UTM, 
   debug = FALSE, verbose = TRUE, window.size = 7, margin = 3) {
+  
+  base.raster <- raster::raster(base.raster) # Use this for now, until dBBMM with terra is available!
+
   Timestamp <- NULL
   
   if ((window.size %% 2) == 0) {
@@ -237,7 +240,7 @@ calculateDBBMM <- function(input, crs, base.raster, window.size, margin) {
           error = function(e) {
             if (grepl("consider extending the raster", e))
               stop("The brownian bridge model needs a larger raster to work on. This could happen because some of the detections are too close to the raster's edge. 
-You can create a larger raster by using the argument 'buffer' in loadShape. If the error persists, increase the buffer size further.", call. = FALSE)
+You can create a larger raster by using the argument 'buffer' in shapeToRaster. If the error persists, increase the buffer size further.", call. = FALSE)
             else
               stop(e)
           })
@@ -285,7 +288,7 @@ You can create a larger raster by using the argument 'buffer' in loadShape. If t
             error = function(e) {
               if (grepl("consider extending the raster", e))
                 stop("The brownian bridge model needs a larger raster to work on. This could happen because some of the detections are too close to the raster's edge. 
-You can create a larger raster by using the argument 'buffer' in loadShape. If the error persists, increase the buffer size further.", call. = FALSE)
+You can create a larger raster by using the argument 'buffer' in shapeToRaster. If the error persists, increase the buffer size further.", call. = FALSE)
               else
                 stop(e)
             })

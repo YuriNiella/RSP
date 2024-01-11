@@ -19,7 +19,7 @@ getAreaStep(
 \arguments{
 \item{input}{The output of \code{\link{runRSP}}.}
 
-\item{base.raster}{The water raster of the study area. For example the output of \code{\link[actel]{loadShape}}.}
+\item{base.raster}{The water raster of the study area. For example the output of \code{\link[actel]{shapeToRaster}}.}
 
 \item{UTM}{The UTM zone of the study area. Only relevant if a latlon-to-metric conversion is required.}
 
@@ -50,8 +50,8 @@ with the 50% and 95% contours.
 \examples{
 \donttest{
 # Import river shapefile
-water <- actel::loadShape(path = system.file(package = "RSP"), 
- shape = "River_latlon.shp", size = 0.0001, buffer = 0.05) 
+water <- actel::shapeToRaster(shape = paste0(system.file(package = "RSP"), "/River_latlon.shp"), 
+size = 0.0001, buffer = 0.05) 
 
 # Create a transition layer with 8 directions
 tl <- actel::transitionLayer(x = water, directions = 8)

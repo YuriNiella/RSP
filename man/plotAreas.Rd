@@ -40,8 +40,8 @@ to that same geographic system, so everything falls in place.
 \examples{
 \donttest{
 # Import river shapefile
-water <- actel::loadShape(path = system.file(package = "RSP"), 
- shape = "River_latlon.shp", size = 0.0001, buffer = 0.05) 
+water <- actel::shapeToRaster(shape = paste0(system.file(package = "RSP"), "/River_latlon.shp"), 
+size = 0.0001, buffer = 0.05) 
 
 # Create a transition layer with 8 directions
 tl <- actel::transitionLayer(x = water, directions = 8)

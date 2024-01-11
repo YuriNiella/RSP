@@ -6,4 +6,7 @@ utils::globalVariables(c("Latitude",
   "Transmitter",
   "Signal_Track",
   "alpha",
+  "x",
+  "y",
+  "layer",
   "%>%"))

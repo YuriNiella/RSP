@@ -9,8 +9,8 @@
 #' @examples 
 #' \donttest{
 #' # Import river shapefile
-#' water <- actel::loadShape(path = system.file(package = "RSP"), 
-#'  shape = "River_latlon.shp", size = 0.0001, buffer = 0.05) 
+#' water <- actel::shapeToRaster(shape = paste0(system.file(package = "RSP"), "/River_latlon.shp"), 
+#' size = 0.0001, buffer = 0.05) 
 #' 
 #' # Create a transition layer with 8 directions
 #' tl <- actel::transitionLayer(x = water, directions = 8)
@@ -92,8 +92,8 @@ getDistPoint <- function(input, point, t.layer, transmitter = NULL) {
 #' @examples 
 #' \donttest{
 #' # Import river shapefile
-#' water <- actel::loadShape(path = system.file(package = "RSP"), 
-#'  shape = "River_latlon.shp", size = 0.0001, buffer = 0.05) 
+#' water <- actel::shapeToRaster(shape = paste0(system.file(package = "RSP"), "/River_latlon.shp"), 
+#' size = 0.0001, buffer = 0.05) 
 #' 
 #' # Create a transition layer with 8 directions
 #' tl <- actel::transitionLayer(x = water, directions = 8)
@@ -196,7 +196,7 @@ getAreas <- function(input, type = c("group", "track"), breaks = c(0.5, 0.95)) {
       track.rasters <- lapply(water.areas, function(group) {
         aux <- lapply(breaks, function(i) {
           output <- group[[as.character(i)]]$raster # extract relevant raster
-          if (class(output) != "RasterLayer") # flatten it if needed
+          if (!methods::is(output, "RasterLayer")) # flatten it if needed
             return(raster::calc(output, fun = max, na.rm = TRUE))
           else
             return(output)         
@@ -312,7 +312,7 @@ getAreas <- function(input, type = c("group", "track"), breaks = c(0.5, 0.95)) {
         lapply(group, function(timeslot) {
           aux <- lapply(breaks, function(i) {
             output <- timeslot[[as.character(i)]]$raster # extract relevant raster
-            if (class(output) != "RasterLayer") # flatten it if needed
+            if (!methods::is(output, "RasterLayer")) # flatten it if needed
               return(raster::calc(output, fun = max, na.rm = TRUE))
             else
               return(output)         
@@ -349,8 +349,8 @@ getAreas <- function(input, type = c("group", "track"), breaks = c(0.5, 0.95)) {
 #' @examples 
 #' \donttest{
 #' # Import river shapefile
-#' water <- actel::loadShape(path = system.file(package = "RSP"), 
-#'  shape = "River_latlon.shp", size = 0.0001, buffer = 0.05) 
+#' water <- actel::shapeToRaster(shape = paste0(system.file(package = "RSP"), "/River_latlon.shp"), 
+#' size = 0.0001, buffer = 0.05) 
 #' 
 #' # Create a transition layer with 8 directions
 #' tl <- actel::transitionLayer(x = water, directions = 8)
@@ -469,8 +469,8 @@ getCentroids <- function(input, areas, type, level, group, UTM) {
 #' @examples 
 #' \donttest{
 #' # Import river shapefile
-#' water <- actel::loadShape(path = system.file(package = "RSP"), 
-#'  shape = "River_latlon.shp", size = 0.0001, buffer = 0.05) 
+#' water <- actel::shapeToRaster(shape = paste0(system.file(package = "RSP"), "/River_latlon.shp"), 
+#' size = 0.0001, buffer = 0.05) 
 #' 
 #' # Create a transition layer with 8 directions
 #' tl <- actel::transitionLayer(x = water, directions = 8)
@@ -601,8 +601,8 @@ getDistances <- function(input, t.layer) {
 #' @examples 
 #' \donttest{
 #' # Import river shapefile
-#' water <- actel::loadShape(path = system.file(package = "RSP"), 
-#'  shape = "River_latlon.shp", size = 0.0001, buffer = 0.05) 
+#' water <- actel::shapeToRaster(shape = paste0(system.file(package = "RSP"), "/River_latlon.shp"), 
+#' size = 0.0001, buffer = 0.05) 
 #' 
 #' # Create a transition layer with 8 directions
 #' tl <- actel::transitionLayer(x = water, directions = 8)
@@ -644,7 +644,7 @@ getOverlaps <- function(input) {
     # should be harmless.    
     the.rasters <- lapply(the.rasters, function(group) {
       lapply(group, function(limit) {
-        if (class(limit) != "RasterLayer")
+        if (!methods::is(limit, "RasterLayer"))
           return(raster::calc(limit, fun = max, na.rm = TRUE))
         else
           return(limit)
@@ -737,7 +737,7 @@ getOverlaps <- function(input) {
     the.rasters <- lapply(the.rasters, function(group) {
       lapply(group, function(timeslot) {
         lapply(timeslot, function(limit) {
-          if (class(limit) != "RasterLayer")
+          if (!methods::is(limit, "RasterLayer"))
             return(raster::calc(limit, fun = max, na.rm = TRUE))
           else
             return(limit)
@@ -865,7 +865,7 @@ getOverlaps <- function(input) {
 #' with the 50% and 95% contours. 
 #' 
 #' @param input The output of \code{\link{runRSP}}.
-#' @param base.raster The water raster of the study area. For example the output of \code{\link[actel]{loadShape}}.
+#' @param base.raster The water raster of the study area. For example the output of \code{\link[actel]{shapeToRaster}}.
 #' @param UTM The UTM zone of the study area. Only relevant if a latlon-to-metric conversion is required.
 #' @param timeframe The intended temporal interval of interest (in number of days) to perform the calculations. Default is 1 day.
 #' @param start.time Character vector identifying the initial date (format = "Y-m-d") to start the calculations.
@@ -879,8 +879,8 @@ getOverlaps <- function(input) {
 #' @examples 
 #' \donttest{
 #' # Import river shapefile
-#' water <- actel::loadShape(path = system.file(package = "RSP"), 
-#'  shape = "River_latlon.shp", size = 0.0001, buffer = 0.05) 
+#' water <- actel::shapeToRaster(shape = paste0(system.file(package = "RSP"), "/River_latlon.shp"), 
+#' size = 0.0001, buffer = 0.05) 
 #' 
 #' # Create a transition layer with 8 directions
 #' tl <- actel::transitionLayer(x = water, directions = 8)

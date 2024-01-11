@@ -2,11 +2,16 @@
 # 		Testing RSP in metric CRS: timeslot 		#
 #===================================================#
 
-# Load example files
-# water <- suppressWarnings(actel::loadShape(path = system.file(package = "RSP")[1], shape = "River_latlon.shp", size = 0.0001)) # Small raster
-# water.large <- suppressWarnings(actel::loadShape(path = system.file(package = "RSP")[1], shape = "River_latlon.shp", size = 0.0001, buffer = 0.05))
-# tl <- actel::transitionLayer(x = water, directions = 8)
-load("actel_files.RData")
+# Process base files for tests
+test_that("actel base files can be processed", {
+	water <<- suppressMessages(suppressWarnings(actel::loadShape(shape = paste0(system.file(package = "RSP")[1], "/River_latlon.shp"), size = 0.0001))) # Small raster
+	water.large <<- suppressMessages(suppressWarnings(actel::loadShape(shape = paste0(system.file(package = "RSP")[1], "/River_latlon.shp"), size = 0.0001, buffer = 0.05)))
+	tl <<- suppressMessages(actel::transitionLayer(x = water, directions = 8))
+	# saveRDS(file = "actel_files.rds")
+	# load("actel_files.RData")
+	aux.actel <- list(water, water.large, tl)
+	expect_that(aux.actel, is_a("list"))
+})
 
 #===============================================#
 #				TESTING STARTS					#

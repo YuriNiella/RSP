@@ -21,7 +21,7 @@ dynBBMM(
 \arguments{
 \item{input}{The output of runRSP.}
 
-\item{base.raster}{The water raster of the study area. For example the output of \code{\link[actel]{loadShape}}.}
+\item{base.raster}{The water raster of the study area. For example the output of \code{\link[actel]{shapeToRaster}}.}
 
 \item{tags}{Vector of transmitters to be analysed. By default all transmitters from runRSP will be analysed.}
 
@@ -52,8 +52,8 @@ are automatically identified and not included in the analysis.
 \examples{
 \donttest{
 # Import river shapefile
-water <- actel::loadShape(path = system.file(package = "RSP"), 
- shape = "River_latlon.shp", size = 0.0001, buffer = 0.05) 
+water <- actel::shapeToRaster(shape = paste0(system.file(package = "RSP"), "/River_latlon.shp"), 
+size = 0.0001, buffer = 0.05) 
 
 # Create a transition layer with 8 directions
 tl <- actel::transitionLayer(x = water, directions = 8)

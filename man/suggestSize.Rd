@@ -20,8 +20,8 @@ Suggest plot dimensions for a given raster
 \examples{
 \donttest{
 # Import river shapefile
-water <- actel::loadShape(path = system.file(package = "RSP"), 
- shape = "River_latlon.shp", size = 0.0001, buffer = 0.05) 
+water <- actel::shapeToRaster(shape = paste0(system.file(package = "RSP"), "/River_latlon.shp"), 
+size = 0.0001, buffer = 0.05) 
 
 # Find suggested size to save projected map 
 suggestSize(water, max = 10)

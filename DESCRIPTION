@@ -32,7 +32,6 @@ Imports:
     stringr,
     sf,
     terra,
-    tidyterra,
     tidyr,
     utils,
     reshape2,

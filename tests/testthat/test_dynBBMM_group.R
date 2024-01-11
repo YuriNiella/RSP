@@ -2,14 +2,16 @@
 # 		Testing RSP in metric CRS: group		#
 #===============================================#
 
-# Set skips
-# skip_on_traxvis()
-
-# Load example files
-# water <- suppressWarnings(actel::loadShape(path = system.file(package = "RSP")[1], shape = "River_latlon.shp", size = 0.0001)) # Small raster
-# water.large <- suppressWarnings(actel::loadShape(path = system.file(package = "RSP")[1], shape = "River_latlon.shp", size = 0.0001, buffer = 0.05))
-# tl <- actel::transitionLayer(x = water, directions = 8)
-load("actel_files.RData")
+# Process base files for tests
+test_that("actel base files can be processed", {
+	water <<- suppressMessages(suppressWarnings(actel::loadShape(shape = paste0(system.file(package = "RSP")[1], "/River_latlon.shp"), size = 0.0001))) # Small raster
+	water.large <<- suppressMessages(suppressWarnings(actel::loadShape(shape = paste0(system.file(package = "RSP")[1], "/River_latlon.shp"), size = 0.0001, buffer = 0.05)))
+	tl <<- suppressMessages(actel::transitionLayer(x = water, directions = 8))
+	# saveRDS(file = "actel_files.rds")
+	# load("actel_files.RData")
+	aux.actel <- list(water, water.large, tl)
+	expect_that(aux.actel, is_a("list"))
+})
 
 #===============================================#
 #				TESTING STARTS					#
@@ -87,6 +89,9 @@ test_that("verbose mode is working for runRSP", {
 ## 2) Testing dynBBMM:
 test_that("dynBBMM with latlon system is working for group", {
 	dbbmm.all <<- suppressWarnings(suppressMessages(dynBBMM(input = rsp.data, base.raster = water.large, UTM = 56))) 
+
+	dbbmm.all <- dynBBMM(input = rsp.data, base.raster = water.large, UTM = 56)
+
 	## RUN THESE LINES ONLY TO REPLACE THE REFERENCES!
 	# reference_dynBBMM_latlon_group <- dbbmm.all
 	# save(reference_dynBBMM_latlon_group, file = "dynBBMM_latlon_group.RData")
@@ -151,7 +156,7 @@ test_that("verbose mode is working for dynBBMM", {
 # plotRasters:
 test_that("plotRaster tag is working properly", {
 	input <- RSP::input.example
-	p <- tryCatch(suppressWarnings(plotRaster(input, base.raster = water.large, coord.x = "Longitude", coord.y = "Latitude", size = 1)), 
+	p <- tryCatch(suppressWarnings(plotRaster(input = input, base.raster = water.large, coord.x = "Longitude", coord.y = "Latitude", size = 1)), 
 		warning = function(w)
  	stop("A warning was issued in plotRaster!\n", w))
 	expect_that(p, is_a("ggplot"))
@@ -159,29 +164,29 @@ test_that("plotRaster tag is working properly", {
 
 # plotTracks:
 test_that("plotTracks tag is set correctly", {
-	expect_error(plotTracks(rsp.data, base.raster = water.large, tag = "banana", track = "Track_1"),
+	expect_error(plotTracks(input = rsp.data, base.raster = water.large, tag = "banana", track = "Track_1"),
 		"The requested tag is not present in the dataset.", fixed = TRUE)
 })
 
 test_that("plotTracks group is set correctly", {
 	input <- RSP::input.example
-	expect_error(plotTracks(rsp.data, base.raster = water.large, group = "banana", track = "Track_1"),
+	expect_error(plotTracks(input = rsp.data, base.raster = water.large, group = "banana", track = "Track_1"),
 		paste0("The requested group is not present in the dataset. Available groups: ", 
         paste(unique(input$bio$Group), collapse =", ")), fixed = TRUE)
 })
 
 test_that("plotTracks track is set correctly", {
-	expect_error(plotTracks(rsp.data, base.raster = water.large, tag = "A69-9001-1111", track = "Track_3"),
+	expect_error(plotTracks(input = rsp.data, base.raster = water.large, tag = "A69-9001-1111", track = "Track_3"),
 		"The requested track does not exist for the specified tag.", fixed = TRUE)
 })
 
 test_that("plotTracks only group or tag is set at a time", {
-	expect_error(plotTracks(rsp.data, base.raster = water.large, group = "G1", tag = "A69-9001-1111"),
+	expect_error(plotTracks(input = rsp.data, base.raster = water.large, group = "G1", tag = "A69-9001-1111"),
 		"Both 'group' and 'tag' were set. Please use one at a time.", fixed = TRUE)
 })
 
 test_that("plotTracks is working properly", {
-	p <- tryCatch(suppressWarnings(plotTracks(rsp.data, base.raster = water.large, tag = "A69-9001-1111", track = "Track_1")), 
+	p <- tryCatch(suppressWarnings(plotTracks(input = rsp.data, base.raster = water.large, tag = "A69-9001-1111", track = "Track_1")), 
 		warning = function(w)
  	stop("A warning was issued in plotTracks!\n", w))
 	expect_that(p, is_a("ggplot"))
@@ -348,7 +353,7 @@ test_that("plotAreas the correct group is provided", {
 })
 
 test_that("plotAreas is working for group", {
-	p <- capture_warnings(plotAreas(output1.group, group = "G1", base.raster = water.large))
+	p <- capture_warnings(plotAreas(areas = output1.group, group = "G1", base.raster = water.large))
  	expect_that(p, is_identical_to("The dbbmm output and the base raster are not in the same coordinate system. Attempting to re-project the dbbmm output."))
 })
 

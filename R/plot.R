@@ -11,8 +11,8 @@
 #' @examples 
 #' \donttest{
 #' # Import river shapefile
-#' water <- actel::loadShape(path = system.file(package = "RSP"), 
-#'  shape = "River_latlon.shp", size = 0.0001, buffer = 0.05) 
+#' water <- actel::shapeToRaster(shape = paste0(system.file(package = "RSP"), "/River_latlon.shp"), 
+#' size = 0.0001, buffer = 0.05) 
 #' 
 #' # Create a transition layer with 8 directions
 #' tl <- actel::transitionLayer(x = water, directions = 8)
@@ -77,8 +77,8 @@ addRecaptures <- function(Signal, shape = 21, size = 1.5, colour = "white", fill
 #' @examples 
 #' \donttest{
 #' # Import river shapefile
-#' water <- actel::loadShape(path = system.file(package = "RSP"), 
-#'  shape = "River_latlon.shp", size = 0.0001, buffer = 0.05) 
+#' water <- actel::shapeToRaster(shape = paste0(system.file(package = "RSP"), "/River_latlon.shp"), 
+#' size = 0.0001, buffer = 0.05) 
 #'
 #' # Create a transition layer with 8 directions
 #' tl <- actel::transitionLayer(x = water, directions = 8)
@@ -109,8 +109,8 @@ addRecaptures <- function(Signal, shape = 21, size = 1.5, colour = "white", fill
 addCentroids <- function(input, type, tag = NULL, track = NULL, timeslot = NULL, shape = 21, size = 1.5, colour = "white", fill = "cyan") {
   if (type == "group") {
     input <- input[which(input[, 1] == timeslot), ]
-    ggplot2::geom_point(data = input, ggplot2::aes(x = input[, "Centroid.lon"], y = input[, "Centroid.lat"]), 
-      color = colour, fill = fill, shape = shape, size = size)
+    return(ggplot2::geom_point(data = input, ggplot2::aes(x = input[, "Centroid.lon"], y = input[, "Centroid.lat"]), 
+      color = colour, fill = fill, shape = shape, size = size))
   }
   if (type == "track") {
     if (is.null(tag))
@@ -122,8 +122,8 @@ addCentroids <- function(input, type, tag = NULL, track = NULL, timeslot = NULL,
     aux.tag <- paste0(aux.tag, "_Track_", track)
     input <- input[which(input[, "Track"] == aux.tag), ]
     input <- input[which(input[, 1] == timeslot), ]
-    ggplot2::geom_point(data = input, ggplot2::aes(x = input[, "Centroid.lon"], y = input[, "Centroid.lat"]), 
-      color = colour, fill = fill, shape = shape, size = size)
+    return(ggplot2::geom_point(data = input, ggplot2::aes(x = input[, "Centroid.lon"], y = input[, "Centroid.lat"]), 
+      color = colour, fill = fill, shape = shape, size = size))
   } 
 }
 
@@ -147,8 +147,8 @@ addCentroids <- function(input, type, tag = NULL, track = NULL, timeslot = NULL,
 #' @examples 
 #' \donttest{
 #' # Import river shapefile
-#' water <- actel::loadShape(path = system.file(package = "RSP"), 
-#'  shape = "River_latlon.shp", size = 0.0001, buffer = 0.05) 
+#' water <- actel::shapeToRaster(shape = paste0(system.file(package = "RSP"), "/River_latlon.shp"), 
+#' size = 0.0001, buffer = 0.05) 
 #' 
 #' # Create a transition layer with 8 directions
 #' tl <- actel::transitionLayer(x = water, directions = 8)
@@ -229,8 +229,9 @@ plotAreas <- function(areas, base.raster, group, timeslot,
   base.raster[base.raster == 2] <- 1
 
   # Convert map raster to points
-  base.map <- raster::rasterToPoints(base.raster)
-  base.map <- data.frame(base.map)
+  # base.map <- raster::rasterToPoints(base.raster)
+  base.map <- terra::as.data.frame(base.raster, xy = TRUE)
+  # base.map <- data.frame(base.map)
   colnames(base.map) <- c("x", "y", "MAP")
 
   # Get group contours:
@@ -302,8 +303,8 @@ plotAreas <- function(areas, base.raster, group, timeslot,
 #' @examples 
 #' \donttest{
 #' # Import river shapefile
-#' water <- actel::loadShape(path = system.file(package = "RSP"), 
-#'  shape = "River_latlon.shp", size = 0.0001, buffer = 0.05) 
+#' water <- actel::shapeToRaster(shape = paste0(system.file(package = "RSP"), "/River_latlon.shp"), 
+#' size = 0.0001, buffer = 0.05) 
 #' 
 #' # Create a transition layer with 8 directions
 #' tl <- actel::transitionLayer(x = water, directions = 8)
@@ -526,8 +527,8 @@ plotContours <- function(input, tag, track = NULL, timeslot, scale.type = "categ
 #' @examples 
 #' \donttest{
 #' # Import river shapefile
-#' water <- actel::loadShape(path = system.file(package = "RSP"), 
-#'  shape = "River_latlon.shp", size = 0.0001, buffer = 0.05) 
+#' water <- actel::shapeToRaster(shape = paste0(system.file(package = "RSP"), "/River_latlon.shp"), 
+#' size = 0.0001, buffer = 0.05) 
 #' 
 #' # Create a transition layer with 8 directions
 #' tl <- actel::transitionLayer(x = water, directions = 8)
@@ -624,8 +625,8 @@ plotDensities <- function(input, group) {
 #' @examples 
 #' \donttest{
 #' # Import river shapefile
-#' water <- actel::loadShape(path = system.file(package = "RSP"), 
-#'  shape = "River_latlon.shp", size = 0.0001, buffer = 0.05) 
+#' water <- actel::shapeToRaster(shape = paste0(system.file(package = "RSP"), "/River_latlon.shp"), 
+#' size = 0.0001, buffer = 0.05) 
 #' 
 #' # Create a transition layer with 8 directions
 #' tl <- actel::transitionLayer(x = water, directions = 8)
@@ -732,8 +733,8 @@ plotDistances <- function(input, group, compare = TRUE) {
 #' @examples 
 #' \donttest{
 #' # Import river shapefile
-#' water <- actel::loadShape(path = system.file(package = "RSP"), 
-#'  shape = "River_latlon.shp", size = 0.0001, buffer = 0.05) 
+#' water <- actel::shapeToRaster(shape = paste0(system.file(package = "RSP"), "/River_latlon.shp"), 
+#' size = 0.0001, buffer = 0.05) 
 #' 
 #' # Create a transition layer with 8 directions
 #' tl <- actel::transitionLayer(x = water, directions = 8)
@@ -842,8 +843,9 @@ plotOverlaps <- function(overlaps, areas, base.raster, groups, timeslot,
   base.raster[base.raster == 2] <- 1
 
   # Convert map raster to points
-  base.map <- raster::rasterToPoints(base.raster)
-  base.map <- data.frame(base.map)
+  # base.map <- raster::rasterToPoints(base.raster)
+  base.map <- terra::as.data.frame(base.raster, xy = TRUE)
+  # base.map <- data.frame(base.map)
   colnames(base.map) <- c("x", "y", "MAP")
 
   # Get group contours:
@@ -946,7 +948,7 @@ plotOverlaps <- function(overlaps, areas, base.raster, groups, timeslot,
 #' @param input Either a data frame containing the coordinates of the stations or the output of one of 
 #'  \code{\link[actel]{actel}}'s main functions (\code{\link[actel]{explore}}, \code{\link[actel]{migration}} 
 #'  or \code{\link[actel]{residency}}).
-#' @param base.raster Raster object. Imported for example using \code{\link[actel]{loadShape}}.
+#' @param base.raster Raster object. Imported for example using \code{\link[actel]{shapeToRaster}}.
 #' @inheritParams runRSP
 #' @param size The size of the station dots
 #' @inheritParams plotContours
@@ -957,8 +959,8 @@ plotOverlaps <- function(overlaps, areas, base.raster, groups, timeslot,
 #' @examples 
 #' \donttest{
 #' # Import river shapefile
-#' water <- actel::loadShape(path = system.file(package = "RSP"), 
-#'  shape = "River_latlon.shp", size = 0.0001, buffer = 0.05) 
+#' water <- actel::shapeToRaster(shape = paste0(system.file(package = "RSP"), "/River_latlon.shp"), 
+#' size = 0.0001, buffer = 0.05) 
 #' 
 #' # Create a transition layer with 8 directions
 #' tl <- actel::transitionLayer(x = water, directions = 8)
@@ -985,9 +987,8 @@ plotRaster <- function(input, base.raster, coord.x, coord.y, size = 1, land.col 
     stop("Please indicate the latitude column with 'coord.y'.\n", call. = FALSE)
   
   # paint land rather than water
-  base.raster <- terra::as.factor(water)
+  base.raster <- terra::as.factor(base.raster)
   base.raster <- terra::subst(base.raster, from = 1, to = NA, others = 1)
-
 
   # Find stations in land:
   if (any(names(input) == "rsp.info"))
@@ -1004,7 +1005,7 @@ plotRaster <- function(input, base.raster, coord.x, coord.y, size = 1, land.col 
   if (is.na(match(coord.y, colnames(stations))))
     stop("Could not find column '", coord.y, "' in the spatial data frame", call. = FALSE)
 
-  on.land <- raster::extract(x = base.raster, y = as.matrix(stations[, c(coord.x, coord.y)]))
+  on.land <- terra::extract(x = base.raster, y = as.matrix(stations[, c(coord.x, coord.y)]))
 
   data.stations <- data.frame(Check = as.character(on.land[,1]), 
     Longitude = stations[, coord.x],
@@ -1015,8 +1016,11 @@ plotRaster <- function(input, base.raster, coord.x, coord.y, size = 1, land.col 
 
   legend_labels <- c(paste0("On land (", sum(data.stations$Check == "Land"), ")"), paste0("On water (", sum(data.stations$Check == "Water"), ")"))
 
+  # Transform raster to dataframe for plotting
+  base.raster_df <- terra::as.data.frame(base.raster, xy = TRUE)
+
   p <- ggplot2::ggplot()
-  p <- p + tidyterra::geom_spatraster(data = base.raster, ggplot2::aes(fill = layer), show.legend = FALSE)  
+  p <- p + ggplot2::geom_raster(data = base.raster_df, ggplot2::aes(x = x, y = y, fill = layer), show.legend = FALSE)  
   p <- p + ggplot2::scale_fill_manual(values = land.col, na.value = "transparent")
   p <- p + ggplot2::theme_bw()
   p <- p + ggplot2::theme(legend.position = "bottom")
@@ -1050,8 +1054,8 @@ plotRaster <- function(input, base.raster, coord.x, coord.y, size = 1, land.col 
 #' @examples 
 #' \donttest{
 #' # Import river shapefile
-#' water <- actel::loadShape(path = system.file(package = "RSP"), 
-#'  shape = "River_latlon.shp", size = 0.0001, buffer = 0.05) 
+#' water <- actel::shapeToRaster(shape = paste0(system.file(package = "RSP"), "/River_latlon.shp"), 
+#' size = 0.0001, buffer = 0.05) 
 #' 
 #' # Create a transition layer with 8 directions
 #' tl <- actel::transitionLayer(x = water, directions = 8)
@@ -1122,12 +1126,13 @@ plotTracks <- function(input, base.raster, type = c("both", "points", "lines"),
   detections$temp.col <- paste(detections$Transmitter, "-", detections$Track)
   
   # Convert raster to points:
-  base.raster_df <- raster::rasterToPoints(base.raster)
+  # base.raster_df <- raster::rasterToPoints(base.raster)
+  base.raster_df <- terra::as.data.frame(base.raster, xy = TRUE)
   
   # Make the points a dataframe for ggplot
   df <- data.frame(base.raster_df)
   colnames(df) <- c("Longitude", "Latitude", "MAP")
-  df$MAP[df$MAP == 0] <- NA
+  # df$MAP[df$MAP == 0] <- NA
 
   # start plotting
   p <- ggplot2::ggplot()
@@ -1161,8 +1166,8 @@ plotTracks <- function(input, base.raster, type = c("both", "points", "lines"),
 #' @examples 
 #' \donttest{
 #' # Import river shapefile
-#' water <- actel::loadShape(path = system.file(package = "RSP"), 
-#'  shape = "River_latlon.shp", size = 0.0001, buffer = 0.05) 
+#' water <- actel::shapeToRaster(shape = paste0(system.file(package = "RSP"), "/River_latlon.shp"), 
+#' size = 0.0001, buffer = 0.05) 
 #' 
 #' # Find suggested size to save projected map 
 #' suggestSize(water, max = 10)
@@ -1171,9 +1176,10 @@ plotTracks <- function(input, base.raster, type = c("both", "points", "lines"),
 #' @export
 #' 
 suggestSize <- function(input, max) {
-  ex <- raster::extent(input)
-  x <- ex[2] - ex[1]
-  y <- ex[4] - ex[3]
+  # ex <- raster::extent(input)
+  ex <- terra::ext(input)
+  x <- as.numeric(ex[2] - ex[1])
+  y <- as.numeric(ex[4] - ex[3])
   xy <- c(x, y)
   aux <- which.max(xy)
   if (aux == 1) {
@@ -1214,8 +1220,8 @@ suggestSize <- function(input, max) {
 #' @examples 
 #' \donttest{
 #' # Import river shapefile
-#' water <- actel::loadShape(path = system.file(package = "RSP"), 
-#'  shape = "River_latlon.shp", size = 0.0001, buffer = 0.05) 
+#' water <- actel::shapeToRaster(shape = paste0(system.file(package = "RSP"), "/River_latlon.shp"), 
+#' size = 0.0001, buffer = 0.05) 
 #' 
 #' # Create a transition layer with 8 directions
 #' tl <- actel::transitionLayer(x = water, directions = 8)
@@ -1294,10 +1300,11 @@ animateTracks <- function(input, base.raster, tags = NULL, drop.groups = NULL, b
     base.raster[is.na(base.raster)] <- 2
     base.raster[base.raster == 1] <- NA
     base.raster[base.raster == 2] <- 1
-    base.raster_df <- raster::rasterToPoints(base.raster)
-    df <- data.frame(base.raster_df)
+    # base.raster_df <- raster::rasterToPoints(base.raster)
+    # df <- data.frame(base.raster_df)
+    df <- terra::as.data.frame(base.raster, xy = TRUE)
     colnames(df) <- c("Longitude", "Latitude", "MAP")
-    df$MAP[df$MAP == 0] <- NA
+    # df$MAP[df$MAP == 0] <- NA
 
     # start plotting
     p <- ggplot2::ggplot()
@@ -1345,7 +1352,7 @@ animateTracks <- function(input, base.raster, tags = NULL, drop.groups = NULL, b
  
     # Animate:
     p <- p + gganimate::transition_time(Timestamp) 
-    p <- p + gganimate::shadow_wake(wake_length = 0.2, alpha = TRUE)
+    # p <- p + gganimate::shadow_wake(wake_length = 0.2, alpha = TRUE)
    
     if (save.gif == "TRUE") {
         return(gganimate::anim_save(filename = gif.name, 
