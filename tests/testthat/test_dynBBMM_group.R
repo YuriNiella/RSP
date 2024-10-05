@@ -214,11 +214,36 @@ test_that("plotDensities is working properly for group plot", {
 
 
 # plotDistances: but first getDistances has to work!
-test_that("getDistances is working properly", {
+test_that("getDistances runs", {
 	p <- tryCatch(getDistances(rsp.data, t.layer = tl), 
 		warning = function(w)
  	stop("A warning was issued in getDistances!", w))
 	expect_that(p, is_a("data.frame"))
+})
+
+test_that("getDistances can handle NA in LAT and LONG", {
+  nocoord_rsp <- rsp.data
+  nocoord_rsp$spatial$release.sites$Latitude <- NA
+  nocoord_rsp$spatial$release.sites$Longitude <- NA
+  nocoord_rsp$spatial$release.sites$x <- NA
+  nocoord_rsp$spatial$release.sites$y <- NA
+  p <- expect_warning(getDistances(nocoord_rsp, t.layer = tl),
+                      paste0(
+                        "Release location not found for A69-9001-1111", 
+                        ". The first track distance may be underestimated."),
+                      fixed = TRUE)
+  expect_that(p, is_a("data.frame"))
+})
+
+test_that("getDistances can handle empty release.point dataframe", {
+  null_rsp <- rsp.data
+  null_rsp$spatial$release.sites <- NULL
+  p <- expect_warning(getDistances(null_rsp, t.layer = tl),
+                      paste0(
+                        "Release location not found for A69-9001-1111", 
+                        ". The first track distance may be underestimated."),
+                      fixed = TRUE)
+  expect_that(p, is_a("data.frame"))
 })
 
 test_that("plotDistances is working properly", {
