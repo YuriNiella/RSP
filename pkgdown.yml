@@ -1,5 +1,5 @@
-pandoc: 2.19.2
-pkgdown: 2.0.7
+pandoc: 3.1.11
+pkgdown: 2.1.1
 pkgdown_sha: ~
 articles:
   a-1_Preparing_the_data: a-1_Preparing_the_data.html
@@ -7,5 +7,4 @@ articles:
   a-3_dBBMM: a-3_dBBMM.html
   a-4_Overlaps: a-4_Overlaps.html
   a-5_Areas_in_steps: a-5_Areas_in_steps.html
-last_built: 2024-01-11T05:38Z
-
+last_built: 2024-10-10T04:31Z

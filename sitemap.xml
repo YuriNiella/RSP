@@ -1,159 +1,55 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  <url>
-    <loc>/404.html</loc>
-  </url>
-  <url>
-    <loc>/LICENSE-text.html</loc>
-  </url>
-  <url>
-    <loc>/articles/a-1_Preparing_the_data.html</loc>
-  </url>
-  <url>
-    <loc>/articles/a-2_Refining_Shortest_paths.html</loc>
-  </url>
-  <url>
-    <loc>/articles/a-3_dBBMM.html</loc>
-  </url>
-  <url>
-    <loc>/articles/a-4_Overlaps.html</loc>
-  </url>
-  <url>
-    <loc>/articles/a-5_Areas_in_steps.html</loc>
-  </url>
-  <url>
-    <loc>/articles/index.html</loc>
-  </url>
-  <url>
-    <loc>/authors.html</loc>
-  </url>
-  <url>
-    <loc>/index.html</loc>
-  </url>
-  <url>
-    <loc>/reference/addCentroids.html</loc>
-  </url>
-  <url>
-    <loc>/reference/addRecaptures.html</loc>
-  </url>
-  <url>
-    <loc>/reference/addStations.html</loc>
-  </url>
-  <url>
-    <loc>/reference/animateTracks.html</loc>
-  </url>
-  <url>
-    <loc>/reference/breakByTimeframe.html</loc>
-  </url>
-  <url>
-    <loc>/reference/calcRSP.html</loc>
-  </url>
-  <url>
-    <loc>/reference/calculateDBBMM.html</loc>
-  </url>
-  <url>
-    <loc>/reference/checkDupTimestamps.html</loc>
-  </url>
-  <url>
-    <loc>/reference/checkGroupQuality.html</loc>
-  </url>
-  <url>
-    <loc>/reference/checkTrackPoints.html</loc>
-  </url>
-  <url>
-    <loc>/reference/checkTrackTimes.html</loc>
-  </url>
-  <url>
-    <loc>/reference/clipLand.html</loc>
-  </url>
-  <url>
-    <loc>/reference/combine.html</loc>
-  </url>
-  <url>
-    <loc>/reference/compileTrackInfo.html</loc>
-  </url>
-  <url>
-    <loc>/reference/dynBBMM.html</loc>
-  </url>
-  <url>
-    <loc>/reference/getAreaStep.html</loc>
-  </url>
-  <url>
-    <loc>/reference/getAreas.html</loc>
-  </url>
-  <url>
-    <loc>/reference/getCentroids.html</loc>
-  </url>
-  <url>
-    <loc>/reference/getDistPoint.html</loc>
-  </url>
-  <url>
-    <loc>/reference/getDistances.html</loc>
-  </url>
-  <url>
-    <loc>/reference/getOverlaps.html</loc>
-  </url>
-  <url>
-    <loc>/reference/groupDetections.html</loc>
-  </url>
-  <url>
-    <loc>/reference/includeRSP.html</loc>
-  </url>
-  <url>
-    <loc>/reference/index.html</loc>
-  </url>
-  <url>
-    <loc>/reference/input.example.html</loc>
-  </url>
-  <url>
-    <loc>/reference/minuteTime.html</loc>
-  </url>
-  <url>
-    <loc>/reference/nameTracks.html</loc>
-  </url>
-  <url>
-    <loc>/reference/pipe.html</loc>
-  </url>
-  <url>
-    <loc>/reference/plotAreas.html</loc>
-  </url>
-  <url>
-    <loc>/reference/plotContours.html</loc>
-  </url>
-  <url>
-    <loc>/reference/plotDensities.html</loc>
-  </url>
-  <url>
-    <loc>/reference/plotDistances.html</loc>
-  </url>
-  <url>
-    <loc>/reference/plotOverlaps.html</loc>
-  </url>
-  <url>
-    <loc>/reference/plotRaster.html</loc>
-  </url>
-  <url>
-    <loc>/reference/plotTracks.html</loc>
-  </url>
-  <url>
-    <loc>/reference/prepareDetections.html</loc>
-  </url>
-  <url>
-    <loc>/reference/roundDown.html</loc>
-  </url>
-  <url>
-    <loc>/reference/roundUp.html</loc>
-  </url>
-  <url>
-    <loc>/reference/runRSP.html</loc>
-  </url>
-  <url>
-    <loc>/reference/suggestSize.html</loc>
-  </url>
-  <url>
-    <loc>/reference/toUTM.html</loc>
-  </url>
-  <url>
-    <loc>/reference/trimDetections.html</loc>
-  </url>
+<urlset xmlns = 'http://www.sitemaps.org/schemas/sitemap/0.9'>
+<url><loc>/404.html</loc></url>
+<url><loc>/LICENSE-text.html</loc></url>
+<url><loc>/articles/a-1_Preparing_the_data.html</loc></url>
+<url><loc>/articles/a-2_Refining_Shortest_paths.html</loc></url>
+<url><loc>/articles/a-3_dBBMM.html</loc></url>
+<url><loc>/articles/a-4_Overlaps.html</loc></url>
+<url><loc>/articles/a-5_Areas_in_steps.html</loc></url>
+<url><loc>/articles/index.html</loc></url>
+<url><loc>/authors.html</loc></url>
+<url><loc>/index.html</loc></url>
+<url><loc>/reference/addCentroids.html</loc></url>
+<url><loc>/reference/addRecaptures.html</loc></url>
+<url><loc>/reference/addStations.html</loc></url>
+<url><loc>/reference/animateTracks.html</loc></url>
+<url><loc>/reference/breakByTimeframe.html</loc></url>
+<url><loc>/reference/calcRSP.html</loc></url>
+<url><loc>/reference/calculateDBBMM.html</loc></url>
+<url><loc>/reference/checkDupTimestamps.html</loc></url>
+<url><loc>/reference/checkGroupQuality.html</loc></url>
+<url><loc>/reference/checkTrackPoints.html</loc></url>
+<url><loc>/reference/checkTrackTimes.html</loc></url>
+<url><loc>/reference/clipLand.html</loc></url>
+<url><loc>/reference/combine.html</loc></url>
+<url><loc>/reference/compileTrackInfo.html</loc></url>
+<url><loc>/reference/dynBBMM.html</loc></url>
+<url><loc>/reference/getAreaStep.html</loc></url>
+<url><loc>/reference/getAreas.html</loc></url>
+<url><loc>/reference/getCentroids.html</loc></url>
+<url><loc>/reference/getDistPoint.html</loc></url>
+<url><loc>/reference/getDistances.html</loc></url>
+<url><loc>/reference/getOverlaps.html</loc></url>
+<url><loc>/reference/groupDetections.html</loc></url>
+<url><loc>/reference/includeRSP.html</loc></url>
+<url><loc>/reference/index.html</loc></url>
+<url><loc>/reference/input.example.html</loc></url>
+<url><loc>/reference/minuteTime.html</loc></url>
+<url><loc>/reference/nameTracks.html</loc></url>
+<url><loc>/reference/pipe.html</loc></url>
+<url><loc>/reference/plotAreas.html</loc></url>
+<url><loc>/reference/plotContours.html</loc></url>
+<url><loc>/reference/plotDensities.html</loc></url>
+<url><loc>/reference/plotDistances.html</loc></url>
+<url><loc>/reference/plotOverlaps.html</loc></url>
+<url><loc>/reference/plotRaster.html</loc></url>
+<url><loc>/reference/plotTracks.html</loc></url>
+<url><loc>/reference/prepareDetections.html</loc></url>
+<url><loc>/reference/roundDown.html</loc></url>
+<url><loc>/reference/roundUp.html</loc></url>
+<url><loc>/reference/runRSP.html</loc></url>
+<url><loc>/reference/suggestSize.html</loc></url>
+<url><loc>/reference/toUTM.html</loc></url>
+<url><loc>/reference/trimDetections.html</loc></url>
 </urlset>
+
