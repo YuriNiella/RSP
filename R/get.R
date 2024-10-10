@@ -507,7 +507,9 @@ getDistances <- function(input, t.layer) {
             input$bio$Release.site[input$bio$Transmitter == tags[i]])
           release.point <- input$spatial$release.sites[index, c("Longitude", "Latitude")]
 
-        if (nrow(release.point) > 0) {
+          if (!is.null(input$spatial$release.sites) && 
+                       nrow(release.point) > 0 && 
+                       !is.na(release.point[1,1])){
           A <- c(release.point[,1], release.point[,2])
           B <- with(df.rec, c(Longitude[1], Latitude[1]))
           # definitive AtoB's
