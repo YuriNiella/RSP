@@ -311,9 +311,24 @@ includeRSP <- function(detections, transition, tz, distance, time.step, er.ad, m
       message(crayon::bold(crayon::green((paste("Analysing:", names(detections)[i])))))
     flush.console()
     recipient <- nameTracks(detections = detections[[i]], max.time = max.time, recaptures = recaptures, tz = tz) # Fine-scale tracking
-    detections[[i]] <<- recipient$detections
+    
+    # don't keep going if no data is valid
+    if (all(!recipient$tracks$Valid)) {
+      if (!verbose) {
+        message("") # to split the warning and the progress bar
+      }
+      warning("Could not find any valid tracks for ", names(detections)[i], ".",
+              " Removing tag from dataset.", immediate. = TRUE, call. = FALSE)
+
+      if (!verbose) {
+        setTxtProgressBar(pb, i) # Progress bar
+      }
+      return(NULL)
+    }
+
     tracks <- recipient$tracks
-    track.aux <- split(detections[[i]], detections[[i]]$Track)
+    
+    track.aux <- split(recipient$detections, recipient$detections$Track)
     tag.aux <- lapply(which(tracks$Valid), function(j) {
       if (verbose)
         message("Estimating ", names(detections)[i], " RSP: ", names(track.aux)[j])
@@ -347,16 +362,27 @@ includeRSP <- function(detections, transition, tz, distance, time.step, er.ad, m
     tag.recipient$Standard.name <- as.factor(tag.recipient$Standard.name)
     tag.recipient <- tag.recipient[order(tag.recipient$Timestamp), ]
 
-    if (!verbose)
+    if (!verbose) {
       setTxtProgressBar(pb, i) # Progress bar
+    }
 
-    return(list(detections = tag.recipient, tracks = tracks))
+    output <- list(detections = tag.recipient, tracks = tracks)
+
+    return(output)
   })
-  if (!verbose)
+
+  if (!verbose) {
     close(pb)    
+  }
+
   output <- lapply(aux, function(x) x$detections)
   tracks <- lapply(aux, function(x) x$tracks)
   names(output) <- names(detections)
   names(tracks) <- names(detections)
+
+  # remove any transmitters that had no valid tracks
+  output <- output[!sapply(output, is.null)]
+  tracks <- tracks[!sapply(tracks, is.null)]
+
   return(list(output = output, tracks = tracks))
 }
