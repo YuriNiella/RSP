@@ -1,0 +1,1405 @@
+aux.bio$Signal <- stringr::str_split_fixed(df.tmeta$transmitter_id, pattern = "-", n = 3)[,3]
+aux.bio$aux <- paste(df.tmeta$transmitter_id, df.tmeta$transmitter_deployment_id, sep = "_")
+df.meas$aux <- paste(df.meas$transmitter_id, df.meas$transmitter_deployment_id, sep = "_")
+aux.bio$Length.mm <- df.meas$measurement_value[match(aux.bio$aux, df.meas$aux)]
+aux.bio$Weight.g <- NA
+aux.bio$Group <- df.tmeta$species_common_name
+aux.bio$Release.site <- df.tmeta$transmitter_deployment_locality
+aux.bio <- aux.bio[,-ncol(aux.bio)]
+row.names(aux.bio) <- 1:nrow(aux.bio)
+input.example$bio <- aux.bio
+# spatial
+# stations
+aux.spatial <- input.example$spatial
+aux.spatial$stations <- aux.spatial$stations[rep(1, nrow(df.rmeta)),]
+aux.spatial$stations$Station.name <- df.rmeta$station_name
+aux.spatial$stations$Latitude <- df.rmeta$receiver_deployment_latitude
+aux.spatial$stations$Longitude <- df.rmeta$receiver_deployment_longitude
+aux.spatial$stations$Array <- df.rmeta$installation_name
+aux.spatial$stations <- aux.spatial$stations %>%#
+    dplyr::group_by(Station.name, Array) %>%#
+    dplyr::summarise(x = mean(Longitude),#
+      y = mean(Latitude),#
+      Range = 500)
+aux.spatial$stations <- as.data.frame(aux.spatial$stations)
+aux.spatial$stations <- aux.spatial$stations[,c("Station.name", #
+    "y", "x", "x", "y", "Array")]
+names(aux.spatial$stations)[2:3] <- c("Latitude", "Longitude")
+names(aux.spatial$stations)[4:5] <- c("x", "y")
+row.names(aux.spatial$stations) <- 1:nrow(aux.spatial$stations)
+aux.spatial$stations$Standard.name <- paste0("St.", row.names(aux.spatial$stations))
+# Convert locations to UTM
+aux.UTM <- aux.spatial$stations
+coordinates(aux.UTM) <- ~Longitude+Latitude
+sp::coordinates(aux.UTM) <- ~Longitude+Latitude
+aux.UTM
+proj4string(aux.UTM) <- CRS('+init=epsg:4326')
+sp::proj4string(aux.UTM) <- sf::CRS('+init=epsg:4326')
+sp::proj4string(aux.UTM) <- sp::CRS('+init=epsg:4326')
+aux.UTM <- aux.spatial$stations
+sp::coordinates(aux.UTM) <- ~Longitude+Latitude
+sp::proj4string(aux.UTM) <- sp::CRS('+init=epsg:4326')
+aux.UTM <- aux.spatial$stations
+sp::coordinates(aux.UTM) <- ~Longitude+Latitude
+sp::proj4string(aux.UTM) <- sp::CRS('+init=epsg:4326')
+aux.UTM
+xy_utm <- sp::spTransform(aux.UTM, sp::CRS('+init=epsg:32718'))
+xy_utm
+xy_utm <- as.data.frame(xy_utm)
+xy_utm
+head(xy_utm)
+det = "IMOS/IMOS_detections.csv"
+rmeta = "IMOS/IMOS_receiver_deployment_metadata.csv"
+tmeta = "IMOS/IMOS_transmitter_deployment_metadata.csv"
+meas = "IMOS/IMOS_animal_measurements.csv"
+# Check if detections are path or object
+if (class(det) == "character") {#
+    df.det <- read.csv(det)#
+  } else {#
+#
+  }
+# Load other files
+df.rmeta <- read.csv(rmeta)
+df.rmeta <- subset(df.rmeta, active == "NO")
+df.tmeta <- read.csv(tmeta)
+df.tmeta <- subset(df.tmeta, transmitter_deployment_datetime != "")
+df.meas <- read.csv(meas)
+data(input.example)
+library(RSP)
+data(input.example)
+aux.spatial <- input.example$spatial#
+  aux.spatial$stations <- aux.spatial$stations[rep(1, nrow(df.rmeta)),]#
+  aux.spatial$stations$Station.name <- df.rmeta$station_name#
+  aux.spatial$stations$Latitude <- df.rmeta$receiver_deployment_latitude#
+  aux.spatial$stations$Longitude <- df.rmeta$receiver_deployment_longitude#
+  aux.spatial$stations$Array <- df.rmeta$installation_name#
+  aux.spatial$stations <- aux.spatial$stations %>%#
+    dplyr::group_by(Station.name, Array) %>%#
+    dplyr::summarise(x = mean(Longitude),#
+      y = mean(Latitude),#
+      Range = 500)#
+  aux.spatial$stations <- as.data.frame(aux.spatial$stations)#
+  aux.spatial$stations <- aux.spatial$stations[,c("Station.name", #
+    "y", "x", "x", "y", "Array")]#
+  names(aux.spatial$stations)[2:3] <- c("Latitude", "Longitude")#
+  names(aux.spatial$stations)[4:5] <- c("x", "y")#
+  row.names(aux.spatial$stations) <- 1:nrow(aux.spatial$stations)#
+  aux.spatial$stations$Standard.name <- paste0("St.", row.names(aux.spatial$stations))
+options(dplyr.summarise.inform = FALSE)
+aux.UTM <- aux.spatial$stations
+sp::coordinates(aux.UTM) <- ~Longitude+Latitude
+sp::proj4string(aux.UTM) <- sp::CRS('+init=epsg:4326')
+library(RSP)
+options(dplyr.summarise.inform = FALSE)
+det = "IMOS/IMOS_detections.csv"
+rmeta = "IMOS/IMOS_receiver_deployment_metadata.csv"
+tmeta = "IMOS/IMOS_transmitter_deployment_metadata.csv"
+meas = "IMOS/IMOS_animal_measurements.csv"
+# Check if detections are path or object
+if (class(det) == "character") {#
+    df.det <- read.csv(det)#
+  } else {#
+#
+  }
+df.rmeta <- read.csv(rmeta)#
+    df.rmeta <- subset(df.rmeta, active == "NO")#
+  df.tmeta <- read.csv(tmeta)#
+    df.tmeta <- subset(df.tmeta, transmitter_deployment_datetime != "")#
+  df.meas <- read.csv(meas)#
+#
+  ## Create objects using example file#
+  data(input.example)
+aux.spatial <- input.example$spatial#
+  aux.spatial$stations <- aux.spatial$stations[rep(1, nrow(df.rmeta)),]#
+  aux.spatial$stations$Station.name <- df.rmeta$station_name#
+  aux.spatial$stations$Latitude <- df.rmeta$receiver_deployment_latitude#
+  aux.spatial$stations$Longitude <- df.rmeta$receiver_deployment_longitude#
+  aux.spatial$stations$Array <- df.rmeta$installation_name#
+  aux.spatial$stations <- aux.spatial$stations %>%#
+    dplyr::group_by(Station.name, Array) %>%#
+    dplyr::summarise(x = mean(Longitude),#
+      y = mean(Latitude),#
+      Range = 500)#
+  aux.spatial$stations <- as.data.frame(aux.spatial$stations)#
+  aux.spatial$stations <- aux.spatial$stations[,c("Station.name", #
+    "y", "x", "x", "y", "Array")]#
+  names(aux.spatial$stations)[2:3] <- c("Latitude", "Longitude")#
+  names(aux.spatial$stations)[4:5] <- c("x", "y")#
+  row.names(aux.spatial$stations) <- 1:nrow(aux.spatial$stations)#
+  aux.spatial$stations$Standard.name <- paste0("St.", row.names(aux.spatial$stations))
+aux.UTM <- aux.spatial$stations
+sp::coordinates(aux.UTM) <- ~Longitude+Latitude
+sp::proj4string(aux.UTM) <- suppressWarnings(sp::CRS('+init=epsg:4326'))
+xy_utm <- sp::spTransform(aux.UTM, sp::CRS('+init=epsg:32718'))
+xy_utm <- as.data.frame(xy_utm)
+xy_utm$Longitude
+head(xy_utm)
+aux.spatial$stations$x <- xy_utm$coords.x1
+aux.spatial$stations$y <- xy_utm$coords.x2
+head(aux.spatial$stations)
+head(aux.spatial)
+head(df.tmeta)
+head(aux.spatial$release.sites)
+aux.release <- df.tmeta %>%#
+    dplyr::group_by(transmitter_deployment_locality) %>%#
+    dplyr::summarise(Latitude = mean(transmitter_deployment_latitude),#
+      Longitude = mean(transmitter_deployment_longitude))
+aux.release
+names(aux.release)[1]
+names(aux.release)[1] <- "Station.name"
+aux.release$Array <- aux.release$Array <- aux.release$Station.name
+aux.release
+row.names(aux.release) <- 1:nrow(aux.release)
+aux.release <- df.tmeta %>%#
+    dplyr::group_by(transmitter_deployment_locality) %>%#
+    dplyr::summarise(Latitude = mean(transmitter_deployment_latitude),#
+      Longitude = mean(transmitter_deployment_longitude))
+names(aux.release)[1] <- "Station.name"
+aux.release$Array <- aux.release$Array <- aux.release$Station.name
+aux.release$Type <- "Release"
+aux.release$Range <- NA
+row.names(aux.release) <- 1:nrow(aux.release)
+aux.release <- as.data.frame(aux.release)
+row.names(aux.release) <- 1:nrow(aux.release)
+head(aux.release)
+head(aux.spatial$release.sites)
+aux.release$Standard.name <- paste0("R.", row.names(aux.release))
+head(aux.release)
+tail(aux.release)
+head(aux.release)
+aux.UTM <- aux.release
+sp::coordinates(aux.UTM) <- ~Longitude+Latitude
+aux.UTM <- aux.release
+head(aux.UTM)
+sp::coordinates(aux.UTM) <- ~Longitude+Latitude
+summary(aux.UTM)
+aux.release <- subset(aux.release, !is.na(Latitude))
+summary(aux.release)
+aux.release <- df.tmeta %>%#
+    dplyr::group_by(transmitter_deployment_locality) %>%#
+    dplyr::summarise(Latitude = mean(transmitter_deployment_latitude),#
+      Longitude = mean(transmitter_deployment_longitude))#
+  names(aux.release)[1] <- "Station.name"#
+  aux.release$Array <- aux.release$Array <- aux.release$Station.name#
+  aux.release$Type <- "Release"#
+  aux.release$Range <- NA#
+  aux.release <- as.data.frame(aux.release)#
+  aux.release <- subset(aux.release, !is.na(Latitude))#
+  row.names(aux.release) <- 1:nrow(aux.release)#
+  aux.release$Standard.name <- paste0("R.", row.names(aux.release))
+aux.UTM <- aux.release$stations
+sp::coordinates(aux.UTM) <- ~Longitude+Latitude
+aux.UTM <- aux.release$stations
+head(aux.UTM)
+aux.UTM <- aux.release
+sp::coordinates(aux.UTM) <- ~Longitude+Latitude
+sp::proj4string(aux.UTM) <- suppressWarnings(sp::CRS('+init=epsg:4326'))
+xy_utm <- sp::spTransform(aux.UTM, sp::CRS('+init=epsg:32718'))
+xy_utm <- as.data.frame(xy_utm)
+head(xy_utm)
+aux.release$y <- xy_utm$coords.x2
+aux.UTM <- aux.release
+sp::coordinates(aux.UTM) <- ~Longitude+Latitude
+sp::proj4string(aux.UTM) <- suppressWarnings(sp::CRS('+init=epsg:4326'))
+xy_utm <- sp::spTransform(aux.UTM, sp::CRS('+init=epsg:32718'))
+xy_utm <- as.data.frame(xy_utm)
+aux.release <- df.tmeta %>%#
+    dplyr::group_by(transmitter_deployment_locality) %>%#
+    dplyr::summarise(Latitude = mean(transmitter_deployment_latitude),#
+      Longitude = mean(transmitter_deployment_longitude))#
+  names(aux.release)[1] <- "Station.name"#
+  aux.release$Array <- aux.release$Array <- aux.release$Station.name#
+  aux.release$Type <- "Release"#
+  aux.release$Range <- NA#
+  aux.release <- as.data.frame(aux.release)#
+  aux.release <- subset(aux.release, !is.na(Latitude))#
+  row.names(aux.release) <- 1:nrow(aux.release)#
+  aux.release$Standard.name <- paste0("R.", row.names(aux.release))#
+#
+    # Convert locations to UTM#
+    aux.UTM <- aux.release#
+    sp::coordinates(aux.UTM) <- ~Longitude+Latitude#
+    sp::proj4string(aux.UTM) <- suppressWarnings(sp::CRS('+init=epsg:4326'))#
+    xy_utm <- sp::spTransform(aux.UTM, sp::CRS('+init=epsg:32718'))#
+    xy_utm <- as.data.frame(xy_utm)#
+    aux.release$x <- xy_utm$coords.x1#
+    aux.release$y <- xy_utm$coords.x2
+head(aux.release)
+head(aux.spatial$release.sites)
+aux.release <- aux.release[,c("Station.name", "Latitude", "Longitude", "x", "y", "Array", "Type", "Range", "Standard.name")]
+head(aux.release)
+aux.spatial$release.sites <- aux.release
+aux.spatial
+names(input.example)
+input.example$spatial
+input.example$spatial <- aux.spatial
+input.example$spatial
+names(input.example)
+class(input.example$detections)
+head(input.example$arrays)
+class(input.example$arrays)
+names(input.example$arrays)
+head(input$example$arrays[[1]])
+head(input.example$example$arrays[[1]])
+head(input.example$example$arrays$A1)
+input.example$example$arrays$A1)
+head(input.example$times)
+names(input.example$spatial)
+input.example$spatial[[-3]]
+class(input.example$spatial)
+input.example$spatial[[1:2]]
+input.example$spatial[[1]]
+input.example$spatial[[-3]]
+input.example$spatial[-3]
+input.example$spatial <- input.example$spatial[-3]
+names(input.example)
+names(input.example$spatial)
+head(input.example$times)
+names(input.example)
+input.example <- input.example[-c(6,7,8,9)]
+names(input.example)
+input.example$rsp.info
+data(input.example)
+input.example <- input.example[-c(6:10)]
+names(input.example)
+library(remora)
+library(RSP)
+remoraQC <- runQC(x = list(det = "IMOS/IMOS_detections.csv",#
+  rmeta = "IMOS/IMOS_receiver_deployment_metadata.csv",#
+  tmeta = "IMOS/IMOS_transmitter_deployment_metadata.csv",#
+  meas = "IMOS/IMOS_animal_measurements.csv"),#
+  .parallel = TRUE)
+dQC <- grabQC(remoraQC, what = 'dQC', flags = c("valid", "likely valid"))
+dQC <- grabQC(remoraQC, what = 'dQC', flag = c("valid", "likely valid"))
+head(dQC)
+input.rsp <- convertIMOS( #
+  # det = "IMOS/IMOS_detections.csv",#
+  det = dQC,#
+  rmeta = "IMOS/IMOS_receiver_deployment_metadata.csv",#
+  tmeta = "IMOS/IMOS_transmitter_deployment_metadata.csv",#
+  meas = "IMOS/IMOS_animal_measurements.csv")
+convertIMOS <- function(det, rmeta, tmeta, meas) {#
+  options(dplyr.summarise.inform = FALSE)#
+  # Check if detections are path or object#
+  if (class(det) == "character") {#
+    df.det <- read.csv(det)#
+  } else {#
+#
+  }#
+#
+  # Load other files #
+  df.rmeta <- read.csv(rmeta)#
+    df.rmeta <- subset(df.rmeta, active == "NO")#
+  df.tmeta <- read.csv(tmeta)#
+    df.tmeta <- subset(df.tmeta, transmitter_deployment_datetime != "")#
+  df.meas <- read.csv(meas)#
+#
+  ## Create objects using example file#
+  data(input.example) #
+  input.example <- input.example[-c(2,6:9)]#
+#
+  # bio#
+  aux.bio <- input.example$bio#
+  aux.bio <- aux.bio[rep(1, nrow(df.tmeta)),]#
+  aux.bio$Release.date <- as.POSIXct(df.tmeta$transmitter_deployment_datetime,#
+    format = "%Y-%m-%d %H:%M:%S", tz = "UTC")#
+  aux.bio$Serial.nr <- paste(stringr::str_split_fixed(df.tmeta$transmitter_id, pattern = "-", n = 3)[,1],#
+    stringr::str_split_fixed(df.tmeta$transmitter_id, pattern = "-", n = 3)[,2],#
+    sep = "-")#
+  aux.bio$Signal <- stringr::str_split_fixed(df.tmeta$transmitter_id, pattern = "-", n = 3)[,3]#
+  aux.bio$aux <- paste(df.tmeta$transmitter_id, df.tmeta$transmitter_deployment_id, sep = "_")#
+  df.meas$aux <- paste(df.meas$transmitter_id, df.meas$transmitter_deployment_id, sep = "_")#
+  aux.bio$Length.mm <- df.meas$measurement_value[match(aux.bio$aux, df.meas$aux)]#
+  aux.bio$Weight.g <- NA#
+  aux.bio$Group <- df.tmeta$species_common_name#
+  aux.bio$Release.site <- df.tmeta$transmitter_deployment_locality#
+  aux.bio <- aux.bio[,-ncol(aux.bio)]#
+  row.names(aux.bio) <- 1:nrow(aux.bio)#
+  input.example$bio <- aux.bio#
+#
+  # spatial#
+  # stations#
+  aux.spatial <- input.example$spatial#
+  aux.spatial$stations <- aux.spatial$stations[rep(1, nrow(df.rmeta)),]#
+  aux.spatial$stations$Station.name <- df.rmeta$station_name#
+  aux.spatial$stations$Latitude <- df.rmeta$receiver_deployment_latitude#
+  aux.spatial$stations$Longitude <- df.rmeta$receiver_deployment_longitude#
+  aux.spatial$stations$Array <- df.rmeta$installation_name#
+  aux.spatial$stations <- aux.spatial$stations %>%#
+    dplyr::group_by(Station.name, Array) %>%#
+    dplyr::summarise(x = mean(Longitude),#
+      y = mean(Latitude),#
+      Range = 500)#
+  aux.spatial$stations <- as.data.frame(aux.spatial$stations)#
+  aux.spatial$stations <- aux.spatial$stations[,c("Station.name", #
+    "y", "x", "x", "y", "Array")]#
+  names(aux.spatial$stations)[2:3] <- c("Latitude", "Longitude")#
+  names(aux.spatial$stations)[4:5] <- c("x", "y")#
+  row.names(aux.spatial$stations) <- 1:nrow(aux.spatial$stations)#
+  aux.spatial$stations$Standard.name <- paste0("St.", row.names(aux.spatial$stations))#
+    # Convert locations to UTM#
+    aux.UTM <- aux.spatial$stations#
+    sp::coordinates(aux.UTM) <- ~Longitude+Latitude#
+    sp::proj4string(aux.UTM) <- suppressWarnings(sp::CRS('+init=epsg:4326'))#
+    xy_utm <- sp::spTransform(aux.UTM, sp::CRS('+init=epsg:32718'))#
+    xy_utm <- as.data.frame(xy_utm)#
+    aux.spatial$stations$x <- xy_utm$coords.x1#
+    aux.spatial$stations$y <- xy_utm$coords.x2#
+  # release.sites#
+  aux.release <- df.tmeta %>%#
+    dplyr::group_by(transmitter_deployment_locality) %>%#
+    dplyr::summarise(Latitude = mean(transmitter_deployment_latitude),#
+      Longitude = mean(transmitter_deployment_longitude))#
+  names(aux.release)[1] <- "Station.name"#
+  aux.release$Array <- aux.release$Array <- aux.release$Station.name#
+  aux.release$Type <- "Release"#
+  aux.release$Range <- NA#
+  aux.release <- as.data.frame(aux.release)#
+  aux.release <- subset(aux.release, !is.na(Latitude))#
+  row.names(aux.release) <- 1:nrow(aux.release)#
+  aux.release$Standard.name <- paste0("R.", row.names(aux.release))#
+    # Convert locations to UTM#
+    aux.UTM <- aux.release#
+    sp::coordinates(aux.UTM) <- ~Longitude+Latitude#
+    sp::proj4string(aux.UTM) <- suppressWarnings(sp::CRS('+init=epsg:4326'))#
+    xy_utm <- sp::spTransform(aux.UTM, sp::CRS('+init=epsg:32718'))#
+    xy_utm <- as.data.frame(xy_utm)#
+    aux.release$x <- xy_utm$coords.x1#
+    aux.release$y <- xy_utm$coords.x2#
+  aux.release <- aux.release[,c("Station.name", "Latitude", "Longitude", "x", "y", "Array", "Type", "Range", "Standard.name")]#
+  aux.spatial$release.sites <- aux.release#
+  aux.spatial$stations$Array <- as.factor(aux.spatial$stations$Array)#
+  aux.spatial$release.site$Range <- as.integer(aux.spatial$release.site$Range)#
+  input.example$spatial <- aux.spatial#
+  input.example$spatial <- input.example$spatial[-3] # Remove array order!#
+  # deployments#
+  input.example$deployments#
+  aux <- subset(df.rmeta, select = c(receiver_name, station_name,#
+    receiver_deployment_datetime, receiver_recovery_datetime))#
+  index <- which(nchar(aux$receiver_deployment_datetime) < 14)#
+  if (length(index) > 0)#
+    aux$receiver_deployment_datetime[index] <- paste(aux$receiver_deployment_datetime[index], "00:00:00")#
+  aux$receiver_deployment_datetime <- as.POSIXct(aux$receiver_deployment_datetime,#
+    format = "%Y-%m-%d %H:%M:%S", tz = "UTC")#
+  index <- which(aux$receiver_recovery_datetime == "")#
+  if (length(index) > 0)#
+    aux <- aux[-index,]#
+  index <- which(nchar(aux$receiver_recovery_datetime) < 14)#
+  if (length(index) > 0)#
+    aux$receiver_recovery_datetime[index] <- paste(aux$receiver_recovery_datetime[index], "00:00:00")#
+  aux$receiver_recovery_datetime <- as.POSIXct(aux$receiver_recovery_datetime,#
+    format = "%Y-%m-%d %H:%M:%S", tz = "UTC")#
+  names(aux) <- names(input.example$deployments)#
+  input.example$deployments <- aux#
+#
+  # detections#
+  tags <- unique(df.det$transmitter_deployment_id)#
+  det.save <- list()#
+  names.aux <- NULL#
+  for (i in 1:length(tags)) {#
+    aux <- subset(df.det, transmitter_deployment_id == tags[i],#
+      select = c(detection_datetime, receiver_name,#
+        transmitter_id, transmitter_id, transmitter_sensor_raw_value, transmitter_sensor_unit,#
+        transmitter_id, station_name))#
+    names(aux) <- c("Timestamp",#
+    "Receiver",#
+    "CodeSpace",#
+    "Signal",#
+    "Sensor.Value",#
+    "Sensor.Unit", #
+    "Transmitter", "station.name")#
+    aux$Valid <- as.logical("TRUE")#
+    aux$Standard.name <- as.factor(input.example$spatial$stations$Standard.name[#
+      match(aux$station.name, input.example$spatial$stations$Station.name)])#
+    aux$Array <- as.factor(input.example$spatial$stations$Array[#
+      match(aux$station.name, input.example$spatial$stations$Station.name)])#
+    index <- which(nchar(aux$Timestamp) < 14)#
+    if (length(index) > 0)#
+      aux$Timestamp[index] <- paste(aux$Timestamp[index], "00:00:00")#
+    aux$Timestamp <- as.POSIXct(aux$Timestamp, format = "%Y-%m-%d %H:%M:%S", tz = "UTC")#
+    aux$Receiver <- as.factor(aux$Receiver)#
+    aux$CodeSpace <- as.factor(paste(stringr::str_split_fixed(aux$CodeSpace, pattern = "-", n = 3)[,1],#
+      stringr::str_split_fixed(aux$CodeSpace, pattern = "-", n = 3)[,2], sep = "-"))#
+    aux$Signal <- as.character(stringr::str_split_fixed(aux$Signal, pattern = "-", n = 3)[,3])#
+    aux$Sensor.Unit <- as.logical(aux$Sensor.Unit)#
+    aux$Transmitter <- as.factor(unique(aux$Transmitter[1]))#
+    aux <- aux[,-which(names(aux) == "station.name")]#
+    aux <- data.table::setDT(aux)#
+    det.save[[i]] <- aux#
+    names.aux <- c(names.aux, as.character(unique(aux$Transmitter)[1]))#
+  }#
+  names(det.save) <- names.aux#
+  # input.example$detections <- det.save#
+  input.example$valid.detections <- det.save#
+  input.example$rsp.info$analysis.type <- "IMOS"#
+  input.example$rsp.info$analysis.time <- Sys.time()#
+  input.example$rsp.info$bio <- input.example$bio#
+  # Export#
+  return(input.example)#
+}
+input.rsp <- convertIMOS( #
+  # det = "IMOS/IMOS_detections.csv",#
+  det = dQC,#
+  rmeta = "IMOS/IMOS_receiver_deployment_metadata.csv",#
+  tmeta = "IMOS/IMOS_transmitter_deployment_metadata.csv",#
+  meas = "IMOS/IMOS_animal_measurements.csv")
+det = dQC
+rmeta = "IMOS/IMOS_receiver_deployment_metadata.csv"
+tmeta = "IMOS/IMOS_transmitter_deployment_metadata.csv"
+meas = "IMOS/IMOS_animal_measurements.csv"
+head(det)
+class(det)
+class(det) == "character"
+class(det)[1] == "character"
+det = "IMOS/IMOS_detections.csv"
+det
+class(det)[1] == "character"
+det <- dQC
+head(det)
+if (class(det)[1] == "character") {#
+    df.det <- read.csv(det)#
+  } else {#
+#
+  }
+convertIMOS <- function(det, rmeta, tmeta, meas) {#
+  options(dplyr.summarise.inform = FALSE)#
+  # Check if detections are path or object#
+  if (class(det)[1] == "character") {#
+    df.det <- read.csv(det)#
+  }#
+#
+  # Load other files #
+  df.rmeta <- read.csv(rmeta)#
+    df.rmeta <- subset(df.rmeta, active == "NO")#
+  df.tmeta <- read.csv(tmeta)#
+    df.tmeta <- subset(df.tmeta, transmitter_deployment_datetime != "")#
+  df.meas <- read.csv(meas)#
+#
+  ## Create objects using example file#
+  data(input.example) #
+  input.example <- input.example[-c(2,6:9)]#
+#
+  # bio#
+  aux.bio <- input.example$bio#
+  aux.bio <- aux.bio[rep(1, nrow(df.tmeta)),]#
+  aux.bio$Release.date <- as.POSIXct(df.tmeta$transmitter_deployment_datetime,#
+    format = "%Y-%m-%d %H:%M:%S", tz = "UTC")#
+  aux.bio$Serial.nr <- paste(stringr::str_split_fixed(df.tmeta$transmitter_id, pattern = "-", n = 3)[,1],#
+    stringr::str_split_fixed(df.tmeta$transmitter_id, pattern = "-", n = 3)[,2],#
+    sep = "-")#
+  aux.bio$Signal <- stringr::str_split_fixed(df.tmeta$transmitter_id, pattern = "-", n = 3)[,3]#
+  aux.bio$aux <- paste(df.tmeta$transmitter_id, df.tmeta$transmitter_deployment_id, sep = "_")#
+  df.meas$aux <- paste(df.meas$transmitter_id, df.meas$transmitter_deployment_id, sep = "_")#
+  aux.bio$Length.mm <- df.meas$measurement_value[match(aux.bio$aux, df.meas$aux)]#
+  aux.bio$Weight.g <- NA#
+  aux.bio$Group <- df.tmeta$species_common_name#
+  aux.bio$Release.site <- df.tmeta$transmitter_deployment_locality#
+  aux.bio <- aux.bio[,-ncol(aux.bio)]#
+  row.names(aux.bio) <- 1:nrow(aux.bio)#
+  input.example$bio <- aux.bio#
+#
+  # spatial#
+  # stations#
+  aux.spatial <- input.example$spatial#
+  aux.spatial$stations <- aux.spatial$stations[rep(1, nrow(df.rmeta)),]#
+  aux.spatial$stations$Station.name <- df.rmeta$station_name#
+  aux.spatial$stations$Latitude <- df.rmeta$receiver_deployment_latitude#
+  aux.spatial$stations$Longitude <- df.rmeta$receiver_deployment_longitude#
+  aux.spatial$stations$Array <- df.rmeta$installation_name#
+  aux.spatial$stations <- aux.spatial$stations %>%#
+    dplyr::group_by(Station.name, Array) %>%#
+    dplyr::summarise(x = mean(Longitude),#
+      y = mean(Latitude),#
+      Range = 500)#
+  aux.spatial$stations <- as.data.frame(aux.spatial$stations)#
+  aux.spatial$stations <- aux.spatial$stations[,c("Station.name", #
+    "y", "x", "x", "y", "Array")]#
+  names(aux.spatial$stations)[2:3] <- c("Latitude", "Longitude")#
+  names(aux.spatial$stations)[4:5] <- c("x", "y")#
+  row.names(aux.spatial$stations) <- 1:nrow(aux.spatial$stations)#
+  aux.spatial$stations$Standard.name <- paste0("St.", row.names(aux.spatial$stations))#
+    # Convert locations to UTM#
+    aux.UTM <- aux.spatial$stations#
+    sp::coordinates(aux.UTM) <- ~Longitude+Latitude#
+    sp::proj4string(aux.UTM) <- suppressWarnings(sp::CRS('+init=epsg:4326'))#
+    xy_utm <- sp::spTransform(aux.UTM, sp::CRS('+init=epsg:32718'))#
+    xy_utm <- as.data.frame(xy_utm)#
+    aux.spatial$stations$x <- xy_utm$coords.x1#
+    aux.spatial$stations$y <- xy_utm$coords.x2#
+  # release.sites#
+  aux.release <- df.tmeta %>%#
+    dplyr::group_by(transmitter_deployment_locality) %>%#
+    dplyr::summarise(Latitude = mean(transmitter_deployment_latitude),#
+      Longitude = mean(transmitter_deployment_longitude))#
+  names(aux.release)[1] <- "Station.name"#
+  aux.release$Array <- aux.release$Array <- aux.release$Station.name#
+  aux.release$Type <- "Release"#
+  aux.release$Range <- NA#
+  aux.release <- as.data.frame(aux.release)#
+  aux.release <- subset(aux.release, !is.na(Latitude))#
+  row.names(aux.release) <- 1:nrow(aux.release)#
+  aux.release$Standard.name <- paste0("R.", row.names(aux.release))#
+    # Convert locations to UTM#
+    aux.UTM <- aux.release#
+    sp::coordinates(aux.UTM) <- ~Longitude+Latitude#
+    sp::proj4string(aux.UTM) <- suppressWarnings(sp::CRS('+init=epsg:4326'))#
+    xy_utm <- sp::spTransform(aux.UTM, sp::CRS('+init=epsg:32718'))#
+    xy_utm <- as.data.frame(xy_utm)#
+    aux.release$x <- xy_utm$coords.x1#
+    aux.release$y <- xy_utm$coords.x2#
+  aux.release <- aux.release[,c("Station.name", "Latitude", "Longitude", "x", "y", "Array", "Type", "Range", "Standard.name")]#
+  aux.spatial$release.sites <- aux.release#
+  aux.spatial$stations$Array <- as.factor(aux.spatial$stations$Array)#
+  aux.spatial$release.site$Range <- as.integer(aux.spatial$release.site$Range)#
+  input.example$spatial <- aux.spatial#
+  input.example$spatial <- input.example$spatial[-3] # Remove array order!#
+  # deployments#
+  input.example$deployments#
+  aux <- subset(df.rmeta, select = c(receiver_name, station_name,#
+    receiver_deployment_datetime, receiver_recovery_datetime))#
+  index <- which(nchar(aux$receiver_deployment_datetime) < 14)#
+  if (length(index) > 0)#
+    aux$receiver_deployment_datetime[index] <- paste(aux$receiver_deployment_datetime[index], "00:00:00")#
+  aux$receiver_deployment_datetime <- as.POSIXct(aux$receiver_deployment_datetime,#
+    format = "%Y-%m-%d %H:%M:%S", tz = "UTC")#
+  index <- which(aux$receiver_recovery_datetime == "")#
+  if (length(index) > 0)#
+    aux <- aux[-index,]#
+  index <- which(nchar(aux$receiver_recovery_datetime) < 14)#
+  if (length(index) > 0)#
+    aux$receiver_recovery_datetime[index] <- paste(aux$receiver_recovery_datetime[index], "00:00:00")#
+  aux$receiver_recovery_datetime <- as.POSIXct(aux$receiver_recovery_datetime,#
+    format = "%Y-%m-%d %H:%M:%S", tz = "UTC")#
+  names(aux) <- names(input.example$deployments)#
+  input.example$deployments <- aux#
+#
+  # detections#
+  tags <- unique(df.det$transmitter_deployment_id)#
+  det.save <- list()#
+  names.aux <- NULL#
+  for (i in 1:length(tags)) {#
+    aux <- subset(df.det, transmitter_deployment_id == tags[i],#
+      select = c(detection_datetime, receiver_name,#
+        transmitter_id, transmitter_id, transmitter_sensor_raw_value, transmitter_sensor_unit,#
+        transmitter_id, station_name))#
+    names(aux) <- c("Timestamp",#
+    "Receiver",#
+    "CodeSpace",#
+    "Signal",#
+    "Sensor.Value",#
+    "Sensor.Unit", #
+    "Transmitter", "station.name")#
+    aux$Valid <- as.logical("TRUE")#
+    aux$Standard.name <- as.factor(input.example$spatial$stations$Standard.name[#
+      match(aux$station.name, input.example$spatial$stations$Station.name)])#
+    aux$Array <- as.factor(input.example$spatial$stations$Array[#
+      match(aux$station.name, input.example$spatial$stations$Station.name)])#
+    index <- which(nchar(aux$Timestamp) < 14)#
+    if (length(index) > 0)#
+      aux$Timestamp[index] <- paste(aux$Timestamp[index], "00:00:00")#
+    aux$Timestamp <- as.POSIXct(aux$Timestamp, format = "%Y-%m-%d %H:%M:%S", tz = "UTC")#
+    aux$Receiver <- as.factor(aux$Receiver)#
+    aux$CodeSpace <- as.factor(paste(stringr::str_split_fixed(aux$CodeSpace, pattern = "-", n = 3)[,1],#
+      stringr::str_split_fixed(aux$CodeSpace, pattern = "-", n = 3)[,2], sep = "-"))#
+    aux$Signal <- as.character(stringr::str_split_fixed(aux$Signal, pattern = "-", n = 3)[,3])#
+    aux$Sensor.Unit <- as.logical(aux$Sensor.Unit)#
+    aux$Transmitter <- as.factor(unique(aux$Transmitter[1]))#
+    aux <- aux[,-which(names(aux) == "station.name")]#
+    aux <- data.table::setDT(aux)#
+    det.save[[i]] <- aux#
+    names.aux <- c(names.aux, as.character(unique(aux$Transmitter)[1]))#
+  }#
+  names(det.save) <- names.aux#
+  # input.example$detections <- det.save#
+  input.example$valid.detections <- det.save#
+  input.example$rsp.info$analysis.type <- "IMOS"#
+  input.example$rsp.info$analysis.time <- Sys.time()#
+  input.example$rsp.info$bio <- input.example$bio#
+  # Export#
+  return(input.example)#
+}
+input.rsp <- convertIMOS( #
+  # det = "IMOS/IMOS_detections.csv",#
+  det = dQC,#
+  rmeta = "IMOS/IMOS_receiver_deployment_metadata.csv",#
+  tmeta = "IMOS/IMOS_transmitter_deployment_metadata.csv",#
+  meas = "IMOS/IMOS_animal_measurements.csv")
+if (class(det)[1] == "character") {#
+    df.det <- read.csv(det)#
+  } else {#
+    df.det <- det#
+  }
+convertIMOS <- function(det, rmeta, tmeta, meas) {#
+  options(dplyr.summarise.inform = FALSE)#
+  # Check if detections are path or object#
+  if (class(det)[1] == "character") {#
+    df.det <- read.csv(det)#
+  } else {#
+    df.det <- det#
+  }#
+#
+  # Load other files #
+  df.rmeta <- read.csv(rmeta)#
+    df.rmeta <- subset(df.rmeta, active == "NO")#
+  df.tmeta <- read.csv(tmeta)#
+    df.tmeta <- subset(df.tmeta, transmitter_deployment_datetime != "")#
+  df.meas <- read.csv(meas)#
+#
+  ## Create objects using example file#
+  data(input.example) #
+  input.example <- input.example[-c(2,6:9)]#
+#
+  # bio#
+  aux.bio <- input.example$bio#
+  aux.bio <- aux.bio[rep(1, nrow(df.tmeta)),]#
+  aux.bio$Release.date <- as.POSIXct(df.tmeta$transmitter_deployment_datetime,#
+    format = "%Y-%m-%d %H:%M:%S", tz = "UTC")#
+  aux.bio$Serial.nr <- paste(stringr::str_split_fixed(df.tmeta$transmitter_id, pattern = "-", n = 3)[,1],#
+    stringr::str_split_fixed(df.tmeta$transmitter_id, pattern = "-", n = 3)[,2],#
+    sep = "-")#
+  aux.bio$Signal <- stringr::str_split_fixed(df.tmeta$transmitter_id, pattern = "-", n = 3)[,3]#
+  aux.bio$aux <- paste(df.tmeta$transmitter_id, df.tmeta$transmitter_deployment_id, sep = "_")#
+  df.meas$aux <- paste(df.meas$transmitter_id, df.meas$transmitter_deployment_id, sep = "_")#
+  aux.bio$Length.mm <- df.meas$measurement_value[match(aux.bio$aux, df.meas$aux)]#
+  aux.bio$Weight.g <- NA#
+  aux.bio$Group <- df.tmeta$species_common_name#
+  aux.bio$Release.site <- df.tmeta$transmitter_deployment_locality#
+  aux.bio <- aux.bio[,-ncol(aux.bio)]#
+  row.names(aux.bio) <- 1:nrow(aux.bio)#
+  input.example$bio <- aux.bio#
+#
+  # spatial#
+  # stations#
+  aux.spatial <- input.example$spatial#
+  aux.spatial$stations <- aux.spatial$stations[rep(1, nrow(df.rmeta)),]#
+  aux.spatial$stations$Station.name <- df.rmeta$station_name#
+  aux.spatial$stations$Latitude <- df.rmeta$receiver_deployment_latitude#
+  aux.spatial$stations$Longitude <- df.rmeta$receiver_deployment_longitude#
+  aux.spatial$stations$Array <- df.rmeta$installation_name#
+  aux.spatial$stations <- aux.spatial$stations %>%#
+    dplyr::group_by(Station.name, Array) %>%#
+    dplyr::summarise(x = mean(Longitude),#
+      y = mean(Latitude),#
+      Range = 500)#
+  aux.spatial$stations <- as.data.frame(aux.spatial$stations)#
+  aux.spatial$stations <- aux.spatial$stations[,c("Station.name", #
+    "y", "x", "x", "y", "Array")]#
+  names(aux.spatial$stations)[2:3] <- c("Latitude", "Longitude")#
+  names(aux.spatial$stations)[4:5] <- c("x", "y")#
+  row.names(aux.spatial$stations) <- 1:nrow(aux.spatial$stations)#
+  aux.spatial$stations$Standard.name <- paste0("St.", row.names(aux.spatial$stations))#
+    # Convert locations to UTM#
+    aux.UTM <- aux.spatial$stations#
+    sp::coordinates(aux.UTM) <- ~Longitude+Latitude#
+    sp::proj4string(aux.UTM) <- suppressWarnings(sp::CRS('+init=epsg:4326'))#
+    xy_utm <- sp::spTransform(aux.UTM, sp::CRS('+init=epsg:32718'))#
+    xy_utm <- as.data.frame(xy_utm)#
+    aux.spatial$stations$x <- xy_utm$coords.x1#
+    aux.spatial$stations$y <- xy_utm$coords.x2#
+  # release.sites#
+  aux.release <- df.tmeta %>%#
+    dplyr::group_by(transmitter_deployment_locality) %>%#
+    dplyr::summarise(Latitude = mean(transmitter_deployment_latitude),#
+      Longitude = mean(transmitter_deployment_longitude))#
+  names(aux.release)[1] <- "Station.name"#
+  aux.release$Array <- aux.release$Array <- aux.release$Station.name#
+  aux.release$Type <- "Release"#
+  aux.release$Range <- NA#
+  aux.release <- as.data.frame(aux.release)#
+  aux.release <- subset(aux.release, !is.na(Latitude))#
+  row.names(aux.release) <- 1:nrow(aux.release)#
+  aux.release$Standard.name <- paste0("R.", row.names(aux.release))#
+    # Convert locations to UTM#
+    aux.UTM <- aux.release#
+    sp::coordinates(aux.UTM) <- ~Longitude+Latitude#
+    sp::proj4string(aux.UTM) <- suppressWarnings(sp::CRS('+init=epsg:4326'))#
+    xy_utm <- sp::spTransform(aux.UTM, sp::CRS('+init=epsg:32718'))#
+    xy_utm <- as.data.frame(xy_utm)#
+    aux.release$x <- xy_utm$coords.x1#
+    aux.release$y <- xy_utm$coords.x2#
+  aux.release <- aux.release[,c("Station.name", "Latitude", "Longitude", "x", "y", "Array", "Type", "Range", "Standard.name")]#
+  aux.spatial$release.sites <- aux.release#
+  aux.spatial$stations$Array <- as.factor(aux.spatial$stations$Array)#
+  aux.spatial$release.site$Range <- as.integer(aux.spatial$release.site$Range)#
+  input.example$spatial <- aux.spatial#
+  input.example$spatial <- input.example$spatial[-3] # Remove array order!#
+  # deployments#
+  input.example$deployments#
+  aux <- subset(df.rmeta, select = c(receiver_name, station_name,#
+    receiver_deployment_datetime, receiver_recovery_datetime))#
+  index <- which(nchar(aux$receiver_deployment_datetime) < 14)#
+  if (length(index) > 0)#
+    aux$receiver_deployment_datetime[index] <- paste(aux$receiver_deployment_datetime[index], "00:00:00")#
+  aux$receiver_deployment_datetime <- as.POSIXct(aux$receiver_deployment_datetime,#
+    format = "%Y-%m-%d %H:%M:%S", tz = "UTC")#
+  index <- which(aux$receiver_recovery_datetime == "")#
+  if (length(index) > 0)#
+    aux <- aux[-index,]#
+  index <- which(nchar(aux$receiver_recovery_datetime) < 14)#
+  if (length(index) > 0)#
+    aux$receiver_recovery_datetime[index] <- paste(aux$receiver_recovery_datetime[index], "00:00:00")#
+  aux$receiver_recovery_datetime <- as.POSIXct(aux$receiver_recovery_datetime,#
+    format = "%Y-%m-%d %H:%M:%S", tz = "UTC")#
+  names(aux) <- names(input.example$deployments)#
+  input.example$deployments <- aux#
+#
+  # detections#
+  tags <- unique(df.det$transmitter_deployment_id)#
+  det.save <- list()#
+  names.aux <- NULL#
+  for (i in 1:length(tags)) {#
+    aux <- subset(df.det, transmitter_deployment_id == tags[i],#
+      select = c(detection_datetime, receiver_name,#
+        transmitter_id, transmitter_id, transmitter_sensor_raw_value, transmitter_sensor_unit,#
+        transmitter_id, station_name))#
+    names(aux) <- c("Timestamp",#
+    "Receiver",#
+    "CodeSpace",#
+    "Signal",#
+    "Sensor.Value",#
+    "Sensor.Unit", #
+    "Transmitter", "station.name")#
+    aux$Valid <- as.logical("TRUE")#
+    aux$Standard.name <- as.factor(input.example$spatial$stations$Standard.name[#
+      match(aux$station.name, input.example$spatial$stations$Station.name)])#
+    aux$Array <- as.factor(input.example$spatial$stations$Array[#
+      match(aux$station.name, input.example$spatial$stations$Station.name)])#
+    index <- which(nchar(aux$Timestamp) < 14)#
+    if (length(index) > 0)#
+      aux$Timestamp[index] <- paste(aux$Timestamp[index], "00:00:00")#
+    aux$Timestamp <- as.POSIXct(aux$Timestamp, format = "%Y-%m-%d %H:%M:%S", tz = "UTC")#
+    aux$Receiver <- as.factor(aux$Receiver)#
+    aux$CodeSpace <- as.factor(paste(stringr::str_split_fixed(aux$CodeSpace, pattern = "-", n = 3)[,1],#
+      stringr::str_split_fixed(aux$CodeSpace, pattern = "-", n = 3)[,2], sep = "-"))#
+    aux$Signal <- as.character(stringr::str_split_fixed(aux$Signal, pattern = "-", n = 3)[,3])#
+    aux$Sensor.Unit <- as.logical(aux$Sensor.Unit)#
+    aux$Transmitter <- as.factor(unique(aux$Transmitter[1]))#
+    aux <- aux[,-which(names(aux) == "station.name")]#
+    aux <- data.table::setDT(aux)#
+    det.save[[i]] <- aux#
+    names.aux <- c(names.aux, as.character(unique(aux$Transmitter)[1]))#
+  }#
+  names(det.save) <- names.aux#
+  # input.example$detections <- det.save#
+  input.example$valid.detections <- det.save#
+  input.example$rsp.info$analysis.type <- "IMOS"#
+  input.example$rsp.info$analysis.time <- Sys.time()#
+  input.example$rsp.info$bio <- input.example$bio#
+  # Export#
+  return(input.example)#
+}
+input.rsp <- convertIMOS( #
+  # det = "IMOS/IMOS_detections.csv",#
+  det = dQC,#
+  rmeta = "IMOS/IMOS_receiver_deployment_metadata.csv",#
+  tmeta = "IMOS/IMOS_transmitter_deployment_metadata.csv",#
+  meas = "IMOS/IMOS_animal_measurements.csv")
+head(as.data.frame(det))
+unique(det$transmitter_sensor_raw_value)
+unique(det$transmitter_sensor_unit)
+remotes::install_github('IMOS-AnimalTracking/remora', build_vignettes = TRUE, dependencies = TRUE)
+remotes::install_github('IMOS-AnimalTracking/remora', build_vignettes = TRUE, dependencies = TRUE, force = TRUE)
+"transmitter_sensor_unit" %in% names(df.det)
+if ("transmitter_sensor_unit" %in% names(df.det)) {#
+      aux <- subset(df.det, transmitter_deployment_id == tags[i],#
+        select = c(detection_datetime, receiver_name,#
+          transmitter_id, transmitter_id, transmitter_sensor_raw_value, transmitter_sensor_unit,#
+          transmitter_id, station_name))#
+      names(aux) <- c("Timestamp",#
+      "Receiver",#
+      "CodeSpace",#
+      "Signal",#
+      "Sensor.Value",#
+      "Sensor.Unit", #
+      "Transmitter", "station.name")#
+    } else {#
+      aux <- subset(df.det, transmitter_deployment_id == tags[i],#
+        select = c(detection_datetime, receiver_name,#
+          transmitter_id, transmitter_id, transmitter_sensor_raw_value, transmitter_sensor_raw_value,#
+          transmitter_id, station_name))#
+      names(aux) <- c("Timestamp",#
+      "Receiver",#
+      "CodeSpace",#
+      "Signal",#
+      "Sensor.Value",#
+      "Sensor.Unit", #
+      "Transmitter", "station.name")#
+      aux$Sensor.Unit <- NA#
+    }
+convertIMOS <- function(det, rmeta, tmeta, meas) {#
+  options(dplyr.summarise.inform = FALSE)#
+  # Check if detections are path or object#
+  if (class(det)[1] == "character") {#
+    df.det <- read.csv(det)#
+  } else {#
+    df.det <- det#
+  }#
+#
+  # Load other files #
+  df.rmeta <- read.csv(rmeta)#
+    df.rmeta <- subset(df.rmeta, active == "NO")#
+  df.tmeta <- read.csv(tmeta)#
+    df.tmeta <- subset(df.tmeta, transmitter_deployment_datetime != "")#
+  df.meas <- read.csv(meas)#
+#
+  ## Create objects using example file#
+  data(input.example) #
+  input.example <- input.example[-c(2,6:9)]#
+#
+  # bio#
+  aux.bio <- input.example$bio#
+  aux.bio <- aux.bio[rep(1, nrow(df.tmeta)),]#
+  aux.bio$Release.date <- as.POSIXct(df.tmeta$transmitter_deployment_datetime,#
+    format = "%Y-%m-%d %H:%M:%S", tz = "UTC")#
+  aux.bio$Serial.nr <- paste(stringr::str_split_fixed(df.tmeta$transmitter_id, pattern = "-", n = 3)[,1],#
+    stringr::str_split_fixed(df.tmeta$transmitter_id, pattern = "-", n = 3)[,2],#
+    sep = "-")#
+  aux.bio$Signal <- stringr::str_split_fixed(df.tmeta$transmitter_id, pattern = "-", n = 3)[,3]#
+  aux.bio$aux <- paste(df.tmeta$transmitter_id, df.tmeta$transmitter_deployment_id, sep = "_")#
+  df.meas$aux <- paste(df.meas$transmitter_id, df.meas$transmitter_deployment_id, sep = "_")#
+  aux.bio$Length.mm <- df.meas$measurement_value[match(aux.bio$aux, df.meas$aux)]#
+  aux.bio$Weight.g <- NA#
+  aux.bio$Group <- df.tmeta$species_common_name#
+  aux.bio$Release.site <- df.tmeta$transmitter_deployment_locality#
+  aux.bio <- aux.bio[,-ncol(aux.bio)]#
+  row.names(aux.bio) <- 1:nrow(aux.bio)#
+  input.example$bio <- aux.bio#
+#
+  # spatial#
+  # stations#
+  aux.spatial <- input.example$spatial#
+  aux.spatial$stations <- aux.spatial$stations[rep(1, nrow(df.rmeta)),]#
+  aux.spatial$stations$Station.name <- df.rmeta$station_name#
+  aux.spatial$stations$Latitude <- df.rmeta$receiver_deployment_latitude#
+  aux.spatial$stations$Longitude <- df.rmeta$receiver_deployment_longitude#
+  aux.spatial$stations$Array <- df.rmeta$installation_name#
+  aux.spatial$stations <- aux.spatial$stations %>%#
+    dplyr::group_by(Station.name, Array) %>%#
+    dplyr::summarise(x = mean(Longitude),#
+      y = mean(Latitude),#
+      Range = 500)#
+  aux.spatial$stations <- as.data.frame(aux.spatial$stations)#
+  aux.spatial$stations <- aux.spatial$stations[,c("Station.name", #
+    "y", "x", "x", "y", "Array")]#
+  names(aux.spatial$stations)[2:3] <- c("Latitude", "Longitude")#
+  names(aux.spatial$stations)[4:5] <- c("x", "y")#
+  row.names(aux.spatial$stations) <- 1:nrow(aux.spatial$stations)#
+  aux.spatial$stations$Standard.name <- paste0("St.", row.names(aux.spatial$stations))#
+    # Convert locations to UTM#
+    aux.UTM <- aux.spatial$stations#
+    sp::coordinates(aux.UTM) <- ~Longitude+Latitude#
+    sp::proj4string(aux.UTM) <- suppressWarnings(sp::CRS('+init=epsg:4326'))#
+    xy_utm <- sp::spTransform(aux.UTM, sp::CRS('+init=epsg:32718'))#
+    xy_utm <- as.data.frame(xy_utm)#
+    aux.spatial$stations$x <- xy_utm$coords.x1#
+    aux.spatial$stations$y <- xy_utm$coords.x2#
+  # release.sites#
+  aux.release <- df.tmeta %>%#
+    dplyr::group_by(transmitter_deployment_locality) %>%#
+    dplyr::summarise(Latitude = mean(transmitter_deployment_latitude),#
+      Longitude = mean(transmitter_deployment_longitude))#
+  names(aux.release)[1] <- "Station.name"#
+  aux.release$Array <- aux.release$Array <- aux.release$Station.name#
+  aux.release$Type <- "Release"#
+  aux.release$Range <- NA#
+  aux.release <- as.data.frame(aux.release)#
+  aux.release <- subset(aux.release, !is.na(Latitude))#
+  row.names(aux.release) <- 1:nrow(aux.release)#
+  aux.release$Standard.name <- paste0("R.", row.names(aux.release))#
+    # Convert locations to UTM#
+    aux.UTM <- aux.release#
+    sp::coordinates(aux.UTM) <- ~Longitude+Latitude#
+    sp::proj4string(aux.UTM) <- suppressWarnings(sp::CRS('+init=epsg:4326'))#
+    xy_utm <- sp::spTransform(aux.UTM, sp::CRS('+init=epsg:32718'))#
+    xy_utm <- as.data.frame(xy_utm)#
+    aux.release$x <- xy_utm$coords.x1#
+    aux.release$y <- xy_utm$coords.x2#
+  aux.release <- aux.release[,c("Station.name", "Latitude", "Longitude", "x", "y", "Array", "Type", "Range", "Standard.name")]#
+  aux.spatial$release.sites <- aux.release#
+  aux.spatial$stations$Array <- as.factor(aux.spatial$stations$Array)#
+  aux.spatial$release.site$Range <- as.integer(aux.spatial$release.site$Range)#
+  input.example$spatial <- aux.spatial#
+  input.example$spatial <- input.example$spatial[-3] # Remove array order!#
+  # deployments#
+  input.example$deployments#
+  aux <- subset(df.rmeta, select = c(receiver_name, station_name,#
+    receiver_deployment_datetime, receiver_recovery_datetime))#
+  index <- which(nchar(aux$receiver_deployment_datetime) < 14)#
+  if (length(index) > 0)#
+    aux$receiver_deployment_datetime[index] <- paste(aux$receiver_deployment_datetime[index], "00:00:00")#
+  aux$receiver_deployment_datetime <- as.POSIXct(aux$receiver_deployment_datetime,#
+    format = "%Y-%m-%d %H:%M:%S", tz = "UTC")#
+  index <- which(aux$receiver_recovery_datetime == "")#
+  if (length(index) > 0)#
+    aux <- aux[-index,]#
+  index <- which(nchar(aux$receiver_recovery_datetime) < 14)#
+  if (length(index) > 0)#
+    aux$receiver_recovery_datetime[index] <- paste(aux$receiver_recovery_datetime[index], "00:00:00")#
+  aux$receiver_recovery_datetime <- as.POSIXct(aux$receiver_recovery_datetime,#
+    format = "%Y-%m-%d %H:%M:%S", tz = "UTC")#
+  names(aux) <- names(input.example$deployments)#
+  input.example$deployments <- aux#
+#
+  # detections#
+  tags <- unique(df.det$transmitter_deployment_id)#
+  det.save <- list()#
+  names.aux <- NULL#
+  for (i in 1:length(tags)) {#
+    if ("transmitter_sensor_unit" %in% names(df.det)) {#
+      aux <- subset(df.det, transmitter_deployment_id == tags[i],#
+        select = c(detection_datetime, receiver_name,#
+          transmitter_id, transmitter_id, transmitter_sensor_raw_value, transmitter_sensor_unit,#
+          transmitter_id, station_name))#
+      names(aux) <- c("Timestamp",#
+      "Receiver",#
+      "CodeSpace",#
+      "Signal",#
+      "Sensor.Value",#
+      "Sensor.Unit", #
+      "Transmitter", "station.name")#
+    } else {#
+      aux <- subset(df.det, transmitter_deployment_id == tags[i],#
+        select = c(detection_datetime, receiver_name,#
+          transmitter_id, transmitter_id, transmitter_sensor_raw_value, transmitter_sensor_raw_value,#
+          transmitter_id, station_name))#
+      names(aux) <- c("Timestamp",#
+      "Receiver",#
+      "CodeSpace",#
+      "Signal",#
+      "Sensor.Value",#
+      "Sensor.Unit", #
+      "Transmitter", "station.name")#
+      aux$Sensor.Unit <- NA#
+    }#
+    aux$Valid <- as.logical("TRUE")#
+    aux$Standard.name <- as.factor(input.example$spatial$stations$Standard.name[#
+      match(aux$station.name, input.example$spatial$stations$Station.name)])#
+    aux$Array <- as.factor(input.example$spatial$stations$Array[#
+      match(aux$station.name, input.example$spatial$stations$Station.name)])#
+    index <- which(nchar(aux$Timestamp) < 14)#
+    if (length(index) > 0)#
+      aux$Timestamp[index] <- paste(aux$Timestamp[index], "00:00:00")#
+    aux$Timestamp <- as.POSIXct(aux$Timestamp, format = "%Y-%m-%d %H:%M:%S", tz = "UTC")#
+    aux$Receiver <- as.factor(aux$Receiver)#
+    aux$CodeSpace <- as.factor(paste(stringr::str_split_fixed(aux$CodeSpace, pattern = "-", n = 3)[,1],#
+      stringr::str_split_fixed(aux$CodeSpace, pattern = "-", n = 3)[,2], sep = "-"))#
+    aux$Signal <- as.character(stringr::str_split_fixed(aux$Signal, pattern = "-", n = 3)[,3])#
+    aux$Sensor.Unit <- as.logical(aux$Sensor.Unit)#
+    aux$Transmitter <- as.factor(unique(aux$Transmitter[1]))#
+    aux <- aux[,-which(names(aux) == "station.name")]#
+    aux <- data.table::setDT(aux)#
+    det.save[[i]] <- aux#
+    names.aux <- c(names.aux, as.character(unique(aux$Transmitter)[1]))#
+  }#
+  names(det.save) <- names.aux#
+  # input.example$detections <- det.save#
+  input.example$valid.detections <- det.save#
+  input.example$rsp.info$analysis.type <- "IMOS"#
+  input.example$rsp.info$analysis.time <- Sys.time()#
+  input.example$rsp.info$bio <- input.example$bio#
+  # Export#
+  return(input.example)#
+}
+input.rsp <- convertIMOS( #
+  # det = "IMOS/IMOS_detections.csv",#
+  det = dQC,#
+  rmeta = "IMOS/IMOS_receiver_deployment_metadata.csv",#
+  tmeta = "IMOS/IMOS_transmitter_deployment_metadata.csv",#
+  meas = "IMOS/IMOS_animal_measurements.csv")
+unique(dQC$Detection_flag)
+head(dQC)
+head(as.data.frame(dQC))
+unique(dQC$Detection_QC)
+rsp.data <- runRSP(input = input.rsp, #
+    t.layer = tl, coord.x = "Longitude", coord.y = "Latitude",#
+    max.time = 1000)
+water <- actel::shapeToRaster(shape = "IMOS/NSW.shp", #
+    size = 0.1, buffer = 2)
+tl <- actel::transitionLayer(x = water, directions = 8)
+plotRaster(input = input.example$spatial$stations[,c("Longitude", "Latitude")],#
+    base.raster = water, coord.x = "Longitude", coord.y = "Latitude")
+convertIMOS <- function(det, rmeta, tmeta, meas) {#
+  options(dplyr.summarise.inform = FALSE)#
+  # Check if detections are path or object#
+  if (class(det)[1] == "character") {#
+    df.det <- read.csv(det)#
+  } else {#
+    df.det <- det#
+  }#
+#
+  # Load other files #
+  df.rmeta <- read.csv(rmeta)#
+    df.rmeta <- subset(df.rmeta, active == "NO")#
+  df.tmeta <- read.csv(tmeta)#
+    df.tmeta <- subset(df.tmeta, transmitter_deployment_datetime != "")#
+  df.meas <- read.csv(meas)#
+#
+  ## Create objects using example file#
+  data(input.example) #
+  input.example <- input.example[-c(2,6:9)]#
+#
+  # bio#
+  aux.bio <- input.example$bio#
+  aux.bio <- aux.bio[rep(1, nrow(df.tmeta)),]#
+  aux.bio$Release.date <- as.POSIXct(df.tmeta$transmitter_deployment_datetime,#
+    format = "%Y-%m-%d %H:%M:%S", tz = "UTC")#
+  aux.bio$Serial.nr <- paste(stringr::str_split_fixed(df.tmeta$transmitter_id, pattern = "-", n = 3)[,1],#
+    stringr::str_split_fixed(df.tmeta$transmitter_id, pattern = "-", n = 3)[,2],#
+    sep = "-")#
+  aux.bio$Signal <- stringr::str_split_fixed(df.tmeta$transmitter_id, pattern = "-", n = 3)[,3]#
+  aux.bio$aux <- paste(df.tmeta$transmitter_id, df.tmeta$transmitter_deployment_id, sep = "_")#
+  df.meas$aux <- paste(df.meas$transmitter_id, df.meas$transmitter_deployment_id, sep = "_")#
+  aux.bio$Length.mm <- df.meas$measurement_value[match(aux.bio$aux, df.meas$aux)]#
+  aux.bio$Weight.g <- NA#
+  aux.bio$Group <- df.tmeta$species_common_name#
+  aux.bio$Release.site <- df.tmeta$transmitter_deployment_locality#
+  aux.bio <- aux.bio[,-ncol(aux.bio)]#
+  row.names(aux.bio) <- 1:nrow(aux.bio)#
+  input.example$bio <- aux.bio#
+#
+  # spatial#
+  # stations#
+  aux.spatial <- input.example$spatial#
+  aux.spatial$stations <- aux.spatial$stations[rep(1, nrow(df.rmeta)),]#
+  aux.spatial$stations$Station.name <- df.rmeta$station_name#
+  aux.spatial$stations$Latitude <- df.rmeta$receiver_deployment_latitude#
+  aux.spatial$stations$Longitude <- df.rmeta$receiver_deployment_longitude#
+  aux.spatial$stations$Array <- df.rmeta$installation_name#
+  aux.spatial$stations <- aux.spatial$stations %>%#
+    dplyr::group_by(Station.name, Array) %>%#
+    dplyr::summarise(x = mean(Longitude),#
+      y = mean(Latitude),#
+      Range = 500)#
+  aux.spatial$stations <- as.data.frame(aux.spatial$stations)#
+  aux.spatial$stations <- aux.spatial$stations[,c("Station.name", #
+    "y", "x", "x", "y", "Array")]#
+  names(aux.spatial$stations)[2:3] <- c("Latitude", "Longitude")#
+  names(aux.spatial$stations)[4:5] <- c("x", "y")#
+  row.names(aux.spatial$stations) <- 1:nrow(aux.spatial$stations)#
+  aux.spatial$stations$Standard.name <- paste0("St.", row.names(aux.spatial$stations))#
+    # Convert locations to UTM#
+    aux.UTM <- aux.spatial$stations#
+    sp::coordinates(aux.UTM) <- ~Longitude+Latitude#
+    sp::proj4string(aux.UTM) <- suppressWarnings(sp::CRS('+init=epsg:4326'))#
+    xy_utm <- sp::spTransform(aux.UTM, sp::CRS('+init=epsg:32718'))#
+    xy_utm <- as.data.frame(xy_utm)#
+    aux.spatial$stations$x <- xy_utm$coords.x1#
+    aux.spatial$stations$y <- xy_utm$coords.x2#
+  # release.sites#
+  aux.release <- df.tmeta %>%#
+    dplyr::group_by(transmitter_deployment_locality) %>%#
+    dplyr::summarise(Latitude = mean(transmitter_deployment_latitude),#
+      Longitude = mean(transmitter_deployment_longitude))#
+  names(aux.release)[1] <- "Station.name"#
+  aux.release$Array <- aux.release$Array <- aux.release$Station.name#
+  aux.release$Type <- "Release"#
+  aux.release$Range <- NA#
+  aux.release <- as.data.frame(aux.release)#
+  aux.release <- subset(aux.release, !is.na(Latitude))#
+  row.names(aux.release) <- 1:nrow(aux.release)#
+  aux.release$Standard.name <- paste0("R.", row.names(aux.release))#
+    # Convert locations to UTM#
+    aux.UTM <- aux.release#
+    sp::coordinates(aux.UTM) <- ~Longitude+Latitude#
+    sp::proj4string(aux.UTM) <- suppressWarnings(sp::CRS('+init=epsg:4326'))#
+    xy_utm <- sp::spTransform(aux.UTM, sp::CRS('+init=epsg:32718'))#
+    xy_utm <- as.data.frame(xy_utm)#
+    aux.release$x <- xy_utm$coords.x1#
+    aux.release$y <- xy_utm$coords.x2#
+  aux.release <- aux.release[,c("Station.name", "Latitude", "Longitude", "x", "y", "Array", "Type", "Range", "Standard.name")]#
+  aux.spatial$release.sites <- aux.release#
+  aux.spatial$stations$Array <- as.factor(aux.spatial$stations$Array)#
+  aux.spatial$release.site$Range <- as.integer(aux.spatial$release.site$Range)#
+  input.example$spatial <- aux.spatial#
+  input.example$spatial <- input.example$spatial[-3] # Remove array order!#
+  # deployments#
+  input.example$deployments#
+  aux <- subset(df.rmeta, select = c(receiver_name, station_name,#
+    receiver_deployment_datetime, receiver_recovery_datetime))#
+  index <- which(nchar(aux$receiver_deployment_datetime) < 14)#
+  if (length(index) > 0)#
+    aux$receiver_deployment_datetime[index] <- paste(aux$receiver_deployment_datetime[index], "00:00:00")#
+  aux$receiver_deployment_datetime <- as.POSIXct(aux$receiver_deployment_datetime,#
+    format = "%Y-%m-%d %H:%M:%S", tz = "UTC")#
+  index <- which(aux$receiver_recovery_datetime == "")#
+  if (length(index) > 0)#
+    aux <- aux[-index,]#
+  index <- which(nchar(aux$receiver_recovery_datetime) < 14)#
+  if (length(index) > 0)#
+    aux$receiver_recovery_datetime[index] <- paste(aux$receiver_recovery_datetime[index], "00:00:00")#
+  aux$receiver_recovery_datetime <- as.POSIXct(aux$receiver_recovery_datetime,#
+    format = "%Y-%m-%d %H:%M:%S", tz = "UTC")#
+  names(aux) <- names(input.example$deployments)#
+  input.example$deployments <- aux#
+#
+  # detections#
+  tags <- unique(df.det$transmitter_deployment_id)#
+  det.save <- list()#
+  names.aux <- NULL#
+  for (i in 1:length(tags)) {#
+    if ("transmitter_sensor_unit" %in% names(df.det)) {#
+      aux <- subset(df.det, transmitter_deployment_id == tags[i],#
+        select = c(detection_datetime, receiver_name,#
+          transmitter_id, transmitter_id, transmitter_sensor_raw_value, transmitter_sensor_unit,#
+          transmitter_id, station_name))#
+      names(aux) <- c("Timestamp",#
+      "Receiver",#
+      "CodeSpace",#
+      "Signal",#
+      "Sensor.Value",#
+      "Sensor.Unit", #
+      "Transmitter", "station.name")#
+    } else {#
+      aux <- subset(df.det, transmitter_deployment_id == tags[i],#
+        select = c(detection_datetime, receiver_name,#
+          transmitter_id, transmitter_id, transmitter_sensor_raw_value, transmitter_sensor_raw_value,#
+          transmitter_id, station_name))#
+      names(aux) <- c("Timestamp",#
+      "Receiver",#
+      "CodeSpace",#
+      "Signal",#
+      "Sensor.Value",#
+      "Sensor.Unit", #
+      "Transmitter", "station.name")#
+      aux$Sensor.Unit <- NA#
+    }#
+    aux$Valid <- as.logical("TRUE")#
+    aux$Standard.name <- as.factor(input.example$spatial$stations$Standard.name[#
+      match(aux$station.name, input.example$spatial$stations$Station.name)])#
+    aux$Array <- as.factor(input.example$spatial$stations$Array[#
+      match(aux$station.name, input.example$spatial$stations$Station.name)])#
+    index <- which(nchar(aux$Timestamp) < 14)#
+    if (length(index) > 0)#
+      aux$Timestamp[index] <- paste(aux$Timestamp[index], "00:00:00")#
+    aux$Timestamp <- as.POSIXct(aux$Timestamp, format = "%Y-%m-%d %H:%M:%S", tz = "UTC")#
+    aux$Receiver <- as.factor(aux$Receiver)#
+    aux$CodeSpace <- as.factor(paste(stringr::str_split_fixed(aux$CodeSpace, pattern = "-", n = 3)[,1],#
+      stringr::str_split_fixed(aux$CodeSpace, pattern = "-", n = 3)[,2], sep = "-"))#
+    aux$Signal <- as.character(stringr::str_split_fixed(aux$Signal, pattern = "-", n = 3)[,3])#
+    aux$Sensor.Unit <- as.logical(aux$Sensor.Unit)#
+    aux$Transmitter <- as.factor(unique(aux$Transmitter[1]))#
+    aux <- aux[,-which(names(aux) == "station.name")]#
+    aux <- data.table::setDT(aux)#
+    det.save[[i]] <- aux#
+    names.aux <- c(names.aux, as.character(unique(aux$Transmitter)[1]))#
+  }#
+  names(det.save) <- names.aux#
+  # input.example$detections <- det.save#
+  input.example$valid.detections <- det.save#
+  input.example$rsp.info$analysis.type <- "IMOS"#
+  input.example$rsp.info$analysis.time <- Sys.time()#
+  input.example$rsp.info$bio <- input.example$bio#
+  # Export#
+  return(input.example)#
+}
+input.rsp <- convertIMOS( #
+  # det = "IMOS/IMOS_detections.csv",#
+  det = dQC,#
+  rmeta = "IMOS/IMOS_receiver_deployment_metadata.csv",#
+  tmeta = "IMOS/IMOS_transmitter_deployment_metadata.csv",#
+  meas = "IMOS/IMOS_animal_measurements.csv")
+input.rsp
+names(input.rsp)
+names(input.rsp$spatial)
+head(input.rsp$spatial)
+rsp.data <- runRSP(input = input.rsp, #
+    t.layer = tl, coord.x = "Longitude", coord.y = "Latitude",#
+    max.time = 1000)
+plotTracks(input = rsp.data, base.raster = water, tag = "A69-9001-48559", track =)
+plotTracks(input = rsp.data, base.raster = water, tag = "A69-9001-48559", track = 1)
+rps.data$Tracks
+rsp.data$Tracks
+names(rsp.data)
+rsp.data$plotTracks
+rsp.data$tracks
+library(devtools)
+check()
+aux.input <- NULL
+usethis::use_data(aux.input, input.example)
+?data
+?environment
+convertIMOS <- function(det, rmeta, tmeta, meas) {#
+  options(dplyr.summarise.inform = FALSE)#
+  # Check if detections are path or object#
+  if (class(det)[1] == "character") {#
+    df.det <- read.csv(det)#
+  } else {#
+    df.det <- det#
+  }#
+#
+  # Load other files #
+  df.rmeta <- read.csv(rmeta)#
+    df.rmeta <- subset(df.rmeta, active == "NO")#
+  df.tmeta <- read.csv(tmeta)#
+    df.tmeta <- subset(df.tmeta, transmitter_deployment_datetime != "")#
+  df.meas <- read.csv(meas)#
+#
+  ## Create objects using example file#
+  data(input.example, envir = environment()) #
+  input.example <- input.example[-c(2,6:9)]#
+#
+  # bio#
+  aux.bio <- input.example$bio#
+  aux.bio <- aux.bio[rep(1, nrow(df.tmeta)),]#
+  aux.bio$Release.date <- as.POSIXct(df.tmeta$transmitter_deployment_datetime,#
+    format = "%Y-%m-%d %H:%M:%S", tz = "UTC")#
+  aux.bio$Serial.nr <- paste(stringr::str_split_fixed(df.tmeta$transmitter_id, pattern = "-", n = 3)[,1],#
+    stringr::str_split_fixed(df.tmeta$transmitter_id, pattern = "-", n = 3)[,2],#
+    sep = "-")#
+  aux.bio$Signal <- stringr::str_split_fixed(df.tmeta$transmitter_id, pattern = "-", n = 3)[,3]#
+  aux.bio$aux <- paste(df.tmeta$transmitter_id, df.tmeta$transmitter_deployment_id, sep = "_")#
+  df.meas$aux <- paste(df.meas$transmitter_id, df.meas$transmitter_deployment_id, sep = "_")#
+  aux.bio$Length.mm <- df.meas$measurement_value[match(aux.bio$aux, df.meas$aux)]#
+  aux.bio$Weight.g <- NA#
+  aux.bio$Group <- df.tmeta$species_common_name#
+  aux.bio$Release.site <- df.tmeta$transmitter_deployment_locality#
+  aux.bio <- aux.bio[,-ncol(aux.bio)]#
+  row.names(aux.bio) <- 1:nrow(aux.bio)#
+  input.example$bio <- aux.bio#
+#
+  # spatial#
+  # stations#
+  aux.spatial <- input.example$spatial#
+  aux.spatial$stations <- aux.spatial$stations[rep(1, nrow(df.rmeta)),]#
+  aux.spatial$stations$Station.name <- df.rmeta$station_name#
+  aux.spatial$stations$Latitude <- df.rmeta$receiver_deployment_latitude#
+  aux.spatial$stations$Longitude <- df.rmeta$receiver_deployment_longitude#
+  aux.spatial$stations$Array <- df.rmeta$installation_name#
+  aux.spatial$stations <- aux.spatial$stations %>%#
+    dplyr::group_by(Station.name, Array) %>%#
+    dplyr::summarise(x = mean(Longitude),#
+      y = mean(Latitude),#
+      Range = 500)#
+  aux.spatial$stations <- as.data.frame(aux.spatial$stations)#
+  aux.spatial$stations <- aux.spatial$stations[,c("Station.name", #
+    "y", "x", "x", "y", "Array")]#
+  names(aux.spatial$stations)[2:3] <- c("Latitude", "Longitude")#
+  names(aux.spatial$stations)[4:5] <- c("x", "y")#
+  row.names(aux.spatial$stations) <- 1:nrow(aux.spatial$stations)#
+  aux.spatial$stations$Standard.name <- paste0("St.", row.names(aux.spatial$stations))#
+    # Convert locations to UTM#
+    aux.UTM <- aux.spatial$stations#
+    sp::coordinates(aux.UTM) <- ~Longitude+Latitude#
+    sp::proj4string(aux.UTM) <- suppressWarnings(sp::CRS('+init=epsg:4326'))#
+    xy_utm <- sp::spTransform(aux.UTM, sp::CRS('+init=epsg:32718'))#
+    xy_utm <- as.data.frame(xy_utm)#
+    aux.spatial$stations$x <- xy_utm$coords.x1#
+    aux.spatial$stations$y <- xy_utm$coords.x2#
+  # release.sites#
+  aux.release <- df.tmeta %>%#
+    dplyr::group_by(transmitter_deployment_locality) %>%#
+    dplyr::summarise(Latitude = mean(transmitter_deployment_latitude),#
+      Longitude = mean(transmitter_deployment_longitude))#
+  names(aux.release)[1] <- "Station.name"#
+  aux.release$Array <- aux.release$Array <- aux.release$Station.name#
+  aux.release$Type <- "Release"#
+  aux.release$Range <- NA#
+  aux.release <- as.data.frame(aux.release)#
+  aux.release <- subset(aux.release, !is.na(Latitude))#
+  row.names(aux.release) <- 1:nrow(aux.release)#
+  aux.release$Standard.name <- paste0("R.", row.names(aux.release))#
+    # Convert locations to UTM#
+    aux.UTM <- aux.release#
+    sp::coordinates(aux.UTM) <- ~Longitude+Latitude#
+    sp::proj4string(aux.UTM) <- suppressWarnings(sp::CRS('+init=epsg:4326'))#
+    xy_utm <- sp::spTransform(aux.UTM, sp::CRS('+init=epsg:32718'))#
+    xy_utm <- as.data.frame(xy_utm)#
+    aux.release$x <- xy_utm$coords.x1#
+    aux.release$y <- xy_utm$coords.x2#
+  aux.release <- aux.release[,c("Station.name", "Latitude", "Longitude", "x", "y", "Array", "Type", "Range", "Standard.name")]#
+  aux.spatial$release.sites <- aux.release#
+  aux.spatial$stations$Array <- as.factor(aux.spatial$stations$Array)#
+  aux.spatial$release.site$Range <- as.integer(aux.spatial$release.site$Range)#
+  input.example$spatial <- aux.spatial#
+  input.example$spatial <- input.example$spatial[-3] # Remove array order!#
+  # deployments#
+  input.example$deployments#
+  aux <- subset(df.rmeta, select = c(receiver_name, station_name,#
+    receiver_deployment_datetime, receiver_recovery_datetime))#
+  index <- which(nchar(aux$receiver_deployment_datetime) < 14)#
+  if (length(index) > 0)#
+    aux$receiver_deployment_datetime[index] <- paste(aux$receiver_deployment_datetime[index], "00:00:00")#
+  aux$receiver_deployment_datetime <- as.POSIXct(aux$receiver_deployment_datetime,#
+    format = "%Y-%m-%d %H:%M:%S", tz = "UTC")#
+  index <- which(aux$receiver_recovery_datetime == "")#
+  if (length(index) > 0)#
+    aux <- aux[-index,]#
+  index <- which(nchar(aux$receiver_recovery_datetime) < 14)#
+  if (length(index) > 0)#
+    aux$receiver_recovery_datetime[index] <- paste(aux$receiver_recovery_datetime[index], "00:00:00")#
+  aux$receiver_recovery_datetime <- as.POSIXct(aux$receiver_recovery_datetime,#
+    format = "%Y-%m-%d %H:%M:%S", tz = "UTC")#
+  names(aux) <- names(input.example$deployments)#
+  input.example$deployments <- aux#
+#
+  # detections#
+  tags <- unique(df.det$transmitter_deployment_id)#
+  det.save <- list()#
+  names.aux <- NULL#
+  for (i in 1:length(tags)) {#
+    if ("transmitter_sensor_unit" %in% names(df.det)) {#
+      aux <- subset(df.det, transmitter_deployment_id == tags[i],#
+        select = c(detection_datetime, receiver_name,#
+          transmitter_id, transmitter_id, transmitter_sensor_raw_value, transmitter_sensor_unit,#
+          transmitter_id, station_name))#
+      names(aux) <- c("Timestamp",#
+      "Receiver",#
+      "CodeSpace",#
+      "Signal",#
+      "Sensor.Value",#
+      "Sensor.Unit", #
+      "Transmitter", "station.name")#
+    } else {#
+      aux <- subset(df.det, transmitter_deployment_id == tags[i],#
+        select = c(detection_datetime, receiver_name,#
+          transmitter_id, transmitter_id, transmitter_sensor_raw_value, transmitter_sensor_raw_value,#
+          transmitter_id, station_name))#
+      names(aux) <- c("Timestamp",#
+      "Receiver",#
+      "CodeSpace",#
+      "Signal",#
+      "Sensor.Value",#
+      "Sensor.Unit", #
+      "Transmitter", "station.name")#
+      aux$Sensor.Unit <- NA#
+    }#
+    aux$Valid <- as.logical("TRUE")#
+    aux$Standard.name <- as.factor(input.example$spatial$stations$Standard.name[#
+      match(aux$station.name, input.example$spatial$stations$Station.name)])#
+    aux$Array <- as.factor(input.example$spatial$stations$Array[#
+      match(aux$station.name, input.example$spatial$stations$Station.name)])#
+    index <- which(nchar(aux$Timestamp) < 14)#
+    if (length(index) > 0)#
+      aux$Timestamp[index] <- paste(aux$Timestamp[index], "00:00:00")#
+    aux$Timestamp <- as.POSIXct(aux$Timestamp, format = "%Y-%m-%d %H:%M:%S", tz = "UTC")#
+    aux$Receiver <- as.factor(aux$Receiver)#
+    aux$CodeSpace <- as.factor(paste(stringr::str_split_fixed(aux$CodeSpace, pattern = "-", n = 3)[,1],#
+      stringr::str_split_fixed(aux$CodeSpace, pattern = "-", n = 3)[,2], sep = "-"))#
+    aux$Signal <- as.character(stringr::str_split_fixed(aux$Signal, pattern = "-", n = 3)[,3])#
+    aux$Sensor.Unit <- as.logical(aux$Sensor.Unit)#
+    aux$Transmitter <- as.factor(unique(aux$Transmitter[1]))#
+    aux <- aux[,-which(names(aux) == "station.name")]#
+    aux <- data.table::setDT(aux)#
+    det.save[[i]] <- aux#
+    names.aux <- c(names.aux, as.character(unique(aux$Transmitter)[1]))#
+  }#
+  names(det.save) <- names.aux#
+  # input.example$detections <- det.save#
+  input.example$valid.detections <- det.save#
+  input.example$rsp.info$analysis.type <- "IMOS"#
+  input.example$rsp.info$analysis.time <- Sys.time()#
+  input.example$rsp.info$bio <- input.example$bio#
+  # Export#
+  return(input.example)#
+}
+setwd("..")
+devtools::check()
+devtools::install()
+library(RSP)
+dynBBMM
+convertIMOS
+devtools::build()
+devtools::document()
+devtools::install()
+library(RSP)
+convertIMOS

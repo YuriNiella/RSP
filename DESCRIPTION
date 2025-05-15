@@ -1,15 +1,15 @@
 Package: RSP
 Title: Refined Shortest Paths
-Version: 1.0.5
+Version: 2.0.0
 Authors@R: c(
     person("Yuri", "Niella", role = c("aut", "cre"), email = "yuri.niella@gmail.com", comment = c(ORCID = "0000-0003-1878-6091")),
-    person("Hugo", "Flávio", role = c("aut"), email = "hdmfla@aqua.dtu.dk", comment = c(ORCID = "0000-0002-5174-1197"))
+    person("Hugo", "Flávio", role = c("aut"), email = "hflavio@dal.ca", comment = c(ORCID = "0000-0002-5174-1197"))
     )
 Description: The RSP toolkit is a method for analysing the fine scale movements of aquatic animals tracked with passive acoustic telemetry in estuarine environments, that accounts for the surrounding land masses. The animal movements between detections are recreated to have occurred exclusively in water and the utilisation distribution areas are limited by the land contours, providing realistic estimations of space use. 
 License: GPL-3 + file LICENSE
 Encoding: UTF-8
 LazyData: true
-RoxygenNote: 7.2.3
+RoxygenNote: 7.3.2
 Depends: R (>= 4.0)
 Imports:
     actel,
@@ -31,6 +31,7 @@ Imports:
     stats,
     stringr,
     sf,
+    sp,
     terra,
     tidyr,
     utils,
