@@ -7,13 +7,13 @@
 convertIMOS(det, rmeta, tmeta, meas)
 }
 \arguments{
+\item{det}{Path to IMOS detections file, or QC object processed with the remora package. Please see the package vignettes for details.}
+
 \item{rmeta}{Path to IMOS receiver deployment metadata file.}
 
 \item{tmeta}{Path to IMOS tansmitter deployment metadata file.}
 
 \item{meas}{Path to IMOS animal measurements file.}
-
-\item{dets}{Path to IMOS detections file, or QC object processed with the remora package. Please see the package vignettes for details.}
 }
 \value{
 Returns an RSP object that can be used as input for the runRSP function.
@@ -21,25 +21,4 @@ Returns an RSP object that can be used as input for the runRSP function.
 \description{
 This function converts between the IMOS data formats, and quality controlled (QC) objects, to the 
 appropriate format required to be analysed with RSP.
-}
-\examples{
-\donttest{
-# Import river shapefile
-water <- actel::shapeToRaster(shape = paste0(system.file(package = "RSP"), "/River_latlon.shp"), 
-size = 0.0001, buffer = 0.05) 
-
-# Create a transition layer with 8 directions
-tl <- actel::transitionLayer(x = water, directions = 8)
-
-# Convert IMOS files saves in an "IMOS" folder to be analysed with RSP:
-input.rsp <- convertIMOS( 
- det = "IMOS/IMOS_detections.csv",
- rmeta = "IMOS/IMOS_receiver_deployment_metadata.csv",
- tmeta = "IMOS/IMOS_transmitter_deployment_metadata.csv",
- meas = "IMOS/IMOS_animal_measurements.csv")
-
-# Run RSP analysis
-rsp.data <- runRSP(input = input.rsp, t.layer = tl, coord.x = "Longitude", coord.y = "Latitude") 
-}
- 
 }

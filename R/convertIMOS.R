@@ -3,33 +3,13 @@
 #' This function converts between the IMOS data formats, and quality controlled (QC) objects, to the 
 #' appropriate format required to be analysed with RSP. 
 #'
-#' @param dets Path to IMOS detections file, or QC object processed with the remora package. Please see the package vignettes for details. 
+#' @param det Path to IMOS detections file, or QC object processed with the remora package. Please see the package vignettes for details. 
 #' @param rmeta Path to IMOS receiver deployment metadata file.
 #' @param tmeta Path to IMOS tansmitter deployment metadata file.
 #' @param meas Path to IMOS animal measurements file.
 #' 
 #' @return Returns an RSP object that can be used as input for the runRSP function.
 #' 
-#' @examples 
-#' \donttest{
-#' # Import river shapefile
-#' water <- actel::shapeToRaster(shape = paste0(system.file(package = "RSP"), "/River_latlon.shp"), 
-#' size = 0.0001, buffer = 0.05) 
-#' 
-#' # Create a transition layer with 8 directions
-#' tl <- actel::transitionLayer(x = water, directions = 8)
-#' 
-#' # Convert IMOS files saves in an "IMOS" folder to be analysed with RSP:
-#' input.rsp <- convertIMOS( 
-#'  det = "IMOS/IMOS_detections.csv",
-#'  rmeta = "IMOS/IMOS_receiver_deployment_metadata.csv",
-#'  tmeta = "IMOS/IMOS_transmitter_deployment_metadata.csv",
-#'  meas = "IMOS/IMOS_animal_measurements.csv")
-#' 
-#' # Run RSP analysis
-#' rsp.data <- runRSP(input = input.rsp, t.layer = tl, coord.x = "Longitude", coord.y = "Latitude") 
-#' }
-#'  
 #' @export
 #' 
 convertIMOS <- function(det, rmeta, tmeta, meas) {
@@ -37,16 +17,16 @@ convertIMOS <- function(det, rmeta, tmeta, meas) {
  
   # Check if detections are path or object
   if (class(det)[1] == "character") {
-    df.det <- read.csv(det)
+    df.det <- utils::read.csv(det)
   } else {
     df.det <- det
   }
   # Load other files 
-  df.rmeta <- read.csv(rmeta)
+  df.rmeta <- utils::read.csv(rmeta)
     df.rmeta <- subset(df.rmeta, active == "NO")
-  df.tmeta <- read.csv(tmeta)
+  df.tmeta <- utils::read.csv(tmeta)
     df.tmeta <- subset(df.tmeta, transmitter_deployment_datetime != "")
-  df.meas <- read.csv(meas)
+  df.meas <- utils::read.csv(meas)
   ## Create objects using example file
   input.example <- readRDS(paste0(system.file(package = "RSP"), "/actel_example.RDS"))
   input.example <- input.example[-c(2,6:9)]

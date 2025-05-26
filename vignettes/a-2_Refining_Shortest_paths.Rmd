@@ -1,11 +1,11 @@
 ---
-title: 2. Refining the Shortest Paths in-water
+title: 3. Refining the Shortest Paths in-water
 subtitle: "Refining the Shortest Paths (RSP) of animals tracked with acoustic transmitters in estuarine regions"
 author: "Yuri Niella & Hugo Flávio"
 date: "`r Sys.Date()`"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{2. Refining the Shortest Paths in-water}
+  %\VignetteIndexEntry{3. Refining the Shortest Paths in-water}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -18,10 +18,10 @@ knitr::opts_chunk$set(
 ## Index
 
 1. [Preparing the data](a-1_Preparing_the_data.html)
-2. [Refining the Shortest Paths in-water](a-2_Refining_Shortest_paths.html)
-3. [Calculating utilization distribution](a-3_dBBMM.html)
-4. [Calculating overlaps](a-4_Overlaps.html)
-5. [Calculating areas in steps](a-5_Areas_in_steps.html)
+3. [Refining the Shortest Paths in-water](a-3_Refining_Shortest_paths.html)
+4. [Calculating utilization distribution](a-4_dBBMM.html)
+5. [Calculating overlaps](a-5_Overlaps.html)
+6. [Calculating areas in steps](a-6_Areas_in_steps.html)
 
 ***
 
