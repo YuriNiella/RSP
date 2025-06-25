@@ -6,7 +6,7 @@
 [![DOI](https://zenodo.org/badge/200786116.svg)](https://zenodo.org/badge/latestdoi/200786116)
 
 Refining the Shortest Paths (RSP) of animals tracked with acoustic
-transmitters in estuarine regions
+transmitters 
 
 ## Overview
 
