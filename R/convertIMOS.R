@@ -56,7 +56,6 @@ convertIMOS <- function(det, rmeta, tmeta, meas) {
   aux.bio$Weight.g <- NA
   aux.bio$Group <- df.tmeta$species_common_name
   aux.bio$Release.site <- df.tmeta$transmitter_deployment_locality
-  aux.bio <- aux.bio[,-ncol(aux.bio)]
   row.names(aux.bio) <- 1:nrow(aux.bio)
   input.example$bio <- aux.bio
   # spatial
@@ -134,10 +133,6 @@ convertIMOS <- function(det, rmeta, tmeta, meas) {
   names(aux) <- names(input.example$deployments)
   input.example$deployments <- aux
   # detections
-
-  head(df.det)
-
-
   tags <- unique(df.det$transmitter_deployment_id)
   det.save <- list()
   names.aux <- NULL
@@ -182,11 +177,16 @@ convertIMOS <- function(det, rmeta, tmeta, meas) {
       stringr::str_split_fixed(aux$CodeSpace, pattern = "-", n = 3)[,2], sep = "-"))
     aux$Signal <- as.character(stringr::str_split_fixed(aux$Signal, pattern = "-", n = 3)[,3])
     aux$Sensor.Unit <- as.logical(aux$Sensor.Unit)
-    aux$Transmitter <- as.factor(unique(aux$Transmitter[1]))
+    aux$Transmitter <- as.factor(aux$Transmitter)
     aux <- aux[,-which(names(aux) == "station.name")]
     aux <- data.table::setDT(aux)
     det.save[[i]] <- aux
-    names.aux <- c(names.aux, as.character(unique(aux$Transmitter)[1]))
+    # Check if double transmitter
+    aux.id <- as.character(unique(aux$Transmitter))
+    if (length(aux.id) > 1) {
+      aux.id <- paste(aux.id, collapse = ";")
+    } 
+    names.aux <- c(names.aux, aux.id)
   }
   names(det.save) <- names.aux
   # input.example$detections <- det.save
