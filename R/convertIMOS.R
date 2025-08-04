@@ -35,13 +35,24 @@ convertIMOS <- function(det, rmeta, tmeta, meas) {
   aux.bio <- aux.bio[rep(1, nrow(df.tmeta)),]
   aux.bio$Release.date <- as.POSIXct(df.tmeta$transmitter_deployment_datetime,
     format = "%Y-%m-%d %H:%M:%S", tz = "UTC")
-  aux.bio$Serial.nr <- paste(stringr::str_split_fixed(df.tmeta$transmitter_id, pattern = "-", n = 3)[,1],
-    stringr::str_split_fixed(df.tmeta$transmitter_id, pattern = "-", n = 3)[,2],
-    sep = "-")
-  aux.bio$Signal <- stringr::str_split_fixed(df.tmeta$transmitter_id, pattern = "-", n = 3)[,3]
-  aux.bio$aux <- paste(df.tmeta$transmitter_id, df.tmeta$transmitter_deployment_id, sep = "_")
-  df.meas$aux <- paste(df.meas$transmitter_id, df.meas$transmitter_deployment_id, sep = "_")
-  aux.bio$Length.mm <- df.meas$measurement_value[match(aux.bio$aux, df.meas$aux)]
+    # Transmitter ID
+    # When multiple sensor present
+    aux.transmitter <- stringr::str_split_fixed(df.tmeta$transmitter_id, pattern = ";", n = 2)
+    for (i in 1:nrow(aux.transmitter)) {
+        aux.bio$Serial.nr[i] <- paste(stringr::str_split_fixed(aux.transmitter[i,1], pattern = "-", n = 3)[,1],
+          stringr::str_split_fixed(aux.transmitter[i,1], pattern = "-", n = 3)[,2],
+          sep = "-") 
+
+        if (aux.transmitter[i, 2] == "") { # Single sensor
+          aux.bio$Signal[i] <- stringr::str_split_fixed(aux.transmitter[i,1], pattern = "-", n = 3)[,3]
+        } else {
+          aux.bio$Signal[i] <- paste(stringr::str_split_fixed(aux.transmitter[i,1], pattern = "-", n = 3)[,3],
+            stringr::str_split_fixed(aux.transmitter[i,2], pattern = "-", n = 3)[,3],
+            sep = ";")
+        }
+    }
+  aux.bio$Transmitter <- df.tmeta$transmitter_id
+  aux.bio$Length.mm <- df.meas$measurement_value[match(aux.bio$Transmitter, df.meas$transmitter_id)]
   aux.bio$Weight.g <- NA
   aux.bio$Group <- df.tmeta$species_common_name
   aux.bio$Release.site <- df.tmeta$transmitter_deployment_locality
@@ -123,6 +134,10 @@ convertIMOS <- function(det, rmeta, tmeta, meas) {
   names(aux) <- names(input.example$deployments)
   input.example$deployments <- aux
   # detections
+
+  head(df.det)
+
+
   tags <- unique(df.det$transmitter_deployment_id)
   det.save <- list()
   names.aux <- NULL
