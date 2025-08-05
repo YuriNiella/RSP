@@ -110,7 +110,7 @@ convertIMOS <- function(det, rmeta, tmeta, meas) {
   aux.release <- aux.release[,c("Station.name", "Latitude", "Longitude", "x", "y", "Array", "Type", "Range", "Standard.name")]
   aux.spatial$release.sites <- aux.release
   aux.spatial$stations$Array <- as.factor(aux.spatial$stations$Array)
-  aux.spatial$release.site$Range <- as.integer(aux.spatial$release.site$Range)
+  aux.spatial$release.sites$Range <- as.integer(aux.spatial$release.site$Range)
   input.example$spatial <- aux.spatial
   input.example$spatial <- input.example$spatial[-3] # Remove array order!
   # deployments
