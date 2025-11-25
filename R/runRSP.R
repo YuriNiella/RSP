@@ -349,7 +349,7 @@ includeRSP <- function(detections, transition, tz, distance, time.step, er.ad, m
     tracks$new.n[which(tracks$Valid)] <- sapply(tag.aux, nrow)
 
     # combine tracks
-    tag.recipient <- as.data.frame(data.table::rbindlist(tag.aux))
+    tag.recipient <- as.data.frame(data.table::rbindlist(tag.aux, ignore.attr = TRUE))
 
     # pass path.list to main envir.
     path.list <<- path.list

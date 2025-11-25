@@ -1,11 +1,3 @@
-aux.bio$Signal <- stringr::str_split_fixed(df.tmeta$transmitter_id, pattern = "-", n = 3)[,3]
-aux.bio$aux <- paste(df.tmeta$transmitter_id, df.tmeta$transmitter_deployment_id, sep = "_")
-df.meas$aux <- paste(df.meas$transmitter_id, df.meas$transmitter_deployment_id, sep = "_")
-aux.bio$Length.mm <- df.meas$measurement_value[match(aux.bio$aux, df.meas$aux)]
-aux.bio$Weight.g <- NA
-aux.bio$Group <- df.tmeta$species_common_name
-aux.bio$Release.site <- df.tmeta$transmitter_deployment_locality
-aux.bio <- aux.bio[,-ncol(aux.bio)]
 row.names(aux.bio) <- 1:nrow(aux.bio)
 input.example$bio <- aux.bio
 # spatial
@@ -1392,14 +1384,22 @@ convertIMOS <- function(det, rmeta, tmeta, meas) {#
   # Export#
   return(input.example)#
 }
+devtools::check()
+?read.csv
+?subset
+?as.POSIXct
+?readRDS
+?match
+?as.data.frame
+devtools::check()
+devtools::install()
+?browseVignettes("RSP")
+?browseVignettes(RSP)
+browseVignettes(RSP)
+browseVignettes("RSP")
+devtools::install(build_vignettes = TRUE)
+preparing ‘RSP’:
+browseVignettes("RSP")
 setwd("..")
 devtools::check()
 devtools::install()
-library(RSP)
-dynBBMM
-convertIMOS
-devtools::build()
-devtools::document()
-devtools::install()
-library(RSP)
-convertIMOS
